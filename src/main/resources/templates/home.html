@@ -1,0 +1,43 @@
+<html>
+<html xmlns="http://www.thymeleaf.org">
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div th:insert="~{externalheader :: main}">...</div>
+
+<body>
+	<div class="row featurette">
+		<div class="col-md-3">&nbsp;</div>
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-header">
+					<h2 class="text-center">Login Form</h2>
+				</div>
+				<div class="card-body">
+					<form method="post" role="form" th:action="@{/login}" class="form-horizontal">
+						<div class="form-group mb-3">
+							<label class="control-label"> Email</label>
+							<input type="text" id="username" name="username" class="form-control"
+								placeholder="Enter email address" />
+						</div>
+
+						<div class="form-group mb-3">
+							<label class="control-label"> Password</label>
+							<input type="password" id="password" name="password" class="form-control"
+								placeholder="Enter password" />
+						</div>
+						<div class="form-group mb-3">
+							<button type="submit" class="btn btn-primary">Submit</button>&nbsp;&nbsp;
+							<a class="btn btn-primary" href="${pageContext.request.contextPath}/forgotPassword">Forgot
+								Password</a>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br /> <br /> <br />
+	<div class="row" align="center">
+		<div th:insert="~{footer :: main}">...</div>
+	</div>
+</body>
+
+</html>
