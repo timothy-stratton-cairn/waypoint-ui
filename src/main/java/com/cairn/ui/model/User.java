@@ -14,7 +14,7 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private String activationKey;
-	private ArrayList<String> permissions;
+	private ArrayList<String> permissions = new ArrayList<String>();
 	
 	public String getVerifypassword() {
 		return verifyPwd;
