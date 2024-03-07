@@ -1,7 +1,6 @@
 package com.cairn.ui;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,11 +12,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.User;
 import com.cairn.ui.model.UserDAO;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class MainController {
@@ -59,8 +60,10 @@ public class MainController {
 
 
 	@GetMapping("/protocols")
-	public String protocolListPage(Model model) {
-		List<Protocol> listProtocols = Protocol.getList();
+	public String protocolListPage(HttpSession session, Model model) {
+		User usr = (User) session.getAttribute("CurUser");
+		ProtocolHelper helper = new ProtocolHelper();
+		List<Protocol> listProtocols = helper.getList(usr);
 		model.addAttribute("listProtocols", listProtocols );
 		return "protocolList";
 	}

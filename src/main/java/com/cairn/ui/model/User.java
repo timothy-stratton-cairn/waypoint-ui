@@ -13,7 +13,7 @@ public class User {
 	private String username;
 	private String firstName;
 	private String lastName;
-	private String activationKey;
+	private String authToken;
 	private ArrayList<String> permissions = new ArrayList<String>();
 	
 	public String getVerifypassword() {
@@ -135,17 +135,17 @@ public class User {
 	}
 
 	/**
-	 * @return the activationKey
+	 * @return the refresh token
 	 */
-	public String getActivationKey() {
-		return activationKey;
+	public String getToken() {
+		return  this.authToken;
 	}
 
 	/**
-	 * @param activationKey the activationKey to set
+	 * @param token the auth token to set
 	 */
-	public void setActivationKey(String activationKey) {
-		this.activationKey = activationKey;
+	public void setToken(String token) {
+		this.authToken = token;
 	}
 
 	/**
@@ -194,13 +194,6 @@ public class User {
 		// Nothing to initialize
 	}
 	
-	public User (String email, String pwd, String name, String verify) {
-		this.username = name;
-		this.email = email;
-		this.pwd = pwd;	
-		this.activationKey = verify;
-	}
-
 	public User (String email, String pwd, String name){
 		this.username = name;
 		this.email = email;

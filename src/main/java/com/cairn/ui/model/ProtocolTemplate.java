@@ -1,10 +1,10 @@
 package com.cairn.ui.model;
 
-public class Protocol {
+public class ProtocolTemplate {
 
 	private int id;
 	private String name;
-	private int numClients;
+	private int type;
 
 	public int getId() {
 		return id;
@@ -12,16 +12,16 @@ public class Protocol {
 	public String getName() {
 		return name;
 	}
-	public int getNumClients() {
-		return numClients;
-	}
 	public void setId(int id) {
 		this.id = id;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
-	public void setNumClients(int numClients) {
-		this.numClients = numClients;
-	}	
+	public int getType() {
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
+	}
 }
