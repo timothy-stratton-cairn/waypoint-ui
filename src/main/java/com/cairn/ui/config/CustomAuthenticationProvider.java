@@ -57,7 +57,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 				ObjectMapper objectMapper = new ObjectMapper();
 
 				JsonNode jsonNode = objectMapper.readTree(response.getBody());
-				usr.setToken(jsonNode.get("accessToken").toString());
+				usr.setToken(jsonNode.get("accessToken").asText());
 				JsonNode perms = jsonNode.get("permissions");
 				// Iterate through the array elements
 				if (perms.isArray()) {
