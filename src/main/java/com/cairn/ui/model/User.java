@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class User {
-
 	private int id;
 	private String email;
 	private String role;

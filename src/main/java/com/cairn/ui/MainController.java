@@ -61,7 +61,7 @@ public class MainController {
 
 	@GetMapping("/protocols")
 	public String protocolListPage(HttpSession session, Model model) {
-		User usr = (User) session.getAttribute("CurUser");
+		User usr = (User) userDAO.getUser();
 		ProtocolHelper helper = new ProtocolHelper();
 		List<Protocol> listProtocols = helper.getList(usr);
 		model.addAttribute("listProtocols", listProtocols );
