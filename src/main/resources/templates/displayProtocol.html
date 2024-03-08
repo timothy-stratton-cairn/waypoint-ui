@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<body>
+<div th:insert="~{header :: main}">...</div>
+<html xmlns:th="http://www.thymeleaf.org">
+<script>
+    function editProtocol(stepId) {
+        window.location = '/editStep_admin/' + stepId;
+    }
+       function DisableProtocol(id) {
+        alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
+    }
+</script>
+<body>
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Protocol Details</legend>
+            <div>
+		        <strong>ID:</strong> <span th:text="${protocol.id}"></span>
+		    </div>
+		    <div>
+		        <strong>Name:</strong> <span th:text="${protocol.name}"></span>
+		    </div>
+        </fieldset>
+    </div>
+</div>
+	
+<div class="container">
+	<fieldset>
+		<div class="row note_card">
+		    <legend>Steps</legend>
+		    <ul>
+		        <li th:each="step : ${protocol.steps}">
+		            <strong>Step Name:</strong> <span th:text="${step.stepName}"></span>, 
+		            <strong>Details:</strong> <span th:text="${step.details}"></span>
+		            <button type="button" class="btn btn-danger" th:attr="onclick='editProtocol('+${step.stepId}+');'">Details</button>
+		            <button type="button" class="btn btn-danger" th:onclick="'javascript:deleteProtocol('+pcol.id+');'">Disable</button>
+		        </li>
+		    </ul>
+		</div>
+	</fieldset>
+</div>
+    <a th:href="@{/protocols}" class="btn btn-primary mt-3">Back to List</a>
+
+</body>
+</html>

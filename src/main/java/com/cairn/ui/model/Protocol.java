@@ -34,4 +34,6 @@ public class Protocol {
 	public void setSteps(ArrayList<ProtocolStep> steps) {
 		this.steps = steps;
 	}	
+	
+	
 }

@@ -14,6 +14,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.model.Protocol;
+import com.cairn.ui.model.Protocol_admin;
+import com.cairn.ui.model.Protocol_step_admin;
 import com.cairn.ui.model.User;
 import com.cairn.ui.model.UserDAO;
 
@@ -66,6 +68,45 @@ public class MainController {
 		List<Protocol> listProtocols = helper.getList(usr);
 		model.addAttribute("listProtocols", listProtocols );
 		return "protocolList";
+	}
+	
+
+	@GetMapping("/protocols_admin")
+	public String protocolListPage(Model model) {
+		List<Protocol_admin> listProtocols = Protocol_admin.getList_admin();
+		model.addAttribute("listProtocols", listProtocols );
+		return "protocolList_admin";
+	}
+
+	
+	
+	
+	public ModelAndView viewProtocol_admin(@PathVariable int id) {
+	    ModelAndView model = new ModelAndView("protocolDetail_admin");
+	    Protocol_admin protocol = Protocol_admin.findById(id);
+	    model.addObject("protocol_admin", protocol); // Adding the protocol object to the model
+	    return model;
+	}
+	
+	@GetMapping("/displayProtocol/{id}")
+	public String displayProtocolPage(@PathVariable int id, Model model) {
+	    Protocol_admin protocol = Protocol_admin.findById(id);
+	    model.addAttribute("protocol", protocol); // Add the protocol to the model
+	    return "displayProtocol";
+	}
+
+	
+	
+	@GetMapping("/editStep_admin/{protocolId}/{stepId}")
+	public ModelAndView editStep_admin(@PathVariable int protocolId, @PathVariable int stepId) {
+	    ModelAndView model = new ModelAndView("edit_Step");
+	    Protocol_admin protocol = Protocol_admin.findById(protocolId);
+	    Protocol_step_admin step = protocol.getSteps().stream()
+	                                       .filter(s -> s.getStepId() == stepId)
+	                                       .findFirst()
+	                                       .orElse(null);
+	    model.addObject("step", step);
+	    return model;
 	}
 
 }

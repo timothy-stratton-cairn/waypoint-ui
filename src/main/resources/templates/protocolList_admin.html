@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<body>
+<div th:insert="~{header :: main}">...</div>
+<script>
+    function selectProtocol(id){
+        window.location = '/displayProtocol/'+id;       
+    }
+    function disableProtocol(id) {
+        alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
+    }
+</script>
+
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Protocols</legend>
+            <div class="row">
+                <div class="col">
+                    <label>Name</label>
+                </div>
+                <div class="col">
+                    <label>Actions</label>
+                </div>
+            </div>
+            <div th:each="pcol, status : ${listProtocols}" th:id="|row_${pcol.id}|"
+                 th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+                <div class="col" th:text="${pcol.name}"></div>
+                <div class="col">
+                    <a class="btn btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ');'}">Details</a>
+                    <button type="button" class="btn btn-danger" th:onclick="'javascript:disableProtocol('+pcol.id+');'">Disable</button>
+                </div>
+            </div>
+        </fieldset>
+        <div class="row ">&nbsp;</div>
+    </div>
+</div>
+<br />
+<br />
+<br />
+<div th:insert="~{footer :: main}">...</div>
+</body>
+</html>
