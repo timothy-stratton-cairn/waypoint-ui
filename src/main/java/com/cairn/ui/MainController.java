@@ -1,5 +1,6 @@
 package com.cairn.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,23 +92,33 @@ public class MainController {
 	
 	@GetMapping("/displayProtocol/{id}")
 	public String displayProtocolPage(@PathVariable int id, Model model) {
-	    // Fetch the protocol by its ID
-	    Protocol_admin protocol = Protocol_admin.findById(id);
+	    if (id == 0) {
+	        // Create a new, empty Protocol_admin object and an empty list of steps
+	        Protocol_admin protocol = new Protocol_admin(); // This should create an object with empty/default fields.
+	        List<Protocol_step_admin> steps = new ArrayList<>();
 
-	    // Load all steps
-	    List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
+	        // Add attributes to the model
+	        model.addAttribute("protocol", protocol);
+	        model.addAttribute("steps", steps);
+	    } else {
+	        // Fetch the protocol by its ID
+	        Protocol_admin protocol = Protocol_admin.findById(id);
 
-	    // Filter steps to only include those associated with the current protocol
-	    List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()
-	        .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
-	        .collect(Collectors.toList());
+	        // Assuming loadStepsFromJson() is a method to fetch all steps,
+	        // and findById() is modified to work with this context
+	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
+	        List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()
+	        	    .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
+	        	    .collect(Collectors.toList());
 
-	    // Add attributes to the model
-	    model.addAttribute("protocol", protocol);
-	    model.addAttribute("steps", associatedSteps); 
+	        // Add attributes to the model
+	        model.addAttribute("protocol", protocol);
+	        model.addAttribute("steps", associatedSteps);
+	    }
 
 	    return "displayProtocol";
 	}
+
 
 
 	
@@ -116,11 +127,18 @@ public class MainController {
 	public ModelAndView editStep_admin(@PathVariable int stepId) {
 	    ModelAndView model = new ModelAndView("edit_Step");
 
-	    List<Protocol_step_admin> steps = Protocol_step_admin.loadStepsFromJson();
-	    Protocol_step_admin step = Protocol_step_admin.findById(stepId, steps);
+	    if (stepId == 0) {
+	        // Create a new step with default values
+	        Protocol_step_admin step = new Protocol_step_admin();
+	        model.addObject("step", step);
+	    } else {
+	        List<Protocol_step_admin> steps = Protocol_step_admin.loadStepsFromJson();
+	        Protocol_step_admin step = Protocol_step_admin.findById(stepId, steps);
+	        model.addObject("step", step);
+	    }
 
-	    model.addObject("step", step);
 	    return model;
 	}
+
 
 }

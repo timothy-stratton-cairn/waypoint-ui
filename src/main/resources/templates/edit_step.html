@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
+<head>
+    <title>Edit Step</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script>
+        function saveStep() {
+            alert('Step saved!'); 
+        }
+    </script>
+</head>
 <body>
 <div th:insert="~{header :: main}">...</div>
-<html xmlns:th="http://www.thymeleaf.org">
-<script>
-    function saveStep() {
-        alert('Step saved!');
-    }
-</script>
 <div class="container">
-	<button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
 </div>
 <div class="container">
     <div class="row note_card">
         <fieldset>
-    	<legend>Edit Step</legend>
-		    <form>
-		        <div class="form-group">
-		            <label for="stepName">Name:</label>
-		            <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.stepName}">
-		        </div>
-		        <div class="form-group">
-		            <label for="stepDetails">Description:</label>
-		            <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.details}"></textarea>
-		        </div>
-		        <button type="button" class="btn btn-primary" onclick="saveStep()">Save</button>
-		    </form>
+            <legend>Edit Step</legend>
+            <form th:action="@{/saveStep}" method="post">
+                <input type="hidden" name="stepId" th:value="${step.stepId}">
+                <div class="form-group">
+                    <label for="stepName">Name:</label>
+                    <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.stepName}">
+                </div>
+                <div class="form-group">
+                    <label for="stepDetails">Description:</label>
+                    <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.details}"></textarea>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="saveStep();">Save</button>
+            </form>
         </fieldset>
     </div>
 </div>

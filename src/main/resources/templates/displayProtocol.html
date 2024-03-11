@@ -1,57 +1,84 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
+<head>
+    <title>Protocol Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script>
+        function editProtocol(stepId) {
+            window.location = '/editStep_admin/' + stepId;
+        }
+        function disableProtocol(id) {
+            alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
+        }
+        function saveprotocol(){
+			alert('Protocol Saved')
+		}
+    </script>
+</head>
 <body>
 <div th:insert="~{header :: main}">...</div>
-<html xmlns:th="http://www.thymeleaf.org">
-<script>
-    function editProtocol(stepId) {
-        window.location = '/editStep_admin/' + stepId;
-    }
-       function DisableProtocol(id) {
-        alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
-    }
-</script>
-<body>
 <div class="container">
+    <!-- Protocol Details Form for New Protocol (ID = 0) -->
+    <div th:if="${protocol.id == null || protocol.id == 0}">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Protocol Details</legend>
+                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
+                    <div>
+                        <label for="name"><strong>Name:</strong></label>
+                        <input type="text" id="name" name="name" th:value="${protocol.name}" />
+                    </div>
+                    <button type="button" class="btn btn-secondary" th:onclick="saveprotocol()">Save</button>
+                </form>
+            </fieldset>
+        </div>
+    </div>
+
+    <!-- Protocol Details Display for Existing Protocol -->
+    <div th:if="${protocol.id != null && protocol.id > 0}">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Protocol Details</legend>
+                <div>
+                    <strong>ID:</strong> <span th:text="${protocol.id}"></span>
+                </div>
+                <div>
+                    <strong>Name:</strong> <span th:text="${protocol.name}"></span>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    
+    <!-- Steps Section (Always Displayed, but empty if no steps) -->
     <div class="row note_card">
         <fieldset>
-            <legend>Protocol Details</legend>
-            <div>
-		        <strong>ID:</strong> <span th:text="${protocol.id}"></span>
-		    </div>
-		    <div>
-		        <strong>Name:</strong> <span th:text="${protocol.name}"></span>
-		    </div>
+            <legend>Steps</legend>
+            <div class="row">
+                <div class="col">
+                    <label>Step Name</label>
+                </div>
+                <div class="col">
+                    <label>Actions</label>
+                </div>
+            </div>
+            <div th:each="step, status : ${steps}" th:id="|row_${step.stepId}|"
+                 th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+                <div class="col" th:text="${step.stepName}">[Step Name]</div>
+                <div class="col">
+                    <button type="button" class="btn btn-secondary" th:onclick="'editProtocol('+${step.stepId}+');'">Details</button>
+                    <button type="button" class="btn btn-danger" th:onclick="'disableProtocol('+${step.stepId}+');'">Disable</button>
+                </div>
+            </div>
+            <div th:if="${steps.empty}">
+                <p>No steps available.</p>
+            </div>
+            <button type="button" class="btn btn-secondary" th:onclick="'editProtocol(0);'">New Step</button>
         </fieldset>
     </div>
-</div>
-	
-<div class="container">
-	 <div class="row note_card">
-	    <fieldset>
-	        <legend>Steps</legend>
-	        <div class="row">
-	            <div class="col">
-	                <label>Step Name</label>
-	            </div>
-	            <div class="col">
-	                <label>Actions</label>
-	            </div>
-	        </div>
-	        <div th:each="step, status : ${steps}" th:id="|row_${step.stepId}|"
-	             th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
-	            <div class="col" th:text="${step.stepName}"></div>
-	            <div class="col">
-	                <button type="button" class="btn btn-secondary" th:attr="onclick='editProtocol('+${step.stepId}+');'">Details</button>
-	                <button type="button" class="btn btn-danger" th:onclick="'javascript:disableProtocol('+step.stepId+');'">Disable</button>
-	            </div>
-	        </div>
-	    </fieldset>
-	 </div>
-    <div class="row ">&nbsp;</div>
 </div>
 <div class="container mt-3">
     <a th:href="@{/protocols_admin}" class="btn btn-primary">Back</a>
 </div>
 </body>
 </html>
+
