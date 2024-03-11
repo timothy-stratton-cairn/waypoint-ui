@@ -39,11 +39,10 @@ public class Protocol_step_admin {
     // Sample JSON data for demonstration
     private static final String jsonData = "{\n" +
             "  \"steps\": [\n" +
-            "    {\"stepId\": 1, \"stepName\": \"Step 1 Onboarding\", \"details\": \"Details for Step 1\"},\n" +
-            "    {\"stepId\": 2, \"stepName\": \"Step 2 Initial In Person Meeting \", \"details\": \"Details for Step 2\"},\n" +
-            "    {\"stepId\": 3, \"stepName\": \"Step 3 Go Over financial information\", \"details\": \"Details for Step 3\"},\n" +
-            "    {\"stepId\": 4, \"stepName\": \"Step 4 Put together plan of action with customer\", \"details\": \"Details for Step 4\"},\n" +
-            "    {\"stepId\": 5, \"stepName\": \"Step 5 Follow Up \", \"details\": \"Details for Step 5\"}\n" +
+            "    {\"stepId\": 1, \"stepName\": \"Step 1 Gather Data\", \"details\": \"Details for Step 1\"},\n" +
+            "    {\"stepId\": 2, \"stepName\": \"Step 2 Run Analysis \", \"details\": \"Details for Step 2\"},\n" +
+            "    {\"stepId\": 3, \"stepName\": \"Step 3 Craft Recommendation\", \"details\": \"Details for Step 3\"},\n" +
+            "    {\"stepId\": 4, \"stepName\": \"Step 4 Share Education\", \"details\": \"Details for Step 4\"},\n" +
             "  ]\n" +
             "}";
 
