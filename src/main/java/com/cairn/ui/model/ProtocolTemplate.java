@@ -6,6 +6,7 @@ public class ProtocolTemplate {
 
 	private int id;
 	private String name;
+	private String description;
 	private int type;
 	private boolean active;
 	private ArrayList<ProtocolStepTemplate> steps = new ArrayList<ProtocolStepTemplate>();
@@ -43,5 +44,11 @@ public class ProtocolTemplate {
 	}
 	public void setSteps(ArrayList<ProtocolStepTemplate> steps) {
 		this.steps = steps;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

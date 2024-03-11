@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<div th:insert="~{header :: main}">...</div>
+<script>
+	function selectProtocol(id){
+	    window.location = '/editProtocol/'+id;		
+	}
+</script>
+<body>
+	<div class="container">
+		<div class="row note_card">
+			<fieldset>
+				<legend>Protocols</legend>
+				<div class="row">
+					<div class="col">
+						<label>Name</label>
+					</div>
+					<div class="col">
+						<label>Action</label>
+					</div>
+				</div>
+				<div th:each="pcol, status: ${listProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+					<div class="col" th:text="${pcol.name}"></div>
+					<div class="col"><a class="btn btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ');'}">Details</a></div>
+				</div>
+			</fieldset>
+			<div class="row ">&nbsp;</div>
+		</div>
+	</div>
+	<br />
+	<br />
+	<br />
+</body>
+<div th:insert="~{footer :: main}">...</div>
+</html>
