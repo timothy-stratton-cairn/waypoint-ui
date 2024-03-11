@@ -1,6 +1,7 @@
 package com.cairn.ui;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -90,21 +91,34 @@ public class MainController {
 	
 	@GetMapping("/displayProtocol/{id}")
 	public String displayProtocolPage(@PathVariable int id, Model model) {
+	    // Fetch the protocol by its ID
 	    Protocol_admin protocol = Protocol_admin.findById(id);
-	    model.addAttribute("protocol", protocol); // Add the protocol to the model
+
+	    // Load all steps
+	    List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
+
+	    // Filter steps to only include those associated with the current protocol
+	    List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()
+	        .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
+	        .collect(Collectors.toList());
+
+	    // Add attributes to the model
+	    model.addAttribute("protocol", protocol);
+	    model.addAttribute("steps", associatedSteps); 
+
 	    return "displayProtocol";
 	}
 
+
 	
 	
-	@GetMapping("/editStep_admin/{protocolId}/{stepId}")
-	public ModelAndView editStep_admin(@PathVariable int protocolId, @PathVariable int stepId) {
+	@GetMapping("/editStep_admin/{stepId}")
+	public ModelAndView editStep_admin(@PathVariable int stepId) {
 	    ModelAndView model = new ModelAndView("edit_Step");
-	    Protocol_admin protocol = Protocol_admin.findById(protocolId);
-	    Protocol_step_admin step = protocol.getSteps().stream()
-	                                       .filter(s -> s.getStepId() == stepId)
-	                                       .findFirst()
-	                                       .orElse(null);
+
+	    List<Protocol_step_admin> steps = Protocol_step_admin.loadStepsFromJson();
+	    Protocol_step_admin step = Protocol_step_admin.findById(stepId, steps);
+
 	    model.addObject("step", step);
 	    return model;
 	}

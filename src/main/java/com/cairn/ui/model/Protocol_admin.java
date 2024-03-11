@@ -9,7 +9,7 @@ public class Protocol_admin {
     private int id;
     private String name;
     private int numClients;
-    private List<Protocol_step_admin> steps;
+    private List<Integer> steps; // Changed to List of Integer
 
     public Protocol_admin() {
         this.steps = new ArrayList<>(); // Initialize the steps list
@@ -40,11 +40,11 @@ public class Protocol_admin {
         this.numClients = numClients;
     }
 
-    public List<Protocol_step_admin> getSteps() {
+    public List<Integer> getSteps() {
         return steps;
     }
 
-    public void setSteps(List<Protocol_step_admin> steps) {
+    public void setSteps(List<Integer> steps) {
         this.steps = steps;
     }
 
@@ -55,31 +55,57 @@ public class Protocol_admin {
                 return protocol;
             }
         }
-        return null; // or throw a custom exception as per your requirement
+        return null;
     }
 
     static public ArrayList<Protocol_admin> getList_admin() {
         ArrayList<Protocol_admin> results = new ArrayList<>();
         String data = "{\n"
-        		+ "    \"protocols\": [\n"
-        		+ "        {\n"
-        		+ "            \"id\": 3,\n"
-        		+ "            \"name\": \"protocol-1\",\n"
-        		+ "            \"steps\": [\n"
-        		+ "                {\"stepId\": 1, \"stepName\": \"Step 1\", \"details\": \"Details for Step 1\"},\n"
-        		+ "                {\"stepId\": 2, \"stepName\": \"Step 2\", \"details\": \"Details for Step 2\"}\n"
-        		+ "            ]\n"
-        		+ "        },\n"
-        		+ "        {\n"
-        		+ "            \"id\": 4,\n"
-        		+ "            \"name\": \"protocol-2\",\n"
-        		+ "            \"steps\": [\n"
-        		+ "                {\"stepId\": 1, \"stepName\": \"Step 1\", \"details\": \"Details for Step 1\"},\n"
-        		+ "                {\"stepId\": 2, \"stepName\": \"Step 2\", \"details\": \"Details for Step 2\"}\n"
-        		+ "            ]\n"
-        		+ "        }\n"
-        		+ "    ]\n"
-        		+ "}"; 
+                + "    \"protocols\": [\n"
+                + "        {\n"
+                + "            \"id\": 3,\n"
+                + "            \"name\": \"Marriage\",\n"
+                + "            \"steps\": [\n"
+                + "                {\"stepId\": 1},\n"
+                + "                {\"stepId\": 2}\n"
+                + "            ]\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"id\": 4,\n"
+                + "            \"name\": \"House Purchase\",\n"
+                + "            \"steps\": [\n"
+                + "                {\"stepId\": 1},\n"
+                + "                {\"stepId\": 2}\n"
+                + "            ]\n"
+                + "        },\n"
+                + "			{\n"
+                + "            \"id\": 6,\n"
+                + "            \"name\": \"Retirement\",\n"
+                + "            \"steps\": [\n"
+                + "                {\"stepId\": 1},\n"
+                + "                {\"stepId\": 2}\n"
+                + "            ]\n"
+                + "        },\n"
+                + "			{\n"
+                + "            \"id\": 7,\n"
+                + "            \"name\": \"Baby\",\n"
+                + "            \"steps\": [\n"
+                + "                {\"stepId\": 1},\n"
+                + "                {\"stepId\": 2},\n"
+                + "                {\"stepId\": 3}\n"
+                + "            ]\n"
+                + "        },\n"
+                + "			{\n"
+                + "            \"id\": 8,\n"
+                + "            \"name\": \"New Client\",\n"
+                + "            \"steps\": [\n"
+                + "                {\"stepId\": 1},\n"
+                + "                {\"stepId\": 2},\n"
+                + "                {\"stepId\": 3}\n"
+                + "            ]\n"
+                + "        }\n"
+                + "    ]\n"
+                + "}"; 
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -90,13 +116,9 @@ public class Protocol_admin {
                     Protocol_admin protocol = new Protocol_admin();
                     protocol.setId(protocolNode.get("id").asInt());
                     protocol.setName(protocolNode.get("name").asText());
-                    ArrayList<Protocol_step_admin> steps = new ArrayList<>();
+                    List<Integer> steps = new ArrayList<>();
                     for (JsonNode stepNode : protocolNode.get("steps")) {
-                        Protocol_step_admin step = new Protocol_step_admin();
-                        step.setStepId(stepNode.get("stepId").asInt());
-                        step.setStepName(stepNode.get("stepName").asText());
-                        step.setDetails(stepNode.get("details").asText());
-                        steps.add(step);
+                        steps.add(stepNode.get("stepId").asInt());
                     }
                     protocol.setSteps(steps);
                     results.add(protocol);

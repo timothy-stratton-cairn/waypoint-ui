@@ -27,21 +27,31 @@
 </div>
 	
 <div class="container">
-	<fieldset>
-		<div class="row note_card">
-		    <legend>Steps</legend>
-		    <ul>
-		        <li th:each="step : ${protocol.steps}">
-		            <strong>Step Name:</strong> <span th:text="${step.stepName}"></span>, 
-		            <strong>Details:</strong> <span th:text="${step.details}"></span>
-		            <button type="button" class="btn btn-danger" th:attr="onclick='editProtocol('+${step.stepId}+');'">Details</button>
-		            <button type="button" class="btn btn-danger" th:onclick="'javascript:deleteProtocol('+pcol.id+');'">Disable</button>
-		        </li>
-		    </ul>
-		</div>
-	</fieldset>
+	 <div class="row note_card">
+	    <fieldset>
+	        <legend>Steps</legend>
+	        <div class="row">
+	            <div class="col">
+	                <label>Step Name</label>
+	            </div>
+	            <div class="col">
+	                <label>Actions</label>
+	            </div>
+	        </div>
+	        <div th:each="step, status : ${steps}" th:id="|row_${step.stepId}|"
+	             th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+	            <div class="col" th:text="${step.stepName}"></div>
+	            <div class="col">
+	                <button type="button" class="btn btn-secondary" th:attr="onclick='editProtocol('+${step.stepId}+');'">Details</button>
+	                <button type="button" class="btn btn-danger" th:onclick="'javascript:disableProtocol('+step.stepId+');'">Disable</button>
+	            </div>
+	        </div>
+	    </fieldset>
+	 </div>
+    <div class="row ">&nbsp;</div>
 </div>
-    <a th:href="@{/protocols}" class="btn btn-primary mt-3">Back to List</a>
-
+<div class="container mt-3">
+    <a th:href="@{/protocols_admin}" class="btn btn-primary">Back</a>
+</div>
 </body>
 </html>
