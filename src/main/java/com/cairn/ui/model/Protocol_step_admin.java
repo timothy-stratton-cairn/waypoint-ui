@@ -39,11 +39,11 @@ public class Protocol_step_admin {
     // Sample JSON data for demonstration
     private static final String jsonData = "{\n" +
             "  \"steps\": [\n" +
-            "    {\"stepId\": 1, \"stepName\": \"Step 1 Name\", \"details\": \"Details for Step 1\"},\n" +
-            "    {\"stepId\": 2, \"stepName\": \"Step 2 Name\", \"details\": \"Details for Step 2\"},\n" +
-            "    {\"stepId\": 3, \"stepName\": \"Step 3 Name\", \"details\": \"Details for Step 3\"},\n" +
-            "    {\"stepId\": 4, \"stepName\": \"Step 4 Name\", \"details\": \"Details for Step 4\"},\n" +
-            "    {\"stepId\": 5, \"stepName\": \"Step 5 Name\", \"details\": \"Details for Step 5\"}\n" +
+            "    {\"stepId\": 1, \"stepName\": \"Step 1 Onboarding\", \"details\": \"Details for Step 1\"},\n" +
+            "    {\"stepId\": 2, \"stepName\": \"Step 2 Initial In Person Meeting \", \"details\": \"Details for Step 2\"},\n" +
+            "    {\"stepId\": 3, \"stepName\": \"Step 3 Go Over financial information\", \"details\": \"Details for Step 3\"},\n" +
+            "    {\"stepId\": 4, \"stepName\": \"Step 4 Put together plan of action with customer\", \"details\": \"Details for Step 4\"},\n" +
+            "    {\"stepId\": 5, \"stepName\": \"Step 5 Follow Up \", \"details\": \"Details for Step 5\"}\n" +
             "  ]\n" +
             "}";
 
@@ -67,7 +67,7 @@ public class Protocol_step_admin {
         return steps;
     }
 
-    // Method to find a step by ID, assuming steps are loaded into this list
+    // Method to find a step by ID
     public static Protocol_step_admin findById(int stepId, List<Protocol_step_admin> steps) {
         for (Protocol_step_admin step : steps) {
             if (step.getStepId() == stepId) {
