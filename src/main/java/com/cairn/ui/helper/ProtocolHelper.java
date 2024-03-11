@@ -30,43 +30,46 @@ public class ProtocolHelper {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Bearer " + usr.getToken());
 
-        // Create a HttpEntity with the headers
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		String apiUrl = "http://96.61.158.12:8083/api/protocol";
-		
-        // Make the GET request and retrieve the response
-        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
 
-		// Process the response
-		if (response.getStatusCode().is2xxSuccessful()) {
-			String jsonResponse = response.getBody();
-			ObjectMapper objectMapper = new ObjectMapper();
+		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
 
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				JsonNode prots = jsonNode.get("protocols");
-				// Iterate through the array elements
-				Protocol entry = null;
-				if (prots.isArray()) {
-					for (JsonNode element : prots) {
-						// Access and print array elements
-						if (element != null) {
-							entry = new Protocol();
-							entry.setName(element.get("name").toString());
-							entry.setId(Integer.valueOf(element.get("id").toString()));
-							results.add(entry);
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					JsonNode prots = jsonNode.get("protocols");
+					// Iterate through the array elements
+					Protocol entry = null;
+					if (prots.isArray()) {
+						for (JsonNode element : prots) {
+							// Access and print array elements
+							if (element != null) {
+								entry = new Protocol();
+								entry.setName(element.get("name").toString());
+								entry.setId(Integer.valueOf(element.get("id").toString()));
+								results.add(entry);
+							}
 						}
 					}
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
 				}
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
-		} else {
-			System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+		} catch (Exception e) {
+			System.out.println("No protocols returned");
 		}
 
 		return results;
