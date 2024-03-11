@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.cairn.ui.helper.ProtocolHelper;
+import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.model.Protocol;
+import com.cairn.ui.model.ProtocolStepTemplate;
+import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.Protocol_admin;
 import com.cairn.ui.model.Protocol_step_admin;
 import com.cairn.ui.model.User;
@@ -72,15 +75,39 @@ public class MainController {
 	}
 	
 
+	/**
+	 * Handle a request to view the Protocol details. 
+	 * @return
+	 */
+	@RequestMapping(value = "/editProtocol/{id}", method = RequestMethod.GET)
+	public ModelAndView editProtocol(HttpServletRequest request, @PathVariable int id) {
+		ModelAndView model = new ModelAndView("protocolEdit");
+		User usr = (User) userDAO.getUser();
+		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+		ProtocolTemplate pcol = helper.getTemplate(usr,id);
+		List<ProtocolStepTemplate> listSteps = helper.getStepList(usr,id);
+		model.addObject("protocol", pcol );
+		model.addObject("steps", listSteps );
+		
+		return model;
+	}
+
+
+	@GetMapping("/protocolTemplates")
+	public String protocolTemplateListPage(HttpSession session, Model model) {
+		User usr = (User) userDAO.getUser();
+		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+		List<ProtocolTemplate> listProtocols = helper.getList(usr);
+		model.addAttribute("listProtocols", listProtocols );
+		return "protocolTemplateList";
+	}
+	
 	@GetMapping("/protocols_admin")
 	public String protocolListPage(Model model) {
 		List<Protocol_admin> listProtocols = Protocol_admin.getList_admin();
 		model.addAttribute("listProtocols", listProtocols );
 		return "protocolList_admin";
 	}
-
-	
-	
 	
 	public ModelAndView viewProtocol_admin(@PathVariable int id) {
 	    ModelAndView model = new ModelAndView("protocolDetail_admin");
