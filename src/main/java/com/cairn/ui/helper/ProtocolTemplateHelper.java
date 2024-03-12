@@ -21,12 +21,89 @@ public class ProtocolTemplateHelper {
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	/**
-	 * Get a list of available protocols
+	 * Get a list of step templates not assigned to the protocol template.
 	 * 
-	 * @return
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call
+	 * @param theTemplate A protocol template instance we want to check.
+	 * @return ArrayList of protocol steps that we could assign to the protocol.
+	 */
+	public ArrayList<ProtocolStepTemplate> availableSteps(User usr,ProtocolTemplate theTemplate) {
+		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
+		return results;
+	}
+
+	/**
+	 * Save a protocol template
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call
+	 * @param theTemplate A protocol template instance we want to save (create or update).
+	 * @return int. Return code is the protocol id on successful save or less than 1 for an error.
+	 */
+	public int saveProtocolTemplate(User usr,ProtocolTemplate theTemplate) {
+		int result = 0;
+		
+		return result;
+	}
+
+	/**
+	 * Save a protocol template
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call
+	 * @param theStep A protocol template step instance we want to save (create or update).
+	 * @return int. Return code is the step id on successful save or less than 1 for an error.
+	 */
+	public int saveTemplateStep(User usr,ProtocolStepTemplate theStep) {
+		int result = 0;
+		
+		return result;
+	}
+
+	/**
+	 * Save a protocol template step to a protocol template.
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call
+	 * @param theTemplate A protocol template instance we want to add the step to.
+	 * @param theStep A protocol template step instance we want to add to the template.
+	 * @return int. Return code is 1 on successful addition or less than 1 for an error. 0 if the step is already assigned to the template.
+	 */
+	public int addTemplateStep(User usr,ProtocolTemplate theTemplate, ProtocolStepTemplate theStep) {
+		int result = 0;
+		
+		return result;
+	}
+
+	/**
+	 * Remove a protocol template step from a protocol template.
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call
+	 * @param theTemplate A protocol template instance we want to remove the step from.
+	 * @param theStep A protocol template step instance we want to remove from the template.
+	 * @return int. Return code is 1 on successful remove or less than 1 for an error. 0 if the step was not assigned to the template.
+	 */
+	public int removeTemplateStep(User usr,ProtocolTemplate theTemplate, ProtocolStepTemplate theStep) {
+		int result = 0;
+		
+		return result;
+	}
+
+	/**
+	 * Get a list of protocol templates
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call
+	 * @return ArrayList of ProtocolTemplates. Empty list on error.
 	 */
 	public ArrayList<ProtocolTemplate> getList(User usr) {
 		ArrayList<ProtocolTemplate> results = new ArrayList<ProtocolTemplate>();
+		
+		if (usr == null) {
+			return results;
+		}
 
 		// Prepare the request body
 		HttpHeaders headers = new HttpHeaders();
@@ -78,6 +155,14 @@ public class ProtocolTemplateHelper {
 
 	}
 
+	/**
+	 * Get a list of protocol template steps
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call.
+	 * @param id The id of the protocol template.
+	 * @return ArrayList of ProtocolStepTemplates. Empty list on error.
+	 */
 	public ArrayList<ProtocolStepTemplate> getStepList(User usr, int id) {
 		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
 
@@ -130,6 +215,14 @@ public class ProtocolTemplateHelper {
 		return results;
 	}
 		
+	/**
+	 * Get a specific protocol template.
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call.
+	 * @param id The id of the protocol template.
+	 * @return ProtocolTemplate instance. New/Blank is returned if an error occurs.
+	 */
 	public ProtocolTemplate getTemplate(User usr, int id) {
 		ProtocolTemplate result = new ProtocolTemplate();
 		// Prepare the request body
