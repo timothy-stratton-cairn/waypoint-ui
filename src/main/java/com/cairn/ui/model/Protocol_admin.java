@@ -57,6 +57,11 @@ public class Protocol_admin {
         }
         return null;
     }
+    public void addStep(Integer stepId) {
+        if (!this.steps.contains(stepId)) {
+            this.steps.add(stepId);
+        }
+    }
 
     static public ArrayList<Protocol_admin> getList_admin() {
         ArrayList<Protocol_admin> results = new ArrayList<>();
