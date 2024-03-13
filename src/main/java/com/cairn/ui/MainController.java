@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -121,8 +124,9 @@ public class MainController {
 	public String displayProtocolPage(@PathVariable int id, Model model) {
 	    if (id == 0) {
 	        // Create a new, empty Protocol_admin object and an empty list of steps
-	        Protocol_admin protocol = new Protocol_admin(); // This should create an object with empty/default fields.
+	        Protocol_admin protocol = new Protocol_admin(); 
 	        List<Protocol_step_admin> steps = new ArrayList<>();
+	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
 
 	        // Add attributes to the model
 	        model.addAttribute("protocol", protocol);
@@ -131,21 +135,30 @@ public class MainController {
 	        // Fetch the protocol by its ID
 	        Protocol_admin protocol = Protocol_admin.findById(id);
 
-	        // Assuming loadStepsFromJson() is a method to fetch all steps,
-	        // and findById() is modified to work with this context
 	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
 	        List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()
 	        	    .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
 	        	    .collect(Collectors.toList());
 
 	        // Add attributes to the model
+	        model.addAttribute("protocolId", id);
 	        model.addAttribute("protocol", protocol);
 	        model.addAttribute("steps", associatedSteps);
+	        model.addAttribute("allSteps", allSteps);
 	    }
 
 	    return "displayProtocol";
 	}
 
+	@PostMapping("/addStepToProtocol/{protocolId}")
+	public ResponseEntity<?> addStepToProtocol(@PathVariable Integer protocolId, @RequestBody Integer stepId) {
+	    Protocol_admin protocol = Protocol_admin.findById(protocolId);
+	    if (protocol != null) {
+	        protocol.addStep(stepId);
+	        return ResponseEntity.ok().build();
+	    }
+	    return ResponseEntity.notFound().build();
+	}
 
 
 	
