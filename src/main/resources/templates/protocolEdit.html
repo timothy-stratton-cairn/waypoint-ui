@@ -4,18 +4,17 @@
 
 <body>
 	<form action="/logout" method="post" id="logoutForm">
-		<input type="hidden" name="${_csrf.parameterName}"
-			value="${_csrf.token}" />
+		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 	</form>
 	<script>
 		function formSubmit() {
 			document.getElementById("logoutForm").submit();
 		}
 		function newStepSubmit(protocolId) {
-			window.location = '/newStep?pid='+ protocolId;
+			window.location = '/newStep?pid=' + protocolId;
 		}
-		function selectStep(protocolId,id) {
-		    window.location = '/editStep/'+ protocolId + '/' +id;	
+		function selectStep(protocolId, id) {
+			window.location = '/editStep/' + protocolId + '/' + id;
 		}
 	</script>
 	<div class="container">
@@ -29,8 +28,7 @@
 					<input type="hidden" th:field="*{id}" />
 					<div class="row " align="right">
 						<div class="container">
-							<input type="submit" value="Save/Update"
-								class="btn btn-sm btn-primary">&nbsp;&nbsp;&nbsp;
+							<input type="submit" value="Save/Update" class="btn btn-sm btn-primary">&nbsp;&nbsp;&nbsp;
 						</div>
 					</div>
 					<div class="row ">
@@ -54,30 +52,70 @@
 			</fieldset>
 			<div class="row ">&nbsp;</div>
 			<span th:if="${protocol.id > 0}">
-				<fieldset>
-					<legend> Steps </legend>
-					<button th:onClick="|javascript:newStepSubmit(${protocol.id})|">New Step</button>
-					<br />
-					<div class="row">
-						<div class="col-md-4">
-							<label>Name</label>
+				<div class="row">
+					<fieldset>
+						<legend> Steps </legend>
+						<button th:onClick="|javascript:newStepSubmit(${protocol.id})|">New Step</button>
+						<br />
+
+						<div class="tabs">
+							<input class="input" name="tabs" type="radio" id="tab-1" checked="checked" />
+							<label class="label" for="tab-1">Gather Data</label>
+							<div class="panel">
+								<div th:each="step, status: ${listSteps}"
+									th:onclick="|selectStep(${protocol.id},${step.id})|"
+									th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+									<div class="col-md-4" th:text="${step.name} "></div>
+									<div class="col-md-2" th:text="${step.type}"></div>
+								</div>
+							</div>
+							<input class="input" name="tabs" type="radio" id="tab-2" />
+							<label class="label" for="tab-2">Run Analysis</label>
+							<div class="panel">
+								<p>Idntheme (Citrus tangerina) is an orange-colored citrus fruit that is closely related
+									to,
+									or possibly a
+									type of, mandarin orange (Citrus reticulata).</p>
+								<p>The name was first used for fruit coming from Tangier, Morocco, described as a
+									mandarin
+									variety. Under
+									the Tanaka classification system, Citrus tangerina is considered a separate species.
+								</p>
+							</div>
+							<input class="input" name="tabs" type="radio" id="tab-3" />
+							<label class="label" for="tab-3">Gather Recommendations</label>
+							<div class="panel">
+								<p>Tekno Match (Citrus ×clementina) is a hybrid between a mandarin orange and a sweet
+									orange, so named in
+									1902. The exterior is a deep orange colour with a smooth, glossy appearance.
+									Clementines
+									can be
+									separated into 7 to 14 segments. Similarly to tangerines, they tend to be easy to
+									peel.
+								</p>
+							</div>
+							<input class="input" name="tabs" type="radio" id="tab-4" />
+							<label class="label" for="tab-4">Share Education</label>
+							<div class="panel">
+								<p>Tekno Match (Citrus ×clementina) is a hybrid between a mandarin orange and a sweet
+									orange, so named in
+									1902. The exterior is a deep orange colour with a smooth, glossy appearance.
+									Clementines
+									can be
+									separated into 7 to 14 segments. Similarly to tangerines, they tend to be easy to
+									peel.
+								</p>
+							</div>
 						</div>
-						<div class="col-md-2">
-							<label>Type</label>
-						</div>
-					</div>
-					<div th:each="step, status: ${listSteps}" th:onclick="|selectStep(${protocol.id},${step.id})|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
-						<div class="col-md-4" th:text="${ step.name} "></div>
-						<div class="col-md-2" th:text="${step.type}"></div>
-					</div>
-				</fieldset>
+					</fieldset>
+				</div>
 				<div class="row ">&nbsp;</div>
-			</span>
+				<div class="row ">&nbsp;</div>
 		</div>
-	</div>
-	<br />
-	<br />
-	<br />
-	<div th:insert="~{footer :: main}">...</div>
+		<br />
+		<br />
+		<br />
+		<div th:insert="~{footer :: main}">...</div>
 </body>
+
 </html>

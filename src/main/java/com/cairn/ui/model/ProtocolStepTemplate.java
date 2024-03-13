@@ -6,6 +6,24 @@ public class ProtocolStepTemplate {
 	private String name;
 	private int type;
 
+	public String getTypeDisplay() {
+		String returnValue = "Undefined";
+		switch (this.type) {
+		case 1:
+			returnValue = "Gather Data";
+			break;
+		case 2:
+			returnValue = "Run Analysis";
+			break;
+		case 3:
+			returnValue = "Craft Recommendation";
+			break;
+		case 4:
+			returnValue = "Share Education";
+			break;
+		}
+		return returnValue;
+	}
 	public int getType() {
 		/* 4 types of steps *
 		  0: Undefined

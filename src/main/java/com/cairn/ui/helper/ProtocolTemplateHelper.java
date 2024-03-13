@@ -1,6 +1,8 @@
 package com.cairn.ui.helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -8,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
@@ -26,11 +27,23 @@ public class ProtocolTemplateHelper {
 	 * @param usr a User object that is the logged in user. The token from the instance is used to 
 	 * authenticate the API call
 	 * @param theTemplate A protocol template instance we want to check.
+	 * @param type The type of steps to return.
 	 * @return ArrayList of protocol steps that we could assign to the protocol.
 	 */
-	public ArrayList<ProtocolStepTemplate> availableSteps(User usr,ProtocolTemplate theTemplate) {
+	public ArrayList<ProtocolStepTemplate> availableSteps(User usr,ProtocolTemplate theTemplate, int type) {
 		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
 		return results;
+	}
+
+	public Map<String,String> getStepTypes() {
+        HashMap<String, String> retVal = new HashMap<String, String>();
+        retVal.put("0", "-- Select A Value --");
+        retVal.put("1", "Gather Data");
+        retVal.put("2", "Run Analysis");
+        retVal.put("3", "Craft Recommendation");
+        retVal.put("4", "Share Education");
+
+        return retVal;
 	}
 
 	/**
