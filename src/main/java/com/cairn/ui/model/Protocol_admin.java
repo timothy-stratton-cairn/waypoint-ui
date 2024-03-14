@@ -9,7 +9,7 @@ public class Protocol_admin {
     private int id;
     private String name;
     private int numClients;
-    private List<Integer> steps; // Changed to List of Integer
+    private List<Integer> steps; 
 
     public Protocol_admin() {
         this.steps = new ArrayList<>(); // Initialize the steps list

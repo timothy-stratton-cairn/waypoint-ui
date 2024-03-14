@@ -85,6 +85,7 @@ public class MainController {
 	 */
 	@RequestMapping(value = "/editProtocol/{id}", method = RequestMethod.GET)
 	public ModelAndView editProtocol(HttpServletRequest request, @PathVariable int id) {
+		
 		ModelAndView model = new ModelAndView("protocolEdit");
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
@@ -94,6 +95,48 @@ public class MainController {
 		model.addObject("steps", listSteps );
 		
 		return model;
+	}
+	
+	@RequestMapping(value = "/displayProtocolTemplate/{id}", method = RequestMethod.GET)
+	public ModelAndView editProtocol(HttpServletRequest request, @PathVariable int id) {
+		
+		ModelAndView model = new ModelAndView("protocolEdit");
+		User usr = (User) userDAO.getUser();
+		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+		ProtocolTemplate pcol = helper.getTemplate(usr,id);
+		List<ProtocolStepTemplate> listSteps = helper.getStepList(usr,id);
+		model.addObject("protocol", pcol );
+		model.addObject("steps", listSteps );
+		
+		return model;
+	}
+
+	@GetMapping("/displayProtocol/{id}")
+	public String displayProtocolPage(@PathVariable int id, Model model) {
+	    if (id == 0) {
+	        // Create a new, empty Protocol_admin object and an empty list of steps
+	        Protocol_admin protocol = new Protocol_admin(); 
+	        List<Protocol_step_admin> steps = new ArrayList<>();
+	        // Add attributes to the model
+	        model.addAttribute("protocol", protocol);
+	        model.addAttribute("steps", steps);
+	    } else {
+	        // Fetch the protocol by its ID
+	        Protocol_admin protocol = Protocol_admin.findById(id);
+
+	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
+	        List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()
+	        	    .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
+	        	    .collect(Collectors.toList());
+
+	        // Add attributes to the model
+	        model.addAttribute("protocolId", id);
+	        model.addAttribute("protocol", protocol);
+	        model.addAttribute("steps", associatedSteps);
+	        model.addAttribute("allSteps", allSteps);
+	    }
+
+	    return "displayProtocol";
 	}
 
 
@@ -120,35 +163,6 @@ public class MainController {
 	    return model;
 	}
 	
-	@GetMapping("/displayProtocol/{id}")
-	public String displayProtocolPage(@PathVariable int id, Model model) {
-	    if (id == 0) {
-	        // Create a new, empty Protocol_admin object and an empty list of steps
-	        Protocol_admin protocol = new Protocol_admin(); 
-	        List<Protocol_step_admin> steps = new ArrayList<>();
-	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
-
-	        // Add attributes to the model
-	        model.addAttribute("protocol", protocol);
-	        model.addAttribute("steps", steps);
-	    } else {
-	        // Fetch the protocol by its ID
-	        Protocol_admin protocol = Protocol_admin.findById(id);
-
-	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
-	        List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()
-	        	    .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
-	        	    .collect(Collectors.toList());
-
-	        // Add attributes to the model
-	        model.addAttribute("protocolId", id);
-	        model.addAttribute("protocol", protocol);
-	        model.addAttribute("steps", associatedSteps);
-	        model.addAttribute("allSteps", allSteps);
-	    }
-
-	    return "displayProtocol";
-	}
 
 	@PostMapping("/addStepToProtocol/{protocolId}")
 	public ResponseEntity<?> addStepToProtocol(@PathVariable Integer protocolId, @RequestBody Integer stepId) {

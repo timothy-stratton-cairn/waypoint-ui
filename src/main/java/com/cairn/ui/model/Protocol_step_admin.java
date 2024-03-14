@@ -9,6 +9,7 @@ public class Protocol_step_admin {
     private int stepId;
     private String stepName;
     private String details;
+	private int type;
 
     public Protocol_step_admin() {}
 
@@ -31,6 +32,19 @@ public class Protocol_step_admin {
     public String getDetails() {
         return details;
     }
+	public int getType() {
+		/* 4 types of steps *
+		  0: Undefined
+		  1: Gather Data
+		  2: Run Analysis
+		  3: Craft Recommendation
+		  4: Share Education
+		   */
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
+	}
 
     public void setDetails(String details) {
         this.details = details;
@@ -39,10 +53,10 @@ public class Protocol_step_admin {
     // Sample JSON data for demonstration
     private static final String jsonData = "{\n" +
             "  \"steps\": [\n" +
-            "    {\"stepId\": 1, \"stepName\": \"Step 1 Gather Data\", \"details\": \"Details for Step 1\"},\n" +
-            "    {\"stepId\": 2, \"stepName\": \"Step 2 Run Analysis \", \"details\": \"Details for Step 2\"},\n" +
-            "    {\"stepId\": 3, \"stepName\": \"Step 3 Craft Recommendation\", \"details\": \"Details for Step 3\"},\n" +
-            "    {\"stepId\": 4, \"stepName\": \"Step 4 Share Education\", \"details\": \"Details for Step 4\"}\n" +
+            "    {\"stepId\": 1, \"stepName\": \"Step 1 Gather Data\",\"type\": 1 ,\"details\": \"Details for Step 1\"},\n" +
+            "    {\"stepId\": 2, \"stepName\": \"Step 2 Run Analysis \",\"type\": 2 ,\"details\": \"Details for Step 2\"},\n" +
+            "    {\"stepId\": 3, \"stepName\": \"Step 3 Craft Recommendation\",\"type\":3 ,\"details\": \"Details for Step 3\"},\n" +
+            "    {\"stepId\": 4, \"stepName\": \"Step 4 Share Education\",\"type\": 4 ,\"details\": \"Details for Step 4\"}\n" +
             "  ]\n" +
             "}";
 
@@ -58,6 +72,7 @@ public class Protocol_step_admin {
                 step.setStepId(node.get("stepId").asInt());
                 step.setStepName(node.get("stepName").asText());
                 step.setDetails(node.get("details").asText());
+                step.setType(node.get("type").asInt());
                 steps.add(step);
             }
         } catch (Exception e) {
