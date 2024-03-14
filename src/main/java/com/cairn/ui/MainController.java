@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -83,7 +85,7 @@ public class MainController {
 	 * Handle a request to view the Protocol details. 
 	 * @return
 	 */
-	@RequestMapping(value = "/editProtocol/{id}", method = RequestMethod.GET)
+	//@RequestMapping(value = "/editProtocol/{id}", method = RequestMethod.GET)
 	public ModelAndView editProtocol(HttpServletRequest request, @PathVariable int id) {
 		
 		ModelAndView model = new ModelAndView("protocolEdit");
@@ -97,20 +99,70 @@ public class MainController {
 		return model;
 	}
 	
-	@RequestMapping(value = "/displayProtocolTemplate/{id}", method = RequestMethod.GET)
-	public ModelAndView editProtocol(HttpServletRequest request, @PathVariable int id) {
-		
-		ModelAndView model = new ModelAndView("protocolEdit");
-		User usr = (User) userDAO.getUser();
-		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-		ProtocolTemplate pcol = helper.getTemplate(usr,id);
-		List<ProtocolStepTemplate> listSteps = helper.getStepList(usr,id);
-		model.addObject("protocol", pcol );
-		model.addObject("steps", listSteps );
-		
-		return model;
+	@GetMapping("/editProtocol/{id}") // sorta works but don't have a all steps for the drop down need to figure that out
+	public String editProtocolTemplate(@PathVariable int id, Model model) {
+	    User usr = (User) userDAO.getUser();
+	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+	    ProtocolTemplate pcol = helper.getTemplate(usr, id);
+	    List<ProtocolStepTemplate> listSteps = helper.getStepList(usr, id);
+	    
+	    model.addAttribute("protocolId", id);
+	    model.addAttribute("protocol", pcol);
+	    model.addAttribute("steps", listSteps);
+
+	    return "displayProtocol";
+	}
+	//Place holders for creating new and saving changes to steps and protocols 
+	@PostMapping("/newStep/")
+	public String newStep(@PathVariable int id, Model model) {
+		return "edit_step";
+	}
+	
+	@PostMapping("/newProtocol/")
+	public String newProtocol(@PathVariable int id, Model model) {
+		return "displayProtocol";
+	} 
+	
+	@PatchMapping("saveProtocol/{id}")
+	public ResponseEntity<?> saveProtocol(@PathVariable int id){
+	    try {
+	        User usr = (User) userDAO.getUser();
+	        ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+	        ProtocolTemplate pcol = helper.getTemplate(usr, id);
+
+	        if (pcol != null) {
+	            helper.saveProtocolTemplate(usr, pcol);
+	            return ResponseEntity.ok().body("Protocol with ID " + id + " updated successfully.");
+	        }
+	        else {
+	            return ResponseEntity.notFound().build();
+	        }
+	    	} 
+	    catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while saving the protocol.");
+	    }
+	}
+	
+	@PatchMapping("/saveStep/{id}")
+	public ResponseEntity<?> saveStep(@PathVariable int id) {
+	    try {
+	        User usr = (User) userDAO.getUser();
+	        ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+	        ProtocolStepTemplate pstep = helper.getStep(usr, id);
+
+	        if (pstep != null) {
+	            helper.saveTemplateStep(usr, pstep);
+	            return ResponseEntity.ok().body("Step with ID " + id + " updated successfully.");
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	    } 
+	    catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while saving the step.");
+	    }
 	}
 
+	
 	@GetMapping("/displayProtocol/{id}")
 	public String displayProtocolPage(@PathVariable int id, Model model) {
 	    if (id == 0) {
@@ -123,9 +175,8 @@ public class MainController {
 	    } else {
 	        // Fetch the protocol by its ID
 	        Protocol_admin protocol = Protocol_admin.findById(id);
-
-	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson();
-	        List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()
+	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson(); //used for the drop down 
+	        List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()// actual display data 
 	        	    .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
 	        	    .collect(Collectors.toList());
 

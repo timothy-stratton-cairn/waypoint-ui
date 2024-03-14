@@ -103,7 +103,18 @@ public class ProtocolTemplateHelper {
 		
 		return result;
 	}
-
+	/**
+	 * Get an individual step Template.
+	 * 
+	 * @param usr User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call
+	 * @param id Step Id used to retrieve the step template 
+	 * @return
+	 */
+	public ProtocolStepTemplate getStep(User usr, int id) {
+		ProtocolStepTemplate result = null;
+		return result;
+	}
 	/**
 	 * Get a list of protocol templates
 	 * 
@@ -275,5 +286,6 @@ public class ProtocolTemplateHelper {
 
 		return result;
 	}
+	
 
 }

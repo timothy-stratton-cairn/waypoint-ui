@@ -5,7 +5,13 @@
 	function selectProtocol(id){
 	    window.location = '/editProtocol/'+id;		
 	}
+	function newProtocol(){
+		window.location ='/newProtocol/';  
+	}
 </script>
+<div class="container">
+    <button class="btn btn-secondary" onclick="selectProtocol(0);">New Protocol</button> <!--We'll replace this later once we get newProtocol sorted-->
+</div>
 <body>
 	<div class="container">
 		<div class="row note_card">

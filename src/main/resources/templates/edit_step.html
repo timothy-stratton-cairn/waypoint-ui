@@ -4,8 +4,8 @@
     <title>Edit Step</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script>
-        function saveStep() {
-            alert('Step saved!'); 
+        function saveStep(id) {
+            window.location = 'saveStep/'+step.id; 
         }
     </script>
 </head>
@@ -19,16 +19,16 @@
         <fieldset>
             <legend>Edit Step</legend>
             <form th:action="@{/saveStep}" method="post">
-                <input type="hidden" name="stepId" th:value="${step.stepId}">
+                <input type="hidden" name="stepId" th:value="${step.id}">
                 <div class="form-group">
                     <label for="stepName">Name:</label>
-                    <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.stepName}">
+                    <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.name}">
                 </div>
                 <div class="form-group">
                     <label for="stepDetails">Description:</label>
                     <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.details}"></textarea>
                 </div>
-                <button type="button" class="btn btn-secondary" onclick="saveStep();">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="saveStep('+${step.id}+');">Save</button>
             </form>
         </fieldset>
     </div>

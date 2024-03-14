@@ -9,6 +9,7 @@ public class Protocol_admin {
     private int id;
     private String name;
     private int numClients;
+    private int type;
     private List<Integer> steps; 
 
     public Protocol_admin() {
@@ -32,6 +33,16 @@ public class Protocol_admin {
         this.name = name;
     }
 
+	public int getType() {
+		/* 2 types of protocols *
+		  0: Undefined
+		  1: Life Events
+		  2: Life Cycle */
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
+	}
     public int getNumClients() {
         return numClients;
     }

@@ -6,27 +6,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Protocol_step_admin {
-    private int stepId;
-    private String stepName;
+    private int id;
+    private String name;
     private String details;
 	private int type;
 
     public Protocol_step_admin() {}
 
-    public int getStepId() {
-        return stepId;
-    }
 
     public void setStepId(int stepId) {
-        this.stepId = stepId;
+        this.id = stepId;
     }
 
-    public String getStepName() {
-        return stepName;
-    }
-
+	public int getId() {
+		return id;
+	}
+	public String getName() {
+		return name;
+	}
+	
     public void setStepName(String stepName) {
-        this.stepName = stepName;
+        this.name = stepName;
     }
 
     public String getDetails() {
@@ -84,7 +84,7 @@ public class Protocol_step_admin {
     // Method to find a step by ID
     public static Protocol_step_admin findById(int stepId, List<Protocol_step_admin> steps) {
         for (Protocol_step_admin step : steps) {
-            if (step.getStepId() == stepId) {
+            if (step.getId() == stepId) {
                 return step;
             }
         }

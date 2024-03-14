@@ -8,14 +8,14 @@
     <script>
         var protocolId = [[${protocolId}]]; 
         
-        function editProtocol(stepId) {
-            window.location = '/editStep_admin/' + stepId;
+        function editProtocol(id) {
+            window.location = '/editStep_admin/' + id;
         }
         function disableProtocol(id) {
             alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
         }
         function saveprotocol(){
-            alert('Protocol Saved');
+            window.location = '/saveProtocol/'+id;
         }
         function addStep() {
             const container = document.querySelector("#stepsContainer");
@@ -27,7 +27,7 @@
             var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-            var stepId = buttonElement.previousElementSibling.value; 
+            var id = buttonElement.previousElementSibling.value; 
             var protocolIdId = protocolId;
             
             fetch(`/addStepToProtocol/${protocolId}`, {
@@ -36,7 +36,7 @@
                     'Content-Type': 'application/json',
                     [csrfHeader]: csrfToken
                 },
-                body: JSON.stringify({ stepId: stepId }),
+                body: JSON.stringify({ id: id }),
             })
             .then(response => {
                 if(response.ok) {
@@ -89,26 +89,39 @@
                         <label for="name"><strong>Name:</strong></label>
                         <input type="text" id="name" name="name" th:value="${protocol.name}" />
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="saveprotocol()">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="saveprotocol('+${step.id}+')">Save</button>
                 </form>
             </fieldset>
         </div>
     </div>
 
     <!-- Protocol Details Display for Existing Protocol -->
-    <div th:if="${protocol.id != null && protocol.id > 0}">
-        <div class="row note_card">
-            <fieldset>
-                <legend>Protocol Details</legend>
-                <div>
-                    <strong>ID:</strong> <span th:text="${protocol.id}"></span>
-                </div>
-                <div>
-                    <strong>Name:</strong> <span th:text="${protocol.name}"></span>
-                </div>
-            </fieldset>
-        </div>
-    </div>
+		<div th:if="${protocol.id != null && protocol.id > 0}">
+		    <div class="row note_card">
+		        <fieldset>
+		            <legend>Protocol Details</legend>
+		            <div>
+		                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
+		                    <div class="d-flex align-items-center">
+		                        <div >
+		                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
+		                            <input type="form-control" id="name" name="name" th:value="${protocol.name}" />
+		                        </div>
+		                        <div >
+		                            <label for="type" class="mr-md-3"><strong>Type:</strong></label>
+		                            <input class="form-control" id="type" name="type" th:field="${protocol.type}"/>
+		                        </div>
+		                     	<!--<div class="md-2">
+		                            <strong>ID:</strong> <span th:text="${protocol.id}"></span>
+		                        </div> -->
+		                    </div>
+		                <button type="button" class="btn btn-secondary" onclick="saveprotocol('+${step.id}+')">Save</button>
+		                </form>
+		            </div>
+		        </fieldset>
+		    </div>
+		</div>
+
     
     <!-- Steps Section with Tabs -->
     <div class="row note_card">
@@ -125,12 +138,12 @@
             </ul>
             
             <div id="stepsContent">
-                <div th:each="step, status : ${steps}" th:id="|row_${step.stepId}|"
+                <div th:each="step, status : ${steps}" th:id="|row_${step.id}|"
                      th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.type}">
-                    <div class="col" th:text="${step.stepName}">[Step Name]</div>
+                    <div class="col" th:text="${step.name}">[Step Name]</div>
                     <div class="col">
-                        <button type="button" class="btn btn-secondary" th:onclick="'editProtocol('+${step.stepId}+');'">Details</button>
-                        <button type="button" class="btn btn-danger" th:onclick="'disableProtocol('+${step.stepId}+');'">Disable</button>
+                        <button type="button" class="btn btn-secondary" th:onclick="'editProtocol('+${step.id}+');'">Details</button>
+                        <button type="button" class="btn btn-danger" th:onclick="'disableProtocol('+${step.id}+');'">Disable</button>
                     </div>
                 </div>
                 <div th:if="${steps.empty}">
@@ -141,8 +154,8 @@
             <!-- Template for adding new step -->
             <template id="stepTemplate">
                 <div class="new-step-row">
-                    <select class="form-control" name="newStepId">
-                        <option th:each="step : ${allSteps}" th:value="${step.stepId}" th:text="${step.stepName}"></option>
+                    <select class="form-control" name="newid">
+                        <option th:each="step : ${allSteps}" th:value="${step.id}" th:text="${step.name}"></option>
                     </select>
                     <button type="button" class="btn btn-secondary" onclick="confirmStep(this);">Confirm</button>
                 </div>
