@@ -4,6 +4,7 @@ public class ProtocolStepTemplate {
 
 	private int id;
 	private String name;
+	private String description;
 	private int type;
 
 	public String getTypeDisplay() {
@@ -49,5 +50,11 @@ public class ProtocolStepTemplate {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

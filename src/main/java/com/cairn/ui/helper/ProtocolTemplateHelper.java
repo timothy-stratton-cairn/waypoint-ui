@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.cairn.ui.Constants;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
@@ -32,6 +33,57 @@ public class ProtocolTemplateHelper {
 	 */
 	public ArrayList<ProtocolStepTemplate> availableSteps(User usr,ProtocolTemplate theTemplate, int type) {
 		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
+		
+		if (usr == null) {
+			return results;
+		}
+
+		// Prepare the request body
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
+
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+
+		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate;
+
+		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
+
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					JsonNode prots = jsonNode.get("protocolTemplates");
+					// Iterate through the array elements
+					ProtocolTemplate entry = null;
+					if (prots.isArray()) {
+						for (JsonNode element : prots) {
+							// Access and print array elements
+							if (element != null) {
+								entry = new ProtocolTemplate();
+								entry.setName(element.get("name").asText());
+								entry.setId(Integer.valueOf(element.get("id").toString()));
+								results.add(entry);
+							}
+						}
+					}
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+			System.out.println("No protocols returned");
+		}
+
 		return results;
 	}
 
@@ -136,7 +188,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = "http://96.61.158.12:8083/api/protocol-template";
+		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -197,7 +249,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = "http://96.61.158.12:8083/api/protocol-step-template";
+		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -256,7 +308,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = "http://96.61.158.12:8083/api/protocol-template/" + id;
+		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplate + "/" + id;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -272,6 +324,24 @@ public class ProtocolTemplateHelper {
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+					/* Add in the steps */
+					JsonNode perms = jsonNode.get("associatedSteps");
+					// Iterate through the array elements
+					ArrayList<ProtocolStepTemplate> steps = new ArrayList<ProtocolStepTemplate>();
+					if (perms.isArray()) {
+						for (JsonNode element : perms) {
+							// Access and print array elements
+							if (element != null) {
+								ProtocolStepTemplate curStep = new ProtocolStepTemplate();
+								curStep.setName(element.get("name").asText());
+								curStep.setId(Integer.parseInt(element.get("id").asText()));
+								curStep.setDescription(element.get("description").asText());
+								steps.add(curStep);
+							}
+						}
+						result.setSteps(steps);
+					}
+
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
 				} catch (JsonProcessingException e) {
@@ -286,6 +356,4 @@ public class ProtocolTemplateHelper {
 
 		return result;
 	}
-	
-
 }

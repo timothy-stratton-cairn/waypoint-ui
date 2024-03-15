@@ -1,6 +1,7 @@
 package com.cairn.ui.helper;
 
 import java.util.ArrayList;
+import com.cairn.ui.Constants;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +34,7 @@ public class ProtocolHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = "http://96.61.158.12:8083/api/protocol";
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol;
 
 		// Make the GET request and retrieve the response
 		try {
