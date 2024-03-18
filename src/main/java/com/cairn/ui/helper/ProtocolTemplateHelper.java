@@ -58,7 +58,7 @@ public class ProtocolTemplateHelper {
 				JsonNode jsonNode;
 				try {
 					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("protocolTemplates");
+					JsonNode prots = jsonNode.get("stepTemplates");
 					// Iterate through the array elements
 					ProtocolStepTemplate entry = null;
 					if (prots.isArray()) {
@@ -116,17 +116,17 @@ public class ProtocolTemplateHelper {
 				JsonNode jsonNode;
 				try {
 					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("protocolTemplates");
+					JsonNode prots = jsonNode.get("stepTemplates");
 					// Iterate through the array elements
-					ProtocolTemplate entry = null;
+					ProtocolStepTemplate entry = null;
 					if (prots.isArray()) {
 						for (JsonNode element : prots) {
 							// Access and print array elements
 							if (element != null) {
-								entry = new ProtocolTemplate();
+								entry = new ProtocolStepTemplate();
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
-								//results.add(entry);
+								results.add(entry);
 							}
 						}
 					}
@@ -196,7 +196,30 @@ public class ProtocolTemplateHelper {
 	 */
 	public int addTemplateStep(User usr,ProtocolTemplate theTemplate, ProtocolStepTemplate theStep) {
 		int result = 0;
-		
+
+		// Prepare the request body
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
+
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+
+		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_assign + theTemplate.getId();
+
+		// Make the GET request and retrieve the response
+		try {
+			/* to-do: need to send the template data in the call */
+			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				System.out.println("Assigned Step... " + response.getStatusCode());				
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+			System.out.println("Step not found");
+		}
+
 		return result;
 	}
 
@@ -214,6 +237,8 @@ public class ProtocolTemplateHelper {
 		
 		return result;
 	}
+
+	
 	/**
 	 * Get an individual step Template.
 	 * 
@@ -223,7 +248,45 @@ public class ProtocolTemplateHelper {
 	 * @return
 	 */
 	public ProtocolStepTemplate getStep(User usr, int id) {
-		ProtocolStepTemplate result = null;
+		ProtocolStepTemplate result = new ProtocolStepTemplate();
+
+		// Prepare the request body
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
+
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+
+		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get + id;
+
+		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
+
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					result.setName(jsonNode.get("name").asText());
+					result.setDescription(jsonNode.get("description").asText());
+					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+					result.setType(Integer.valueOf(jsonNode.get("stepTemplateCategory").get("id").asText()));					
+
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+			System.out.println("Step not found");
+		}
+
 		return result;
 	}
 	/**
@@ -308,7 +371,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate;
+		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplateget + id;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -321,7 +384,8 @@ public class ProtocolTemplateHelper {
 				JsonNode jsonNode;
 				try {
 					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("stepTemplates");
+					JsonNode temp = jsonNode.get("associatedSteps");
+					JsonNode prots = temp.get("steps");
 					// Iterate through the array elements
 					ProtocolStepTemplate entry = null;
 					if (prots.isArray()) {
@@ -329,6 +393,7 @@ public class ProtocolTemplateHelper {
 							// Access and print array elements
 							if (element != null) {
 								entry = new ProtocolStepTemplate();
+								entry.setDescription(element.get("description").asText());
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
 								results.add(entry);

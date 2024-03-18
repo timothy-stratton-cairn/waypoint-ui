@@ -26,7 +26,7 @@
                 </div>
                 <div class="form-group">
                     <label for="stepDetails">Description:</label>
-                    <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.details}"></textarea>
+                    <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.description}"></textarea>
                 </div>
                 <button type="button" class="btn btn-secondary" onclick="saveStep('+${step.id}+');">Save</button>
             </form>

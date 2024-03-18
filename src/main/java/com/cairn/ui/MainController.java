@@ -100,7 +100,7 @@ public class MainController {
 		return model;
 	}
 	
-	@GetMapping("/editProtocol/{id}") // sorta works but don't have a all steps for the drop down need to figure that out
+	@GetMapping("/editProtocol/{id}") 
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 	    User usr = (User) userDAO.getUser();
 	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
@@ -234,14 +234,15 @@ public class MainController {
 	@GetMapping("/editStep_admin/{stepId}")
 	public ModelAndView editStep_admin(@PathVariable int stepId) {
 	    ModelAndView model = new ModelAndView("edit_Step");
+		User usr = (User) userDAO.getUser();
+		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
 
 	    if (stepId == 0) {
 	        // Create a new step with default values
-	        Protocol_step_admin step = new Protocol_step_admin();
+	        ProtocolStepTemplate step = new ProtocolStepTemplate();
 	        model.addObject("step", step);
 	    } else {
-	        List<Protocol_step_admin> steps = Protocol_step_admin.loadStepsFromJson();
-	        Protocol_step_admin step = Protocol_step_admin.findById(stepId, steps);
+	        ProtocolStepTemplate step = helper.getStep(usr, stepId);
 	        model.addObject("step", step);
 	    }
 
