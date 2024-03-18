@@ -60,12 +60,12 @@ public class ProtocolTemplateHelper {
 					jsonNode = objectMapper.readTree(jsonResponse);
 					JsonNode prots = jsonNode.get("protocolTemplates");
 					// Iterate through the array elements
-					ProtocolTemplate entry = null;
+					ProtocolStepTemplate entry = null;
 					if (prots.isArray()) {
 						for (JsonNode element : prots) {
 							// Access and print array elements
 							if (element != null) {
-								entry = new ProtocolTemplate();
+								entry = new ProtocolStepTemplate();
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
 								results.add(entry);
@@ -86,6 +86,65 @@ public class ProtocolTemplateHelper {
 
 		return results;
 	}
+	
+	
+	//same as above but instead grabbing all types 
+	public ArrayList<ProtocolStepTemplate> getAllSteps(User usr,ProtocolTemplate theTemplate) {
+		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
+		
+		if (usr == null) {
+			return results;
+		}
+
+		// Prepare the request body
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
+
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+
+		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate;
+
+		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
+
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					JsonNode prots = jsonNode.get("protocolTemplates");
+					// Iterate through the array elements
+					ProtocolTemplate entry = null;
+					if (prots.isArray()) {
+						for (JsonNode element : prots) {
+							// Access and print array elements
+							if (element != null) {
+								entry = new ProtocolTemplate();
+								entry.setName(element.get("name").asText());
+								entry.setId(Integer.valueOf(element.get("id").toString()));
+								//results.add(entry);
+							}
+						}
+					}
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+			System.out.println("No protocols returned");
+		}
+
+		return results;
+	}
+
 
 	public Map<String,String> getStepTypes() {
         HashMap<String, String> retVal = new HashMap<String, String>();

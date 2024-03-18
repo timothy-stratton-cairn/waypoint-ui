@@ -105,7 +105,7 @@ public class MainController {
 	    User usr = (User) userDAO.getUser();
 	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
 	    ProtocolTemplate pcol = helper.getTemplate(usr, id);
-	    ArrayList<ProtocolStepTemplate> allSteps = helper.availableSteps(usr, pcol, 0); //need an option for all step types 
+	    ArrayList<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr, pcol);
 	    List<ProtocolStepTemplate> listSteps = helper.getStepList(usr, id);
 	    
 	    model.addAttribute("protocolId", id);
