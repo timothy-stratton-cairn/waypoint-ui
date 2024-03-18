@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<xmlns="http://www.thymeleaf.org">
+<div th:insert="~{header :: main}">...</div>
+
+<body>
+	
+<div class = container>
+	    <div class="row note_card">
+	        <fieldset>
+				<legend>Profile </legend>
+				<div class="row ">
+					<div class="col-md-2">
+						<label for="name">Email : </label>
+					</div>
+					<div class="col-md-1" th:text="${user.email}"></div>
+				</div>
+				<div class="row ">
+					<div class="col-md-2">
+						<label for="name"> Username : </label>
+					</div>
+					<div class="col-md-1" th:text="${user.username}"></div>
+				</div>
+				<div>
+					<div class="row">
+						<div class="col-md-1">&nbsp;</div>
+						<button type="button" class="btn btn-secondary" onclick="reports()">Reports</button>
+
+					</div>
+				</div>
+				<br>
+				<div>
+					<div class = "row">
+						<button type="button" class="btn btn-secondary" onclick="editUser()">Change Password</button>
+					</div>
+				</div>
+				<br>
+				
+				
+	        </fieldset>
+	    </div>
+</div>
+<script>
+	        function reports() {
+            alert('Coming Soon');
+        }
+        function editUser(){
+			window.location = '/changeUserInfo';
+			
+		};
+</script>
+</body>
+<div th:insert="~{footer :: main}">...</div>
+</html>

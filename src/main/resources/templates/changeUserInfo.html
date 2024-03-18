@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<xmlns="http://www.thymeleaf.org">
+<div th:insert="~{header :: main}">...</div>
+<script>
+    function saveUserDetails() {
+        alert('User details saved.');
+    }
+</script>
+<body>
+<div class="container">
+    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+</div>
+<div class = container>
+	    <div class="row note_card">
+	        <fieldset>
+				<legend>Change User Details </legend>
+				            <form id="userDetailsForm">
+				<div class="form-group">
+                    <label for="userName">Previous User Name:</label>
+                    <input type="text" id="oldUserName" name="oldUserName" class="form-control" placeholder="Enter user name"/>
+                </div>
+                <div class="form-group">
+                    <label for="userName">New User Name:</label>
+                    <input type="text" id="userName" name="newUsername" class="form-control" placeholder="Enter user name"/>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Password:</label>
+                    <input type="password" id="userPassword" name="userPassword" class="form-control" placeholder="Enter Password"/>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">New Password:</label>
+                    <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter New Password"/>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="saveUserDetails()">Save</button>
+            </form>
+				
+				
+	        </fieldset>
+	    </div>
+</div>
+	
+</body>>
+<div th:insert="~{footer :: main}">...</div>
+</html>

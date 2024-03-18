@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -104,11 +105,13 @@ public class MainController {
 	    User usr = (User) userDAO.getUser();
 	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
 	    ProtocolTemplate pcol = helper.getTemplate(usr, id);
+	    ArrayList<ProtocolStepTemplate> allSteps = helper.availableSteps(usr, pcol, 0); //need an option for all step types 
 	    List<ProtocolStepTemplate> listSteps = helper.getStepList(usr, id);
 	    
 	    model.addAttribute("protocolId", id);
 	    model.addAttribute("protocol", pcol);
 	    model.addAttribute("steps", listSteps);
+	    model.addAttribute("allSteps", allSteps);
 
 	    return "displayProtocol";
 	}
@@ -245,5 +248,22 @@ public class MainController {
 	    return model;
 	}
 
+    @GetMapping("/profile")
+    public String userProfile(Model model) {
+        User currentUser = userDAO.getUser(); // Fetch the currently logged-in user using UserDAO
+        if (currentUser != null) {
+            model.addAttribute("user", currentUser);
+        } else {
+            model.addAttribute("error", "Something's gone wrong please");
+        }
+        return "userProfile"; 
+    }
+    
+    @GetMapping("/changeUserInfo")
+    public String showChangeUserInfoForm(Model model) {
+        User userDetails = new User(); // Creates a new UserDetails object to hold form data
+        model.addAttribute("userDetails", userDetails); // Adds the object to the model to be accessed by the form
+        return "changeUserInfo"; 
+    }
 
 }
