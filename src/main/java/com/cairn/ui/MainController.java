@@ -25,8 +25,6 @@ import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
-import com.cairn.ui.model.Protocol_admin;
-import com.cairn.ui.model.Protocol_step_admin;
 import com.cairn.ui.model.User;
 import com.cairn.ui.model.UserDAO;
 
@@ -108,6 +106,12 @@ public class MainController {
 	    ArrayList<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr, pcol);
 	    List<ProtocolStepTemplate> listSteps = helper.getStepList(usr, id);
 	    
+	    
+//	    System.out.println("Logging step details:");
+//	    for (ProtocolStepTemplate step : listSteps) { 
+//	        System.out.println("Name: " + step.getName() + ", ID: " + step.getId() + ", Type: " + step.getType());
+//	    }
+	    
 	    model.addAttribute("protocolId", id);
 	    model.addAttribute("protocol", pcol);
 	    model.addAttribute("steps", listSteps);
@@ -166,32 +170,7 @@ public class MainController {
 	}
 
 	
-	@GetMapping("/displayProtocol/{id}")
-	public String displayProtocolPage(@PathVariable int id, Model model) {
-	    if (id == 0) {
-	        // Create a new, empty Protocol_admin object and an empty list of steps
-	        Protocol_admin protocol = new Protocol_admin(); 
-	        List<Protocol_step_admin> steps = new ArrayList<>();
-	        // Add attributes to the model
-	        model.addAttribute("protocol", protocol);
-	        model.addAttribute("steps", steps);
-	    } else {
-	        // Fetch the protocol by its ID
-	        Protocol_admin protocol = Protocol_admin.findById(id);
-	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson(); //used for the drop down 
-	        List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()// actual display data 
-	        	    .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
-	        	    .collect(Collectors.toList());
 
-	        // Add attributes to the model
-	        model.addAttribute("protocolId", id);
-	        model.addAttribute("protocol", protocol);
-	        model.addAttribute("steps", associatedSteps);
-	        model.addAttribute("allSteps", allSteps);
-	    }
-
-	    return "displayProtocol";
-	}
 
 
 	@GetMapping("/protocolTemplates")
@@ -203,19 +182,6 @@ public class MainController {
 		return "protocolTemplateList";
 	}
 	
-	@GetMapping("/protocols_admin")
-	public String protocolListPage(Model model) {
-		List<Protocol_admin> listProtocols = Protocol_admin.getList_admin();
-		model.addAttribute("listProtocols", listProtocols );
-		return "protocolList_admin";
-	}
-	
-	public ModelAndView viewProtocol_admin(@PathVariable int id) {
-	    ModelAndView model = new ModelAndView("protocolDetail_admin");
-	    Protocol_admin protocol = Protocol_admin.findById(id);
-	    model.addObject("protocol_admin", protocol); // Adding the protocol object to the model
-	    return model;
-	}
 	
 
 	@PostMapping("/addStepToProtocol/{protocolId}/{stepId}")
@@ -231,7 +197,7 @@ public class MainController {
 
 	
 	
-	@GetMapping("/editStep_admin/{stepId}")
+	@GetMapping("/editStep_admin/{stepId}") //this is right just needs to be renamed 
 	public ModelAndView editStep_admin(@PathVariable int stepId) {
 	    ModelAndView model = new ModelAndView("edit_Step");
 		User usr = (User) userDAO.getUser();
