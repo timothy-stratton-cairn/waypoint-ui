@@ -218,13 +218,13 @@ public class MainController {
 	}
 	
 
-	@PostMapping("/addStepToProtocol/{protocolId}")
+	@PostMapping("/addStepToProtocol/{protocolId}/{stepId}")
 	public ResponseEntity<?> addStepToProtocol(@PathVariable Integer protocolId, @RequestBody Integer stepId) {
-	    Protocol_admin protocol = Protocol_admin.findById(protocolId);
-	    if (protocol != null) {
-	        protocol.addStep(stepId);
-	        return ResponseEntity.ok().build();
-	    }
+	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+	    User usr = (User) userDAO.getUser();
+	    ProtocolTemplate pcol = helper.getTemplate(usr,protocolId);
+	    ProtocolStepTemplate step = helper.getStep(usr, stepId);
+	    helper.addTemplateStep(usr, pcol, step);
 	    return ResponseEntity.notFound().build();
 	}
 
