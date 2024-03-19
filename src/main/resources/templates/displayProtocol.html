@@ -102,14 +102,12 @@
 		            <legend>Protocol Details</legend>
 		            <div>
 		                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
-		                    <div class="d-flex align-items-center">
+		                    <div>
 		                        <div >
 		                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
 		                            <input type="form-control" id="name" name="name" th:value="${protocol.name}" />
-		                        </div>
-		                        <div >
-		                            <label for="type" class="mr-md-3"><strong>Type:</strong></label>
-		                            <input class="form-control" id="type" name="type" th:field="${protocol.type}"/>
+		                            <label for="type" class="m-md-3"><strong>Type:</strong></label>
+		                            <input class="text" id="type" name="type" th:field="${protocol.type}"/>
 		                        </div>
 		                     	<!--<div class="md-2">
 		                            <strong>ID:</strong> <span th:text="${protocol.id}"></span>
