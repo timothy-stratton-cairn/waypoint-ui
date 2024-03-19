@@ -197,8 +197,8 @@ public class MainController {
 
 	
 	
-	@GetMapping("/editStep_admin/{stepId}") //this is right just needs to be renamed 
-	public ModelAndView editStep_admin(@PathVariable int stepId) {
+	@GetMapping("/editStep/{stepId}") 
+	public ModelAndView editStep(@PathVariable int stepId) {
 	    ModelAndView model = new ModelAndView("edit_Step");
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
