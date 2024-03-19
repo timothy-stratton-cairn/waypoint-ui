@@ -71,16 +71,17 @@
             });
         });
 
-        function filterStepsByType(type) {
-            const steps = document.querySelectorAll('#stepsContent > div');
-            steps.forEach(step => {
-                if (type === 'all' || step.getAttribute('data-type') === type) {
-                    step.style.display = ''; // Show
-                } else {
-                    step.style.display = 'none'; // Hide
-                }
-            });
-        }
+		function filterStepsByType(type) {
+		    const steps = document.querySelectorAll('#stepsContent > div');
+		    steps.forEach(step => {
+		        if (type === 'all' || step.getAttribute('data-type') === type) {
+		            step.style.display = ''; // Show
+		        } else {
+		            step.style.display = 'none'; // Hide
+		        }
+		    });
+		}
+
     </script>
 </head>
 <body>
@@ -142,19 +143,7 @@
                 <li class="nav-item"><a class="nav-link" href="#" data-type="4">Share Education</a></li>
             </ul>
             
-            <div id="stepsGatherData">
-                <div th:each="step, status : ${steps}" th:id="|row_${step.id}|"
-                     th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.type}">
-                    <div class="col" th:text="${step.name}">[Step Name]</div>
-                    <div class="col">
-                        <button type="button" class="btn btn-secondary" th:onclick="'editProtocol('+${step.id}+');'">Details</button>
-                        <button type="button" class="btn btn-danger" th:onclick="'disableProtocol('+${step.id}+');'">Disable</button>
-                    </div>
-                </div>
-                <div th:if="${steps.empty}">
-                    <p>No steps available.</p>
-                </div>
-            </div>
+
 
             <div id="stepsContent">
                 <div th:each="step, status : ${steps}" th:id="|row_${step.id}|"
