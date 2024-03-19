@@ -200,7 +200,7 @@ public class ProtocolTemplateHelper {
 		// Prepare the request body
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Bearer " + usr.getToken());
-
+		
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
@@ -326,6 +326,7 @@ public class ProtocolTemplateHelper {
 					JsonNode prots = jsonNode.get("protocolTemplates");
 					// Iterate through the array elements
 					ProtocolTemplate entry = null;
+					int idx = 1;
 					if (prots.isArray()) {
 						for (JsonNode element : prots) {
 							// Access and print array elements
@@ -333,7 +334,12 @@ public class ProtocolTemplateHelper {
 								entry = new ProtocolTemplate();
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
+								// Test data, fix this later
+								entry.setType(idx++);
 								results.add(entry);
+								if (idx > 4) {
+									idx = 1;
+								}
 							}
 						}
 					}
