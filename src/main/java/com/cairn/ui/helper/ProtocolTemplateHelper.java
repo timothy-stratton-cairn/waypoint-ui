@@ -89,7 +89,7 @@ public class ProtocolTemplateHelper {
 	
 	
 	//same as above but instead grabbing all types 
-	public ArrayList<ProtocolStepTemplate> getAllSteps(User usr,ProtocolTemplate theTemplate) {
+	public ArrayList<ProtocolStepTemplate> getAllSteps(User usr) {
 		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
 		
 		if (usr == null) {
@@ -120,12 +120,18 @@ public class ProtocolTemplateHelper {
 					// Iterate through the array elements
 					ProtocolStepTemplate entry = null;
 					if (prots.isArray()) {
+						int idx = 1;
 						for (JsonNode element : prots) {
 							// Access and print array elements
 							if (element != null) {
 								entry = new ProtocolStepTemplate();
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
+								// Test data, fix this later
+								entry.setType(idx++);
+								if (idx > 4) {
+									idx = 1;
+								}
 								results.add(entry);
 							}
 						}
@@ -395,6 +401,7 @@ public class ProtocolTemplateHelper {
 					// Iterate through the array elements
 					ProtocolStepTemplate entry = null;
 					if (prots.isArray()) {
+						int idx = 1;
 						for (JsonNode element : prots) {
 							// Access and print array elements
 							if (element != null) {
@@ -402,6 +409,11 @@ public class ProtocolTemplateHelper {
 								entry.setDescription(element.get("description").asText());
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
+								// Test data, fix this later
+								entry.setType(idx++);
+								if (idx > 4) {
+									idx = 1;
+								}
 								results.add(entry);
 							}
 						}

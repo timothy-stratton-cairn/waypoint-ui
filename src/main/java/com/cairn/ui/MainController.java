@@ -105,7 +105,7 @@ public class MainController {
 	    User usr = (User) userDAO.getUser();
 	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
 	    ProtocolTemplate pcol = helper.getTemplate(usr, id);
-	    ArrayList<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr, pcol);
+	    ArrayList<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr);
 	    List<ProtocolStepTemplate> listSteps = helper.getStepList(usr, id);
 	    
 	    model.addAttribute("protocolId", id);
@@ -168,20 +168,20 @@ public class MainController {
 	
 	@GetMapping("/displayProtocol/{id}")
 	public String displayProtocolPage(@PathVariable int id, Model model) {
+		User usr = (User) userDAO.getUser();
 	    if (id == 0) {
 	        // Create a new, empty Protocol_admin object and an empty list of steps
-	        Protocol_admin protocol = new Protocol_admin(); 
-	        List<Protocol_step_admin> steps = new ArrayList<>();
+	        ProtocolTemplate protocol = new ProtocolTemplate(); 
+	        List<ProtocolStepTemplate> steps = new ArrayList<>();
 	        // Add attributes to the model
 	        model.addAttribute("protocol", protocol);
 	        model.addAttribute("steps", steps);
 	    } else {
 	        // Fetch the protocol by its ID
-	        Protocol_admin protocol = Protocol_admin.findById(id);
-	        List<Protocol_step_admin> allSteps = Protocol_step_admin.loadStepsFromJson(); //used for the drop down 
-	        List<Protocol_step_admin> associatedSteps = protocol.getSteps().stream()// actual display data 
-	        	    .map(stepId -> Protocol_step_admin.findById(stepId, allSteps))
-	        	    .collect(Collectors.toList());
+			ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+	        ProtocolTemplate protocol = helper.getTemplate(usr,id);
+	        List<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr); //used for the drop down 
+	        List<ProtocolStepTemplate> associatedSteps = helper.getStepList(usr,id);  
 
 	        // Add attributes to the model
 	        model.addAttribute("protocolId", id);
