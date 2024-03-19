@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Reports</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+
+
+<div class="container">
+    <div class="row justify-content-center">
+        <fieldset class="w-100">
+            <legend>Reports</legend>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="homework-tab" data-toggle="tab" href="#homework" role="tab" aria-controls="homework" aria-selected="true">Homework Assigned</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="report2-tab" data-toggle="tab" href="#report2" role="tab" aria-controls="report2" aria-selected="false">Report 2</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="report3-tab" data-toggle="tab" href="#report3" role="tab" aria-controls="report3" aria-selected="false">Report 3</a>
+        </li>
+    </ul>
+    <!-- Tab Content -->
+    <div class="tab-content" id="reportTabsContent">
+        <div class="tab-pane fade show active" id="homework" role="tabpanel" aria-labelledby="homework-tab">
+            <!-- Homework Assigned Table -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Users</th>
+                        <th>Assigned</th>
+                        <th>In process</th>
+                        <th>Completed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Test_Admin</td>
+                        <td>10</td>
+                        <td>8</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>Test_User</td>
+                        <td>8</td>
+                        <td>3</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>User_1</td>
+                        <td>6</td>
+                        <td>5</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>User_2</td>
+                        <td>14</td>
+                        <td>12</td>
+                        <td>2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="report2" role="tabpanel" aria-labelledby="report2-tab">
+            <!-- Content for Report 2 -->
+        </div>
+        <div class="tab-pane fade" id="report3" role="tabpanel" aria-labelledby="report3-tab">
+            <!-- Content for Report 3 -->
+        </div>
+    </div>
+                <div class="row">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-secondary m-2" onclick="reports()">Report1</button>
+                    <button type="button" class="btn btn-secondary m-2" onclick="reports()">Report2</button>
+                    <button type="button" class="btn btn-secondary m-2" onclick="reports()">Report3</button>
+                </div>
+            </div>
+</div>
+
+        </fieldset>
+        
+    </div>
+    
+</div>
+<script>
+    function reports() {
+        alert('Coming Soon');
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<div th:insert="~{footer :: main}">...</div>
+</body>
+</html>

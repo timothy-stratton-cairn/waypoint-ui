@@ -267,4 +267,13 @@ public class MainController {
         return "changeUserInfo"; 
     }
 
+    @GetMapping("reports")
+    public String reports(Model model) {
+    	return "reports";
+    }
+    
+    @GetMapping("clients")
+    public String displayClients(Model model) {
+    	return "displayClients";
+    }
 }
