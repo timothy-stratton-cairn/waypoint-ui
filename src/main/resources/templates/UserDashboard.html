@@ -18,26 +18,28 @@
 				<div th:if="${msg}">
 					<div class="alert alert-info" th:text="${msg}"></div>
 				</div>
-				<div class="row ">
-					<div class="col-md-1">&nbsp;</div>
-					<div class="col-md-2">
-						<label for="name">New : </label>
+				<div class="row">
+					<div class="col">
+						<label>Name</label>
 					</div>
-					<div class="col-md-1" th:text="${news}"></div>
+					<div class="col">
+						<label>Number of Steps</label>
+					</div>
+					<div class="col">
+						<label>Steps In Progress</label>
+					</div>
+					<div class="col">
+						<label>Steps Completed</label>
+					</div>
+					<div class="col">
+						<label>Completion Percent</label>
+					</div>
 				</div>
-				<div class="row ">
-					<div class="col-md-1">&nbsp;</div>
-					<div class="col-md-2">
-						<label for="name">In Process : </label>
-					</div>
-					<div class="col-md-1" th:text="${pendings}"></div>
-				</div>
-				<div class="row ">
-					<div class="col-md-1">&nbsp;</div>
-					<div class="col-md-2">
-						<label for="name">Work Complete : </label>
-					</div>
-					<div class="col-md-1" th:text="${completed}"></div>
+				<div th:each="stat, status: ${stats}" th:id="|row_${stat.templateId}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+					<div class="col" th:text="${stat.templateName}"></div>
+					<div class="col" th:text="${stat.progress}"></div>
+					<div class="col" th:text="${stat.done}"></div>
+					<div class="col" th:text="${stat.completion}"></div>
 				</div>
 				<div class="row ">&nbsp;</div>
 			</fieldset>

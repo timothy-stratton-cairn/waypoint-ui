@@ -2,7 +2,6 @@ package com.cairn.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.cairn.ui.helper.DashboardHelper;
 import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
+import com.cairn.ui.model.Dashboard;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
@@ -48,9 +48,10 @@ public class MainController {
 			return "home";
 		}
 		int id = usr.getId();
-
+		DashboardHelper helper = new DashboardHelper();
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
+		model.addAttribute("stats", helper.getDashboard(usr));
 		return "UserDashboard";
 	}
 
@@ -105,12 +106,6 @@ public class MainController {
 	    ProtocolTemplate pcol = helper.getTemplate(usr, id);
 	    ArrayList<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr);
 	    List<ProtocolStepTemplate> listSteps = helper.getStepList(usr, id);
-	    
-	    
-//	    System.out.println("Logging step details:");
-//	    for (ProtocolStepTemplate step : listSteps) { 
-//	        System.out.println("Name: " + step.getName() + ", ID: " + step.getId() + ", Type: " + step.getType());
-//	    }
 	    
 	    model.addAttribute("protocolId", id);
 	    model.addAttribute("protocol", pcol);
@@ -173,22 +168,26 @@ public class MainController {
 	@GetMapping("/displayProtocol/{id}")
 	public String displayProtocolPage(@PathVariable int id, Model model) {
 		User usr = (User) userDAO.getUser();
-	    if (id == 0) {
-	        // Create a new, empty Protocol_admin object and an empty list of steps
-	        ProtocolTemplate protocol = new ProtocolTemplate(); 
-	        List<ProtocolStepTemplate> steps = new ArrayList<>();
-	        // Add attributes to the model
-	        model.addAttribute("protocol", protocol);
-	        model.addAttribute("steps", steps);
-	    } else {
+        List<ProtocolStepTemplate> steps = new ArrayList<>();
+        List<ProtocolStepTemplate> associatedSteps = new ArrayList<>();
+        ProtocolTemplate protocol = new ProtocolTemplate(); 
+		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+	    if (id > 0) {
 	        // Fetch the protocol by its ID
-			ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-	        ProtocolTemplate protocol = helper.getTemplate(usr,id);
-	        List<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr); //used for the drop down 
-	        List<ProtocolStepTemplate> associatedSteps = helper.getStepList(usr,id);  
+	        protocol = helper.getTemplate(usr,id);
+	        associatedSteps = helper.getStepList(usr,id);  
+	    }
+        List<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr); //used for the drop down 
 
+	    // Add attributes to the model
+        model.addAttribute("protocolId", id);
+        model.addAttribute("protocol", protocol);
+        model.addAttribute("steps", associatedSteps);
+        model.addAttribute("allSteps", allSteps);	    
+		return "displayProtocol";
+	}
 
-
+	    
 	@GetMapping("/protocolTemplates")
 	public String protocolTemplateListPage(HttpSession session, Model model) {
 		User usr = (User) userDAO.getUser();
@@ -197,9 +196,8 @@ public class MainController {
 		model.addAttribute("listProtocols", listProtocols );
 		return "protocolTemplateList";
 	}
-	
-	
 
+	
 	@PostMapping("/addStepToProtocol/{protocolId}/{stepId}")
 	public ResponseEntity<?> addStepToProtocol(@PathVariable Integer protocolId, @RequestBody Integer stepId) {
 	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();

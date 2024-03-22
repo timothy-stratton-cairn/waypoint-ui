@@ -18,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.cairn.ui.Constants;
 import com.cairn.ui.model.User;
 import com.cairn.ui.model.UserDAO;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,7 +47,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
 		// Make a POST request to your authentication API
-		ResponseEntity<String> response = restTemplate.exchange("http://96.61.158.12:8082/api/oauth/token",
+		ResponseEntity<String> response = restTemplate.exchange(Constants.auth_server + "/api/oauth/token",
 				HttpMethod.POST, requestEntity, String.class);
 
 		// Check if the response is successful (e.g., status code 200)
