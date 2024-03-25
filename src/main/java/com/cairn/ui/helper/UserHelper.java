@@ -111,22 +111,46 @@ public class UserHelper {
 					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
 					result.setFirstName(jsonNode.get("firstName").asText());
 					result.setLastName(jsonNode.get("lastName").asText());
+					result.setUsername(jsonNode.get("username").asText());
+					result.setEmail(jsonNode.get("email").asText());
 					JsonNode roles = jsonNode.get("roles");
 					JsonNode deps = jsonNode.get("dependents");
-					JsonNode coclients = jsonNode.get("coClient");
+					JsonNode coclient = jsonNode.get("coClient");
+					User temp = new User();
+					if (coclient != null) {
+						temp = new User();
+						temp.setId(Integer.valueOf(coclient.get("id").toString()));
+						temp.setFirstName(coclient.get("firstName").asText());
+						temp.setLastName(coclient.get("lastName").asText());
+						temp.setUsername(coclient.get("username").asText());
+						result.setCoclient(temp);
+					}
 					// Iterate through the array elements
-					User entry = null;
+					ArrayList<String> userRoles = new ArrayList<String>(); 
 					if (roles.isArray()) {
 						for (JsonNode element : roles) {
 							// Access and print array elements
 							if (element != null) {
-								entry = new User();
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								entry.setFirstName(element.get("firstName").asText());
-								entry.setLastName(element.get("lastName").asText());
+								userRoles.add(element.get("lastName").asText());
 							}
 						}
 					}
+					result.setRoles(userRoles);
+					ArrayList<User> userDeps = new ArrayList<User>(); 
+					if (deps.isArray()) {
+						for (JsonNode element : roles) {
+							// Access and print array elements
+							if (element != null) {
+								temp = new User();
+								temp.setId(Integer.valueOf(element.get("id").toString()));
+								temp.setFirstName(element.get("firstName").asText());
+								temp.setLastName(element.get("lastName").asText());
+								temp.setUsername(element.get("username").asText());
+								userDeps.add(temp);
+							}
+						}
+					}
+					result.setDependents(userDeps);
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
 				} catch (JsonProcessingException e) {
