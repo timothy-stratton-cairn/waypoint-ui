@@ -13,6 +13,9 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private String authToken;
+	private User coclient;
+	private ArrayList<String> roles = new ArrayList<String>();
+	private ArrayList<User> dependents = new ArrayList<User>();	
 	private ArrayList<String> permissions = new ArrayList<String>();
 	
 	public String getVerifypassword() {
@@ -205,5 +208,49 @@ public class User {
 	}
 	public String getRole() {
 		return this.role;
+	}
+
+	public String getVerifyPwd() {
+		return verifyPwd;
+	}
+
+	public String getAuthToken() {
+		return authToken;
+	}
+
+	public User getCoclient() {
+		return coclient;
+	}
+
+	public ArrayList<String> getRoles() {
+		return roles;
+	}
+
+	public ArrayList<User> getDependents() {
+		return dependents;
+	}
+
+	public void setVerifyPwd(String verifyPwd) {
+		this.verifyPwd = verifyPwd;
+	}
+
+	public void setAuthToken(String authToken) {
+		this.authToken = authToken;
+	}
+
+	public void setCoclient(User coclient) {
+		this.coclient = coclient;
+	}
+
+	public void setRoles(ArrayList<String> roles) {
+		this.roles = roles;
+	}
+
+	public void setDependents(ArrayList<User> dependents) {
+		this.dependents = dependents;
+	}
+
+	public void setPermissions(ArrayList<String> permissions) {
+		this.permissions = permissions;
 	}
 }
