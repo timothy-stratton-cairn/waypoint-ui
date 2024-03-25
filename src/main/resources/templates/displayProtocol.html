@@ -27,18 +27,17 @@
 		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 		
-		    // Assuming the select dropdown is immediately preceding the button within the same parent container
 		    var selectElement = buttonElement.previousElementSibling;
 		    var stepId = selectElement.value; // This assumes your dropdown directly gives you the stepId as its value
 		
 		    fetch(`/addStepToProtocol/${protocolId}/${stepId}`, {
-		        method: 'POST',
+		        method: 'PATCH', // Use uppercase for HTTP methods
 		        headers: {
 		            'Accept': 'application/json',
 		            'Content-Type': 'application/json',
 		            [csrfHeader]: csrfToken
-		        },
-		        body: JSON.stringify(stepId) // Ensuring the stepId is sent as a JSON body
+		        }
+		        // No body needed since stepId is in the URL
 		    })
 		    .then(response => {
 		        if(response.ok) {
@@ -53,7 +52,6 @@
 		        alert('Failed to add the step. Error: ' + error.message);
 		    });
 		}
-
 
 
         document.addEventListener('DOMContentLoaded', function() {

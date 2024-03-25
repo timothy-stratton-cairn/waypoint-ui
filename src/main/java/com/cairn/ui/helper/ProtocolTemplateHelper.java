@@ -8,6 +8,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
@@ -19,9 +21,20 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Service
 public class ProtocolTemplateHelper {
-	private final RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
 
+
+    private RestTemplate getRestTemplate() {
+        if (this.restTemplate == null) {
+            // Using HttpComponentsClientHttpRequestFactory to support PATCH
+            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+            requestFactory.setConnectTimeout(5000); 
+            this.restTemplate = new RestTemplate(requestFactory);
+        }
+        return this.restTemplate;
+    }
 	/**
 	 * Get a list of step templates not assigned to the protocol template.
 	 * 
@@ -49,7 +62,7 @@ public class ProtocolTemplateHelper {
 
 		// Make the GET request and retrieve the response
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
@@ -107,7 +120,7 @@ public class ProtocolTemplateHelper {
 
 		// Make the GET request and retrieve the response
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
@@ -200,33 +213,37 @@ public class ProtocolTemplateHelper {
 	 * @param theStep A protocol template step instance we want to add to the template.
 	 * @return int. Return code is 1 on successful addition or less than 1 for an error. 0 if the step is already assigned to the template.
 	 */
-	public int addTemplateStep(User usr,ProtocolTemplate theTemplate, ProtocolStepTemplate theStep) {
-		int result = 0;
+	public int addTemplateStep(User usr, ProtocolTemplate theTemplate, ProtocolStepTemplate theStep) {
+	    // Initial result indicating failure
+	    int result = -1;
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-		
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
+	    // Prepare the request body
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    
+	    // Assuming you need to send theStep as part of the request body
+	    HttpEntity<ProtocolStepTemplate> entity = new HttpEntity<>(theStep, headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_assign + theTemplate.getId();
+	    String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_assign + "/" + theTemplate.getId()+ "/"+ theStep.getId();
 
-		// Make the GET request and retrieve the response
-		try {
-			/* to-do: need to send the template data in the call */
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				System.out.println("Assigned Step... " + response.getStatusCode());				
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-			}
-		} catch (Exception e) {
-			System.out.println("Step not found");
-		}
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            System.out.println("Assigned Step... " + response.getStatusCode());
+	            // Update result to indicate success
+	            result = 1;
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	            result = 0;
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Step not found or error in assigning step");
+	        e.printStackTrace();
+	        // Keep result as -1 or set to another specific value indicating error
+	    }
 
-		return result;
+	    return result;
 	}
 
 	/**
@@ -267,7 +284,7 @@ public class ProtocolTemplateHelper {
 
 		// Make the GET request and retrieve the response
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
@@ -279,7 +296,12 @@ public class ProtocolTemplateHelper {
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
-					result.setType(Integer.valueOf(jsonNode.get("stepTemplateCategory").get("id").asText()));					
+				    JsonNode stepTemplateCategoryNode = jsonNode.path("stepTemplateCategory");
+				    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
+				        result.setType(stepTemplateCategoryNode.path("id").asInt());
+				    } else {
+				        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
+				    }				
 
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
@@ -290,7 +312,7 @@ public class ProtocolTemplateHelper {
 				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("Step not found");
+		    e.printStackTrace(); // This will give you more detailed error information
 		}
 
 		return result;
@@ -320,7 +342,7 @@ public class ProtocolTemplateHelper {
 
 		// Make the GET request and retrieve the response
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
@@ -387,7 +409,7 @@ public class ProtocolTemplateHelper {
 
 		// Make the GET request and retrieve the response
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
@@ -454,7 +476,7 @@ public class ProtocolTemplateHelper {
 
 		// Make the GET request and retrieve the response
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();

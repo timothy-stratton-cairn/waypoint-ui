@@ -21,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.cairn.ui.helper.DashboardHelper;
 import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
+import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.Dashboard;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStepTemplate;
@@ -145,16 +146,18 @@ public class MainController {
 	    }
 	}
 	
-	@PatchMapping("/saveStep/{id}")
-	public ResponseEntity<?> saveStep(@PathVariable int id) {
+	@PatchMapping("/saveStep/{stepId}")
+	public ResponseEntity<?> saveStep(@PathVariable int stepId) {
 	    try {
 	        User usr = (User) userDAO.getUser();
 	        ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-	        ProtocolStepTemplate pstep = helper.getStep(usr, id);
+	    
+	        ProtocolStepTemplate pstep = helper.getStep(usr, stepId);
+	     
 
 	        if (pstep != null) {
-	            helper.saveTemplateStep(usr, pstep);
-	            return ResponseEntity.ok().body("Step with ID " + id + " updated successfully.");
+	            helper.saveTemplateStep(usr,pstep);
+	            return ResponseEntity.ok().body("Step with ID " + stepId + " updated successfully.");
 	        } else {
 	            return ResponseEntity.notFound().build();
 	        }
@@ -198,16 +201,36 @@ public class MainController {
 	}
 
 	
-	@PostMapping("/addStepToProtocol/{protocolId}/{stepId}")
-	public ResponseEntity<?> addStepToProtocol(@PathVariable Integer protocolId, @RequestBody Integer stepId) {
-	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-	    User usr = (User) userDAO.getUser();
-	    ProtocolTemplate pcol = helper.getTemplate(usr,protocolId);
-	    ProtocolStepTemplate step = helper.getStep(usr, stepId);
-	    helper.addTemplateStep(usr, pcol, step);
-	    return ResponseEntity.notFound().build();
-	}
 
+	@PatchMapping("/addStepToProtocol/{protocolId}/{stepId}")
+	public ResponseEntity<?> addStepToProtocol(@PathVariable Integer protocolId, @PathVariable Integer stepId) {
+	    try {
+	        ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+	        User usr = (User) userDAO.getUser();
+	        ProtocolTemplate pcol = helper.getTemplate(usr, protocolId);
+	        ProtocolStepTemplate step = helper.getStep(usr, stepId);
+
+	        if (pcol == null || step == null) {
+	            return ResponseEntity.notFound().build();
+	        }
+
+	        int result = helper.addTemplateStep(usr, pcol, step);
+	        if (result == 1) {
+	            // Success
+	            return ResponseEntity.ok().build();
+	        } else if (result == 0) {
+	            // Failed operation
+	            return ResponseEntity.badRequest().body("Failed to assign step to template");
+	        } else {
+	            // Error
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error in assigning step");
+	        }
+	    } catch (Exception e) {
+
+	        System.err.println("Error adding step to protocol: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding step to protocol");
+	    }
+	}
 
 	
 	
@@ -254,6 +277,12 @@ public class MainController {
     
     @GetMapping("clients")
     public String displayClients(Model model) {
+    	User currentUser = userDAO.getUser(); 
+    	UserHelper usr = new UserHelper();
+    	ArrayList<User> userList = usr.getUserList(currentUser);
+    	model.addAttribute("UserList",userList);
+    	
+    	
     	return "displayClients";
     }
 }

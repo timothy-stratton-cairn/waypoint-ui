@@ -72,6 +72,7 @@ public class UserHelper {
 			}
 		} catch (Exception e) {
 			System.out.println("No user data returned");
+			e.printStackTrace();
 		}
 
 		return results;

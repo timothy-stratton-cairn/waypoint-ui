@@ -1,20 +1,43 @@
 <!DOCTYPE html>
-<xmlns="http://www.thymeleaf.org">
-<div th:insert="~{header :: main}">...</div>
-
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Clients</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css"/>
+    
+    <script>
+    $(document).ready(function() {
+        $('#userTable').DataTable();
+    });
+    </script>
+</head>
 <body>
-	
-	<div class = container>
-	    <div class="row note_card">
-	        <fieldset>
-				<legend>Clients</legend>
-	        </fieldset>
-	    </div>
+    <div th:insert="~{header :: main}">...</div>
 
-<script>
+    <div class="container">
+        <fieldset>
+            <legend>Clients</legend>
+            <table id="userTable" class="display dataTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${UserList}">
+                        <td th:text="${user.id}">ID</td>
+                        <td th:text="${user.firstName}">First Name</td>
+                        <td th:text="${user.lastName}">Last Name</td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+    </div>
 
-</script>
+    <div th:insert="~{footer :: main}">...</div>
 </body>
-<div th:insert="~{footer :: main}">...</div>
 </html>
-

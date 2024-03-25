@@ -1,14 +1,15 @@
 package com.cairn.ui.helper;
 
 import java.util.ArrayList;
-import com.cairn.ui.Constants;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,8 +17,21 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Service
 public class ProtocolHelper {
-	private final RestTemplate restTemplate = new RestTemplate();
+    
+    private RestTemplate restTemplate;
+
+    private RestTemplate getRestTemplate() {
+        if (this.restTemplate == null) {
+            // Using HttpComponentsClientHttpRequestFactory to support PATCH
+            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+            requestFactory.setConnectTimeout(5000); // Optional: set connection timeout
+            this.restTemplate = new RestTemplate(requestFactory);
+        }
+        return this.restTemplate;
+    }
+    
 
 	/**
 	 * Get a list of available protocols
@@ -38,7 +52,7 @@ public class ProtocolHelper {
 
 		// Make the GET request and retrieve the response
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
