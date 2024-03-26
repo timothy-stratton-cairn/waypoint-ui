@@ -120,7 +120,7 @@ public class UserHelper {
 				try {
 					jsonNode = objectMapper.readTree(jsonResponse);
 					result = new User();
-					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+					result.setId(uid);
 					result.setFirstName(jsonNode.get("firstName").asText());
 					result.setLastName(jsonNode.get("lastName").asText());
 					result.setUsername(jsonNode.get("username").asText());
@@ -129,7 +129,7 @@ public class UserHelper {
 					JsonNode deps = jsonNode.get("dependents");
 					JsonNode coclient = jsonNode.get("coClient");
 					User temp = new User();
-					if (coclient != null) {
+					if (!coclient.toString().equals("null")) {
 						temp = new User();
 						temp.setId(Integer.valueOf(coclient.get("id").toString()));
 						temp.setFirstName(coclient.get("firstName").asText());
@@ -143,14 +143,14 @@ public class UserHelper {
 						for (JsonNode element : roles) {
 							// Access and print array elements
 							if (element != null) {
-								userRoles.add(element.get("lastName").asText());
+								userRoles.add(element.asText());
 							}
 						}
 					}
 					result.setRoles(userRoles);
 					ArrayList<User> userDeps = new ArrayList<User>(); 
 					if (deps.isArray()) {
-						for (JsonNode element : roles) {
+						for (JsonNode element : deps) {
 							// Access and print array elements
 							if (element != null) {
 								temp = new User();
