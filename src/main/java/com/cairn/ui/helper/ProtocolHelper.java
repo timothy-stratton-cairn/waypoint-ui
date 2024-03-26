@@ -3,7 +3,6 @@ package com.cairn.ui.helper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
-import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -130,17 +128,27 @@ public class ProtocolHelper {
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
-					result.setComment(jsonNode.get("comment").asText());
+					JsonNode comments = jsonNode.get("protocolComments").get("comments");
+					String commentString = "";
+					if (comments.isArray()) {
+						for (JsonNode element : comments) {
+							// Access and print array elements
+							if (element != null) {
+								commentString += element.get("comment").asText();
+							}
+						}
+					}
+					result.setComment(commentString);
 					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
 					result.setNeedsAttention(Boolean.valueOf(jsonNode.get("needsAttention").toString()));
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 					Calendar calendar = Calendar.getInstance();
-					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").toString()));
+					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
 					result.setLastStatus(calendar.getTime());
 					
 					/* Add in the steps */
 					JsonNode assoc = jsonNode.get("associatedSteps");
-					JsonNode asteps = jsonNode.get("steps");
+					JsonNode asteps = assoc.get("steps");
 					// Iterate through the array elements
 					ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
 					if (asteps.isArray()) {
@@ -151,7 +159,7 @@ public class ProtocolHelper {
 								curStep.setId(Integer.parseInt(element.get("id").asText()));
 								curStep.setName(element.get("name").asText());
 								curStep.setDescription(element.get("description").asText());
-								curStep.setNotes(element.get("notes").asText());
+								curStep.setNotes(element.get("stepNotes").get("notes").asText());
 								curStep.setCategory(element.get("category").asText());
 								curStep.setStatus(element.get("status").asText());
 								steps.add(curStep);
@@ -169,6 +177,7 @@ public class ProtocolHelper {
 				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("No protocols returned");
 		}
 

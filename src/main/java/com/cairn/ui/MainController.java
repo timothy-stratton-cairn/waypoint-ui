@@ -71,13 +71,9 @@ public class MainController {
     	User currentUser = userDAO.getUser(); 
     	ProtocolHelper helper = new ProtocolHelper();
     	Protocol protocol = helper.getProtocol(currentUser, pcolId);
-    	ArrayList<ProtocolStep> steps = helper.getStepList(currentUser, pcolId);
-    	for (ProtocolStep step : steps) {
-    	    System.out.println("Step Name: " + step.getName() + ", Category: " + step.getCategory());
-    	}
 
     	model.addAttribute("protocol",protocol);
-    	model.addAttribute("steps",steps);
+    	model.addAttribute("steps",protocol.getSteps());
 
 	    return "protocolDetail";
 	}
@@ -304,17 +300,11 @@ public class MainController {
     	UserHelper helper = new UserHelper();
     	User client = helper.getUser(currentUser, clientId);
     	model.addAttribute("client",client);
-    	System.out.println(client.getLastName());
-    	System.out.println(client.getFirstName());
-    	System.out.println(client.getEmail());
-    	System.out.println(client.getCoclient());
-        System.out.println("Dependents for client with ID " + clientId + ":");
-        if (client.getDependents() != null && client.getDependents().isEmpty()) {
-        	System.out.println("No dependents found.");
-        }
-        else {
-            System.out.println(client.getDependents().size());
-        }
+    	if (client.getCoclient() != null) {
+    		model.addAttribute("coclient",client.getCoclient());
+    	} else { 
+    		model.addAttribute("coclient",new User());    		
+    	}
     	return "clientProfile";
     }
     
