@@ -1,38 +1,101 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
-<div th:insert="~{header :: main}">...</div>
-<script>
-	function selectProtocol(id){
-	    window.location = '/viewProtocol/'+id;		
-	}
-</script>
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Protocol Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script>
+        
+        function editProtocol(id) {
+            window.location = '/editStep/' + id;
+        }
+        function disableProtocol(id) {
+            alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
+        }
+        function saveprotocol(){
+            window.location = '/saveProtocol/'+id;
+        }
+        
+		function filterStepsByCategory(category) {
+		    const steps = document.querySelectorAll('#stepsContent > div');
+		    steps.forEach(step => {
+		        if (category === 'all' || step.getAttribute('data-type') === category) {
+		            step.style.display = ''; // Show
+		        } else {
+		            step.style.display = 'none'; // Hide
+		        }
+		    });
+		}
+		
+
+
+    </script>
+</head>
 <body>
-	<div class="container">
-		<div class="row note_card">
-			<fieldset>
-				<legend>Protocols</legend>
-				<div class="row">
-					<div class="col">
-						<label>Name</label>
-					</div>
-					<div class="col">
-						<label>Action</label>
-					</div>
-				</div>
-				<div th:each="pcol, status: ${listProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
-					<div class="col" th:text="${pcol.name}"></div>
-					<div class="col"><a class="btn btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ');'}">Details</a></div>
-				</div>
-			</fieldset>
-			<div class="row ">&nbsp;</div>
-		</div>
-	</div>
-		<div class="container">
-		    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
-		</div>
-	<br />
-	<br />
-	<br />
+<div th:insert="~{header :: main}">...</div>
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Protocol Details</legend>
+            <div>
+                    <div class="row"> <!-- Adjusted layout starts here -->
+                        <div class="col-md-3">
+                            <strong>Name:</strong> <span th:text="${protocol.name}"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Needs Attention:</strong> <span th:text="${protocol.needsAttention}"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Status:</strong> <span th:text="${protocol.lastStatus}"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Completion:</strong> <span th:text="${protocol.completionPercent}"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong>Description:</strong> <span th:text="${protocol.description}"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+ <div class="container">
+    <!-- Steps Section with Tabs -->
+    <div class="row note_card">
+        <fieldset>
+            <legend>Steps</legend>
+            
+            <!-- Tabs for filtering steps -->
+           <ul class="nav nav-tabs">
+			    <li class="nav-item"><a class="nav-link active" href="#" onclick="filterStepsByCategory('all')">All</a></li>
+			    <li class="nav-item"><a class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data')">Gather Data</a></li>
+			    <li class="nav-item"><a class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis')">Run Analysis</a></li>
+			    <li class="nav-item"><a class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations')">Craft Recommendations</a></li>
+			    <li class="nav-item"><a class="nav-link" href="#" onclick="filterStepsByCategory('Share Education')">Share Education</a></li>
+			</ul>
+
+            
+
+
+            <div id="stepsContent">
+                <div th:each="step, status : ${steps}" th:id="|row_${step.id}|"
+                     th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.category}">
+                    <div class="col" th:text="${step.name}">[Step Name]</div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="container mt-3">
+    <button onclick="history.back()" class="btn btn-primary">Back</button>
+</div>
+
 </body>
-<div th:insert="~{footer :: main}">...</div>
 </html>
+

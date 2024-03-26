@@ -17,6 +17,7 @@
     <div th:insert="~{header :: main}">...</div>
 
     <div class="container">
+		<div class="row note_card">
         <fieldset>
             <legend>Clients</legend>
             <table id="userTable" class="display dataTable">
@@ -25,6 +26,7 @@
                         <th>ID</th>
                         <th>First Name</th>
                         <th>Last Name</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,12 +34,19 @@
                         <td th:text="${user.id}">ID</td>
                         <td th:text="${user.firstName}">First Name</td>
                         <td th:text="${user.lastName}">Last Name</td>
+                        <td>
+                            <a th:href="@{'/clientProfile/' + ${user.id}}">
+                                <button>View Profile</button>
+                            </a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </fieldset>
+		</div>
     </div>
 
     <div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
+

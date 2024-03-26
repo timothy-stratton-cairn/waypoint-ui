@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
+import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -172,5 +173,63 @@ public class ProtocolHelper {
 		}
 
 		return result;
+	}
+	
+	public ArrayList<ProtocolStep> getStepList(User usr, int id) {
+		ArrayList<ProtocolStep> results = new ArrayList<ProtocolStep>();
+
+		// Prepare the request body
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
+
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol + '/' + id;
+
+		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
+
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					JsonNode temp = jsonNode.get("associatedSteps");
+					JsonNode prots = temp.get("steps");
+					// Iterate through the array elements
+					ProtocolStep entry = null;
+					if (prots.isArray()) {
+						int idx = 1;
+						for (JsonNode element : prots) {
+							// Access and print array elements
+							if (element != null) {
+								entry = new ProtocolStep();
+								entry.setDescription(element.get("description").asText());
+								entry.setName(element.get("name").asText());
+								entry.setId(Integer.valueOf(element.get("id").toString()));
+								// Test data, fix this later
+								entry.setCategory(element.get("category").asText());
+								results.add(entry);
+							}
+						}
+					}
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+			System.out.println("No protocols returned");
+			e.printStackTrace();
+		}
+
+		return results;
 	}
 }

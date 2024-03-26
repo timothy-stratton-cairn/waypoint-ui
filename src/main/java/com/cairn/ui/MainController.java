@@ -24,6 +24,7 @@ import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.Dashboard;
 import com.cairn.ui.model.Protocol;
+import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
@@ -65,11 +66,22 @@ public class MainController {
 	 * Handle a request to view the Protocol details. 
 	 * @return
 	 */
-	@RequestMapping(value = "/viewProtocol/{id}", method = RequestMethod.GET)
-	public ModelAndView viewProtocol(HttpServletRequest request, @PathVariable int id) {
-		ModelAndView model = new ModelAndView("protocolDetail");
-		return model;
+	@GetMapping("/viewProtocol/{pcolId}")
+	public String viewProtocol(Model model, @PathVariable int pcolId) {
+    	User currentUser = userDAO.getUser(); 
+    	ProtocolHelper helper = new ProtocolHelper();
+    	Protocol protocol = helper.getProtocol(currentUser, pcolId);
+    	ArrayList<ProtocolStep> steps = helper.getStepList(currentUser, pcolId);
+    	for (ProtocolStep step : steps) {
+    	    System.out.println("Step Name: " + step.getName() + ", Category: " + step.getCategory());
+    	}
+
+    	model.addAttribute("protocol",protocol);
+    	model.addAttribute("steps",steps);
+
+	    return "protocolDetail";
 	}
+
 
 
 	@GetMapping("/protocols")
@@ -284,5 +296,24 @@ public class MainController {
     	
     	
     	return "displayClients";
+    }
+    
+    @GetMapping("clientProfile/{clientId}")
+    public String clientProfile(@PathVariable int clientId , Model model) {
+    	User currentUser = userDAO.getUser(); 
+    	UserHelper helper = new UserHelper();
+    	User client = helper.getUser(currentUser, clientId);
+    	model.addAttribute("client",client);
+    	return "clientProfile";
+    }
+    
+    
+    @GetMapping("clientProtocol/{pcolId}")
+    public String clientProtocol(@PathVariable int pcolId, Model model) {
+    	User currentUser = userDAO.getUser(); 
+    	ProtocolHelper helper = new ProtocolHelper();
+    	Protocol protocol = helper.getProtocol(currentUser, pcolId);
+    	model.addAttribute("protocol",protocol);
+    	return "clientProtocol";
     }
 }
