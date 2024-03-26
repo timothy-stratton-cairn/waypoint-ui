@@ -241,4 +241,14 @@ public class ProtocolHelper {
 
 		return results;
 	}
+	/**
+	 * Provides list of Protocols that have been assigned clientId to their user array
+	 * @param usr
+	 * @param clientId
+	 * @return
+	 */
+	public ArrayList<Protocol> getAssignedProtocols(User usr, int clientId){
+		ArrayList<Protocol> results = null;
+		return results;
+	}
 }

@@ -68,7 +68,12 @@ public class Protocol {
 	}
 	public void setUsers(ArrayList<Integer> users) {
 		this.users = users;
-	}	
+	}
+	public void addUser(int id) {
+		this.users.add(id);
+		
+	}
+	
 	
 	
 }

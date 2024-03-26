@@ -299,13 +299,31 @@ public class MainController {
     	User currentUser = userDAO.getUser(); 
     	UserHelper helper = new UserHelper();
     	User client = helper.getUser(currentUser, clientId);
+    	ProtocolHelper pcolHelper = new ProtocolHelper();
+    	ArrayList<Protocol> pcolList = pcolHelper.getList(currentUser);
+    	ArrayList<Protocol> assignedProtocols = pcolHelper.getAssignedProtocols(currentUser, clientId); //this needs to be written up on the helper side 
+    	
     	model.addAttribute("client",client);
+    	model.addAttribute("protocolList",pcolList);
+    	model.addAttribute("assignedProtocols", assignedProtocols);
+ 
     	if (client.getCoclient() != null) {
     		model.addAttribute("coclient",client.getCoclient());
     	} else { 
     		model.addAttribute("coclient",new User());    		
     	}
     	return "clientProfile";
+    }
+    
+    @PatchMapping("addClientToProtocol/{clientId}/{protocolId}")
+    public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolId, Model model) {
+    	User currentUser = userDAO.getUser(); 
+    	UserHelper helper = new UserHelper();
+    	User client = helper.getUser(currentUser, clientId);
+    	ProtocolHelper pcolHelper = new ProtocolHelper();
+    	Protocol protocol = pcolHelper.getProtocol(currentUser, protocolId);
+    	protocol.addUser(client.getId());
+    	return ResponseEntity.ok().build();
     }
     
     

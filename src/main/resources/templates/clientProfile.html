@@ -31,6 +31,29 @@
         </fieldset>
     </div>
 </div>
+
+<div class="container">
+	<div class="note_card">
+		<fieldset>
+			<legend>Assigned Protocols</legend>
+				<div class="row">
+					<div class="col">
+						<label>Name</label>
+					</div>
+					<div class="col">
+						<label>Action</label>
+					</div>
+				</div>
+				
+				<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+					<div class="col" th:text="${pcol.name}"></div>
+				</div>
+		
+		</fieldset>
+	</div>
+	<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+</div>
+
 <div class="container">
     <!-- Dependents Information -->
     <div class="note_card">
@@ -60,6 +83,8 @@
     </fieldset>
 </div>
 </div>
+
+
 <div class="container mt-3">
     <button onclick="history.back()" class="btn btn-primary">Back</button>
 </div>
@@ -74,6 +99,12 @@
     if (firstTabEl) {
         firstTab.show();
     }
+    
+    function addProtocol() {
+            const container = document.querySelector("#protocolContainer");
+            const template = document.querySelector("#Protocol").content.cloneNode(true);
+            container.appendChild(template);
+        }
 </script>
 </body>
 <div th:insert="~{footer :: main}">...</div>
