@@ -110,7 +110,7 @@ public class UserHelper {
 
 		// Make the GET request and retrieve the response
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
