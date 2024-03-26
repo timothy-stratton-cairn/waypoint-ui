@@ -1,6 +1,10 @@
 package com.cairn.ui.helper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
+import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -91,40 +96,81 @@ public class ProtocolHelper {
 
 	}
 
-	static public ArrayList<Protocol> getListDemo() {
-		ArrayList<Protocol> results = new ArrayList<Protocol>();
+	/**
+	 * Get a specific protocol.
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call.
+	 * @param id The id of the protocol.
+	 * @return Protocol instance. New/Blank is returned if an error occurs.
+	 */
+	public Protocol getProtocol(User usr, int id) {
+		Protocol result = new Protocol();
+		// Prepare the request body
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
 
-		String data = "{\n" + "    \"protocols\": [\n" + "        {\n" + "            \"id\": 1,\n"
-				+ "            \"name\": \"New Client\"\n" + "        },\n" + "        {\n" + "            \"id\": 2,\n"
-				+ "            \"name\": \"House Purchase\"\n" + "        },\n" + "        {\n"
-				+ "            \"id\": 3,\n" + "            \"name\": \"Job Change/Retirement\"\n" + "        },\n"
-				+ "        {\n" + "            \"id\": 4,\n" + "            \"name\": \"Marriage\"\n" + "        },\n"
-				+ "        {\n" + "            \"id\": 5,\n" + "            \"name\": \"Baby\"\n" + "        }\n"
-				+ "    ],\n" + "    \"numOfProtocols\": 5\n" + "}";
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = new HttpEntity<>(headers);
 
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol + "/" + id;
+
+		// Make the GET request and retrieve the response
 		try {
-			ObjectMapper objectMapper = new ObjectMapper();
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
 
-			JsonNode jsonNode = objectMapper.readTree(data);
-			JsonNode prots = jsonNode.get("protocols");
-			// Iterate through the array elements
-			Protocol entry = null;
-			if (prots.isArray()) {
-				for (JsonNode element : prots) {
-					// Access and print array elements
-					if (element != null) {
-						entry = new Protocol();
-						entry.setName(element.get("name").asText());
-						entry.setId(Integer.valueOf(element.get("id").toString()));
-						results.add(entry);
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					result.setName(jsonNode.get("name").asText());
+					result.setDescription(jsonNode.get("description").asText());
+					result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
+					result.setComment(jsonNode.get("comment").asText());
+					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+					result.setNeedsAttention(Boolean.valueOf(jsonNode.get("needsAttention").toString()));
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").toString()));
+					result.setLastStatus(calendar.getTime());
+					
+					/* Add in the steps */
+					JsonNode assoc = jsonNode.get("associatedSteps");
+					JsonNode asteps = jsonNode.get("steps");
+					// Iterate through the array elements
+					ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
+					if (asteps.isArray()) {
+						for (JsonNode element : asteps) {
+							// Access and print array elements
+							if (element != null) {
+								ProtocolStep curStep = new ProtocolStep();
+								curStep.setId(Integer.parseInt(element.get("id").asText()));
+								curStep.setName(element.get("name").asText());
+								curStep.setDescription(element.get("description").asText());
+								curStep.setNotes(element.get("notes").asText());
+								curStep.setCategory(element.get("category").asText());
+								curStep.setStatus(element.get("status").asText());
+								steps.add(curStep);
+							}
+						}
+						result.setSteps(steps);
 					}
+
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
 				}
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("No protocols returned");
 		}
 
-		return results;
+		return result;
 	}
-
 }

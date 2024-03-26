@@ -6,7 +6,6 @@ import java.util.Date;
 public class User {
 	private int id;
 	private String email;
-	private String role;
 	private String pwd;
 	private String verifyPwd;
 	private String username;
@@ -200,14 +199,6 @@ public class User {
 		this.username = name;
 		this.email = email;
 		this.pwd = pwd;
-	}
-
-	public void setRole(String value) {
-		this.role = value;
-		
-	}
-	public String getRole() {
-		return this.role;
 	}
 
 	public String getVerifyPwd() {
