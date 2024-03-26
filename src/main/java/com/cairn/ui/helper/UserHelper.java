@@ -150,7 +150,7 @@ public class UserHelper {
 					result.setRoles(userRoles);
 					ArrayList<User> userDeps = new ArrayList<User>(); 
 					if (deps.isArray()) {
-						for (JsonNode element : roles) {
+						for (JsonNode element : deps) {
 							// Access and print array elements
 							if (element != null) {
 								temp = new User();

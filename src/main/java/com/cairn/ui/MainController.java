@@ -304,6 +304,17 @@ public class MainController {
     	UserHelper helper = new UserHelper();
     	User client = helper.getUser(currentUser, clientId);
     	model.addAttribute("client",client);
+    	System.out.println(client.getLastName());
+    	System.out.println(client.getFirstName());
+    	System.out.println(client.getEmail());
+    	System.out.println(client.getCoclient());
+        System.out.println("Dependents for client with ID " + clientId + ":");
+        if (client.getDependents() != null && client.getDependents().isEmpty()) {
+        	System.out.println("No dependents found.");
+        }
+        else {
+            System.out.println(client.getDependents().size());
+        }
     	return "clientProfile";
     }
     
