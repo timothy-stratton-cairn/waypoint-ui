@@ -10,10 +10,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.rb-sns</groupId>
-	<artifactId>Waypoint</artifactId>
+	<artifactId>WayPoints</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Waypoint</name>
-	<description>Waypoint UI</description>
+	<name>WayPoints</name>
+	<description>WayPoints UI</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
