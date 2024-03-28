@@ -295,4 +295,14 @@ public class ProtocolHelper {
 		
 		return results;
 	}
+	/*
+	 * Assigns a clientId to a protocol
+	 * @param usr
+	 * @param pcol
+	 */
+	
+	public int addClient(User usr, Protocol pcol, int clientId) {
+		int results = 0;
+		return results;
+	}
 }

@@ -304,6 +304,7 @@ public class MainController {
     	ArrayList<Protocol> assignedProtocols = pcolHelper.getAssignedProtocols(currentUser, clientId); //this needs to be written up on the helper side 
     	
     	model.addAttribute("client",client);
+    	model.addAttribute("clientId",clientId);
     	model.addAttribute("protocolList",pcolList);
     	model.addAttribute("assignedProtocols", assignedProtocols);
  
@@ -322,7 +323,7 @@ public class MainController {
     	User client = helper.getUser(currentUser, clientId);
     	ProtocolHelper pcolHelper = new ProtocolHelper();
     	Protocol protocol = pcolHelper.getProtocol(currentUser, protocolId);
-    	protocol.addUser(client.getId());
+    	pcolHelper.addClient(currentUser, protocol, clientId);// We need an api to call to post/patch the account to 
     	return ResponseEntity.ok().build();
     }
     
