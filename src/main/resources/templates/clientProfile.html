@@ -65,20 +65,26 @@
 <div class="container">
 	<div class="note_card">
 		<fieldset>
-			<legend>Assigned Protocols</legend>
+			<legend>Assigned Protocols</legend>			
 				<div class="row">
-					<div class="col">
-						<label>Name</label>
-					</div>
-					<div class="col">
-						<label>Action</label>
-					</div>
-				</div>
-				
-				<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
-					<div class="col" th:text="${pcol.name}"></div>
-				</div>
 				<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+				</div>
+				<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|" class="note_card col-md-5">
+					<div class="container">
+					<div class="row" th:text="${pcol.name}"></div>
+					<hr/>
+					<div class="row">
+						<div class="col" th:text="|Total Steps: ${stepCount}|"></div>
+						<div class="col" th:text="|Completed: ${completeCount}|"></div>
+					</div>
+					<div class="row">
+						<div class="row" th:text="|Goal: pcol.goal|"></div>
+					</div>
+					<div class="row">
+						<div class="row" th:text="|Progress: pcol.progress|"></div>
+					</div>
+					</div>
+				</div>
 				<div id="protocolContainer"></div>
 		</fieldset>
 	</div>
