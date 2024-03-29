@@ -319,11 +319,11 @@ public class MainController {
     @PatchMapping("addClientToProtocol/{clientId}/{protocolId}")
     public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolId, Model model) {
     	User currentUser = userDAO.getUser(); 
-    	UserHelper helper = new UserHelper();
-    	User client = helper.getUser(currentUser, clientId);
     	ProtocolHelper pcolHelper = new ProtocolHelper();
     	Protocol protocol = pcolHelper.getProtocol(currentUser, protocolId);
-    	pcolHelper.addClient(currentUser, protocol, clientId);// We need an api to call to post/patch the account to 
+    	
+    	protocol.addUser(clientId); // add client id to protocol 
+    	pcolHelper.addClient(currentUser, protocol);// Patch 
     	return ResponseEntity.ok().build();
     }
     

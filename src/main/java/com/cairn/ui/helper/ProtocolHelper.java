@@ -308,10 +308,11 @@ public class ProtocolHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 
 		headers.add("Authorization", "Bearer " + usr.getToken());
-
+		int pcolId = pcol.getId();
 		// Create a HttpEntity with the headers
 		HttpEntity<Protocol> entity = new HttpEntity<>(pcol, headers); // assign pcol as part of the request body 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolaccount + pcol.getId();//retrieves all protocols assigned to clientId
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol +'/'+ pcolId;//retrieves all protocols assigned to clientId
+		System.out.println(apiUrl);
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
