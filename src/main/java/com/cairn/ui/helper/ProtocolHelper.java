@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
+import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -301,8 +302,37 @@ public class ProtocolHelper {
 	 * @param pcol
 	 */
 	
-	public int addClient(User usr, Protocol pcol, int clientId) {
-		int results = 0;
-		return results;
+	public int addClient(User usr, Protocol pcol) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+
+		headers.add("Authorization", "Bearer " + usr.getToken());
+		int pcolId = pcol.getId();
+		// Create a HttpEntity with the headers
+		HttpEntity<Protocol> entity = new HttpEntity<>(pcol, headers); // assign pcol as part of the request body 
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol +'/'+ pcolId;//retrieves all protocols assigned to clientId
+		System.out.println(apiUrl);
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            System.out.println("Assigned Client to Protocol... " + response.getStatusCode());
+	            // Update result to indicate success
+	            result = 1;
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	            result = -1;
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Step not found or error in assigning step");
+	        e.printStackTrace();
+	        // Keep result as -1 or set to another specific value indicating error
+	    }
+
+	    return result;
+	    
+		
+
 	}
 }
