@@ -7,6 +7,8 @@ public class Protocol {
 
 	private int id;
 	private String name;
+	private String goal;
+	private String progress;
 	private String description;
 	private String comment;
 	private boolean needsAttention;
@@ -72,6 +74,18 @@ public class Protocol {
 	public void addUser(int id) {
 		this.users.add(id);
 		
+	}
+	public String getGoal() {
+		return goal;
+	}
+	public String getProgress() {
+		return progress;
+	}
+	public void setGoal(String goal) {
+		this.goal = goal;
+	}
+	public void setProgress(String progress) {
+		this.progress = progress;
 	}
 	
 	
