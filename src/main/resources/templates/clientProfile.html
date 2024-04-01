@@ -73,7 +73,7 @@
 				<legend>Assigned Protocols</legend>
 				<div class="row">
 					<div class="col-2">
-						<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+						<input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
 					</div>
 				</div>
 				<div class="row">
@@ -106,6 +106,9 @@
 						</div>
 					</div>
 				</div>
+				<div class="col-2">
+						<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+					</div>
 			</fieldset>
 			<div id="protocolContainer"></div>
 			</fieldset>
@@ -201,7 +204,31 @@
 					console.error('Error adding step:', error);
 					alert('Failed to add the Protocol. Error: ' + error.message);
 				});
+				
 		}
+		document.addEventListener('DOMContentLoaded', function() {
+        var searchField = document.getElementById('protocolSearch');
+
+        searchField.addEventListener('input', function() {
+            var searchTerm = this.value.toLowerCase();
+            
+            // Select all protocol entries
+            var protocols = document.querySelectorAll('.note_card.col-md-4');
+
+            protocols.forEach(function(protocol) {
+
+                var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
+                var name = nameElement ? nameElement.textContent.toLowerCase() : '';
+                
+                // Check if the protocol name includes the search term
+                if (name.includes(searchTerm)) {
+                    protocol.style.display = ''; // Show the protocol card
+                } else {
+                    protocol.style.display = 'none'; // Hide the protocol card
+                }
+            });
+        });
+    });
 
 
 	</script th:inline="javascript">

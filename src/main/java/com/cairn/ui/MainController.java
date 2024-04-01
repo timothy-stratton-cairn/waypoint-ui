@@ -328,6 +328,7 @@ public class MainController {
     }
     
     
+    
     @GetMapping("clientProtocol/{pcolId}")
     public String clientProtocol(@PathVariable int pcolId, Model model) {
     	User currentUser = userDAO.getUser(); 

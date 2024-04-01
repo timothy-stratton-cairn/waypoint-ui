@@ -86,7 +86,13 @@ p {
 	transform: rotateY(180deg);
 }
 
-.flip-card-front,
+.flip-card-front{
+	position: absolute;
+	width: 98%;
+	height: 98%;
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+}
 .flip-card-back {
 	position: absolute;
 	width: 98%;
@@ -101,7 +107,7 @@ p {
 }
 
 .flip-card-back {
-	background-color: #697184;
+	background-color: #FBFBFB;
 	color: white;
 	transform: rotateY(180deg);
 }
