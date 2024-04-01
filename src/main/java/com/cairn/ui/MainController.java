@@ -300,7 +300,8 @@ public class MainController {
     	UserHelper helper = new UserHelper();
     	User client = helper.getUser(currentUser, clientId);
     	ProtocolHelper pcolHelper = new ProtocolHelper();
-    	ArrayList<Protocol> pcolList = pcolHelper.getList(currentUser);
+    	ProtocolTemplateHelper tempHelper = new ProtocolTemplateHelper();
+    	ArrayList<ProtocolTemplate> pcolList = tempHelper.getList(currentUser);
     	ArrayList<Protocol> assignedProtocols = pcolHelper.getAssignedProtocols(currentUser, clientId); //this needs to be written up on the helper side 
     	
     	model.addAttribute("client",client);
@@ -316,7 +317,7 @@ public class MainController {
     	return "clientProfile";
     }
     
-    @PatchMapping("addClientToProtocol/{clientId}/{protocolId}")
+    @PostMapping("addClientToProtocol/{clientId}/{protocolId}")
     public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolId, Model model) {
     	User currentUser = userDAO.getUser(); 
     	ProtocolHelper pcolHelper = new ProtocolHelper();
