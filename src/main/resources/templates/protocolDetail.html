@@ -68,7 +68,8 @@
 
             <div id="stepsContent">
 			    <div th:each="step, iterStat : ${steps}" th:id="'row_' + ${step.id}" th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.category}">
-			        <div class="col-md-8" th:text="${step.name}">[Step Name]</div>
+			        <div class="col-md-4" th:text="${step.name}">[Step Name]</div>
+			        <div class="col-md-4" th:text="${step.status}">[Status]</div>
 			        <div class="col-md-4">
 			            <!-- Actions column -->
 			            <button type="button" class="btn btn-sm btn-primary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>

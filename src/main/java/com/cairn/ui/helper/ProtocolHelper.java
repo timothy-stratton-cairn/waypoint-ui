@@ -146,7 +146,18 @@ public class ProtocolHelper {
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
 					result.setLastStatus(calendar.getTime());
-					
+					if (jsonNode != null && jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
+					    result.setProgress(jsonNode.get("goal").asText());
+					} else {
+					    result.setGoal("No Goal Set");
+					}
+
+					if (jsonNode != null && jsonNode.has("progress") && !jsonNode.get("progress").isNull()) {
+					    result.setProgress(jsonNode.get("progress").asText());
+					} else {
+					    result.setProgress("None");//if option is null set as none 
+					}
+
 					/* Add in the steps */
 					JsonNode assoc = jsonNode.get("associatedSteps");
 					JsonNode asteps = assoc.get("steps");
