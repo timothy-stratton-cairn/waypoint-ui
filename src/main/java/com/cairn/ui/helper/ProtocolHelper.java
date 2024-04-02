@@ -329,8 +329,64 @@ public class ProtocolHelper {
 	    }
 
 	    return result;
-	    
+	}
 		
+	    
+	public int updateStepStatus(User usr, int protocolId,int stepId, String status) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
 
+		headers.add("Content-Type", "application/json");
+		String requestBody = "{\"status\": " + status + "}";
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/status";
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Step not found or error in assigning step");
+	        e.printStackTrace();
+		}
+			
+		return result;
+	 
+	}
+	
+	public int updateStepNote(User usr, int protocolId,int stepId, String note) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+
+		headers.add("Content-Type", "application/json");
+		String requestBody = "{\"note\": " + note + "}";
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/note";
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Step not found or error in assigning step");
+	        e.printStackTrace();
+		}
+			
+		return result;
+	 
 	}
 }

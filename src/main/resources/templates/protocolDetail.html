@@ -28,6 +28,14 @@
 		    });
 		}
 		
+	    function updateProgress(stepId) {
+	        alert('Update Progress for step ID ' + stepId + '. (Function not implemented)');
+	    }
+	
+	    function addNote(stepId) {
+	        alert('Add Note for step ID ' + stepId + '. (Function not implemented)');
+	    }
+			
 
 
     </script>
@@ -83,11 +91,16 @@
 
 
             <div id="stepsContent">
-                <div th:each="step, status : ${steps}" th:id="|row_${step.id}|"
-                     th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.category}">
-                    <div class="col" th:text="${step.name}">[Step Name]</div>
-                </div>
-            </div>
+			    <div th:each="step, status : ${steps}" th:id="'row_' + ${step.id}"
+			         th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.category}">
+			        <div class="col-md-8" th:text="${step.name}">[Step Name]</div>
+			        <div class="col-md-4">
+			            <!-- Actions column -->
+			            <button type="button" class="btn btn-sm btn-primary" th:onclick="'updateProgress(' + ${step.id} + ')'">Update Progress</button>
+			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ')'">Add Note</button>
+			        </div>
+			    </div>
+			</div>
         </fieldset>
     </div>
 </div>

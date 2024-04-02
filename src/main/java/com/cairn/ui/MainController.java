@@ -347,4 +347,14 @@ public class MainController {
     	model.addAttribute("protocol",protocol);
     	return "clientProtocol";
     }
+    
+    @PatchMapping("/updateStepStatus/{protocolId}/{stepId}/{status}")
+    public ResponseEntity<Object>updateStepStatus(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String status,Model model){
+    	return ResponseEntity.ok().build();
+    }
+    
+    @PatchMapping("/updateStepNote/{protocolId}/{stepId}/{note}")
+    public ResponseEntity<Object>updateStepNote(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String note ,Model model){
+    	return ResponseEntity.ok().build();
+    }
 }
