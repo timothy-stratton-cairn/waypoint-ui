@@ -353,7 +353,7 @@ public class ProtocolHelper {
 			
 		}
 		catch(Exception e) {
-			System.out.println("Step not found or error in assigning step");
+			System.out.println("Error in Update Step Status");
 	        e.printStackTrace();
 		}
 			
@@ -382,7 +382,7 @@ public class ProtocolHelper {
 			
 		}
 		catch(Exception e) {
-			System.out.println("Step not found or error in assigning step");
+			System.out.println("Error in updating note");
 	        e.printStackTrace();
 		}
 			

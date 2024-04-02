@@ -71,13 +71,45 @@ public class MainController {
     	User currentUser = userDAO.getUser(); 
     	ProtocolHelper helper = new ProtocolHelper();
     	Protocol protocol = helper.getProtocol(currentUser, pcolId);
-
+ 
     	model.addAttribute("protocol",protocol);
     	model.addAttribute("steps",protocol.getSteps());
+    	model.addAttribute("protocolId",pcolId);
 
 	    return "protocolDetail";
 	}
-
+    
+    @PatchMapping("/updateStepStatus/{protocolId}/{stepId}/{status}")
+    public ResponseEntity<Object>updateStepStatus(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String status,Model model){
+    	User currentUser = userDAO.getUser(); 
+    	ProtocolHelper helper = new ProtocolHelper();
+    	System.out.println(status);
+    	try {
+    		helper.updateStepStatus(currentUser, protocolId, stepId, status);
+    	}catch (Exception e) {
+            System.out.println("Error in addClientToProtocol:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating Status: " + e.getMessage());
+        }
+    	
+    	
+    	return ResponseEntity.ok().build();
+    }
+    
+    @PatchMapping("/updateStepNote/{protocolId}/{stepId}/{note}")
+    public ResponseEntity<Object>updateStepNote(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String note ,Model model){
+    	User currentUser = userDAO.getUser(); 
+    	ProtocolHelper helper = new ProtocolHelper();
+    	System.out.println(note);
+    	try {
+    	helper.updateStepNote(currentUser, protocolId, stepId, note);
+    	}catch (Exception e) {
+            System.out.println("Error in addClientToProtocol:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating Note : " + e.getMessage());
+        }
+    	return ResponseEntity.ok().build();
+    }
 
 
 	@GetMapping("/protocols")
@@ -348,13 +380,5 @@ public class MainController {
     	return "clientProtocol";
     }
     
-    @PatchMapping("/updateStepStatus/{protocolId}/{stepId}/{status}")
-    public ResponseEntity<Object>updateStepStatus(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String status,Model model){
-    	return ResponseEntity.ok().build();
-    }
-    
-    @PatchMapping("/updateStepNote/{protocolId}/{stepId}/{note}")
-    public ResponseEntity<Object>updateStepNote(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String note ,Model model){
-    	return ResponseEntity.ok().build();
-    }
+
 }
