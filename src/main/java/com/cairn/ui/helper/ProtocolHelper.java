@@ -338,9 +338,11 @@ public class ProtocolHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 
 		headers.add("Content-Type", "application/json");
-		String requestBody = "{\"status\": " + status + "}";
+		String requestBody = "{\"status\": \"" + status + "\"}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/status";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		System.out.println(apiUrl);
+		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -367,9 +369,11 @@ public class ProtocolHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 
 		headers.add("Content-Type", "application/json");
-		String requestBody = "{\"note\": " + note + "}";
+		String requestBody = "{\"note\": \"" + note + "\"}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/note";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		System.out.println(apiUrl);
+		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {

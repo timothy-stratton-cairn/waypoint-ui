@@ -107,9 +107,9 @@
 			        return; // Exit the function if the container is not found
 			    }
 	        container.innerHTML = `<select id="statusDropdown_${stepId}">
-	                                    <option value="ToDo">ToDo</option>
-	                                    <option value="InProgress">InProgress</option>
-	                                    <option value="Complete">Complete</option>
+	                                    <option value="TODO">To Do</option>
+	                                    <option value="INPROGRESSs">In Progress</option>
+	                                    <option value="COMPLETE">Complete</option>
 	                                </select>
 	                                <button onclick="confirmStatus(${stepId})">ConfirmStatus</button>`;
 	    }
