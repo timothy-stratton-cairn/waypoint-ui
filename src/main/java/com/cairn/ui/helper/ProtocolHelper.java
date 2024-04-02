@@ -302,22 +302,20 @@ public class ProtocolHelper {
 	 * @param pcol
 	 */
 	
-	public int addClient(User usr, Protocol pcol) {
+	public int addClient(User usr, int clientid, int protocolTemplateId) {
 		int result = 0;
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 
-		headers.add("Authorization", "Bearer " + usr.getToken());
-		int pcolId = pcol.getId();
+		headers.add("Content-Type", "application/json");
 		// Create a HttpEntity with the headers
-		HttpEntity<Protocol> entity = new HttpEntity<>(pcol, headers); // assign pcol as part of the request body 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol +'/'+ pcolId;//retrieves all protocols assigned to clientId
-		System.out.println(apiUrl);
+		String requestBody = "{\"protocolTemplateId\": " + protocolTemplateId + ", \"comment\": \"\", \"associatedAccountId\": " + clientid + "}";
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers); // assign  as part of the request body 
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol;//retrieves all protocols assigned to clientId
 	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-	            System.out.println("Assigned Client to Protocol... " + response.getStatusCode());
-	            // Update result to indicate success
+
 	            result = 1;
 	        } else {
 	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());

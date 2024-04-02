@@ -317,17 +317,26 @@ public class MainController {
     	return "clientProfile";
     }
     
-    @PostMapping("addClientToProtocol/{clientId}/{protocolId}")
-    public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolId, Model model) {
-    	User currentUser = userDAO.getUser(); 
-    	ProtocolHelper pcolHelper = new ProtocolHelper();
-    	Protocol protocol = pcolHelper.getProtocol(currentUser, protocolId);
-    	
-    	protocol.addUser(clientId); // add client id to protocol 
-    	pcolHelper.addClient(currentUser, protocol);// Patch 
-    	return ResponseEntity.ok().build();
+    @PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
+    public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolTemplateId, Model model) {
+        try {
+
+            
+            User currentUser = userDAO.getUser(); 
+
+
+            ProtocolHelper pcolHelper = new ProtocolHelper();
+            pcolHelper.addClient(currentUser, clientId, protocolTemplateId); // Perform the operation
+
+            
+        } catch (Exception e) {
+            System.out.println("Error in addClientToProtocol:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding client to protocol: " + e.getMessage());
+        }
+        return ResponseEntity.ok().build();
     }
-    
+
     
     
     @GetMapping("clientProtocol/{pcolId}")
