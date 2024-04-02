@@ -375,7 +375,7 @@ public class ProtocolHelper {
 		System.out.println(apiUrl);
 		System.out.println(entity);
 		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
 
 	            result = 1;

@@ -96,13 +96,13 @@ public class MainController {
     	return ResponseEntity.ok().build();
     }
     
-    @PatchMapping("/updateStepNote/{protocolId}/{stepId}/{note}")
+    @PostMapping("/updateStepNote/{protocolId}/{stepId}/{note}")
     public ResponseEntity<Object>updateStepNote(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String note ,Model model){
     	User currentUser = userDAO.getUser(); 
     	ProtocolHelper helper = new ProtocolHelper();
     	System.out.println(note);
     	try {
-    	helper.updateStepNote(currentUser, protocolId, stepId, note);
+    		helper.updateStepNote(currentUser, protocolId, stepId, note);
     	}catch (Exception e) {
             System.out.println("Error in addClientToProtocol:");
             e.printStackTrace(); // Print the stack trace to the console
