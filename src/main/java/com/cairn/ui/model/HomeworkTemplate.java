@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Homework {
+public class HomeworkTemplate {
 
 	private int id;
-	private int templateId;
 	private String name;
-	private String response;
-	private int clientId;
+	private int numClients;
 
 	public int getId() {
 		return id;
@@ -19,14 +17,21 @@ public class Homework {
 	public String getName() {
 		return name;
 	}
+	public int getNumClients() {
+		return numClients;
+	}
 	public void setId(int id) {
 		this.id = id;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
-	static public ArrayList<Homework> getList() {
-		ArrayList<Homework> results = new ArrayList();
+	public void setNumClients(int numClients) {
+		this.numClients = numClients;
+	}
+	
+	static public ArrayList<HomeworkTemplate> getList() {
+		ArrayList<HomeworkTemplate> results = new ArrayList();
 		
 		String data = "{\n"
 				+ "    \"protocols\": [\n"
@@ -60,12 +65,12 @@ public class Homework {
             JsonNode jsonNode = objectMapper.readTree(data);
             JsonNode prots = jsonNode.get("protocols");
             // Iterate through the array elements
-            Homework entry = null;
+            HomeworkTemplate entry = null;
             if (prots.isArray()) {
                 for (JsonNode element : prots) {
                     // Access and print array elements
                 	if (element != null) {
-                		entry = new Homework();
+                		entry = new HomeworkTemplate();
                 		entry.setName(element.get("name").asText());
                 		entry.setId(Integer.valueOf(element.get("id").toString()));
                 		results.add(entry);
@@ -77,24 +82,6 @@ public class Homework {
         }
 
 		return results;
-	}
-	public int getTemplateId() {
-		return templateId;
-	}
-	public String getResponse() {
-		return response;
-	}
-	public int getClientId() {
-		return clientId;
-	}
-	public void setTemplateId(int templateId) {
-		this.templateId = templateId;
-	}
-	public void setResponse(String response) {
-		this.response = response;
-	}
-	public void setClientId(int clientId) {
-		this.clientId = clientId;
 	}
 	
 }
