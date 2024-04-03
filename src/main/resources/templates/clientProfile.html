@@ -218,29 +218,35 @@
 		}
 		
 		
-		document.addEventListener('DOMContentLoaded', function() {
-        var searchField = document.getElementById('protocolSearch');
+document.addEventListener('DOMContentLoaded', function() {
+    var searchField = document.getElementById('protocolSearch');
 
-        searchField.addEventListener('input', function() {
-            var searchTerm = this.value.toLowerCase();
+    searchField.addEventListener('input', function() {
+        var searchTerm = this.value.toLowerCase();
+        
+        // Select all protocol entries
+        var protocols = document.querySelectorAll('.note_card.col-md-3');
+
+        protocols.forEach(function(protocol) {
+            // Query for name, goal, and progress elements within each protocol card
+            var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
+            var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
+            var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
+
+            // Extract text content if elements are found, otherwise use an empty string
+            var name = nameElement ? nameElement.textContent.toLowerCase() : '';
+            var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
+            var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
             
-            // Select all protocol entries
-            var protocols = document.querySelectorAll('.note_card.col-md-4');
-
-            protocols.forEach(function(protocol) {
-
-                var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
-                var name = nameElement ? nameElement.textContent.toLowerCase() : '';
-                
-                // Check if the protocol name includes the search term
-                if (name.includes(searchTerm)) {
-                    protocol.style.display = ''; // Show the protocol card
-                } else {
-                    protocol.style.display = 'none'; // Hide the protocol card
-                }
-            });
+            // Check if the protocol card should be displayed based on the search term presence
+            if (name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm)) {
+                protocol.style.display = ''; // Show the protocol card
+            } else {
+                protocol.style.display = 'none'; // Hide the protocol card
+            }
         });
     });
+});
 	
 	function flipCard(card) {
 	    card.classList.toggle('do-flip');
