@@ -1,9 +1,9 @@
 package com.cairn.ui.helper;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.time.Instant;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
-import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -75,7 +74,19 @@ public class ProtocolHelper {
 							// Access and print array elements
 							if (element != null) {
 								entry = new Protocol();
-								entry.setName(element.get("name").toString());
+								entry.setName(element.get("name").asText());
+								entry.setDescription(element.get("description").asText());
+								if (jsonNode != null && jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
+								    entry.setGoal(jsonNode.get("goal").asText());
+								} else {
+									entry.setGoal("No Goal Set");
+								}
+
+								if (jsonNode != null && jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
+									entry.setProgress(jsonNode.get("goalProgress").asText());
+								} else {
+									entry.setProgress("None");//if option is null set as none 
+								}
 								entry.setId(Integer.valueOf(element.get("id").toString()));
 								results.add(entry);
 							}
@@ -148,13 +159,13 @@ public class ProtocolHelper {
 					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
 					result.setLastStatus(calendar.getTime());
 					if (jsonNode != null && jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
-					    result.setProgress(jsonNode.get("goal").asText());
+					    result.setGoal(jsonNode.get("goal").asText());
 					} else {
 					    result.setGoal("No Goal Set");
 					}
 
-					if (jsonNode != null && jsonNode.has("progress") && !jsonNode.get("progress").isNull()) {
-					    result.setProgress(jsonNode.get("progress").asText());
+					if (jsonNode != null && jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
+					    result.setProgress(jsonNode.get("goalProgress").asText());
 					} else {
 					    result.setProgress("None");//if option is null set as none 
 					}
@@ -172,7 +183,21 @@ public class ProtocolHelper {
 								curStep.setId(Integer.parseInt(element.get("id").asText()));
 								curStep.setName(element.get("name").asText());
 								curStep.setDescription(element.get("description").asText());
-								curStep.setNotes(element.get("stepNotes").get("notes").asText());
+								JsonNode tnote = element.get("stepNotes");
+								JsonNode notes = tnote.get("notes");
+								if (notes.isArray()) {
+									StringBuilder sb = new StringBuilder();
+									for (JsonNode note : notes) {
+										sb.append("Date:");
+										sb.append(note.get("takenAt").asText());
+										sb.append(" By:");
+										sb.append(note.get("takenBy").asText());
+										sb.append(" Note: ");
+										sb.append(note.get("note").asText());
+										sb.append("  ");						
+									}
+									curStep.setNotes(sb.toString());
+								}
 								curStep.setCategory(element.get("category").asText());
 								curStep.setStatus(element.get("status").asText());
 								steps.add(curStep);
@@ -181,7 +206,6 @@ public class ProtocolHelper {
 						result.setSteps(steps);
 					}
 					result.setStepCount();
-					System.out.println(result.getStepCount());
 
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
@@ -227,15 +251,30 @@ public class ProtocolHelper {
 					// Iterate through the array elements
 					ProtocolStep entry = null;
 					if (prots.isArray()) {
-						int idx = 1;
 						for (JsonNode element : prots) {
 							// Access and print array elements
 							if (element != null) {
 								entry = new ProtocolStep();
 								entry.setDescription(element.get("description").asText());
 								entry.setName(element.get("name").asText());
+								entry.setStatus(element.get("status").asText());
+								entry.setCategory(element.get("category").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
-								// Test data, fix this later
+								JsonNode tnote = element.get("stepNotes");
+								JsonNode notes = tnote.get("notes");
+								if (notes.isArray()) {
+									StringBuilder sb = new StringBuilder();
+									for (JsonNode note : notes) {
+										sb.append("Date:");
+										sb.append(note.get("takenAt").asText());
+										sb.append(" By:");
+										sb.append(note.get("takenBy").asText());
+										sb.append(" Note: ");
+										sb.append(note.get("note").asText());
+										sb.append("  ");						
+									}
+									entry.setNotes(sb.toString());
+								}
 								entry.setCategory(element.get("category").asText());
 								results.add(entry);
 							}
@@ -356,8 +395,6 @@ public class ProtocolHelper {
 		String requestBody = "{\"status\": \"" + status + "\"}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/status";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-		System.out.println(apiUrl);
-		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -389,8 +426,6 @@ public class ProtocolHelper {
 		String requestBody = "{\"note\": \"" + note + "\"}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/note";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-		System.out.println(apiUrl);
-		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -422,8 +457,6 @@ public class ProtocolHelper {
 		String requestBody = "{\"comments\": [{\"takenAt\": \"" + timestamp +"\", \"takenBy\": \""+username+"\", \"comment\": \""+comment+"\"}]}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId;
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-		System.out.println(apiUrl);
-		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
