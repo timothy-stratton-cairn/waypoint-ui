@@ -75,7 +75,13 @@ public class MainController {
     	model.addAttribute("protocol",protocol);
     	model.addAttribute("steps",protocol.getSteps());
     	model.addAttribute("protocolId",pcolId);
-
+    	
+        List<ProtocolStep> steps = protocol.getSteps();
+        if (steps != null) {
+            for (ProtocolStep step : steps) {
+                System.out.println(step.getStatus());
+            }
+        }
 	    return "protocolDetail";
 	}
     

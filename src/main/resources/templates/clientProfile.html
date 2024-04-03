@@ -80,7 +80,7 @@
 				</div>
 				<div class="row">
 					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
-						class="note_card col-md-4">
+						class="note_card col-md-3">
 						<a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
 						<div class=" flip-card">
 							<div class="flip-card-inner">
@@ -89,8 +89,8 @@
 										<div class="row" th:text="${pcol.name}"></div>
 										<hr />
 										<div class="row">
-											<div class="col" th:text="|Total Steps: ${stepCount}|"></div>
-											<div class="col" th:text="|Completed: ${completeCount}|"></div>
+											<div class="row col-md-6" th:text="|Total Steps: ${stepCount}|"></div>
+											<div class="row col-md-6" th:text="|Completed: ${completeCount}|"></div>
 										</div>
 										<div class="row">
 											<div class="row" th:text="|Goal: ${pcol.goal}|"></div>
@@ -106,10 +106,13 @@
 									<p>2. Check out this link...</p><br />
 								</div>
 							</div>
+							
 						</div>
 						</a>
+						<button type="button" onclick="flipCard(this.parentNode.querySelector('.flip-card'))">Flip</button>
 					</div>
 				</div>
+				
 				<div class="col-2">
 						<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
 					</div>
@@ -238,7 +241,10 @@
             });
         });
     });
-
+	
+	function flipCard(card) {
+	    card.classList.toggle('do-flip');
+	}
 
 	</script th:inline="javascript">
 </body>
