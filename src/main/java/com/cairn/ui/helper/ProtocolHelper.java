@@ -3,6 +3,7 @@ package com.cairn.ui.helper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.time.Instant;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -179,6 +180,8 @@ public class ProtocolHelper {
 						}
 						result.setSteps(steps);
 					}
+					result.setStepCount();
+					System.out.println(result.getStepCount());
 
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
@@ -334,6 +337,7 @@ public class ProtocolHelper {
 	            result = -1;
 	        }
 	    } catch (Exception e) {
+	    	result = -1;
 	        System.out.println("Step not found or error in assigning step");
 	        e.printStackTrace();
 	        // Keep result as -1 or set to another specific value indicating error
@@ -360,12 +364,14 @@ public class ProtocolHelper {
 
 	            result = 1;
 	        } else {
+	        	result = -1;
 	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
+			result = -1;
 			System.out.println("Error in Update Step Status");
 	        e.printStackTrace();
 		}
@@ -391,6 +397,7 @@ public class ProtocolHelper {
 
 	            result = 1;
 	        } else {
+	        	result = -1;
 	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
@@ -403,5 +410,38 @@ public class ProtocolHelper {
 			
 		return result;
 	 
+	}
+	
+	public int updateProtocolComment(User usr, int protocolId, String comment) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    Instant timestamp = Instant.now();
+	    String username = usr.getUsername();
+		headers.add("Content-Type", "application/json");
+		String requestBody = "{\"comments\": [{\"takenAt\": \"" + timestamp +"\", \"takenBy\": \""+username+"\", \"comment\": \""+comment+"\"}]}";
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId;
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		System.out.println(apiUrl);
+		System.out.println(entity);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating note");
+	        e.printStackTrace();
+		}
+			
+		return result;
+		
 	}
 }

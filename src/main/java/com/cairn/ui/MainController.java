@@ -79,12 +79,26 @@ public class MainController {
         List<ProtocolStep> steps = protocol.getSteps();
         if (steps != null) {
             for (ProtocolStep step : steps) {
-                System.out.println(step.getStatus());
+            	String statusWithUnderscores = step.getStatus().replace(' ', '_');
+                System.out.println(statusWithUnderscores);
             }
         }
 	    return "protocolDetail";
 	}
-    
+    @PatchMapping("/updateProtocolComment/{protocolId}/{comment}")
+    public ResponseEntity<Object>updateProtocolComment(@PathVariable int protocolId,@PathVariable String comment,Model model){
+    	User currentUser = userDAO.getUser();
+    	ProtocolHelper helper = new ProtocolHelper();
+    	try {
+    		helper.updateProtocolComment(currentUser, protocolId, comment);
+    	}catch (Exception e) {
+    		System.out.println("Error in addClientToProtocol:");
+            e.printStackTrace(); 
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating Protocol Comment: " + e.getMessage());
+    		
+    	}
+    	return ResponseEntity.ok().build();
+    }
     @PatchMapping("/updateStepStatus/{protocolId}/{stepId}/{status}")
     public ResponseEntity<Object>updateStepStatus(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String status,Model model){
     	User currentUser = userDAO.getUser(); 

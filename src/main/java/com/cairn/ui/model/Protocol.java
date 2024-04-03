@@ -14,6 +14,7 @@ public class Protocol {
 	private boolean needsAttention;
 	private Date lastStatus;
 	private String completionPercent;
+	private int stepCount;
 	private ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
 	private ArrayList<Integer> users = new ArrayList<Integer>();
 
@@ -88,6 +89,13 @@ public class Protocol {
 		this.progress = progress;
 	}
 	
+	public void setStepCount() {
+		this.stepCount = steps.size();
+	}
 	
+	public int getStepCount()
+	{
+		return stepCount;
+	}
 	
 }

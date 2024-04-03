@@ -31,6 +31,9 @@
                          <div class="col-md-3">
                             <strong>Progress:</strong> <span th:text="${protocol.progress}"></span>
                         </div>
+                        <div class="col-md-3">
+                            <strong>Number of Steps:</strong> <span th:text="${protocol.stepCount}"></span>
+                        </div>
 					</div>
 					<div class ="row">
 						<div class="col-md-12">
@@ -38,8 +41,11 @@
                         </div>
 					</div>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <strong>Description:</strong> <span th:text="${protocol.description}"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Comments:</strong> <span th:text="${protocol.comment}"></span>
                         </div>
                     </div>
                 </form>
