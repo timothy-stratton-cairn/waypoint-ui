@@ -23,6 +23,7 @@ import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.Dashboard;
+import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.ProtocolStepTemplate;
@@ -85,6 +86,7 @@ public class MainController {
         }
 	    return "protocolDetail";
 	}
+	
     @PatchMapping("/updateProtocolComment/{protocolId}/{comment}")
     public ResponseEntity<Object>updateProtocolComment(@PathVariable int protocolId,@PathVariable String comment,Model model){
     	User currentUser = userDAO.getUser();
@@ -99,6 +101,37 @@ public class MainController {
     	}
     	return ResponseEntity.ok().build();
     }
+    
+    @PatchMapping("/updateProtocolGoal/{protocolId}/{goal}")
+    public ResponseEntity<Object>updateProtocolGoal(@PathVariable int protocolId,@PathVariable String goal,Model model){
+    	User currentUser = userDAO.getUser();
+    	ProtocolHelper helper = new ProtocolHelper();
+    	try {
+    		helper.updateProtocolGoal(currentUser, protocolId, goal);
+    	}catch (Exception e) {
+    		System.out.println("Error in addClientToProtocol:");
+            e.printStackTrace(); 
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating Protocol Comment: " + e.getMessage());
+    		
+    	}
+    	return ResponseEntity.ok().build();
+    }
+    
+    @PatchMapping("/updateProtocolCommentsandGoal/{protocolId}/{comment}/{goal}")
+    public ResponseEntity<Object>updateProtocolComment(@PathVariable int protocolId, @PathVariable String comment, @PathVariable String goal, Model model){
+    	User currentUser = userDAO.getUser();
+    	ProtocolHelper helper = new ProtocolHelper();
+    	try {
+    		helper.updateProtocolComment(currentUser, protocolId, comment);
+    		helper.updateProtocolGoal(currentUser, protocolId, goal);
+    	}catch (Exception e) {
+    		System.out.println("Error in addClientToProtocol:");
+            e.printStackTrace(); 
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating Protocol Comment: " + e.getMessage());
+    	}
+    	return ResponseEntity.ok().build();
+    }
+    
     @PatchMapping("/updateStepStatus/{protocolId}/{stepId}/{status}")
     public ResponseEntity<Object>updateStepStatus(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String status,Model model){
     	User currentUser = userDAO.getUser(); 
@@ -355,7 +388,7 @@ public class MainController {
     	ProtocolTemplateHelper tempHelper = new ProtocolTemplateHelper();
     	ArrayList<ProtocolTemplate> pcolList = tempHelper.getList(currentUser);
     	ArrayList<Protocol> assignedProtocols = pcolHelper.getAssignedProtocols(currentUser, clientId); //this needs to be written up on the helper side 
-    	
+
     	model.addAttribute("client",client);
     	model.addAttribute("clientId",clientId);
     	model.addAttribute("protocolList",pcolList);
@@ -398,6 +431,11 @@ public class MainController {
     	Protocol protocol = helper.getProtocol(currentUser, pcolId);
     	model.addAttribute("protocol",protocol);
     	return "clientProtocol";
+    }
+    
+    @GetMapping("/homeworkTemplates/")
+    public String homeworkTemplates(Model model) {
+    	return "homeworkTemplates";
     }
     
 

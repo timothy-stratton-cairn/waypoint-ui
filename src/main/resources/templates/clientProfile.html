@@ -80,7 +80,7 @@
 				</div>
 				<div class="row">
 					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
-						class="note_card col-md-3">
+						class="note_card col-md-5">
 						<a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
 						<div class=" flip-card">
 							<div class="flip-card-inner">
@@ -94,10 +94,10 @@
 										</div>
 										<div class="row">
 											<div class="row" th:text="|Goal: ${pcol.goal}|"></div>
-											<div class='row'  th:text="|Description: ${description}"></div>
+											<div class='row'  th:text="|Description: ${pcol.description}"></div>
 										</div>
 										<div class="row">
-											<div class="row" th:text="|Progress: ${progress}|"></div>
+											<div class="row" th:text="|Progress: ${pcol.progress}|"></div>
 										</div>
 									</div>
 								</div>
@@ -107,9 +107,15 @@
 									<p>2. Check out this link...</p><br />
 								</div>
 							</div>
-							
+	
 						</div>
 						</a>
+						<div class="col">		
+													<button class="button" onclick="goToHomeworkTemplates()">Button A</button>
+													<button class="button" onclick="goToHomeworkTemplates()">Button B</button>
+													<button class="button" onclick="goToHomeworkTemplates()">Button C</button>
+
+						</div>
 						<button type="button" onclick="flipCard(this.parentNode.querySelector('.flip-card'))">Flip</button>
 					</div>
 				</div>
@@ -219,39 +225,43 @@
 		}
 		
 		
-document.addEventListener('DOMContentLoaded', function() {
-    var searchField = document.getElementById('protocolSearch');
-
-    searchField.addEventListener('input', function() {
-        var searchTerm = this.value.toLowerCase();
-        
-        // Select all protocol entries
-        var protocols = document.querySelectorAll('.note_card.col-md-3');
-
-        protocols.forEach(function(protocol) {
-            // Query for name, goal, and progress elements within each protocol card
-            var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
-            var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
-            var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
-
-            // Extract text content if elements are found, otherwise use an empty string
-            var name = nameElement ? nameElement.textContent.toLowerCase() : '';
-            var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
-            var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
-            
-            // Check if the protocol card should be displayed based on the search term presence
-            if (name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm)) {
-                protocol.style.display = ''; // Show the protocol card
-            } else {
-                protocol.style.display = 'none'; // Hide the protocol card
-            }
-        });
-    });
-});
-	
-	function flipCard(card) {
-	    card.classList.toggle('do-flip');
-	}
+		document.addEventListener('DOMContentLoaded', function() {
+		    var searchField = document.getElementById('protocolSearch');
+		
+		    searchField.addEventListener('input', function() {
+		        var searchTerm = this.value.toLowerCase();
+		        
+		        // Select all protocol entries
+		        var protocols = document.querySelectorAll('.note_card.col-md-5');
+		
+		        protocols.forEach(function(protocol) {
+		            // Query for name, goal, and progress elements within each protocol card
+		            var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
+		            var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
+		            var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
+		
+		            // Extract text content if elements are found, otherwise use an empty string
+		            var name = nameElement ? nameElement.textContent.toLowerCase() : '';
+		            var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
+		            var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
+		            
+		            // Check if the protocol card should be displayed based on the search term presence
+		            if (name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm)) {
+		                protocol.style.display = ''; // Show the protocol card
+		            } else {
+		                protocol.style.display = 'none'; // Hide the protocol card
+		            }
+		        });
+		    });
+		});
+		
+		function flipCard(card) {
+		    card.classList.toggle('do-flip');
+		}
+		
+		function goToHomeworkTemplates() {
+		    window.location.href = '/homeworkTemplates/';
+		}
 
 	</script th:inline="javascript">
 </body>

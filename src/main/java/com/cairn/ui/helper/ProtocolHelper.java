@@ -291,7 +291,21 @@ public class ProtocolHelper {
 							if (element != null) {
 								entry = new Protocol();
 								entry.setName(element.get("name").toString());
+								entry.setDescription(element.get("description").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
+								
+								entry.setCompletionPercent(element.get("completionPercentage").asText());
+								if (jsonNode != null && jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
+								    entry.setProgress(jsonNode.get("goal").asText());
+								} else {
+								    entry.setGoal("No Goal Set");
+								}
+								if(element!= null && element.has("progress")&& !element.get("progress").isNull()) {
+									entry.setProgress(element.get("progress").toString());
+								}else {
+									entry.setProgress("None");
+								}
+					
 								results.add(entry);
 							}
 						}
@@ -411,6 +425,34 @@ public class ProtocolHelper {
 		return result;
 	 
 	}
+	public int updateProtocolGoal(User usr, int protocolId, String goal) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+		headers.add("Content-Type", "application/json");
+		String requestBody ="{\"goal\": \"" + goal + "\"}";
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId;
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updated goal ");
+	        e.printStackTrace();
+		}
+			
+		return result;
+		
+	}
 	
 	public int updateProtocolComment(User usr, int protocolId, String comment) {
 		int result = 0;
@@ -420,7 +462,7 @@ public class ProtocolHelper {
 	    String username = usr.getUsername();
 		headers.add("Content-Type", "application/json");
 		String requestBody = "{\"comments\": [{\"takenAt\": \"" + timestamp +"\", \"takenBy\": \""+username+"\", \"comment\": \""+comment+"\"}]}";
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId;
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol + '/' + protocolId;
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		System.out.println(apiUrl);
 		System.out.println(entity);
@@ -437,7 +479,7 @@ public class ProtocolHelper {
 			
 		}
 		catch(Exception e) {
-			System.out.println("Error in updating note");
+			System.out.println("Error in updating Comment");
 	        e.printStackTrace();
 		}
 			
