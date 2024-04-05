@@ -101,7 +101,7 @@ public class Protocol {
 	public void setCompletedSteps() {
 	    int completed = 0;
 	    for (ProtocolStep step : steps) { 
-	        if ("TODO".equals(step.getStatus())) {
+	        if ("Done".equals(step.getStatus())) {
 	            completed += 1;
 	        }
 	    }
