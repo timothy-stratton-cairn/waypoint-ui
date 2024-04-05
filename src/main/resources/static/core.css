@@ -609,18 +609,31 @@ label {
 	background-color: #EEE;
 	border-color: #697184;
 	border-width: 2px;
-	border-style: inset;
+	border-style: double;
 	margin-top: 3px;
 	margin-left: 1px;
 	margin-right: 1px;
 }  
+
+.rowheader {
+	color: #EEE;
+	background-color: #413F3D;
+	border-color: #697184;
+	border-width: 3px;
+	border-style: outset;
+	margin-top: 3px;
+	margin-left: 1px;
+	margin-right: 1px;
+	font-size: larger;
+	font-weight: 600;
+}
 
 .odd {
 	color:  #697184;
 	background-color: #BBB;		
 	border-color: #697184;
 	border-width: 2px;
-	border-style: inset;
+	border-style: double;
 	margin-top: 3px;
 	margin-left: 1px;
 	margin-right: 1px;

@@ -11,12 +11,12 @@
 		<div class="row note_card">
 			<fieldset>
 				<legend>Protocols</legend>
-				<div class="row">
+				<div class="rowheader row">
 					<div class="col">
-						<label>Name</label>
+						Name
 					</div>
 					<div class="col">
-						<label>Action</label>
+						Action
 					</div>
 				</div>
 				<div th:each="pcol, status: ${listProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
