@@ -78,48 +78,54 @@
 						<input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
 					</div>
 				</div>
-				<div class="row">
-					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
-						class="note_card col-md-5">
-						<a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
-						<div class=" flip-card">
-							<div class="flip-card-inner">
-								<div class="flip-card-front">
-									<div class="container">
-										<div class="row" th:text="${pcol.name}"></div>
-										<hr />
-										<div class="row">
-											<div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
-											<div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
-										</div>
-										
-											<div class="row" th:text="|Goal: ${pcol.goal}|"></div>
-											<div class='row' th:text="|Description: ${pcol.description}"></div>
-										
-										<div class="row">
-											<div class="row" th:text="|Progress: ${pcol.progress}|"></div>
-										</div>
-									</div>
-								</div>
-								<div class="flip-card-back">
-									<h1>Education</h1>
-									<p>1. Here is an internal source...</p>
-									<p>2. Check out this link...</p><br />
-								</div>
-							</div>
-	
-						</div>
-						</a>
-						<div class="col">		
-													<button class="button" onclick="goToHomeworkTemplates()">Button A</button>
-													<button class="button" onclick="goToHomeworkTemplates()">Button B</button>
-													<button class="button" onclick="goToHomeworkTemplates()">Button C</button>
-
-						</div>
-						<button type="button" onclick="flipCard(this.parentNode.querySelector('.flip-card'))">Flip</button>
-					</div>
-				</div>
-				
+		<div class="row">
+		    <div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
+		        class="note_card col-md-5">
+		        <a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
+		            <div class="flip-card">
+		                <div class="flip-card-inner">
+		                    <div class="flip-card-front">
+		                        <div class="container">
+		                            <div class="row" th:text="${pcol.name}"></div>
+		                            <hr />
+		                            <div class="row">
+		                                <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
+		                                <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
+		                            </div>
+		                            <div class="row" th:text="|Goal: ${pcol.goal}|"></div>
+		                            <div class='row' th:text="|Description: ${pcol.description}"></div>
+		                            <div class="row">
+		                                <div class="row" th:text="|Progress: ${pcol.progress}|"></div>
+		                            </div>
+		                            <hr/>
+		                            <!-- Actionable Items Section -->
+		                            <div>
+		                                   
+		                            </div>
+		                        </div>
+		                    </div>
+		                    <div class="flip-card-back">
+		                        <!--<h1>Education</h1>
+		                        <p>1. Here is an internal source...</p>
+		                        <p>2. Check out this link...</p><br />-->
+		                        <p>Actionable Items:</p>
+                                    <li th:each="step : ${pcol.steps}" 
+                                        th:if="${step.status != 'Done'}"
+                                        th:text="${step.name + ' - ' + step.status}">
+                                        <!-- This will list each step's name and status if not done -->
+                                    </li>
+		                    </div>
+		                </div>
+		            </div>
+		        </a>
+		        <div class="col">     
+		            <button class="button" onclick="goToHomeworkTemplates()">Button A</button>
+		            <button class="button" onclick="goToHomeworkTemplates()">Button B</button>
+		            <button class="button" onclick="goToHomeworkTemplates()">Button C</button>
+		        </div>
+		        <button type="button" onclick="flipCard(this.parentNode.querySelector('.flip-card'))">Flip</button>
+		    </div>
+		</div>
 				<div class="col-2">
 						<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
 					</div>
