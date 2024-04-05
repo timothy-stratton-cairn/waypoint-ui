@@ -4,8 +4,8 @@
 <head>
 	<title>Client Profile</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	<meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+	<meta name="_csrf" th:content="${_csrf.token}" />
+	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body data-client-id="${clientId}">
@@ -78,72 +78,75 @@
 						<input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
 					</div>
 				</div>
-		<div class="row">
-		    <div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
-		        class="note_card col-md-5">
-		        <a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
-		            <div class="flip-card client_note-card">
-		                <div class="flip-card-inner client_note-card">
-		                    <div class="flip-card-front client_note-card">
-		                        <div class="container">
-		                            <div class="row" th:text="${pcol.name}"></div>
-		                            <hr />
-		                            
-		                            <div class="row"> 
-										<div class = "row col-md-6"th:text="|Goal: ${pcol.goal}|"></div>
-		                            	<div class = "row col-md-6"th:text="|Progress: ${pcol.progress}|"></div>
-		                            </div>
-		                            
-		                            <div class="row">
-		                                <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
-		                                <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
-		                            </div>
-		                          
-		                            <div class='row' th:text="|Description: ${pcol.description}"></div>
-	
-		                            <hr/>
-		                            <!-- Actionable Items Section -->
-                                    <li th:each="step : ${pcol.steps}" 
-                                        th:if="${step.status != 'Done'}"
-                                        th:text="${step.name + ' - ' + step.status}">
-                                        <!-- This will list each step's name and status if not done -->
-                                    </li>
-		                            <div>
-		                                   
-		                            </div>
-		                        </div>
-		                    </div>
-		                    <div class="flip-card-back">
-		                        <!--<h1>Education</h1>
+				<div class="row">
+					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
+						class="note_card col-md-5">
+						<a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
+							<div class="flip-card client_note-card">
+								<div class="flip-card-inner client_note-card">
+									<div class="flip-card-front client_note-card">
+										<div class="container">
+											<div class="row" th:text="${pcol.name}"></div>
+											<hr />
+
+											<div class="row">
+												<div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
+												<div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
+											</div>
+
+											<div class="row">
+												<div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|">
+												</div>
+												<div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|">
+												</div>
+											</div>
+
+											<div class='row' th:text="|Description: ${pcol.description}"></div>
+
+											<hr />
+											<!-- Actionable Items Section -->
+											<li th:each="step : ${pcol.steps}" th:if="${step.status != 'Done'}"
+												th:text="${step.name + ' - ' + step.status}">
+												<!-- This will list each step's name and status if not done -->
+											</li>
+											<div>
+
+											</div>
+										</div>
+									</div>
+									<div class="flip-card-back">
+										<!--<h1>Education</h1>
 		                        <p>1. Here is an internal source...</p>
 		                        <p>2. Check out this link...</p><br />-->
-		                        <p>Actionable Items:</p>
-                                    <li th:each="step : ${pcol.steps}" 
-                                        th:if="${step.status != 'Done'}"
-                                        th:text="${step.name + ' - ' + step.status}">
-                                        <!-- This will list each step's name and status if not done -->
-                                    </li>
-		                    </div>
-		                </div>
-		            </div>
-		        </a>
-		        <div class="col">     
-		            <button class="button" onclick="goToHomeworkTemplates()">Button A</button>
-		            <button class="button" onclick="goToHomeworkTemplates()">Button B</button>
-		            <button class="button" onclick="goToHomeworkTemplates()">Button C</button>
-		        </div>
-		        <button type="button" onclick="flipCard(this.parentNode.querySelector('.flip-card'))">Flip</button>
-		    </div>
-		</div>
-				<div class="col-2">
+										<p>Actionable Items:</p>
+										<li th:each="step : ${pcol.steps}" th:if="${step.status != 'Done'}"
+											th:text="${step.name + ' - ' + step.status}">
+											<!-- This will list each step's name and status if not done -->
+										</li>
+									</div>
+								</div>
+							</div>
+						</a>
+						<div class="col">
+							<div class="row">
+								<button type="button" class="btn btn-secondary"
+									onclick="flipCard(this.parentNode.querySelector('.flip-card'))">Flip</button>
+								<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Homework</button>
+								<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Analysis</button>
+								<button class="btn btn-secondary"
+									onclick="goToHomeworkTemplates()">Recommendations</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-2">
 						<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
 					</div>
 			</fieldset>
 			<div id="protocolContainer"></div>
 			</fieldset>
 		</div>
-		
-		
+
+
 		<!--template for new protocol drop down -->
 		<template id="protocolTemplate">
 			<div class="new-protocol-row mb-3">
@@ -236,56 +239,56 @@
 					console.error('Error adding step:', error);
 					alert('Failed to add the Protocol. Error: ' + error.message);
 				});
-				
+
 		}
-		
-		
-		document.addEventListener('DOMContentLoaded', function() {
-		    var searchField = document.getElementById('protocolSearch');
-		
-		    searchField.addEventListener('input', function() {
-		        var searchTerm = this.value.toLowerCase();
-		
-		        // Select all protocol entries
-		        var protocols = document.querySelectorAll('.note_card.col-md-5');
-		
-		        protocols.forEach(function(protocol) {
-		            // Query for name, goal, progress, and description elements within each protocol card
-		            var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
-		            var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
-		            var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
-		            var descriptionElement = protocol.querySelector('.flip-card-front .container .row:nth-child(5)');
-		
-		            // Extract text content if elements are found, otherwise use an empty string
-		            var name = nameElement ? nameElement.textContent.toLowerCase() : '';
-		            var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
-		            var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
-		            var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
-		
-		            // Check if the protocol card should be displayed based on the search term presence
-		            var isMatch = name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm) || description.includes(searchTerm);
-		
-		            // Query and check steps for matching names
-		            var steps = protocol.querySelectorAll('.flip-card-back li');
-		            steps.forEach(function(step) {
-		                var stepName = step.textContent.toLowerCase();
-		                if(stepName.includes(searchTerm)) {
-		                    isMatch = true;
-		                }
-		            });
-		
-		            protocol.style.display = isMatch ? '' : 'none'; // Show or hide the protocol card
-		        });
-		    });
+
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var searchField = document.getElementById('protocolSearch');
+
+			searchField.addEventListener('input', function () {
+				var searchTerm = this.value.toLowerCase();
+
+				// Select all protocol entries
+				var protocols = document.querySelectorAll('.note_card.col-md-5');
+
+				protocols.forEach(function (protocol) {
+					// Query for name, goal, progress, and description elements within each protocol card
+					var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
+					var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
+					var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
+					var descriptionElement = protocol.querySelector('.flip-card-front .container .row:nth-child(5)');
+
+					// Extract text content if elements are found, otherwise use an empty string
+					var name = nameElement ? nameElement.textContent.toLowerCase() : '';
+					var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
+					var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
+					var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
+
+					// Check if the protocol card should be displayed based on the search term presence
+					var isMatch = name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm) || description.includes(searchTerm);
+
+					// Query and check steps for matching names
+					var steps = protocol.querySelectorAll('.flip-card-back li');
+					steps.forEach(function (step) {
+						var stepName = step.textContent.toLowerCase();
+						if (stepName.includes(searchTerm)) {
+							isMatch = true;
+						}
+					});
+
+					protocol.style.display = isMatch ? '' : 'none'; // Show or hide the protocol card
+				});
+			});
 		});
 
-		
+
 		function flipCard(card) {
-		    card.classList.toggle('do-flip');
+			card.classList.toggle('do-flip');
 		}
-		
+
 		function goToHomeworkTemplates() {
-		    window.location.href = '/homeworkTemplates/';
+			window.location.href = '/homeworkTemplates/';
 		}
 
 	</script th:inline="javascript">

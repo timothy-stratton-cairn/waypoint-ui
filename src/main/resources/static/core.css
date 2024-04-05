@@ -413,6 +413,12 @@ img {
 	color: #EEE;
 	background-color: #413F3D;
 }
+.btn-secondary {
+	color: #EEE;
+	background-color: #413F3D;
+	padding: .125rem .75rem;
+	border-color: #697184;
+}
 .title-sub {
     font-style: italic;
     text-align: center;
