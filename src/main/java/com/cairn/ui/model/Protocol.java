@@ -15,6 +15,7 @@ public class Protocol {
 	private Date lastStatus;
 	private String completionPercent;
 	private int stepCount;
+	private int completedSteps;
 	private ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
 	private ArrayList<Integer> users = new ArrayList<Integer>();
 
@@ -97,5 +98,16 @@ public class Protocol {
 	{
 		return stepCount;
 	}
-	
+	public void setCompletedSteps() {
+	    int completed = 0;
+	    for (ProtocolStep step : steps) { 
+	        if ("TODO".equals(step.getStatus())) {
+	            completed += 1;
+	        }
+	    }
+	    this.completedSteps = completed;
+	}
+	public int getCompletedSteps() {
+		return completedSteps;
+	}
 }

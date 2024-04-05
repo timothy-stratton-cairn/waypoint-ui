@@ -1,9 +1,9 @@
 package com.cairn.ui.helper;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.time.Instant;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
+import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -74,19 +75,7 @@ public class ProtocolHelper {
 							// Access and print array elements
 							if (element != null) {
 								entry = new Protocol();
-								entry.setName(element.get("name").asText());
-								entry.setDescription(element.get("description").asText());
-								if (jsonNode != null && jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
-								    entry.setGoal(jsonNode.get("goal").asText());
-								} else {
-									entry.setGoal("No Goal Set");
-								}
-
-								if (jsonNode != null && jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
-									entry.setProgress(jsonNode.get("goalProgress").asText());
-								} else {
-									entry.setProgress("None");//if option is null set as none 
-								}
+								entry.setName(element.get("name").toString());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
 								results.add(entry);
 							}
@@ -159,13 +148,13 @@ public class ProtocolHelper {
 					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
 					result.setLastStatus(calendar.getTime());
 					if (jsonNode != null && jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
-					    result.setGoal(jsonNode.get("goal").asText());
+					    result.setProgress(jsonNode.get("goal").asText());
 					} else {
 					    result.setGoal("No Goal Set");
 					}
 
-					if (jsonNode != null && jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
-					    result.setProgress(jsonNode.get("goalProgress").asText());
+					if (jsonNode != null && jsonNode.has("progress") && !jsonNode.get("progress").isNull()) {
+					    result.setProgress(jsonNode.get("progress").asText());
 					} else {
 					    result.setProgress("None");//if option is null set as none 
 					}
@@ -183,21 +172,7 @@ public class ProtocolHelper {
 								curStep.setId(Integer.parseInt(element.get("id").asText()));
 								curStep.setName(element.get("name").asText());
 								curStep.setDescription(element.get("description").asText());
-								JsonNode tnote = element.get("stepNotes");
-								JsonNode notes = tnote.get("notes");
-								if (notes.isArray()) {
-									StringBuilder sb = new StringBuilder();
-									for (JsonNode note : notes) {
-										sb.append("Date:");
-										sb.append(note.get("takenAt").asText());
-										sb.append(" By:");
-										sb.append(note.get("takenBy").asText());
-										sb.append(" Note: ");
-										sb.append(note.get("note").asText());
-										sb.append("  ");						
-									}
-									curStep.setNotes(sb.toString());
-								}
+								curStep.setNotes(element.get("stepNotes").get("notes").asText());
 								curStep.setCategory(element.get("category").asText());
 								curStep.setStatus(element.get("status").asText());
 								steps.add(curStep);
@@ -206,6 +181,7 @@ public class ProtocolHelper {
 						result.setSteps(steps);
 					}
 					result.setStepCount();
+					System.out.println(result.getStepCount());
 
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
@@ -251,30 +227,15 @@ public class ProtocolHelper {
 					// Iterate through the array elements
 					ProtocolStep entry = null;
 					if (prots.isArray()) {
+						int idx = 1;
 						for (JsonNode element : prots) {
 							// Access and print array elements
 							if (element != null) {
 								entry = new ProtocolStep();
 								entry.setDescription(element.get("description").asText());
 								entry.setName(element.get("name").asText());
-								entry.setStatus(element.get("status").asText());
-								entry.setCategory(element.get("category").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
-								JsonNode tnote = element.get("stepNotes");
-								JsonNode notes = tnote.get("notes");
-								if (notes.isArray()) {
-									StringBuilder sb = new StringBuilder();
-									for (JsonNode note : notes) {
-										sb.append("Date:");
-										sb.append(note.get("takenAt").asText());
-										sb.append(" By:");
-										sb.append(note.get("takenBy").asText());
-										sb.append(" Note: ");
-										sb.append(note.get("note").asText());
-										sb.append("  ");						
-									}
-									entry.setNotes(sb.toString());
-								}
+								// Test data, fix this later
 								entry.setCategory(element.get("category").asText());
 								results.add(entry);
 							}
@@ -302,67 +263,80 @@ public class ProtocolHelper {
 	 * @return
 	 */
 	public ArrayList<Protocol> getAssignedProtocols(User usr, int clientId){
-		ArrayList<Protocol> results = new ArrayList<Protocol>();
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
+	    ArrayList<Protocol> results = new ArrayList<Protocol>();
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
 
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
+	    // Create a HttpEntity with the headers
+	    HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolaccount + clientId;//retrieves all protocols assigned to clientId
-		
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
+	    String apiUrl = Constants.api_server + Constants.api_ep_protocolaccount + clientId; //retrieves all protocols assigned to clientId
+	    
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+	        // Process the response
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            String jsonResponse = response.getBody();
+	            ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("protocols");
-					// Iterate through the array elements
-					Protocol entry = null;
-					if (prots.isArray()) {
-						for (JsonNode element : prots) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new Protocol();
-								entry.setName(element.get("name").toString());
-								entry.setDescription(element.get("description").asText());
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								
-								entry.setCompletionPercent(element.get("completionPercentage").asText());
-								if (jsonNode != null && jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
-								    entry.setProgress(jsonNode.get("goal").asText());
-								} else {
-								    entry.setGoal("No Goal Set");
-								}
-								if(element!= null && element.has("progress")&& !element.get("progress").isNull()) {
-									entry.setProgress(element.get("progress").toString());
-								}else {
-									entry.setProgress("None");
-								}
-					
-								results.add(entry);
-							}
-						}
-					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-			}
-		} catch (Exception e) {
-			System.out.println("No protocols returned");
-		}
-		
-		return results;
+	            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode prots = jsonNode.get("protocols");
+	            // Iterate through the array elements
+	            if (prots != null && prots.isArray()) {
+	                for (JsonNode element : prots) {
+	                    Protocol entry = new Protocol();
+	                    entry.setName(element.has("name") && !element.get("name").isNull() ? element.get("name").asText() : "null");
+	                    entry.setDescription(element.has("description") && !element.get("description").isNull() ? element.get("description").asText() : "null");
+	                    entry.setId(element.has("id") && !element.get("id").isNull() ? element.get("id").intValue() : -1); // Consider using a default ID like -1
+	                    
+	                    entry.setCompletionPercent(element.has("completionPercentage") && !element.get("completionPercentage").isNull() ? element.get("completionPercentage").asText() : "null");
+	                    
+	                    if (element.has("goal") && !element.get("goal").isNull()) {
+	                        entry.setProgress(element.get("goal").asText());
+	                    } else {
+	                        entry.setGoal("No Goal Set"); // This should probably be entry.setGoal("null");
+	                    }
+	                    if(element.has("progress") && !element.get("progress").isNull()) {
+	                        entry.setProgress(element.get("progress").asText());
+	                    } else {
+	                        entry.setProgress("None"); // Adjusted as per your instruction, but "None" seems more appropriate here
+	                    }
+	                    
+	                    JsonNode assoc = element.get("associatedSteps"); // This should target 'element', not 'jsonNode'
+	                    ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
+	                    if (assoc != null) {
+	                        JsonNode asteps = assoc.get("steps");
+	                        if (asteps != null && asteps.isArray()) {
+	                            for (JsonNode stepElement : asteps) {
+	                                ProtocolStep curStep = new ProtocolStep();
+	                                curStep.setId(stepElement.has("id") && !stepElement.get("id").isNull() ? stepElement.get("id").intValue() : -1);
+	                                curStep.setName(stepElement.has("name") && !stepElement.get("name").isNull() ? stepElement.get("name").asText() : "null");
+	                                curStep.setDescription(stepElement.has("description") && !stepElement.get("description").isNull() ? stepElement.get("description").asText() : "null");
+	                                curStep.setNotes(stepElement.has("stepNotes") && !stepElement.get("stepNotes").isNull() && stepElement.get("stepNotes").has("notes") ? stepElement.get("stepNotes").get("notes").asText() : "null");
+	                                curStep.setCategory(stepElement.has("category") && !stepElement.get("category").isNull() ? stepElement.get("category").asText() : "null");
+	                                curStep.setStatus(stepElement.has("status") && !stepElement.get("status").isNull() ? stepElement.get("status").asText() : "null");
+	                                steps.add(curStep);
+	                            }
+	                        }
+	                        entry.setSteps(steps);
+	                        entry.setStepCount();
+	                        entry.setCompletedSteps();
+	                        System.out.println("Step Count"+ entry.getStepCount() +  " Completed Steps" + entry.getCompletedSteps());
+	                    }
+	                    results.add(entry);
+	                }
+	            }
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        System.out.println("No protocols returned");
+	    }
+	    
+	    return results;
 	}
+
 	/*
 	 * Assigns a clientId to a protocol
 	 * @param usr
@@ -409,6 +383,8 @@ public class ProtocolHelper {
 		String requestBody = "{\"status\": \"" + status + "\"}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/status";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		System.out.println(apiUrl);
+		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -440,6 +416,8 @@ public class ProtocolHelper {
 		String requestBody = "{\"note\": \"" + note + "\"}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/note";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		System.out.println(apiUrl);
+		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -499,6 +477,8 @@ public class ProtocolHelper {
 		String requestBody = "{\"comments\": [{\"takenAt\": \"" + timestamp +"\", \"takenBy\": \""+username+"\", \"comment\": \""+comment+"\"}]}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol + '/' + protocolId;
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		System.out.println(apiUrl);
+		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {

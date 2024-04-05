@@ -89,13 +89,13 @@
 										<div class="row" th:text="${pcol.name}"></div>
 										<hr />
 										<div class="row">
-											<div class="row col-md-6" th:text="|Total Steps: ${stepCount}|"></div>
-											<div class="row col-md-6" th:text="|Completed: ${completeCount}|"></div>
+											<div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
+											<div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
 										</div>
-										<div class="row">
+										
 											<div class="row" th:text="|Goal: ${pcol.goal}|"></div>
-											<div class='row'  th:text="|Description: ${pcol.description}"></div>
-										</div>
+											<div class='row' th:text="|Description: ${pcol.description}"></div>
+										
 										<div class="row">
 											<div class="row" th:text="|Progress: ${pcol.progress}|"></div>
 										</div>
