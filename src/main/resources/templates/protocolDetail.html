@@ -212,7 +212,7 @@
 		    var comment = document.getElementById('commentInput').value;
 		
 		    fetch(`/updateProtocolCommentsandGoal/${protocolId}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}`, {
-		        method: 'POST',
+		        method: 'PATCH',
 		        headers: {
 		            'Accept': 'application/json',
 		            'Content-Type': 'application/json',

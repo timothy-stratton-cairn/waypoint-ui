@@ -447,7 +447,7 @@ public class ProtocolHelper {
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId;
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
 
 	            result = 1;
@@ -480,7 +480,7 @@ public class ProtocolHelper {
 		System.out.println(apiUrl);
 		System.out.println(entity);
 		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
 
 	            result = 1;
