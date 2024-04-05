@@ -82,9 +82,9 @@
 		    <div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
 		        class="note_card col-md-5">
 		        <a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
-		            <div class="flip-card">
-		                <div class="flip-card-inner">
-		                    <div class="flip-card-front">
+		            <div class="flip-card client_note-card">
+		                <div class="flip-card-inner client_note-card">
+		                    <div class="flip-card-front client_note-card">
 		                        <div class="container">
 		                            <div class="row" th:text="${pcol.name}"></div>
 		                            <hr />
@@ -103,6 +103,11 @@
 	
 		                            <hr/>
 		                            <!-- Actionable Items Section -->
+                                    <li th:each="step : ${pcol.steps}" 
+                                        th:if="${step.status != 'Done'}"
+                                        th:text="${step.name + ' - ' + step.status}">
+                                        <!-- This will list each step's name and status if not done -->
+                                    </li>
 		                            <div>
 		                                   
 		                            </div>
