@@ -9,6 +9,7 @@ public class HomeworkTemplate {
 
 	private int id;
 	private String name;
+	private String description;
 	private int numClients;
 
 	public int getId() {
@@ -16,6 +17,9 @@ public class HomeworkTemplate {
 	}
 	public String getName() {
 		return name;
+	}
+	public String getDescription() {
+		return description;
 	}
 	public int getNumClients() {
 		return numClients;
@@ -25,6 +29,9 @@ public class HomeworkTemplate {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	public void setNumClients(int numClients) {
 		this.numClients = numClients;

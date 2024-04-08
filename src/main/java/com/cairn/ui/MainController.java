@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.cairn.ui.helper.DashboardHelper;
+import com.cairn.ui.helper.HomeworkTemplateHelper;
 import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.UserHelper;
@@ -435,7 +436,31 @@ public class MainController {
     
     @GetMapping("/homeworkTemplates/")
     public String homeworkTemplates(Model model) {
+    	User currentUser = userDAO.getUser(); 
+    	HomeworkTemplateHelper helper = new HomeworkTemplateHelper();
+    	ArrayList<HomeworkTemplate> templateList = helper.getList(currentUser);
+    	model.addAttribute("templates",templateList);	
     	return "homeworkTemplates";
+    }
+    
+    @GetMapping("/newClient/")
+    public String newClient(Model model) {
+    	return "newClient";
+    }
+    
+    @PostMapping ("addClient/{username}/{firstName}/{lastName}/{role}/{email}/{password}")
+    public ResponseEntity<Object> addClient(@PathVariable String username,@PathVariable String firstName, @PathVariable String lastName,@PathVariable int role, @PathVariable String email, @PathVariable String password, Model model) {
+    	User currentUser = userDAO.getUser(); 
+    	UserHelper helper = new UserHelper();
+    	try {
+    		helper.addUser(currentUser, username, firstName, lastName, role, email, password);
+    		
+    	 } catch (Exception e) {
+             System.out.println("Error in addClient:");
+             e.printStackTrace(); // Print the stack trace to the console
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding client: " + e.getMessage());
+         }
+         return ResponseEntity.ok().build();
     }
     
 

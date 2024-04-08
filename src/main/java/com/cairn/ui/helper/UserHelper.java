@@ -179,4 +179,39 @@ public class UserHelper {
 		return result;
 
 	}
+	
+	
+	public int addUser(User usr, String username,String firstName,String lastName,int role, String email, String password) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.add("Content-Type", "application/json");
+	    String requestBody = String.format(
+	            "{\"username\": \"%s\", \"firstName\": \"%s\", \"lastName\": \"%s\", \"roleIds\": [%d], \"email\": \"%s\", \"password\": \"%s\"}",
+	            username, firstName, lastName, role, email, password
+	        );
+	    String apiUrl = Constants.auth_server + Constants.api_userlist_get;
+	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		System.out.println(apiUrl);
+		System.out.println(entity);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating Comment");
+	        e.printStackTrace();
+		}
+			
+		return result;
+
+	}
 }

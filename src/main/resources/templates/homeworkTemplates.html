@@ -9,14 +9,37 @@
 </head>
 
 <body>
-	<div th:insert="~{header :: main}">...</div>
-		<div class="container">
-
-		<div class="note_card">
+    <div th:insert="~{header :: main}">...</div>
+    <div class="container">
+    <div class="row note_card">
 			<fieldset>
-				<legend>Homework</legend>
-			</fieldset>
-		</div>
+            <div class="card-header">
+                <legend>Homework Templates</legend>
+            </div>
+            <div class="card-body">
+                <table class="table table-responsive table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="template : ${templates}">
+                            <td th:text="${template.id}"></td>
+                            <td th:text="${template.name}"></td>
+                            <td th:text="${template.description}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="container mt-3">
+		<button onclick="history.back()" class="btn btn-primary">Back</button>
+	</div>
 <script>
 	
 </script>
