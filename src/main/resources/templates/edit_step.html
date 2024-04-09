@@ -3,17 +3,16 @@
 <head>
     <title>Edit Step</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script>
-        function saveStep(id) {
-            window.location = 'saveStep/'+step.id; 
-        }
-    </script>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
+
 <div class="container">
     <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
 </div>
+
 <div class="container">
     <div class="row note_card">
         <fieldset>
@@ -33,5 +32,68 @@
         </fieldset>
     </div>
 </div>
+
+<!-- Homework Template Selection -->
+<div class="container mt-3">
+    <button type="button" class="btn btn-primary" id="btnAddHomeworkTemplate">Add Homework Template</button>
+    <div id="homeworkTemplateSelector" style="display:none;">
+        <select class="form-control mt-2" id="homeworkTemplateDropdown" name="homeworkTemplateId">
+            <option value="">Select Homework Template</option>
+            <option th:each="homework : ${homework}"
+                    th:value="${homework.id}"
+                    th:text="${homework.name}">Homework Template Name</option>
+        </select>
+        <button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate()">Confirm</button>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Example variable, replace with actual step ID
+    var stepId = [[${stepId}]];
+
+    document.getElementById('btnAddHomeworkTemplate').addEventListener('click', function() {
+        document.getElementById('homeworkTemplateSelector').style.display = 'block';
+    });
+
+    function confirmHomeworkTemplate() {
+		var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+		var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+		var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+		var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+        var homeworkTemplateId = document.getElementById('homeworkTemplateDropdown').value;
+        if (!homeworkTemplateId) {
+            alert('Please select a Homework Template.');
+            return;
+        }
+        var stepId = [[${stepId}]]; // Ensure this variable is correctly populated
+        // Use Thymeleaf to insert the CSRF token into the fetch request
+        
+        
+        fetch('/addHomeworkTemplateToStep/' + stepId + '/' + homeworkTemplateId + '/', {
+            method: 'PATCH', // or 'POST', as appropriate
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            credentials: 'include'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Homework Template added successfully.');
+                window.location.reload();
+            } else {
+                alert('Failed to add Homework Template.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding Homework Template.');
+        });
+    }
+
+</script>
+
 </body>
 </html>
+

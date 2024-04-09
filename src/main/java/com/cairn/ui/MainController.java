@@ -21,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.cairn.ui.helper.DashboardHelper;
 import com.cairn.ui.helper.HomeworkTemplateHelper;
 import com.cairn.ui.helper.ProtocolHelper;
+import com.cairn.ui.helper.ProtocolStepTemplateHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.Dashboard;
@@ -329,22 +330,34 @@ public class MainController {
 	
 	
 	@GetMapping("/editStep/{stepId}") 
-	public ModelAndView editStep(@PathVariable int stepId) {
-	    ModelAndView model = new ModelAndView("edit_Step");
+	public String edit_step(@PathVariable int stepId, Model model) {
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-
+		HomeworkTemplateHelper temphelper = new HomeworkTemplateHelper();
+		ArrayList<HomeworkTemplate> templatelist = temphelper.getList(usr);
+		
 	    if (stepId == 0) {
 	        // Create a new step with default values
 	        ProtocolStepTemplate step = new ProtocolStepTemplate();
-	        model.addObject("step", step);
+	        model.addAttribute("step", step);
 	    } else {
 	        ProtocolStepTemplate step = helper.getStep(usr, stepId);
-	        model.addObject("step", step);
+	        model.addAttribute("step", step);
 	    }
-
-	    return model;
+	    model.addAttribute("homework",templatelist);
+		model.addAttribute("stepId",stepId);
+	    return "edit_step";
 	}
+	
+	   @GetMapping("/homeworkTemplates/")
+	    public String homeworkTemplates(Model model) {
+	    	User currentUser = userDAO.getUser(); 
+	    	HomeworkTemplateHelper helper = new HomeworkTemplateHelper();
+	    	ArrayList<HomeworkTemplate> templateList = helper.getList(currentUser);
+	    	model.addAttribute("templates",templateList);	
+	    	return "homeworkTemplates";
+	    }
+	    
 
     @GetMapping("/profile")
     public String userProfile(Model model) {
@@ -434,14 +447,21 @@ public class MainController {
     	return "clientProtocol";
     }
     
-    @GetMapping("/homeworkTemplates/")
-    public String homeworkTemplates(Model model) {
+    
+    @PatchMapping("addHomeworkTemplateToStep/{stepTemplateId}/{homeworkTemplateId}/")
+    public ResponseEntity<Object>addHomeworkTemplateToStep(@PathVariable int stepTemplateId, @PathVariable int homeworkTemplateId, Model model){
     	User currentUser = userDAO.getUser(); 
-    	HomeworkTemplateHelper helper = new HomeworkTemplateHelper();
-    	ArrayList<HomeworkTemplate> templateList = helper.getList(currentUser);
-    	model.addAttribute("templates",templateList);	
-    	return "homeworkTemplates";
+    	ProtocolStepTemplateHelper helper = new ProtocolStepTemplateHelper();
+    	try {
+    		helper.addHomeworkTemplate(currentUser,stepTemplateId,homeworkTemplateId);
+    	} catch (Exception e) {
+            System.out.println("Error in addHomeworkTemplateToStep:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Homework Template to Step: " + e.getMessage());
+        }
+    	return ResponseEntity.ok().build();
     }
+    
     
     @GetMapping("/newClient/")
     public String newClient(Model model) {

@@ -1,11 +1,14 @@
 package com.cairn.ui.model;
 
+import java.util.ArrayList;
+
 public class ProtocolStepTemplate {
 
 	private int id;
 	private String name;
 	private String description;
 	private int type;
+	private ArrayList<HomeworkTemplate> linkedHomeworkTemplates;
 
 	public String getTypeDisplay() {
 		String returnValue = "Undefined";
@@ -24,7 +27,7 @@ public class ProtocolStepTemplate {
 			break;
 		}
 		return returnValue;
-	}
+	} 
 	public int getType() {
 		/* 4 types of steps *
 		  0: Undefined
