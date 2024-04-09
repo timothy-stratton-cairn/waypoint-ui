@@ -2,7 +2,7 @@ package com.cairn.ui.model;
 
 public class ProtocolStats {
 	private int templateId;
-	private int assignedUsers;
+	private AssignedUsers assignedUsers;
 	private int numSteps;
 	private int progress;
 	private int done;
@@ -11,7 +11,7 @@ public class ProtocolStats {
 	public int getTemplateId() {
 		return templateId;
 	}
-	public int getAssignedUsers() {
+	public AssignedUsers getAssignedUsers() {
 		return assignedUsers;
 	}
 	public int getNumSteps() {
@@ -32,7 +32,7 @@ public class ProtocolStats {
 	public void setTemplateId(int templateId) {
 		this.templateId = templateId;
 	}
-	public void setAssignedUsers(int assignedUsers) {
+	public void setAssignedUsers(AssignedUsers assignedUsers) {
 		this.assignedUsers = assignedUsers;
 	}
 	public void setNumSteps(int numSteps) {

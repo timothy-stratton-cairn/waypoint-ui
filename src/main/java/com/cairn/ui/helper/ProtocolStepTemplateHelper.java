@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service 
 public class ProtocolStepTemplateHelper{
+
+	@Value("${waypoint.dashboard-api.base-url}")
+	private String dashboardApiBaseUrl;
+
     private RestTemplate restTemplate;
 
 
@@ -47,7 +52,7 @@ public class ProtocolStepTemplateHelper{
 	    headers.add("Content-Type", "application/json");
 	    String requestBody = "{\"linkedHomeworkTemplateIds\": [" + homeworkId + "]}";
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get +"/"+ stepTemplateId ;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get +"/"+ stepTemplateId ;
 		
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		System.out.println(apiUrl);
@@ -81,7 +86,7 @@ public class ProtocolStepTemplateHelper{
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 	    HttpEntity<String> entity = new HttpEntity<>(headers);
-	    String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get + "/"+id;
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + "/"+id;
 	    
 	    try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);

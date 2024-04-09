@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ProtocolTemplateHelper {
+
+	@Value("${waypoint.dashboard-api.base-url}")
+	private String dashboardApiBaseUrl;
+
     private RestTemplate restTemplate;
 
 
@@ -58,7 +63,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -116,7 +121,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -224,7 +229,7 @@ public class ProtocolTemplateHelper {
 	    // Assuming you need to send theStep as part of the request body
 	    HttpEntity<ProtocolStepTemplate> entity = new HttpEntity<>(theStep, headers);
 
-	    String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_assign + "/" + theTemplate.getId()+ "/"+ theStep.getId();
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + "/" + theTemplate.getId()+ "/"+ theStep.getId();
 
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
@@ -280,7 +285,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + id;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -338,7 +343,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplate;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -405,7 +410,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplateget + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + id;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -472,7 +477,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplate + "/" + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate + "/" + id;
 
 		// Make the GET request and retrieve the response
 		try {

@@ -2,11 +2,13 @@ package com.cairn.ui.helper;
 
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
@@ -17,7 +19,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Service
 public class UserHelper {
+
+	@Value("${waypoint.authorization-api.base-url}")
+	private String authorizationApiBaseUrl;
     private RestTemplate restTemplate;
 
 
@@ -46,7 +52,7 @@ public class UserHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.auth_server + Constants.api_userlist_get;
+		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -106,7 +112,7 @@ public class UserHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + uid;
+		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -190,7 +196,7 @@ public class UserHelper {
 	            "{\"username\": \"%s\", \"firstName\": \"%s\", \"lastName\": \"%s\", \"roleIds\": [%d], \"email\": \"%s\", \"password\": \"%s\"}",
 	            username, firstName, lastName, role, email, password
 	        );
-	    String apiUrl = Constants.auth_server + Constants.api_userlist_get;
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		System.out.println(apiUrl);
 		System.out.println(entity);
