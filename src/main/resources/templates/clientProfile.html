@@ -175,24 +175,31 @@
 		var firstTabEl = document.querySelector('#dependentTabs .nav-link');
 		var firstTab = new bootstrap.Tab(firstTabEl);
 		var clientId = [[${clientId}]];
+		var apTracker = true; // used to prevent addProtocol from spawning multiple lines 
 
 		if (firstTabEl) {
 			firstTab.show();
 		}
 
 		function addProtocol() {
-			console.log("addProtocol: Function called.");
-			const container = document.querySelector("#protocolContainer");
-			if (container) {
-				console.log("addProtocol: Container found.");
-			} else {
-				console.error("addProtocol: #protocolContainer not found.");
-			}
-			const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
-			container.appendChild(template);
-			console.log("addProtocol: Protocol added to container.");
+		    if (!apTracker) {
+		        console.log("addProtocol: Prevented from spawning multiple lines.");
+		        return; // Exit the function early if apTracker is false
+		    }
+		    
+		    console.log("addProtocol: Function called.");
+		    const container = document.querySelector("#protocolContainer");
+		    if (container) {
+		        console.log("addProtocol: Container found.");
+		    } else {
+		        console.error("addProtocol: #protocolContainer not found.");
+		        return; // Also exit early if the container is not found
+		    }
+		    const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
+		    container.appendChild(template);
+		    console.log("addProtocol: Protocol added to container.");
+		    apTracker = false; // Set apTracker to false to prevent further addition until it's reset
 		}
-
 		function confirmProtocol(buttonElement) {
 			console.log("confirmProtocol: Function called.");
 
@@ -231,6 +238,7 @@
 					console.log(`confirmProtocol: Fetch response status is ${response.status}.`);
 					if (response.ok) {
 						alert("Step added successfully.");
+						apTracker = true;
 						window.location.reload(); // Reload page if successful
 					} else {
 						response.text().then(text => {throw new Error(text);});
