@@ -82,9 +82,9 @@
 					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
 						class="note_card col-md-5">
 						<a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
-							<div class="flip-card client_note-card">
-								<div class="flip-card-inner client_note-card">
-									<div class="flip-card-front client_note-card">
+							<div class="flip-card ">
+								<div class="flip-card-inner">
+									<div class="flip-card-front">
 										<div class="container">
 											<div class="row" th:text="${pcol.name}"></div>
 											<hr />
@@ -127,16 +127,17 @@
 								</div>
 							</div>
 						</a>
-						<div class="col">
-							<div class="row">
-								<button type="button" class="btn btn-secondary"
-									onclick="flipCard(this.parentNode.querySelector('.flip-card'))">Flip</button>
-								<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Homework</button>
-								<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Analysis</button>
-								<button class="btn btn-secondary"
-									onclick="goToHomeworkTemplates()">Recommendations</button>
+						
+									<div class="row">
+										<button type="button" class="btn btn-secondary"
+											onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
+										<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Homework</button>
+										<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Analysis</button>
+										<button class="btn btn-secondary"
+											onclick="goToHomeworkTemplates()">Recommendations</button>
+									</div>
+								</div>
 							</div>
-						</div>
 					</div>
 					<div class="col-2">
 						<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
@@ -284,7 +285,11 @@
 
 
 		function flipCard(card) {
-			card.classList.toggle('do-flip');
+		    if (card) { // Check if card is not null
+		        card.classList.toggle('do-flip');
+		    } else {
+		        console.error("No card element found");
+		    }
 		}
 
 		function goToHomeworkTemplates() {
