@@ -475,7 +475,7 @@ public class ProtocolHelper {
 	    Instant timestamp = Instant.now();
 	    String username = usr.getUsername();
 		headers.add("Content-Type", "application/json");
-		String requestBody = "{\"comments\": [{\"takenAt\": \"" + timestamp +"\", \"takenBy\": \""+username+"\", \"comment\": \""+comment+"\"}]}";
+		String requestBody = "{\"comment\": \""+comment+"\"}";
 		String apiUrl = Constants.api_server + Constants.api_ep_protocol + '/' + protocolId;
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		System.out.println(apiUrl);
