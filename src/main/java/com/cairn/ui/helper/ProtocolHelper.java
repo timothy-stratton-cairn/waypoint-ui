@@ -147,16 +147,17 @@ public class ProtocolHelper {
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
 					result.setLastStatus(calendar.getTime());
-					if (jsonNode != null && jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
-					    result.setProgress(jsonNode.get("goal").asText());
+					if (jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
+					    result.setGoal(jsonNode.get("goal").asText());
 					} else {
-					    result.setGoal("No Goal Set");
+					    result.setGoal("No Goal Set"); // Fallback if goal is not set
 					}
 
-					if (jsonNode != null && jsonNode.has("progress") && !jsonNode.get("progress").isNull()) {
-					    result.setProgress(jsonNode.get("progress").asText());
+
+					if (jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
+					    result.setProgress(jsonNode.get("goalProgress").asText());
 					} else {
-					    result.setProgress("None");//if option is null set as none 
+					    result.setProgress("None"); // Fallback if goalProgress is not present or is null
 					}
 
 					/* Add in the steps */
@@ -296,8 +297,8 @@ public class ProtocolHelper {
 	                    } else {
 	                        entry.setGoal("No Goal Set"); // This should probably be entry.setGoal("null");
 	                    }
-	                    if(element.has("progress") && !element.get("progress").isNull()) {
-	                        entry.setProgress(element.get("progress").asText());
+	                    if(element.has("goalProgress") && !element.get("goalProgress").isNull()) {
+	                        entry.setProgress(element.get("goalProgress").asText());
 	                    } else {
 	                        entry.setProgress("None"); // Adjusted as per your instruction, but "None" seems more appropriate here
 	                    }
@@ -493,6 +494,37 @@ public class ProtocolHelper {
 		}
 		catch(Exception e) {
 			System.out.println("Error in updating Comment");
+	        e.printStackTrace();
+		}
+			
+		return result;
+		
+	}
+	
+	public int updateProtocolProgress(User usr, int protocolId, String progress) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+		headers.add("Content-Type", "application/json");
+		String requestBody ="{\"goalProgress\": \"" + progress + "\"}";
+		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId;
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		System.out.println(apiUrl);
+		System.out.println(entity);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating progress");
 	        e.printStackTrace();
 		}
 			

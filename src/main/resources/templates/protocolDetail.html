@@ -28,9 +28,9 @@
 						<div class="col-md-3">
                             <strong>Completion:</strong> <span th:text="${protocol.completionPercent}"></span>
                         </div>
-                         <div class="col-md-3">
-                            <strong>Progress:</strong> <span th:text="${protocol.progress}"></span>
-                        </div>
+                         <div class = "col-md-3">
+							<input type="text" id="progressInput" th:value="${protocol.progress}" class="form-control">
+						</div>
                         <div class="col-md-3">
                             <strong>Number of Steps:</strong> <span th:text="${protocol.stepCount}"></span>
                         </div>
@@ -210,8 +210,9 @@
 		    
 		    var goal = document.getElementById('goalInput').value;
 		    var comment = document.getElementById('commentInput').value;
+		    var progress = document.getElementById('progressInput').value;
 		
-		    fetch(`/updateProtocolCommentsandGoal/${protocolId}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}`, {
+		    fetch(`/updateProtocolCommentsGoalsAndProgress/${protocolId}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}`, {
 		        method: 'PATCH',
 		        headers: {
 		            'Accept': 'application/json',

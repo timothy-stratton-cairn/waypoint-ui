@@ -78,7 +78,9 @@ public class MainController {
     	model.addAttribute("protocol",protocol);
     	model.addAttribute("steps",protocol.getSteps());
     	model.addAttribute("protocolId",pcolId);
-    	
+    	System.out.println("Goal: "+protocol.getGoal());
+    	System.out.println("Comment: "+protocol.getComment());
+    	System.out.println("Progress:"+protocol.getProgress());
         List<ProtocolStep> steps = protocol.getSteps();
         if (steps != null) {
             for (ProtocolStep step : steps) {
@@ -119,13 +121,14 @@ public class MainController {
     	return ResponseEntity.ok().build();
     }
     
-    @PatchMapping("/updateProtocolCommentsandGoal/{protocolId}/{comment}/{goal}")
-    public ResponseEntity<Object>updateProtocolComment(@PathVariable int protocolId, @PathVariable String comment, @PathVariable String goal, Model model){
+    @PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}")
+    public ResponseEntity<Object>updateProtocolComment(@PathVariable int protocolId, @PathVariable String comment, @PathVariable String goal,@PathVariable String progress, Model model){
     	User currentUser = userDAO.getUser();
     	ProtocolHelper helper = new ProtocolHelper();
     	try {
     		helper.updateProtocolComment(currentUser, protocolId, comment);
     		helper.updateProtocolGoal(currentUser, protocolId, goal);
+    		helper.updateProtocolProgress(currentUser, protocolId, progress);
     	}catch (Exception e) {
     		System.out.println("Error in addClientToProtocol:");
             e.printStackTrace(); 
