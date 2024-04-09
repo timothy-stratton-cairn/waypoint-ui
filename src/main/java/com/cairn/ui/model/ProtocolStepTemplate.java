@@ -8,7 +8,9 @@ public class ProtocolStepTemplate {
 	private String name;
 	private String description;
 	private int type;
-	private ArrayList<HomeworkTemplate> linkedHomeworkTemplates;
+	private ArrayList<HomeworkTemplate> homework;
+	
+
 
 	public String getTypeDisplay() {
 		String returnValue = "Undefined";
@@ -59,5 +61,13 @@ public class ProtocolStepTemplate {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public void setHomework(ArrayList<HomeworkTemplate> homework){
+		this.homework = homework;
+		
+	}
+	public ArrayList<HomeworkTemplate> getHomework(){
+		return homework;
 	}
 }

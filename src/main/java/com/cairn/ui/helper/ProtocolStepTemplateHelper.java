@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
@@ -68,6 +69,60 @@ public class ProtocolStepTemplateHelper{
 			System.out.println("Error in addHomeworkTemplate");
 	        e.printStackTrace();
 		}
+    	return result;
+    	
+    }
+    
+    
+    public ProtocolStepTemplate getTemplate(User usr, int id) {
+    	ProtocolStepTemplate result = new ProtocolStepTemplate();
+    	
+    	HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.add("Content-Type", "application/json");
+	    HttpEntity<String> entity = new HttpEntity<>(headers);
+	    String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get + "/"+id;
+	    
+	    try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
+
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					result.setName(jsonNode.get("name").asText());
+					result.setDescription(jsonNode.get("description").asText());
+					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+					JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
+					ArrayList <HomeworkTemplate>homeworks = new ArrayList<HomeworkTemplate>();
+					if (perms.isArray()) {
+						for (JsonNode element : perms) {
+							// Access and print array elements
+							if (element != null) {
+								HomeworkTemplate curHw = new HomeworkTemplate();
+								curHw.setName(element.get("name").asText());
+								curHw.setId(Integer.parseInt(element.get("id").asText()));
+								curHw.setDescription(element.get("description").asText());
+								homeworks.add(curHw);
+							}
+						}result.setHomework(homeworks);
+					}
+					} catch (JsonMappingException e) {
+						e.printStackTrace();
+					} catch (JsonProcessingException e) {
+						e.printStackTrace();
+					}
+				} else {
+					System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				}
+			} catch (Exception e) {
+				System.out.println("No protocols returned");
+			}
+
+	    
     	return result;
     	
     }
