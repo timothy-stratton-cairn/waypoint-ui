@@ -374,9 +374,9 @@ public class MainController {
     }
     
     @GetMapping("/changeUserInfo")
-    public String showChangeUserInfoForm(Model model) {
-        User userDetails = new User(); // Creates a new UserDetails object to hold form data
-        model.addAttribute("userDetails", userDetails); // Adds the object to the model to be accessed by the form
+    public String showChangeUserInfoForm( Model model) {
+        User user = userDAO.getUser(); // Creates a new UserDetails object to hold form data
+        model.addAttribute("user", user); // Adds the object to the model to be accessed by the form
         return "changeUserInfo"; 
     }
 

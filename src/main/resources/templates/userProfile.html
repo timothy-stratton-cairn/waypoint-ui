@@ -4,47 +4,47 @@
 
 <body>
 	
-<div class = container>
-	    <div class="row note_card">
-	        <fieldset>
-				<legend>Profile </legend>
-				<div class="row ">
-					<div class="col-md-2">
-						<label for="name">Email : </label>
-					</div>
-					<div class="col-md-1" th:text="${user.email}"></div>
-				</div>
-				<div class="row ">
-					<div class="col-md-2">
-						<label for="name"> Username : </label>
-					</div>
-					<div class="col-md-1" th:text="${user.username}"></div>
-				</div>
-				<div>
-					<div class="row">
-						<div class="col-md-1">&nbsp;
-						<button type="button" class="btn btn-secondary" onclick="reports()">Reports</button>
-						</div>
-					</div>
-				</div>
-				<br>
-				<div>
-					<div class = "row">
-						<div class="col-md-2">
-							<button type="button" class="btn btn-secondary" onclick="editUser()">Change Password</button>
-						</div>
-					</div>
-				</div>
-				<br>
-				
-				
-	        </fieldset>
-	    </div>
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Profile</legend>
+            
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="username"> Username: </label>
+                </div>
+                <div class="col-md-10"><strong th:text="${user.username}"></strong></div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="email">Email: </label>
+                </div>
+                <div class="col-md-10"><strong th:text="${user.email}"></strong></div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="name"> Name: </label>
+                </div>
+                <div class="col-md-10"><strong th:text="${user.firstName} + ' ' + ${user.lastName}"></strong></div>
+            </div>
+            
+            <br>
+            <div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-secondary" onclick="editUser()">Change User Details</button>
+                    </div>
+                </div>
+            </div>
+            <br>
+            
+        </fieldset>
+    </div>
 </div>
+
 <script>
-	        function reports() {
-            alert('Coming Soon');
-        }
         function editUser(){
 			window.location = '/changeUserInfo';
 			

@@ -7,36 +7,54 @@
     }
 </script>
 <body>
-<div class="container">
-    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
-</div>
-<div class = container>
+<div class = 'container'>
 	    <div class="row note_card">
 	        <fieldset>
 				<legend>Change User Details </legend>
 				            <form id="userDetailsForm">
+				<button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
 				<div class="form-group">
-                    <label for="userName">Previous User Name:</label>
-                    <input type="text" id="oldUserName" name="oldUserName" class="form-control" placeholder="Enter user name"/>
+                    <label for="stepName">Username:</label>
+                    <input type="text" id="username" name="username" class="form-control" th:value = "${user.username}">
                 </div>
+                
+				
+				<div class="form-group">
+				    <label for="email">Email:</label>
+				    <input type="text" id="email" name="email" class="form-control" th:value="${user.email}">
+				</div>
+
+				
+				<div class="form-group">
+                    <label for="stepName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" th:value = "${user.firstName}">
+                </div>
+                
                 <div class="form-group">
-                    <label for="userName">New User Name:</label>
-                    <input type="text" id="userName" name="newUsername" class="form-control" placeholder="Enter user name"/>
+                    <label for="stepName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control" th:value = "${user.lastName}">
                 </div>
+                
                 <div class="form-group">
-                    <label for="userEmail">Password:</label>
-                    <input type="password" id="userPassword" name="userPassword" class="form-control" placeholder="Enter Password"/>
+                    <label for="stepName">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control" th:value = "${user.password}">
                 </div>
+                
                 <div class="form-group">
-                    <label for="userEmail">New Password:</label>
-                    <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter New Password"/>
+                    <label for="stepName">Confirm Password:</label>
+                    <input type="password" id="password" name="confirmPassword" class="form-control" th:value = "${user.password}">
                 </div>
-                <button type="button" class="btn btn-primary" onclick="saveUserDetails()">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+                <button type="button" class="btn btn-secondary" onclick="saveUserDetails()">Save</button>
             </form>
 				
 				
 	        </fieldset>
+	        
 	    </div>
+</div>
+<div class="container">
+	    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
 </div>
 	
 </body>>
