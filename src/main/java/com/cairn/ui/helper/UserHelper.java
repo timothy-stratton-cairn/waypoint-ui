@@ -220,4 +220,61 @@ public class UserHelper {
 		return result;
 
 	}
+	
+	
+	public int updateUserDetails(User usr, String username, String firstName, String lastName) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.add("Content-Type", "application/json");
+	    int id = usr.getId();
+	    String requestBody = "";
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_user_get + "/"+ id ;
+	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating User Detals");
+	        e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public int changeUserPassword(User usr, String oldPassword, String newPassword) {
+		int result =0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.add("Content-Type", "application/json");
+	    int id = usr.getId();
+	    String requestBody = "";
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_user_get + "/" + id + "/reset-password";
+	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating User Password");
+	        e.printStackTrace();
+		}
+		return result;
+	}
 }

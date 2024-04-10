@@ -486,5 +486,34 @@ public class MainController {
          return ResponseEntity.ok().build();
     }
     
+    @PostMapping("/updateUserPassword/{oldpassword}/{newpassword}/")
+    public ResponseEntity<Object>updateUserPassword(@PathVariable String opassword, @PathVariable String npassword, Model model){
+    	User currentUser = userDAO.getUser();
+    	UserHelper helper = new UserHelper();
+    	try {
+    		helper.changeUserPassword(currentUser, opassword, npassword);
+    	}catch (Exception e) {
+    		System.out.println("Error in addClient:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Changing Password: " + e.getMessage());
+    	}
+    	return ResponseEntity.ok().build();
+    }
+    
+    @PatchMapping("/updateUserDetails/{username}/{firstName}/{lastName}/")
+    public ResponseEntity<Object>updateUserDetails(@PathVariable String username,@PathVariable String firstName,@PathVariable String lastName, Model model){
+    	User currentUser = userDAO.getUser();
+    	UserHelper helper = new UserHelper();
+    	try {
+    		helper.updateUserDetails(currentUser, username, firstName, lastName);
+    		
+    	}catch (Exception e) {
+    		System.out.println("Error in addClient:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Update User Details: " + e.getMessage());
+    	}
+    	
+    	return ResponseEntity.ok().build();
+    }
 
 }

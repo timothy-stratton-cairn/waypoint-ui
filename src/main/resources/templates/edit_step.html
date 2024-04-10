@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-</head>
+</hea>
 <body>
 <div th:insert="~{header :: main}">...</div>
 
@@ -23,7 +23,7 @@
                     <label for="stepName">Name:</label>
                     <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.name}">
                 </div>
-                <div class="form-group">
+                <div class ="form-group">
                     <label for="stepDetails">Description:</label>
                     <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.description}"></textarea>
                 </div>
@@ -120,5 +120,5 @@
 </script>
 
 </body>
-</html>
+</htm>
 
