@@ -500,12 +500,12 @@ public class MainController {
     	return ResponseEntity.ok().build();
     }
     
-    @PatchMapping("/updateUserDetails/{username}/{firstName}/{lastName}/")
-    public ResponseEntity<Object>updateUserDetails(@PathVariable String username,@PathVariable String firstName,@PathVariable String lastName, Model model){
+    @PatchMapping("/updateUserDetails/{firstName}/{lastName}/{email}")
+    public ResponseEntity<Object>updateUserDetails(@PathVariable String firstName,@PathVariable String lastName,@PathVariable String email, Model model){
     	User currentUser = userDAO.getUser();
     	UserHelper helper = new UserHelper();
     	try {
-    		helper.updateUserDetails(currentUser, username, firstName, lastName);
+    		helper.updateUserDetails(currentUser,firstName, lastName, email);
     		
     	}catch (Exception e) {
     		System.out.println("Error in addClient:");

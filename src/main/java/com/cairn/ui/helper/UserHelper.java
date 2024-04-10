@@ -222,15 +222,17 @@ public class UserHelper {
 	}
 	
 	
-	public int updateUserDetails(User usr, String username, String firstName, String lastName) {
+	public int updateUserDetails(User usr, String firstName, String lastName, String email) {
 		int result = 0;
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 	    int id = usr.getId();
-	    String requestBody = "";
+	    String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\"}";
+
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_user_get + "/"+ id ;
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -250,13 +252,14 @@ public class UserHelper {
 		return result;
 	}
 	
+	
 	public int changeUserPassword(User usr, String oldPassword, String newPassword) {
 		int result =0;
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 	    int id = usr.getId();
-	    String requestBody = "";
+	    String requestBody = "{\"oldPassword\":\"" + oldPassword + "\", \"newPassword\":\"" + newPassword + "\"}";
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_user_get + "/" + id + "/reset-password";
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 	    try {
