@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-</head>
+</hea>
 <body>
 <div th:insert="~{header :: main}">...</div>
 
@@ -23,7 +23,7 @@
                     <label for="stepName">Name:</label>
                     <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.name}">
                 </div>
-                <div class="form-group">
+                <div class ="form-group">
                     <label for="stepDetails">Description:</label>
                     <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.description}"></textarea>
                 </div>
@@ -33,9 +33,32 @@
     </div>
 </div>
 
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Assigned Homework</legend>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="homework : ${step.homework}">
+                            <td th:text="${homework.name}">Homework Name</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-primary" id="btnAddHomeworkTemplate">Add Homework Template</button>
+        </fieldset>
+    </div>
+</div>
+
+
 <!-- Homework Template Selection -->
 <div class="container mt-3">
-    <button type="button" class="btn btn-primary" id="btnAddHomeworkTemplate">Add Homework Template</button>
     <div id="homeworkTemplateSelector" style="display:none;">
         <select class="form-control mt-2" id="homeworkTemplateDropdown" name="homeworkTemplateId">
             <option value="">Select Homework Template</option>
@@ -46,6 +69,8 @@
         <button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate()">Confirm</button>
     </div>
 </div>
+
+
 
 <script th:inline="javascript">
     // Example variable, replace with actual step ID
@@ -95,5 +120,5 @@
 </script>
 
 </body>
-</html>
+</htm>
 

@@ -1,11 +1,15 @@
 package com.cairn.ui.helper;
 
+import com.cairn.ui.model.AssignedUsers;
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
@@ -16,8 +20,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Service
 public class DashboardHelper {
+	@Value("${waypoint.dashboard-api.base-url}")
+	private String dashboardApiBaseUrl;
+
 	private final RestTemplate restTemplate = new RestTemplate();
+	private final ObjectMapper mapper = new ObjectMapper();
 
 	/**
 	 * Get the dashboard stats
@@ -34,7 +43,7 @@ public class DashboardHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_dashboard_get;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_dashboard_get;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -56,7 +65,7 @@ public class DashboardHelper {
 							if (element != null) {
 								entry = new ProtocolStats();
 								entry.setTemplateId(Integer.valueOf(element.get("protocolTemplateId").toString()));
-								entry.setAssignedUsers(Integer.valueOf(element.get("numAssignedUsers").toString()));
+								entry.setAssignedUsers(mapper.readValue(element.get("assignedUsers").toString(), AssignedUsers.class));
 								entry.setNumSteps(Integer.valueOf(element.get("numStepsTodo").toString()));
 								entry.setProgress(Integer.valueOf(element.get("numStepsInProgress").toString()));
 								entry.setDone(Integer.valueOf(element.get("numStepsDone").toString()));

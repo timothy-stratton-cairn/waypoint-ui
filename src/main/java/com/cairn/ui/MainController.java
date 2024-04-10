@@ -41,6 +41,24 @@ public class MainController {
 	@Autowired
 	UserDAO userDAO;
 
+	@Autowired
+	DashboardHelper helper;
+
+	@Autowired
+	HomeworkTemplateHelper homeworkTemplateHelper;
+
+	@Autowired
+	ProtocolHelper protocolHelper;
+
+	@Autowired
+	ProtocolStepTemplateHelper protocolStepTemplateHelper;
+
+	@Autowired
+	ProtocolTemplateHelper protocolTemplateHelper;
+
+	@Autowired
+	UserHelper userHelper;
+
 	@GetMapping("/")
 	public String startPage() {
 		return "home";
@@ -53,7 +71,6 @@ public class MainController {
 			return "home";
 		}
 		int id = usr.getId();
-		DashboardHelper helper = new DashboardHelper();
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", helper.getDashboard(usr));
@@ -71,9 +88,9 @@ public class MainController {
 	 */
 	@GetMapping("/viewProtocol/{pcolId}")
 	public String viewProtocol(Model model, @PathVariable int pcolId) {
-    	User currentUser = userDAO.getUser(); 
-    	ProtocolHelper helper = new ProtocolHelper();
-    	Protocol protocol = helper.getProtocol(currentUser, pcolId);
+    	User currentUser = userDAO.getUser();
+
+    	Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
  
     	model.addAttribute("protocol",protocol);
     	model.addAttribute("steps",protocol.getSteps());
@@ -94,9 +111,9 @@ public class MainController {
     @PatchMapping("/updateProtocolComment/{protocolId}/{comment}")
     public ResponseEntity<Object>updateProtocolComment(@PathVariable int protocolId,@PathVariable String comment,Model model){
     	User currentUser = userDAO.getUser();
-    	ProtocolHelper helper = new ProtocolHelper();
+
     	try {
-    		helper.updateProtocolComment(currentUser, protocolId, comment);
+				protocolHelper.updateProtocolComment(currentUser, protocolId, comment);
     	}catch (Exception e) {
     		System.out.println("Error in addClientToProtocol:");
             e.printStackTrace(); 
@@ -109,9 +126,9 @@ public class MainController {
     @PatchMapping("/updateProtocolGoal/{protocolId}/{goal}")
     public ResponseEntity<Object>updateProtocolGoal(@PathVariable int protocolId,@PathVariable String goal,Model model){
     	User currentUser = userDAO.getUser();
-    	ProtocolHelper helper = new ProtocolHelper();
+
     	try {
-    		helper.updateProtocolGoal(currentUser, protocolId, goal);
+				protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
     	}catch (Exception e) {
     		System.out.println("Error in addClientToProtocol:");
             e.printStackTrace(); 
@@ -124,11 +141,11 @@ public class MainController {
     @PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}")
     public ResponseEntity<Object>updateProtocolComment(@PathVariable int protocolId, @PathVariable String comment, @PathVariable String goal,@PathVariable String progress, Model model){
     	User currentUser = userDAO.getUser();
-    	ProtocolHelper helper = new ProtocolHelper();
+
     	try {
-    		helper.updateProtocolComment(currentUser, protocolId, comment);
-    		helper.updateProtocolGoal(currentUser, protocolId, goal);
-    		helper.updateProtocolProgress(currentUser, protocolId, progress);
+				protocolHelper.updateProtocolComment(currentUser, protocolId, comment);
+				protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
+				protocolHelper.updateProtocolProgress(currentUser, protocolId, progress);
     	}catch (Exception e) {
     		System.out.println("Error in addClientToProtocol:");
             e.printStackTrace(); 
@@ -140,10 +157,10 @@ public class MainController {
     @PatchMapping("/updateStepStatus/{protocolId}/{stepId}/{status}")
     public ResponseEntity<Object>updateStepStatus(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String status,Model model){
     	User currentUser = userDAO.getUser(); 
-    	ProtocolHelper helper = new ProtocolHelper();
+
     	System.out.println(status);
     	try {
-    		helper.updateStepStatus(currentUser, protocolId, stepId, status);
+				protocolHelper.updateStepStatus(currentUser, protocolId, stepId, status);
     	}catch (Exception e) {
             System.out.println("Error in addClientToProtocol:");
             e.printStackTrace(); // Print the stack trace to the console
@@ -157,10 +174,10 @@ public class MainController {
     @PostMapping("/updateStepNote/{protocolId}/{stepId}/{note}")
     public ResponseEntity<Object>updateStepNote(@PathVariable int protocolId, @PathVariable int stepId, @PathVariable String note ,Model model){
     	User currentUser = userDAO.getUser(); 
-    	ProtocolHelper helper = new ProtocolHelper();
+
     	System.out.println(note);
     	try {
-    		helper.updateStepNote(currentUser, protocolId, stepId, note);
+				protocolHelper.updateStepNote(currentUser, protocolId, stepId, note);
     	}catch (Exception e) {
             System.out.println("Error in addClientToProtocol:");
             e.printStackTrace(); // Print the stack trace to the console
@@ -173,8 +190,8 @@ public class MainController {
 	@GetMapping("/protocols")
 	public String protocolListPage(HttpSession session, Model model) {
 		User usr = (User) userDAO.getUser();
-		ProtocolHelper helper = new ProtocolHelper();
-		List<Protocol> listProtocols = helper.getList(usr);
+
+		List<Protocol> listProtocols = protocolHelper.getList(usr);
 		model.addAttribute("listProtocols", listProtocols );
 		return "protocolList";
 	}
@@ -189,9 +206,8 @@ public class MainController {
 		
 		ModelAndView model = new ModelAndView("protocolEdit");
 		User usr = (User) userDAO.getUser();
-		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-		ProtocolTemplate pcol = helper.getTemplate(usr,id);
-		List<ProtocolStepTemplate> listSteps = helper.getStepList(usr,id);
+		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr,id);
+		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr,id);
 		model.addObject("protocol", pcol );
 		model.addObject("steps", listSteps );
 		
@@ -201,10 +217,9 @@ public class MainController {
 	@GetMapping("/editProtocol/{id}") 
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 	    User usr = (User) userDAO.getUser();
-	    ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-	    ProtocolTemplate pcol = helper.getTemplate(usr, id);
-	    ArrayList<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr);
-	    List<ProtocolStepTemplate> listSteps = helper.getStepList(usr, id);
+	    ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
+	    ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
+	    List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
 	    
 	    model.addAttribute("protocolId", id);
 	    model.addAttribute("protocol", pcol);
@@ -228,11 +243,10 @@ public class MainController {
 	public ResponseEntity<?> saveProtocol(@PathVariable int id){
 	    try {
 	        User usr = (User) userDAO.getUser();
-	        ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-	        ProtocolTemplate pcol = helper.getTemplate(usr, id);
+	        ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
 
 	        if (pcol != null) {
-	            helper.saveProtocolTemplate(usr, pcol);
+						protocolTemplateHelper.saveProtocolTemplate(usr, pcol);
 	            return ResponseEntity.ok().body("Protocol with ID " + id + " updated successfully.");
 	        }
 	        else {
@@ -248,13 +262,12 @@ public class MainController {
 	public ResponseEntity<?> saveStep(@PathVariable int stepId) {
 	    try {
 	        User usr = (User) userDAO.getUser();
-	        ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
 	    
-	        ProtocolStepTemplate pstep = helper.getStep(usr, stepId);
+	        ProtocolStepTemplate pstep = protocolTemplateHelper.getStep(usr, stepId);
 	     
 
 	        if (pstep != null) {
-	            helper.saveTemplateStep(usr,pstep);
+						protocolTemplateHelper.saveTemplateStep(usr,pstep);
 	            return ResponseEntity.ok().body("Step with ID " + stepId + " updated successfully.");
 	        } else {
 	            return ResponseEntity.notFound().build();
@@ -271,14 +284,13 @@ public class MainController {
 		User usr = (User) userDAO.getUser();
         List<ProtocolStepTemplate> steps = new ArrayList<>();
         List<ProtocolStepTemplate> associatedSteps = new ArrayList<>();
-        ProtocolTemplate protocol = new ProtocolTemplate(); 
-		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
+        ProtocolTemplate protocol = new ProtocolTemplate();
 	    if (id > 0) {
 	        // Fetch the protocol by its ID
-	        protocol = helper.getTemplate(usr,id);
-	        associatedSteps = helper.getStepList(usr,id);  
+	        protocol = protocolTemplateHelper.getTemplate(usr,id);
+	        associatedSteps = protocolTemplateHelper.getStepList(usr,id);
 	    }
-        List<ProtocolStepTemplate> allSteps = helper.getAllSteps(usr); //used for the drop down 
+        List<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr); //used for the drop down
 
 	    // Add attributes to the model
         model.addAttribute("protocolId", id);
@@ -292,8 +304,7 @@ public class MainController {
 	@GetMapping("/protocolTemplates")
 	public String protocolTemplateListPage(HttpSession session, Model model) {
 		User usr = (User) userDAO.getUser();
-		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-		List<ProtocolTemplate> listProtocols = helper.getList(usr);
+		List<ProtocolTemplate> listProtocols = protocolTemplateHelper.getList(usr);
 		model.addAttribute("listProtocols", listProtocols );
 		return "protocolTemplateList";
 	}
@@ -303,16 +314,15 @@ public class MainController {
 	@PatchMapping("/addStepToProtocol/{protocolId}/{stepId}")
 	public ResponseEntity<?> addStepToProtocol(@PathVariable Integer protocolId, @PathVariable Integer stepId) {
 	    try {
-	        ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
 	        User usr = (User) userDAO.getUser();
-	        ProtocolTemplate pcol = helper.getTemplate(usr, protocolId);
-	        ProtocolStepTemplate step = helper.getStep(usr, stepId);
+	        ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, protocolId);
+	        ProtocolStepTemplate step = protocolTemplateHelper.getStep(usr, stepId);
 
 	        if (pcol == null || step == null) {
 	            return ResponseEntity.notFound().build();
 	        }
 
-	        int result = helper.addTemplateStep(usr, pcol, step);
+	        int result = protocolTemplateHelper.addTemplateStep(usr, pcol, step);
 	        if (result == 1) {
 	            // Success
 	            return ResponseEntity.ok().build();
@@ -335,18 +345,17 @@ public class MainController {
 	@GetMapping("/editStep/{stepId}") 
 	public String edit_step(@PathVariable int stepId, Model model) {
 		User usr = (User) userDAO.getUser();
-		ProtocolTemplateHelper helper = new ProtocolTemplateHelper();
-		HomeworkTemplateHelper temphelper = new HomeworkTemplateHelper();
-		ArrayList<HomeworkTemplate> templatelist = temphelper.getList(usr);
+		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
 		
 	    if (stepId == 0) {
 	        // Create a new step with default values
 	        ProtocolStepTemplate step = new ProtocolStepTemplate();
 	        model.addAttribute("step", step);
 	    } else {
-	        ProtocolStepTemplate step = helper.getStep(usr, stepId);
+	        ProtocolStepTemplate step = protocolTemplateHelper.getStep(usr, stepId);
 	        model.addAttribute("step", step);
 	    }
+	    
 	    model.addAttribute("homework",templatelist);
 		model.addAttribute("stepId",stepId);
 	    return "edit_step";
@@ -355,8 +364,7 @@ public class MainController {
 	   @GetMapping("/homeworkTemplates/")
 	    public String homeworkTemplates(Model model) {
 	    	User currentUser = userDAO.getUser(); 
-	    	HomeworkTemplateHelper helper = new HomeworkTemplateHelper();
-	    	ArrayList<HomeworkTemplate> templateList = helper.getList(currentUser);
+	    	ArrayList<HomeworkTemplate> templateList = homeworkTemplateHelper.getList(currentUser);
 	    	model.addAttribute("templates",templateList);	
 	    	return "homeworkTemplates";
 	    }
@@ -387,9 +395,8 @@ public class MainController {
     
     @GetMapping("clients")
     public String displayClients(Model model) {
-    	User currentUser = userDAO.getUser(); 
-    	UserHelper usr = new UserHelper();
-    	ArrayList<User> userList = usr.getUserList(currentUser);
+    	User currentUser = userDAO.getUser();
+    	ArrayList<User> userList = userHelper.getUserList(currentUser);
     	model.addAttribute("UserList",userList);
     	
     	
@@ -398,13 +405,10 @@ public class MainController {
     
     @GetMapping("clientProfile/{clientId}")
     public String clientProfile(@PathVariable int clientId , Model model) {
-    	User currentUser = userDAO.getUser(); 
-    	UserHelper helper = new UserHelper();
-    	User client = helper.getUser(currentUser, clientId);
-    	ProtocolHelper pcolHelper = new ProtocolHelper();
-    	ProtocolTemplateHelper tempHelper = new ProtocolTemplateHelper();
-    	ArrayList<ProtocolTemplate> pcolList = tempHelper.getList(currentUser);
-    	ArrayList<Protocol> assignedProtocols = pcolHelper.getAssignedProtocols(currentUser, clientId); //this needs to be written up on the helper side 
+    	User currentUser = userDAO.getUser();
+    	User client = userHelper.getUser(currentUser, clientId);
+    	ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
+    	ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId); //this needs to be written up on the helper side
 
     	model.addAttribute("client",client);
     	model.addAttribute("clientId",clientId);
@@ -424,11 +428,9 @@ public class MainController {
         try {
 
             
-            User currentUser = userDAO.getUser(); 
+            User currentUser = userDAO.getUser();
 
-
-            ProtocolHelper pcolHelper = new ProtocolHelper();
-            pcolHelper.addClient(currentUser, clientId, protocolTemplateId); // Perform the operation
+					protocolHelper.addClient(currentUser, clientId, protocolTemplateId); // Perform the operation
 
             
         } catch (Exception e) {
@@ -444,8 +446,8 @@ public class MainController {
     @GetMapping("clientProtocol/{pcolId}")
     public String clientProtocol(@PathVariable int pcolId, Model model) {
     	User currentUser = userDAO.getUser(); 
-    	ProtocolHelper helper = new ProtocolHelper();
-    	Protocol protocol = helper.getProtocol(currentUser, pcolId);
+
+    	Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
     	model.addAttribute("protocol",protocol);
     	return "clientProtocol";
     }
@@ -453,10 +455,9 @@ public class MainController {
     
     @PatchMapping("addHomeworkTemplateToStep/{stepTemplateId}/{homeworkTemplateId}/")
     public ResponseEntity<Object>addHomeworkTemplateToStep(@PathVariable int stepTemplateId, @PathVariable int homeworkTemplateId, Model model){
-    	User currentUser = userDAO.getUser(); 
-    	ProtocolStepTemplateHelper helper = new ProtocolStepTemplateHelper();
+    	User currentUser = userDAO.getUser();
     	try {
-    		helper.addHomeworkTemplate(currentUser,stepTemplateId,homeworkTemplateId);
+    		protocolStepTemplateHelper.addHomeworkTemplate(currentUser,stepTemplateId,homeworkTemplateId);
     	} catch (Exception e) {
             System.out.println("Error in addHomeworkTemplateToStep:");
             e.printStackTrace(); // Print the stack trace to the console
@@ -473,10 +474,9 @@ public class MainController {
     
     @PostMapping ("addClient/{username}/{firstName}/{lastName}/{role}/{email}/{password}")
     public ResponseEntity<Object> addClient(@PathVariable String username,@PathVariable String firstName, @PathVariable String lastName,@PathVariable int role, @PathVariable String email, @PathVariable String password, Model model) {
-    	User currentUser = userDAO.getUser(); 
-    	UserHelper helper = new UserHelper();
+    	User currentUser = userDAO.getUser();
     	try {
-    		helper.addUser(currentUser, username, firstName, lastName, role, email, password);
+				userHelper.addUser(currentUser, username, firstName, lastName, role, email, password);
     		
     	 } catch (Exception e) {
              System.out.println("Error in addClient:");
@@ -486,5 +486,34 @@ public class MainController {
          return ResponseEntity.ok().build();
     }
     
+    @PostMapping("/updateUserPassword/{oldpassword}/{newpassword}/")
+    public ResponseEntity<Object>updateUserPassword(@PathVariable String opassword, @PathVariable String npassword, Model model){
+    	User currentUser = userDAO.getUser();
+    	UserHelper helper = new UserHelper();
+    	try {
+    		helper.changeUserPassword(currentUser, opassword, npassword);
+    	}catch (Exception e) {
+    		System.out.println("Error in addClient:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Changing Password: " + e.getMessage());
+    	}
+    	return ResponseEntity.ok().build();
+    }
+    
+    @PatchMapping("/updateUserDetails/{firstName}/{lastName}/{email}/")
+    public ResponseEntity<Object>updateUserDetails(@PathVariable String firstName,@PathVariable String lastName,@PathVariable String email, Model model){
+    	User currentUser = userDAO.getUser();
+    	UserHelper helper = new UserHelper();
+    	try {
+    		helper.updateUserDetails(currentUser,firstName, lastName, email);
+    		
+    	}catch (Exception e) {
+    		System.out.println("Error in addClient:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Update User Details: " + e.getMessage());
+    	}
+    	
+    	return ResponseEntity.ok().build();
+    }
 
 }

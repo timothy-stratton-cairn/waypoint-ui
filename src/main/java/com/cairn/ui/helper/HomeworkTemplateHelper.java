@@ -2,11 +2,14 @@ package com.cairn.ui.helper;
 
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
@@ -19,7 +22,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Service
 public class HomeworkTemplateHelper{
+
+	@Value("${waypoint.dashboard-api.base-url}")
+	private String dashboardApiBaseUrl;
+
     private RestTemplate restTemplate;
 
 
@@ -49,7 +57,7 @@ public class HomeworkTemplateHelper{
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -108,7 +116,7 @@ public class HomeworkTemplateHelper{
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_homeworktemplate+ "/" + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate+ "/" + id;
 
 		// Make the GET request and retrieve the response
 		try {

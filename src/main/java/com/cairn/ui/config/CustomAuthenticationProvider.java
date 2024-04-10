@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,6 +27,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
+
+	@Value("${waypoint.authorization-api.base-url}")
+	private String authorizationApiBaseUrl;
+
 	private final RestTemplate restTemplate;
 
 	public CustomAuthenticationProvider(RestTemplate restTemplate) {
@@ -47,7 +52,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
 		// Make a POST request to your authentication API
-		ResponseEntity<String> response = restTemplate.exchange(Constants.auth_server + "/api/oauth/token",
+		ResponseEntity<String> response = restTemplate.exchange(authorizationApiBaseUrl + "/api/oauth/token",
 				HttpMethod.POST, requestEntity, String.class);
 
 		// Check if the response is successful (e.g., status code 200)

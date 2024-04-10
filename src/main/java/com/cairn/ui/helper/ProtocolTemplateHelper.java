@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
@@ -23,6 +25,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ProtocolTemplateHelper {
+
+	@Value("${waypoint.dashboard-api.base-url}")
+	private String dashboardApiBaseUrl;
+
     private RestTemplate restTemplate;
 
 
@@ -58,7 +64,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -116,7 +122,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -224,7 +230,7 @@ public class ProtocolTemplateHelper {
 	    // Assuming you need to send theStep as part of the request body
 	    HttpEntity<ProtocolStepTemplate> entity = new HttpEntity<>(theStep, headers);
 
-	    String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_assign + "/" + theTemplate.getId()+ "/"+ theStep.getId();
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + "/" + theTemplate.getId()+ "/"+ theStep.getId();
 
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
@@ -280,7 +286,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + id;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -301,7 +307,25 @@ public class ProtocolTemplateHelper {
 				        result.setType(stepTemplateCategoryNode.path("id").asInt());
 				    } else {
 				        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
-				    }				
+				    }
+				    JsonNode linkedHomeworkTemplatesNode = jsonNode.get("linkedHomeworkTemplates");
+				    ArrayList<HomeworkTemplate> homeworks = new ArrayList<HomeworkTemplate>();
+				    if (linkedHomeworkTemplatesNode != null) {
+				        JsonNode homeworkTemplatesNode = linkedHomeworkTemplatesNode.get("homeworkTemplates");
+				        if (homeworkTemplatesNode != null && homeworkTemplatesNode.isArray()) {
+				            for (JsonNode element : homeworkTemplatesNode) {
+				                // Check if the current element is not null
+				                if (element != null) {
+				                    HomeworkTemplate curHw = new HomeworkTemplate();
+				                    curHw.setName(element.get("name").asText());
+				                    curHw.setId(Integer.parseInt(element.get("id").asText()));
+				                    homeworks.add(curHw);
+				                }
+				            }
+				        }
+				    }
+				    result.setHomework(homeworks);
+
 
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
@@ -338,7 +362,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplate;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -405,7 +429,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplateget + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + id;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -472,7 +496,7 @@ public class ProtocolTemplateHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplate + "/" + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate + "/" + id;
 
 		// Make the GET request and retrieve the response
 		try {

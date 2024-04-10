@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.time.Instant;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ProtocolHelper {
+
+	@Value("${waypoint.dashboard-api.base-url}")
+	private String dashboardApiBaseUrl;
     
     private RestTemplate restTemplate;
 
@@ -54,7 +58,7 @@ public class ProtocolHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -114,7 +118,7 @@ public class ProtocolHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol + "/" + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/" + id;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -210,7 +214,7 @@ public class ProtocolHelper {
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol + '/' + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + id;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -271,7 +275,7 @@ public class ProtocolHelper {
 	    // Create a HttpEntity with the headers
 	    HttpEntity<String> entity = new HttpEntity<>(headers);
 
-	    String apiUrl = Constants.api_server + Constants.api_ep_protocolaccount + clientId; //retrieves all protocols assigned to clientId
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolaccount + clientId; //retrieves all protocols assigned to clientId
 	    
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -353,7 +357,7 @@ public class ProtocolHelper {
 		// Create a HttpEntity with the headers
 		String requestBody = "{\"protocolTemplateId\": " + protocolTemplateId + ", \"comment\": \"\", \"associatedAccountId\": " + clientid + "}";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers); // assign  as part of the request body 
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol;//retrieves all protocols assigned to clientId
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;//retrieves all protocols assigned to clientId
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -382,7 +386,7 @@ public class ProtocolHelper {
 
 		headers.add("Content-Type", "application/json");
 		String requestBody = "{\"status\": \"" + status + "\"}";
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/status";
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/status";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		System.out.println(apiUrl);
 		System.out.println(entity);
@@ -415,7 +419,7 @@ public class ProtocolHelper {
 
 		headers.add("Content-Type", "application/json");
 		String requestBody = "{\"note\": \"" + note + "\"}";
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/note";
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId + "/protocol-step/"+ stepId +"/note";
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		System.out.println(apiUrl);
 		System.out.println(entity);
@@ -445,7 +449,7 @@ public class ProtocolHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 		headers.add("Content-Type", "application/json");
 		String requestBody ="{\"goal\": \"" + goal + "\"}";
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId;
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
@@ -476,7 +480,7 @@ public class ProtocolHelper {
 	    String username = usr.getUsername();
 		headers.add("Content-Type", "application/json");
 		String requestBody = "{\"comment\": \""+comment+"\"}";
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol + '/' + protocolId;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId;
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		System.out.println(apiUrl);
 		System.out.println(entity);
@@ -507,7 +511,7 @@ public class ProtocolHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 		headers.add("Content-Type", "application/json");
 		String requestBody ="{\"goalProgress\": \"" + progress + "\"}";
-		String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/'+ protocolId;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId;
 		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		System.out.println(apiUrl);
 		System.out.println(entity);
