@@ -230,7 +230,7 @@ public class UserHelper {
 	    int id = usr.getId();
 	    String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\"}";
 
-	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_user_get + id ;
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get +"/"+ id ;
 	    System.out.println(apiUrl);
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
@@ -261,7 +261,7 @@ public class UserHelper {
 	    headers.add("Content-Type", "application/json");
 	    int id = usr.getId();
 	    String requestBody = "{\"oldPassword\":\"" + oldPassword + "\", \"newPassword\":\"" + newPassword + "\"}";
-	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_user_get + "/" + id + "/reset-password";
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + id + "/reset-password";
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
