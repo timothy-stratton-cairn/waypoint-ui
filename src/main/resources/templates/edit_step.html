@@ -33,9 +33,32 @@
     </div>
 </div>
 
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Assigned Homework</legend>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="homework : ${step.homework}">
+                            <td th:text="${homework.name}">Homework Name</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-primary" id="btnAddHomeworkTemplate">Add Homework Template</button>
+        </fieldset>
+    </div>
+</div>
+
+
 <!-- Homework Template Selection -->
 <div class="container mt-3">
-    <button type="button" class="btn btn-primary" id="btnAddHomeworkTemplate">Add Homework Template</button>
     <div id="homeworkTemplateSelector" style="display:none;">
         <select class="form-control mt-2" id="homeworkTemplateDropdown" name="homeworkTemplateId">
             <option value="">Select Homework Template</option>
@@ -46,6 +69,8 @@
         <button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate()">Confirm</button>
     </div>
 </div>
+
+
 
 <script th:inline="javascript">
     // Example variable, replace with actual step ID

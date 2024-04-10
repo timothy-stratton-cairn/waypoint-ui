@@ -355,6 +355,7 @@ public class MainController {
 	        ProtocolStepTemplate step = protocolTemplateHelper.getStep(usr, stepId);
 	        model.addAttribute("step", step);
 	    }
+	    
 	    model.addAttribute("homework",templatelist);
 		model.addAttribute("stepId",stepId);
 	    return "edit_step";

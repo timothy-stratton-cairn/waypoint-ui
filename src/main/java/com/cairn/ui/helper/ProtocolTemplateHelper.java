@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
@@ -306,7 +307,25 @@ public class ProtocolTemplateHelper {
 				        result.setType(stepTemplateCategoryNode.path("id").asInt());
 				    } else {
 				        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
-				    }				
+				    }
+				    JsonNode linkedHomeworkTemplatesNode = jsonNode.get("linkedHomeworkTemplates");
+				    ArrayList<HomeworkTemplate> homeworks = new ArrayList<HomeworkTemplate>();
+				    if (linkedHomeworkTemplatesNode != null) {
+				        JsonNode homeworkTemplatesNode = linkedHomeworkTemplatesNode.get("homeworkTemplates");
+				        if (homeworkTemplatesNode != null && homeworkTemplatesNode.isArray()) {
+				            for (JsonNode element : homeworkTemplatesNode) {
+				                // Check if the current element is not null
+				                if (element != null) {
+				                    HomeworkTemplate curHw = new HomeworkTemplate();
+				                    curHw.setName(element.get("name").asText());
+				                    curHw.setId(Integer.parseInt(element.get("id").asText()));
+				                    homeworks.add(curHw);
+				                }
+				            }
+				        }
+				    }
+				    result.setHomework(homeworks);
+
 
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
