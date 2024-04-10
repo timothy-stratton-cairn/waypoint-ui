@@ -230,7 +230,8 @@ public class UserHelper {
 	    int id = usr.getId();
 	    String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\"}";
 
-	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_user_get + "/"+ id ;
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_user_get + id ;
+	    System.out.println(apiUrl);
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
 	    try {
@@ -246,7 +247,7 @@ public class UserHelper {
 			
 		}
 		catch(Exception e) {
-			System.out.println("Error in updating User Detals");
+			System.out.println("Error in updating User Details");
 	        e.printStackTrace();
 		}
 		return result;

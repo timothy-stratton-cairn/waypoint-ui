@@ -500,7 +500,7 @@ public class MainController {
     	return ResponseEntity.ok().build();
     }
     
-    @PatchMapping("/updateUserDetails/{firstName}/{lastName}/{email}")
+    @PatchMapping("/updateUserDetails/{firstName}/{lastName}/{email}/")
     public ResponseEntity<Object>updateUserDetails(@PathVariable String firstName,@PathVariable String lastName,@PathVariable String email, Model model){
     	User currentUser = userDAO.getUser();
     	UserHelper helper = new UserHelper();
