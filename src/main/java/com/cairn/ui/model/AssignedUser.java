@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssignedUser {
-
   private Long id;
   private String firstName;
   private String lastName;

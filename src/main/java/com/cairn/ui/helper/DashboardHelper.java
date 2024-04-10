@@ -65,11 +65,11 @@ public class DashboardHelper {
 							if (element != null) {
 								entry = new ProtocolStats();
 								entry.setTemplateId(Integer.valueOf(element.get("protocolTemplateId").toString()));
-								entry.setAssignedUsers(mapper.readValue(element.get("assignedUsers").toString(), AssignedUsers.class));
+								//entry.setAssignedUsers(mapper.readValue(element.get("assignedUsers").toString(), AssignedUsers.class));
 								entry.setNumSteps(Integer.valueOf(element.get("numStepsTodo").toString()));
 								entry.setProgress(Integer.valueOf(element.get("numStepsInProgress").toString()));
 								entry.setDone(Integer.valueOf(element.get("numStepsDone").toString()));
-								entry.setCompletion(element.get("completionPercentage").asText());
+								entry.setCompletion(String.valueOf(Float.parseFloat(element.get("completionPercentage").asText()) * 100));
 								entry.setTemplateName(element.get("protocolTemplateName").asText());
 
 								results.add(entry);

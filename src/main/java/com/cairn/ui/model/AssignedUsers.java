@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AssignedUsers {
   private List<AssignedUser> accounts;
-  private Integer numOfAccounts;
 
   public Integer getNumOfAccounts() {
     return accounts.size();

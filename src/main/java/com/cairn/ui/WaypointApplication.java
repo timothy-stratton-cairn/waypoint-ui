@@ -24,7 +24,6 @@ public class WaypointApplication {
     SpringApplication app = new SpringApplication(WaypointApplication.class);
     app.setAdditionalProfiles("dev");
     app.run(args);
-    log.info("App is running...");
 	}
 
 }
