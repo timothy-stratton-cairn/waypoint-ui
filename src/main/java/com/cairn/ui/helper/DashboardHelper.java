@@ -69,7 +69,7 @@ public class DashboardHelper {
 								entry.setNumSteps(Integer.valueOf(element.get("numStepsTodo").toString()));
 								entry.setProgress(Integer.valueOf(element.get("numStepsInProgress").toString()));
 								entry.setDone(Integer.valueOf(element.get("numStepsDone").toString()));
-								entry.setCompletion(element.get("completionPercentage").asText());
+								entry.setCompletion(String.valueOf(Float.parseFloat(element.get("completionPercentage").asText()) * 100));
 								entry.setTemplateName(element.get("protocolTemplateName").asText());
 
 								results.add(entry);

@@ -79,7 +79,7 @@ public class ProtocolHelper {
 							// Access and print array elements
 							if (element != null) {
 								entry = new Protocol();
-								entry.setName(element.get("name").toString());
+								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
 								results.add(entry);
 							}

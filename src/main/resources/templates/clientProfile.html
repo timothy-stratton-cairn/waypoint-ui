@@ -129,12 +129,16 @@
 						</a>
 						
 									<div class="row">
-										<button type="button" class="btn btn-secondary"
-											onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
-										<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Homework</button>
-										<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Analysis</button>
-										<button class="btn btn-secondary"
-											onclick="goToHomeworkTemplates()">Recommendations</button>
+										<div class="col-md-3">
+											<button type="button" class="btn btn-secondary"
+												onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
+										</div>
+										<div class="col-md-8">
+											<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Homework</button>&nbsp;&nbsp;
+											<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Analysis</button>&nbsp;&nbsp;
+											<button class="btn btn-secondary"
+												onclick="goToHomeworkTemplates()">Recommendations</button>
+										</div>
 									</div>
 								</div>
 							</div>
