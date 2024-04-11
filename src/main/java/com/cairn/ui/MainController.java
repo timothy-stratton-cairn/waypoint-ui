@@ -32,6 +32,7 @@ import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
 import com.cairn.ui.model.UserDAO;
+import com.cairn.ui.model.UserDAOImpl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -490,6 +491,7 @@ public class MainController {
     public ResponseEntity<Object>updateUserPassword(@PathVariable String opassword, @PathVariable String npassword, Model model){
     	User currentUser = userDAO.getUser();
     	UserHelper helper = new UserHelper();
+    	System.out.println(currentUser.getId());
     	try {
     		helper.changeUserPassword(currentUser, opassword, npassword);
     	}catch (Exception e) {
@@ -504,11 +506,14 @@ public class MainController {
     public ResponseEntity<Object>updateUserDetails(@PathVariable String firstName,@PathVariable String lastName,@PathVariable String email, Model model){
     	User currentUser = userDAO.getUser();
     	UserHelper helper = new UserHelper();
+    	System.out.println(currentUser.getId());
+    	System.out.println(currentUser.getUsername());
+    	System.out.println(currentUser.getEmail());
     	try {
     		helper.updateUserDetails(currentUser,firstName, lastName, email);
     		
     	}catch (Exception e) {
-    		System.out.println("Error in addClient:");
+    		System.out.println("Error in updateUserDetails:");
             e.printStackTrace(); // Print the stack trace to the console
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Update User Details: " + e.getMessage());
     	}
