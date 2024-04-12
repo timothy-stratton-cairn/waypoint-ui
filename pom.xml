@@ -82,8 +82,7 @@
 			<artifactId>lombok</artifactId>
 			<groupId>org.projectlombok</groupId>
 			<version>${lombok.version}</version>
-		</dependency>
-		
+		</dependency>			
 	</dependencies>
 
 	<build>

@@ -75,11 +75,15 @@ public class MainController {
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", helper.getDashboard(usr));
+		User currentUser = userDAO.getUser();
+    	UserHelper helper = new UserHelper();
+		System.out.print(helper.getUserId(currentUser));
 		return "UserDashboard";
 	}
 
 	@GetMapping("/login")
 	public String loginPage() {
+		
 		return "home";
 	}
 
@@ -373,19 +377,21 @@ public class MainController {
 
     @GetMapping("/profile")
     public String userProfile(Model model) {
-        User currentUser = userDAO.getUser(); // Fetch the currently logged-in user using UserDAO
-        if (currentUser != null) {
-            model.addAttribute("user", currentUser);
-        } else {
-            model.addAttribute("error", "Something's gone wrong please");
-        }
+        User usr = userDAO.getUser();
+        UserHelper helper = new UserHelper();// Fetch the currently logged-in user using UserDAO
+        int id = helper.getUserId(usr);
+        User currentUser = helper.getUser(usr, id);
+        model.addAttribute("user",currentUser);
         return "userProfile"; 
     }
     
     @GetMapping("/changeUserInfo")
     public String showChangeUserInfoForm( Model model) {
-        User user = userDAO.getUser(); // Creates a new UserDetails object to hold form data
-        model.addAttribute("user", user); // Adds the object to the model to be accessed by the form
+    	User usr = userDAO.getUser();
+        UserHelper helper = new UserHelper();// Fetch the currently logged-in user using UserDAO
+        int id = helper.getUserId(usr);
+        User currentUser = helper.getUser(usr, id);
+        model.addAttribute("user",currentUser);// Adds the object to the model to be accessed by the form
         return "changeUserInfo"; 
     }
 
@@ -491,9 +497,10 @@ public class MainController {
     public ResponseEntity<Object>updateUserPassword(@PathVariable String opassword, @PathVariable String npassword, Model model){
     	User currentUser = userDAO.getUser();
     	UserHelper helper = new UserHelper();
-    	System.out.println(currentUser.getId());
+    	System.out.println(helper.getUserId(currentUser));
+    	int id = helper.getUserId(currentUser);
     	try {
-    		helper.changeUserPassword(currentUser, opassword, npassword);
+    		helper.changeUserPassword(currentUser,id  ,opassword, npassword);
     	}catch (Exception e) {
     		System.out.println("Error in addClient:");
             e.printStackTrace(); // Print the stack trace to the console
@@ -506,11 +513,10 @@ public class MainController {
     public ResponseEntity<Object>updateUserDetails(@PathVariable String firstName,@PathVariable String lastName,@PathVariable String email, Model model){
     	User currentUser = userDAO.getUser();
     	UserHelper helper = new UserHelper();
-    	System.out.println(currentUser.getId());
-    	System.out.println(currentUser.getUsername());
-    	System.out.println(currentUser.getEmail());
+    	System.out.print(helper.getUserId(currentUser));
+    	int id = helper.getUserId(currentUser);
     	try {
-    		helper.updateUserDetails(currentUser,firstName, lastName, email);
+    		helper.updateUserDetails(currentUser,id,firstName, lastName, email);
     		
     	}catch (Exception e) {
     		System.out.println("Error in updateUserDetails:");

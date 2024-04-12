@@ -111,8 +111,10 @@ public class UserHelper {
 
 		// Create a HttpEntity with the headers
 		HttpEntity<String> entity = new HttpEntity<>(headers);
+		
+		String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + uid;
 
-		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
+		//String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
 
 		// Make the GET request and retrieve the response
 		try {
@@ -222,12 +224,11 @@ public class UserHelper {
 	}
 	
 	
-	public int updateUserDetails(User usr, String firstName, String lastName, String email) {
+	public int updateUserDetails(User usr, int id ,String firstName, String lastName, String email) {
 		int result = 0;
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
-	    int id = usr.getId();
 	    String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\"}";
 
 	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get +"/"+ id ;
@@ -254,12 +255,11 @@ public class UserHelper {
 	}
 	
 	
-	public int changeUserPassword(User usr, String oldPassword, String newPassword) {
+	public int changeUserPassword(User usr,int id, String oldPassword, String newPassword) {
 		int result =0;
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
-	    int id = usr.getId();
 	    String requestBody = "{\"oldPassword\":\"" + oldPassword + "\", \"newPassword\":\"" + newPassword + "\"}";
 	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + id + "/reset-password";
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
@@ -281,4 +281,31 @@ public class UserHelper {
 		}
 		return result;
 	}
+
+	public int getUserId(User usr) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.add("Content-Type", "application/json");
+	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_me;
+	    HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                ObjectMapper mapper = new ObjectMapper();
+                String json = response.getBody();
+                JsonNode root = mapper.readTree(json);
+                int accountId = root.path("accountId").asInt(); // Extract accountId
+                result = accountId;
+            } else {
+                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.out.println("Error in getting User ID");
+            e.printStackTrace();
+            result = -1;
+        }
+        return result; 
+    }
+
 }
