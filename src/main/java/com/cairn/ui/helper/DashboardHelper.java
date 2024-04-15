@@ -1,6 +1,8 @@
 package com.cairn.ui.helper;
 
 import com.cairn.ui.model.AssignedUsers;
+import com.cairn.ui.model.Entity;
+
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -37,14 +39,9 @@ public class DashboardHelper {
 		ArrayList<ProtocolStats> results = new ArrayList<ProtocolStats>();
 
 		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_dashboard_get;
-
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);

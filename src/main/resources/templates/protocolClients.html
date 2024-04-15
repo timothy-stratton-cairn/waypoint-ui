@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Clients</title>
+
+	<script>
+		function newClient() {
+			window.location = '/newClient/';
+		}
+	</script>
+</head>
+
+<body>
+	<div th:insert="~{header :: main}">...</div>
+	<div class="container">
+		<div class="row note_card">
+			<fieldset>
+				<legend>Clients</legend>
+				<button class="btn btn-secondary" onclick="newClient();">New Client</button>
+				<div class="row">&nbsp;</div>
+				<div class="row rowheader">
+					<div class="col-md-2">First Name</div>
+					<div class="col-md-2">Last Name</div>
+					<div class="col-md-2">Actions</div>
+				</div>
+				<div th:each="user, status: ${UserList}" th:id="|row_${user.id}|"
+					th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+					<div class="col-md-2" th:text="${user.firstName}">First Name</div>
+					<div class="col-md-2" th:text="${user.lastName}">First Name</div>
+					<div class="col-md-2">
+						<a th:href="@{'/clientProfile/' + ${user.id}}"><button class="btn-primary">View Profile</button></a>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+	<div th:insert="~{footer :: main}">...</div>
+</body>
+
+</html>

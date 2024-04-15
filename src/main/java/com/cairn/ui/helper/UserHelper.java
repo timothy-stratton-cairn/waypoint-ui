@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.ProtocolStats;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,15 +46,8 @@ public class UserHelper {
 	public ArrayList<User> getUserList(User usr) {
 		ArrayList<User> results = new ArrayList<User>();
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-
 		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
-
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -106,14 +100,12 @@ public class UserHelper {
 		User result = new User();
 
 		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
 
 		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
+		
 		
 		String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + uid;
-
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		//String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
 
 		// Make the GET request and retrieve the response
@@ -191,15 +183,12 @@ public class UserHelper {
 	
 	public int addUser(User usr, String username,String firstName,String lastName,int role, String email, String password) {
 		int result = 0;
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-	    headers.add("Content-Type", "application/json");
 	    String requestBody = String.format(
 	            "{\"username\": \"%s\", \"firstName\": \"%s\", \"lastName\": \"%s\", \"roleIds\": [%d], \"email\": \"%s\", \"password\": \"%s\"}",
 	            username, firstName, lastName, role, email, password
 	        );
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
-	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 		System.out.println(apiUrl);
 		System.out.println(entity);
 		try {
@@ -226,14 +215,12 @@ public class UserHelper {
 	
 	public int updateUserDetails(User usr, int id ,String firstName, String lastName, String email) {
 		int result = 0;
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-	    headers.add("Content-Type", "application/json");
+
 	    String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\"}";
 
 	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get +"/"+ id ;
 	    System.out.println(apiUrl);
-	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);

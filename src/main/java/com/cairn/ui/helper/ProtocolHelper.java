@@ -100,7 +100,58 @@ public class ProtocolHelper {
 		return results;
 
 	}
+	public ArrayList<Protocol> getListbyTemplateId(User usr,int tempId) {
+		ArrayList<Protocol> results = new ArrayList<Protocol>();
 
+		// Prepare the request body
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
+
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/protocol-template/"+ tempId;
+
+		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
+
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					JsonNode prots = jsonNode.get("protocols");
+					// Iterate through the array elements
+					Protocol entry = null;
+					if (prots.isArray()) {
+						for (JsonNode element : prots) {
+							// Access and print array elements
+							if (element != null) {
+								entry = new Protocol();
+								entry.setName(element.get("name").asText());
+								entry.setId(Integer.valueOf(element.get("id").toString()));
+								results.add(entry);
+							}
+						}
+					}
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+			System.out.println("No protocols returned");
+		}
+
+		return results;
+
+	}
 	/**
 	 * Get a specific protocol.
 	 * 

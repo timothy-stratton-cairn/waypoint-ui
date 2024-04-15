@@ -201,6 +201,15 @@ public class MainController {
 		return "protocolList";
 	}
 	
+	@GetMapping("/protocolsByTemplate/{tempId}/")
+	public String protocolsByTemplate(HttpSession session,@PathVariable int tempId ,Model model) {
+		User usr = (User) userDAO.getUser();
+
+		List<Protocol> listProtocols = protocolHelper.getListbyTemplateId(usr, tempId);
+		model.addAttribute("listProtocols", listProtocols );
+		return "protocolList";
+	}
+	
 
 	/**
 	 * Handle a request to view the Protocol details. 
@@ -408,6 +417,22 @@ public class MainController {
     	
     	
     	return "displayClients";
+    }
+    
+    @GetMapping("protocolClients/{protocolId}")
+    public String ProtocolClients(@PathVariable int ProtocolId, Model model) {
+    	User currentUser = userDAO.getUser();
+    	ProtocolHelper phelper = new ProtocolHelper();
+    	Protocol protocol = phelper.getProtocol(currentUser, ProtocolId);
+    	UserHelper uhelper = new UserHelper();
+    	ArrayList<Integer> userIds  = protocol.getUsers();
+    	List<User> userList = new ArrayList<>();
+    	for (Integer id: userIds) {
+    		User user = uhelper.getUser(currentUser, id);
+    		userList.add(user);
+    	}
+    	model.addAttribute("UserList",userList);
+    	return "ProtocolClients";
     }
     
     @GetMapping("clientProfile/{clientId}")

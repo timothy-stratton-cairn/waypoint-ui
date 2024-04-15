@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
@@ -47,16 +48,10 @@ public class ProtocolStepTemplateHelper{
     public int addHomeworkTemplate(User usr, int stepTemplateId, int homeworkId) {
     	int result = 0;
     	
-    	HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-	    headers.add("Content-Type", "application/json");
 	    String requestBody = "{\"linkedHomeworkTemplateIds\": [" + homeworkId + "]}";
-
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get +"/"+ stepTemplateId ;
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 		
-		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-		System.out.println(apiUrl);
-		System.out.println(entity);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -80,13 +75,11 @@ public class ProtocolStepTemplateHelper{
     
     
     public ProtocolStepTemplate getTemplate(User usr, int id) {
-    	ProtocolStepTemplate result = new ProtocolStepTemplate();
     	
-    	HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-	    headers.add("Content-Type", "application/json");
-	    HttpEntity<String> entity = new HttpEntity<>(headers);
+    	
+    	ProtocolStepTemplate result = new ProtocolStepTemplate();
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + "/"+id;
+	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 	    
 	    try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);

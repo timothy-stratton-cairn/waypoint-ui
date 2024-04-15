@@ -5,6 +5,9 @@
 	function selectClient(id) {
 		window.location = 'workClient/' + id;
 	}
+	function getProtocols(id){
+		window.location = '/protocolsByTemplate/'+ id + '/'
+	}
 </script>
 
 <body>
@@ -34,6 +37,9 @@
 					<div class="col-md-2">
 						Completion Percent
 					</div>
+					<div class="col-md-2">
+						Action
+					</div>
 				</div>
 				<div th:each="stat, status: ${stats}" th:id="|row_${stat.templateId}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
 					<div class="col-md-2" th:text="${stat.templateName}"></div>
@@ -41,6 +47,9 @@
 					<div class="col-md-2" th:text="${stat.progress}"></div>
 					<div class="col-md-2" th:text="${stat.done}"></div>
 					<div class="col-md-2" th:text="${stat.completion}"></div>
+					<div class="col-md-2">
+						<a class="btn btn-secondary" th:href="@{'/protocolsByTemplate/' + ${stat.templateId} + '/'}" th:text="'View Protocols'"></a>
+					</div>
 				</div>
 				<div class="row ">&nbsp;</div>
 			</fieldset>

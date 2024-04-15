@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
@@ -57,14 +58,8 @@ public class ProtocolTemplateHelper {
 			return results;
 		}
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 
 		// Make the GET request and retrieve the response
 		try {
@@ -115,14 +110,11 @@ public class ProtocolTemplateHelper {
 			return results;
 		}
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+
+		
 
 		// Make the GET request and retrieve the response
 		try {
@@ -280,14 +272,10 @@ public class ProtocolTemplateHelper {
 		ProtocolStepTemplate result = new ProtocolStepTemplate();
 
 		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + id;
-
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -355,15 +343,8 @@ public class ProtocolTemplateHelper {
 			return results;
 		}
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate;
-
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -422,16 +403,9 @@ public class ProtocolTemplateHelper {
 	public ArrayList<ProtocolStepTemplate> getStepList(User usr, int id) {
 		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + id;
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 
-		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
@@ -489,14 +463,11 @@ public class ProtocolTemplateHelper {
 	 */
 	public ProtocolTemplate getTemplate(User usr, int id) {
 		ProtocolTemplate result = new ProtocolTemplate();
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate + "/" + id;
+		// Create a HttpEntity with the headers
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+
 
 		// Make the GET request and retrieve the response
 		try {
