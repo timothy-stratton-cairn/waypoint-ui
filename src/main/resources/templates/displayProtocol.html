@@ -119,7 +119,7 @@
 		                            <strong>ID:</strong> <span th:text="${protocol.id}"></span>
 		                        </div> -->
 		                    </div>
-		                <button type="button" class="btn btn-secondary" onclick="saveprotocol('+${step.id}+')">Save</button>
+		                <button type="button" class="btn btn-primary" onclick="saveprotocol('+${step.id}+')">Save</button>
 		                </form>
 		            </div>
 		        </fieldset>
@@ -134,11 +134,11 @@
             
             <!-- Tabs for filtering steps -->
             <ul class="nav nav-tabs">
-                <li class="nav-item"><a class="nav-link active" href="#" data-type="all">All</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" data-type="1">Gather Data</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" data-type="2">Run Analysis</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" data-type="3">Craft Recommendations</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" data-type="4">Share Education</a></li>
+                <li class="nav-item tab"><a class="nav-link active" href="#" data-type="all">All</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" data-type="1">Gather Data</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" data-type="2">Run Analysis</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" data-type="3">Craft Recommendations</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" data-type="4">Share Education</a></li>
             </ul>
             
 
@@ -171,7 +171,7 @@
             </div>
             <br>
             
-            <button type="button" class="btn btn-secondary" th:onclick="'editProtocol(0);'">New Step</button>
+            <button type="button" class="btn btn-primary" th:onclick="'editProtocol(0);'">New Step</button>
             <button type="button" class="btn btn-primary" onclick="addStep();">Add Step</button>
         </fieldset>
     </div>

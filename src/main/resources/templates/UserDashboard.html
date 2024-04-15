@@ -13,7 +13,7 @@
 <body>
 	<div class="container">
 		<div class="row">
-			<h5 th:text="|Dashboard for ${user.username}|"></h5>
+			<h4 th:text="|Dashboard for ${user.username}|"></h4>
 		</div>
 		<div class="row">
 			<fieldset>
@@ -46,7 +46,7 @@
 					<div class="col-md-2" th:text="${stat.numSteps}"></div>
 					<div class="col-md-2" th:text="${stat.progress}"></div>
 					<div class="col-md-2" th:text="${stat.done}"></div>
-					<div class="col-md-2" th:text="${stat.completion}"></div>
+					<div class="col-md-2" th:text="|${stat.completion}%|"></div>
 					<div class="col-md-2">
 						<a class="btn btn-secondary" th:href="@{'/protocolsByTemplate/' + ${stat.templateId} + '/'}" th:text="'View Protocols'"></a>
 					</div>

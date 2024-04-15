@@ -71,13 +71,11 @@ public class MainController {
 		if (usr == null) {
 			return "home";
 		}
-		int id = usr.getId();
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", helper.getDashboard(usr));
-		User currentUser = userDAO.getUser();
-    	UserHelper helper = new UserHelper();
-		System.out.print(helper.getUserId(currentUser));
+		//User currentUser = userDAO.getUser();
+    	//UserHelper helper = new UserHelper();
 		return "UserDashboard";
 	}
 
@@ -100,9 +98,6 @@ public class MainController {
     	model.addAttribute("protocol",protocol);
     	model.addAttribute("steps",protocol.getSteps());
     	model.addAttribute("protocolId",pcolId);
-    	System.out.println("Goal: "+protocol.getGoal());
-    	System.out.println("Comment: "+protocol.getComment());
-    	System.out.println("Progress:"+protocol.getProgress());
         List<ProtocolStep> steps = protocol.getSteps();
         if (steps != null) {
             for (ProtocolStep step : steps) {
@@ -211,23 +206,6 @@ public class MainController {
 	}
 	
 
-	/**
-	 * Handle a request to view the Protocol details. 
-	 * @return
-	 */
-	//@RequestMapping(value = "/editProtocol/{id}", method = RequestMethod.GET)
-	public ModelAndView editProtocol(HttpServletRequest request, @PathVariable int id) {
-		
-		ModelAndView model = new ModelAndView("protocolEdit");
-		User usr = (User) userDAO.getUser();
-		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr,id);
-		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr,id);
-		model.addObject("protocol", pcol );
-		model.addObject("steps", listSteps );
-		
-		return model;
-	}
-	
 	@GetMapping("/editProtocol/{id}") 
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 	    User usr = (User) userDAO.getUser();

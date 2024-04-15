@@ -11,38 +11,38 @@
 <div class="container">
     <div class="row note_card">
         <fieldset>
-            <legend>Protocol Detail</legend>
+            <legend>Protocol Details</legend>
             <div>
                     <div class="row"> <!-- Adjusted layout starts here -->
                         <div class="col-md-3">
-                            <strong>Name:</strong> <span th:text="${protocol.name}"></span>
+                            <label>Name:</label> <span th:text="${protocol.name}"></span>
                         </div>
                         <div class="col-md-3">
-                            <strong>Needs Attention:</strong> <span th:text="${protocol.needsAttention}"></span>
+                            <label>Needs Attention:</label> <span th:text="${protocol.needsAttention} ? 'Yes': 'No'"></span>
                         </div>
                         <div class="col-md-3">
-                            <strong>Last Status Update:</strong> <span th:text="${protocol.lastStatus}"></span>
+                            <label>Last Status Update:</label> <span th:text="${protocol.lastStatus}"></span>
                         </div>
-                    </div>
+                    </div>              	
                     <div class ="row">
 						<div class="col-md-3">
-                            <strong>Completion:</strong> <span th:text="${protocol.completionPercent}"></span>
+                            <label>Completion:</label> <span th:text="|${protocol.completionPercent}%|"></span>
                         </div>
-                         <div class = "col-md-3">
+                         <div class = "col-md-3"><label>Progress: </label>
 							<input type="text" id="progressInput" th:value="${protocol.progress}" class="form-control">
 						</div>
                         <div class="col-md-3">
-                            <strong>Number of Steps:</strong> <span th:text="${protocol.stepCount}"></span>
+                            <label>Number of Steps:</label> <span th:text="${protocol.stepCount}"></span>
                         </div>
 					</div>
 					<div class ="row">
 						<div class="col-md-12">
-                            <strong>Description:</strong> <span th:text="${protocol.description}"></span>
+                            <label>Description:</label> <span th:text="${protocol.description}"></span>
                         </div>
 					</div>
 					<div class ="row">
 						<div class="col-md-1">
-							<strong>Goal:</strong>
+							<label>Goal:</label>
 						</div>
 						<div class = "col-md-11">
 							<input type="text" id="goalInput" th:value="${protocol.goal}" class="form-control">
@@ -51,7 +51,7 @@
 					</div>
                     <div class="row">
 					    <div class="col-md-1">
-					        <strong>Comments:</strong>
+					        <label>Comments:</label>
 					    </div>
 					    <div class="col-md-11">
 					        <input type="text" id="commentInput" th:value="${protocol.comment}" class="form-control">
@@ -76,16 +76,12 @@
             
             <!-- Tabs for filtering steps -->
            <ul class="nav nav-tabs">
-			    <li class="nav-item"><a class="nav-link active" href="#" onclick="filterStepsByCategory('all')">All</a></li>
-			    <li class="nav-item"><a class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data')">Gather Data</a></li>
-			    <li class="nav-item"><a class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis')">Run Analysis</a></li>
-			    <li class="nav-item"><a class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations')">Craft Recommendations</a></li>
-			    <li class="nav-item"><a class="nav-link" href="#" onclick="filterStepsByCategory('Share Education')">Share Education</a></li>
+			    <li class="nav-item tab"><span class="nav-link active" href="#" onclick="filterStepsByCategory('all')">All</span></li>
+			    <li class="nav-item tab"><span class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data')">Gather Data</span></li>
+			    <li class="nav-item tab"><span class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis')">Run Analysis</span></li>
+			    <li class="nav-item tab"><span class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations')">Craft Recommendations</span></li>
+			    <li class="nav-item tab"><span class="nav-link" href="#" onclick="filterStepsByCategory('Share Education')">Share Education</span></li>
 			</ul>
-
-            
-
-
             <div id="stepsContent">
 			    <div th:each="step, iterStat : ${steps}" th:id="'row_' + ${step.id}" th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.category}">
 			        <div class="col-md-4" th:text="${step.name}">[Step Name]</div>
@@ -93,7 +89,7 @@
 			        <div class="col-md-4" th:text="${step.notes}">[Notes]</div>
 			        <div class="col-md-2">
 			            <!-- Actions column -->
-			            <button type="button" class="btn btn-sm btn-primary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
+			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
 			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
 			        </div>
 			        <div th:id="'noteContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for note container -->

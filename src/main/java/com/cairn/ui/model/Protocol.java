@@ -1,5 +1,6 @@
 package com.cairn.ui.model;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -50,7 +51,8 @@ public class Protocol {
 		return lastStatus;
 	}
 	public String getCompletionPercent() {
-		return completionPercent;
+		float temp = Float.parseFloat(this.completionPercent);
+		return new DecimalFormat("#.##").format(temp * 100.0);
 	}
 	public ArrayList<Integer> getUsers() {
 		return users;
@@ -81,7 +83,7 @@ public class Protocol {
 		return goal;
 	}
 	public String getProgress() {
-		return progress;
+		return this.progress;
 	}
 	public void setGoal(String goal) {
 		this.goal = goal;
