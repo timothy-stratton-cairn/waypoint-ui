@@ -123,13 +123,32 @@
         
 		function filterStepsByCategory(category) {
 		    const steps = document.querySelectorAll('#stepsContent > div');
+		    let visibleStepsCount = 0;
+		
 		    steps.forEach(step => {
 		        if (category === 'all' || step.getAttribute('data-type') === category) {
 		            step.style.display = ''; // Show
+		            visibleStepsCount++;
 		        } else {
 		            step.style.display = 'none'; // Hide
 		        }
 		    });
+		
+		    // Check if there are no visible steps and display a message
+		    const noStepsMessage = document.getElementById('noStepsMessage');
+		    if (visibleStepsCount === 0) {
+		        if (!noStepsMessage) {
+		            const message = document.createElement('div');
+		            message.id = 'noStepsMessage';
+		            message.className = 'alert alert';
+		            message.textContent = 'No steps found';
+		            document.getElementById('stepsContent').appendChild(message);
+		        } else {
+		            noStepsMessage.style.display = ''; // Show existing message
+		        }
+		    } else if (noStepsMessage) {
+		        noStepsMessage.style.display = 'none'; // Hide message
+		    }
 		}
 	    function updateProgress(stepId) {
 			console.log(`Attempting to select: #stepContainer_${stepId}`); // Debugging
