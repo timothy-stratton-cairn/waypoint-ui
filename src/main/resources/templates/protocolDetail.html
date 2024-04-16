@@ -84,13 +84,14 @@
 			</ul>
             <div id="stepsContent">
 			    <div th:each="step, iterStat : ${steps}" th:id="'row_' + ${step.id}" th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.category}">
-			        <div class="col-md-4" th:text="${step.name}">[Step Name]</div>
-			        <div class="col-md-2" th:text="${step.status}">[Status]</div>
-			        <div class="col-md-4" th:text="${step.notes}">[Notes]</div>
-			        <div class="col-md-2">
+			        <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
+			        <div class="col-md-3" th:text="${step.status}">[Status]</div>
+			        <div class="col-md-3" th:text="${step.notes}">[Notes]</div>
+			        <div class="col-md-3">
 			            <!-- Actions column -->
 			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
 			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
+			            <button type="button" class = "btn btn-sm btn-secondary" th:onclick="goToHomeworkTemplates()">Homework</button>
 			        </div>
 			        <div th:id="'noteContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for note container -->
 			        <div th:id="'stepContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for step container -->
@@ -116,6 +117,9 @@
         function saveprotocol(){
             window.location = '/saveProtocol/'+id;
         }
+        function goToHomeworkTemplates() {
+			window.location.href = '/homeworkTemplates/';
+		}
         
 		function filterStepsByCategory(category) {
 		    const steps = document.querySelectorAll('#stepsContent > div');
