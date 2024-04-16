@@ -28,9 +28,12 @@
 						<div class="col-md-3">
                             <label>Completion:</label> <span th:text="|${protocol.completionPercent}%|"></span>
                         </div>
-                         <div class = "col-md-3"><label>Progress: </label>
+                         <div class = "col-md-1">
+							 <label>Progress: </label>
+                         </div>
+                         	<div class = "col-md-3">
 							<input type="text" id="progressInput" th:value="${protocol.progress}" class="form-control">
-						</div>
+							</div>
                         <div class="col-md-3">
                             <label>Number of Steps:</label> <span th:text="${protocol.stepCount}"></span>
                         </div>
@@ -60,6 +63,7 @@
 	                    <div class="row">
 						    <div class="col-md-12">
 						        <button onclick="saveProtocolCommentsAndGoal()" class="btn btn-primary">Save</button>
+						        <button type="button" class = "btn btn-primary" th:onclick="goToHomeworkTemplates()">Homework</button>
 						    </div>
 						</div>
                 </form>
@@ -91,7 +95,6 @@
 			            <!-- Actions column -->
 			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
 			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
-			            <button type="button" class = "btn btn-sm btn-secondary" th:onclick="goToHomeworkTemplates()">Homework</button>
 			        </div>
 			        <div th:id="'noteContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for note container -->
 			        <div th:id="'stepContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for step container -->
