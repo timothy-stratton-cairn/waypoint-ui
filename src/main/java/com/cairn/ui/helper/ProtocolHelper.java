@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.ProtocolStepTemplate;
@@ -51,15 +52,9 @@ public class ProtocolHelper {
 	public ArrayList<Protocol> getList(User usr) {
 		ArrayList<Protocol> results = new ArrayList<Protocol>();
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;
-
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -101,57 +96,53 @@ public class ProtocolHelper {
 
 	}
 	public ArrayList<Protocol> getListbyTemplateId(User usr,int tempId) {
-		ArrayList<Protocol> results = new ArrayList<Protocol>();
+	    ArrayList<Protocol> results = new ArrayList<>();
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
 
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/protocol-template/" + tempId;
+	    
+	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+	    // Make the GET request and retrieve the response
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+	        // Process the response
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            String jsonResponse = response.getBody();
+	            ObjectMapper objectMapper = new ObjectMapper();
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/protocol-template/"+ tempId;
+	            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode prots = jsonNode.get("protocols");
+	            if (prots.isArray()) {
+	                for (JsonNode element : prots) {
+	                    Protocol entry = new Protocol();
+	                    entry.setId(element.get("id").asInt());
+	                    entry.setName(element.get("name").asText());
+	                    entry.setDescription(element.get("description").asText());
+	                    entry.setGoal(element.get("goal").asText());
+	                    entry.setProgress(element.get("goalProgress").asText());
+	                    entry.setNeedsAttention(element.get("needsAttention").asBoolean());
+	                    entry.setCompletionPercent(element.get("completionPercentage").asText());
 
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
+	                    // Parse associatedUsers
+	                    JsonNode associatedUsers = element.get("associatedUsers").get("userIds");
+	                    ArrayList<Integer> userIds = new ArrayList<>();
+	                    associatedUsers.forEach(user -> userIds.add(user.asInt()));
+	                    entry.setUsers(userIds);
 
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("protocols");
-					// Iterate through the array elements
-					Protocol entry = null;
-					if (prots.isArray()) {
-						for (JsonNode element : prots) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new Protocol();
-								entry.setName(element.get("name").asText());
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								results.add(entry);
-							}
-						}
-					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-			}
-		} catch (Exception e) {
-			System.out.println("No protocols returned");
-		}
+	                    results.add(entry);
+	                }
+	            }
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        System.out.println("Error fetching protocols: " + e.getMessage());
+	    }
 
-		return results;
-
+	    return results;
 	}
+
 	/**
 	 * Get a specific protocol.
 	 * 
@@ -258,15 +249,9 @@ public class ProtocolHelper {
 	public ArrayList<ProtocolStep> getStepList(User usr, int id) {
 		ArrayList<ProtocolStep> results = new ArrayList<ProtocolStep>();
 
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + id;
-
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -320,14 +305,9 @@ public class ProtocolHelper {
 	 */
 	public ArrayList<Protocol> getAssignedProtocols(User usr, int clientId){
 	    ArrayList<Protocol> results = new ArrayList<Protocol>();
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-
-	    // Create a HttpEntity with the headers
-	    HttpEntity<String> entity = new HttpEntity<>(headers);
 
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolaccount + clientId; //retrieves all protocols assigned to clientId
-	    
+	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 	        // Process the response
@@ -401,14 +381,12 @@ public class ProtocolHelper {
 	
 	public int addClient(User usr, int clientid, int protocolTemplateId) {
 		int result = 0;
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
 
-		headers.add("Content-Type", "application/json");
-		// Create a HttpEntity with the headers
 		String requestBody = "{\"protocolTemplateId\": " + protocolTemplateId + ", \"comment\": \"\", \"associatedAccountId\": " + clientid + "}";
-		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers); // assign  as part of the request body 
+
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;//retrieves all protocols assigned to clientId
+		
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -558,12 +536,11 @@ public class ProtocolHelper {
 	
 	public int updateProtocolProgress(User usr, int protocolId, String progress) {
 		int result = 0;
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-		headers.add("Content-Type", "application/json");
+
 		String requestBody ="{\"goalProgress\": \"" + progress + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId;
-		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 		System.out.println(apiUrl);
 		System.out.println(entity);
 		try {

@@ -1,7 +1,9 @@
 package com.cairn.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.cairn.ui.helper.DashboardHelper;
@@ -195,16 +198,32 @@ public class MainController {
 		model.addAttribute("listProtocols", listProtocols );
 		return "protocolList";
 	}
-	
 	@GetMapping("/protocolsByTemplate/{tempId}/")
-	public String protocolsByTemplate(HttpSession session,@PathVariable int tempId ,Model model) {
-		User usr = (User) userDAO.getUser();
+	public String protocolsByTemplate(HttpSession session, @PathVariable int tempId, Model model) {
+	    User usr = (User) userDAO.getUser();
+	    List<Protocol> listProtocols = protocolHelper.getListbyTemplateId(usr, tempId);
+	    Map<Integer, String> userNames = new HashMap<>();
 
-		List<Protocol> listProtocols = protocolHelper.getListbyTemplateId(usr, tempId);
-		model.addAttribute("listProtocols", listProtocols );
-		return "protocolList";
+	    for (Protocol protocol : listProtocols) {
+	        ArrayList<Integer> userList = protocol.getUsers();
+	        // Check if the user list is not empty before accessing it
+	        if (!userList.isEmpty()) {
+	            User user = userHelper.getUser(usr, userList.get(0)); 
+	            if (user != null) {
+	                userNames.put(protocol.getId(), user.getFirstName() + " " + user.getLastName());
+	            } else {
+	                userNames.put(protocol.getId(), "user is null");
+	            }
+	        } else {
+	            userNames.put(protocol.getId(), "User is Empty ");
+	        }
+	    }
+
+	    model.addAttribute("listProtocols", listProtocols);
+	    model.addAttribute("userNames", userNames);
+	    return "protocolList";
 	}
-	
+
 
 	@GetMapping("/editProtocol/{id}") 
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
@@ -529,5 +548,32 @@ public class MainController {
     	
     	return ResponseEntity.ok().build();
     }
+    
+    
+    @GetMapping("/getClientName/{id}/")
+    @ResponseBody 
+    public ResponseEntity<String> getClientName(@PathVariable int id) {
+        try {
+            User currentUser = userDAO.getUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Current user not found");
+            }
+            
+            UserHelper helper = new UserHelper();
+            User assignedUser = helper.getUser(currentUser, id);
+            
+            if (assignedUser == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Assigned user not found");
+            }
+            
+            String result = assignedUser.getFirstName() + " " + assignedUser.getLastName();
+            System.out.println(result);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            System.err.println("Error retrieving user name: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user name");
+        }
+    }
+
 
 }
