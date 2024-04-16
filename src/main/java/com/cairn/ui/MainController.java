@@ -373,12 +373,21 @@ public class MainController {
 	}
 	
 	   @GetMapping("/homeworkTemplates/")
-	    public String homeworkTemplates(Model model) {
+	   public String homeworkTemplates(Model model) {
 	    	User currentUser = userDAO.getUser(); 
 	    	ArrayList<HomeworkTemplate> templateList = homeworkTemplateHelper.getList(currentUser);
 	    	model.addAttribute("templates",templateList);	
 	    	return "homeworkTemplates";
 	    }
+	   
+	   @GetMapping("viewHomeworkTemplate/{tempId}/")
+	   public String editHomeworkTemplate(@PathVariable int tempId,Model model) {
+		   User currentUser = userDAO.getUser(); 
+		   HomeworkTemplateHelper helper = new HomeworkTemplateHelper();
+		   HomeworkTemplate template = helper.getTemplate(currentUser, tempId);
+		   model.addAttribute("template",template);
+		   return "editHomeworkTemplate";
+	   }
 	    
 
     @GetMapping("/profile")

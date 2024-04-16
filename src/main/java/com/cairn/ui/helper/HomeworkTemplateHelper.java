@@ -105,8 +105,9 @@ public class HomeworkTemplateHelper{
 	public HomeworkTemplate getTemplate(User usr, int id) {
 		HomeworkTemplate result = new HomeworkTemplate();
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate+ "/" + id;
+		String apiUrl = "http://96.61.158.12:8083" + Constants.api_homeworktemplate+ "/" + id;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		System.out.println(apiUrl);
 		
 		// Make the GET request and retrieve the response
 		try {
