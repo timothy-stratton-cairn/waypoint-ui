@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.cairn.ui.dto.ProtocolDetailsDto;
+import com.cairn.ui.dto.ProtocolStepDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,15 +107,15 @@ public class MainController {
 	public String viewProtocol(Model model, @PathVariable int pcolId, @PathVariable int userId) {
 		User currentUser = userDAO.getUser();
 
-		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
+		ProtocolDetailsDto protocol = protocolHelper.getProtocol(currentUser, pcolId);
 
 		model.addAttribute("protocol", protocol);
-		model.addAttribute("steps", protocol.getSteps());
+		model.addAttribute("steps", protocol.getAssociatedSteps());
 		model.addAttribute("protocolId", pcolId);
 		model.addAttribute("userId", userId);
-		List<ProtocolStep> steps = protocol.getSteps();
+		List<ProtocolStepDto> steps = protocol.getAssociatedSteps().getSteps();
 		if (steps != null) {
-			for (ProtocolStep step : steps) {
+			for (ProtocolStepDto step : steps) {
 				String statusWithUnderscores = step.getStatus().replace(' ', '_');
 				System.out.println(statusWithUnderscores);
 			}
@@ -443,9 +445,11 @@ public class MainController {
 	public String ProtocolClients(@PathVariable int ProtocolId, Model model) {
 		User currentUser = userDAO.getUser();
 		ProtocolHelper phelper = new ProtocolHelper();
-		Protocol protocol = phelper.getProtocol(currentUser, ProtocolId);
+		ProtocolDetailsDto protocol = phelper.getProtocol(currentUser, ProtocolId);
 		UserHelper uhelper = new UserHelper();
-		ArrayList<Integer> userIds = protocol.getUsers();
+		List<Integer> userIds = protocol.getAssociatedUsers().getUserIds().stream()
+				.map(Long::intValue)
+				.toList();
 		List<User> userList = new ArrayList<>();
 		for (Integer id : userIds) {
 			User user = uhelper.getUser(currentUser, id);
@@ -503,7 +507,7 @@ public class MainController {
 	public String clientProtocol(@PathVariable int pcolId, Model model) {
 		User currentUser = userDAO.getUser();
 
-		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
+		ProtocolDetailsDto protocol = protocolHelper.getProtocol(currentUser, pcolId);
 		model.addAttribute("protocol", protocol);
 		return "clientProtocol";
 	}

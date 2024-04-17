@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.time.Instant;
 
+import com.cairn.ui.dto.ProtocolDetailsDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -151,8 +152,8 @@ public class ProtocolHelper {
 	 * @param id The id of the protocol.
 	 * @return Protocol instance. New/Blank is returned if an error occurs.
 	 */
-	public Protocol getProtocol(User usr, int id) {
-		Protocol result = new Protocol();
+	public ProtocolDetailsDto getProtocol(User usr, int id) {
+		ProtocolDetailsDto result = new ProtocolDetailsDto();
 		// Prepare the request body
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Bearer " + usr.getToken());
@@ -170,71 +171,7 @@ public class ProtocolHelper {
 				String jsonResponse = response.getBody();
 				ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					result.setName(jsonNode.get("name").asText());
-					result.setDescription(jsonNode.get("description").asText());
-					result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
-					JsonNode comments = jsonNode.get("protocolComments").get("comments");
-					String commentString = "";
-					if (comments.isArray()) {
-						for (JsonNode element : comments) {
-							// Access and print array elements
-							if (element != null) {
-								commentString += element.get("comment").asText();
-							}
-						}
-					}
-					result.setComment(commentString);
-					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
-					result.setNeedsAttention(Boolean.valueOf(jsonNode.get("needsAttention").toString()));
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
-					result.setLastStatus(calendar.getTime());
-					if (jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
-					    result.setGoal(jsonNode.get("goal").asText());
-					} else {
-					    result.setGoal("No Goal Set"); // Fallback if goal is not set
-					}
-
-
-					if (jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
-					    result.setProgress(jsonNode.get("goalProgress").asText());
-					} else {
-					    result.setProgress("None"); // Fallback if goalProgress is not present or is null
-					}
-
-					/* Add in the steps */
-					JsonNode assoc = jsonNode.get("associatedSteps");
-					JsonNode asteps = assoc.get("steps");
-					// Iterate through the array elements
-					ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
-					if (asteps.isArray()) {
-						for (JsonNode element : asteps) {
-							// Access and print array elements
-							if (element != null) {
-								ProtocolStep curStep = new ProtocolStep();
-								curStep.setId(Integer.parseInt(element.get("id").asText()));
-								curStep.setName(element.get("name").asText());
-								curStep.setDescription(element.get("description").asText());
-								curStep.setNotes(element.get("stepNotes").get("notes").asText());
-								curStep.setCategory(element.get("category").asText());
-								curStep.setStatus(element.get("status").asText());
-								steps.add(curStep);
-							}
-						}
-						result.setSteps(steps);
-					}
-					result.setStepCount();
-					System.out.println(result.getStepCount());
-
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
+				result = objectMapper.readValue(jsonResponse, ProtocolDetailsDto.class);
 			} else {
 				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
