@@ -1,6 +1,6 @@
 package com.cairn.ui.model;
 
-public class Response {
+public class HomeworkResponse {
     private String response;
     private String tooltip;
 
