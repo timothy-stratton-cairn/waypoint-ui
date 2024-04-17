@@ -59,7 +59,8 @@
                     </div>
 	                    <div class="row">
 						    <div class="col-md-12">
-						        <button onclick="saveProtocolCommentsAndGoal()" class="btn btn-primary">Save</button>
+						        <div onclick="saveProtocolCommentsAndGoal()" class="btn btn-primary">Save</div>
+					            <div class = "btn btn-primary" th:onclick="goToHomeworkTemplates()">Homework</div>
 						    </div>
 						</div>
                 </form>
@@ -91,7 +92,6 @@
 			            <!-- Actions column -->
 			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
 			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
-			            <button type="button" class = "btn btn-sm btn-secondary" th:onclick="goToHomeworkTemplates()">Homework</button>
 			        </div>
 			        <div th:id="'noteContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for note container -->
 			        <div th:id="'stepContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for step container -->
