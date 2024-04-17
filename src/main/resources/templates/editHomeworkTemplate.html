@@ -15,25 +15,39 @@
 	<br>
 <div class = "container">
 	<div class="row note_card">
-		<legend>Edit Homework</legend>
-		<div class="form-group">
-                    <label for="templateName">Name:</label>
-                    <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
-        </div>
-        <div class ="form-group">
-                    <label for="templateDetails">Description:</label>
-                    <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
-        </div>
-		
+		<fieldset>
+			<legend>Edit Homework</legend>
+			<div class="form-group">
+	                    <label for="templateName">Name:</label>
+	                    <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
+	        </div>
+	        <div class ="form-group">
+	                    <label for="templateDetails">Description:</label>
+	                    <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
+	        </div>
+		</fieldset>
 	</div>
 </div>
 
-<div class = "container">
-	<div class="row note_card">
-		<legend>Homework Questions</legend>
-		
-	</div>
+<div class="container">
+    <div class="row note_card">
+		<fieldset>
+	        <legend>Homework Questions</legend>
+	        <div class="rowheader row">
+	            <div class="col">Question</div>
+	            <div class="col">Type</div>
+	            <div class="col">Required</div>
+	        </div>
+	        <div th:each="question, stat : ${template.questions}" th:id="|row_${stat.index}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
+	            <div class="col" th:text="${question.question}"></div>
+	            <div class="col" th:text="${question.questionType}"></div>
+	            <div class="col" th:text="${question.isRequired ? 'Yes' : 'No'}"></div>
+	        </div>
+	        <br>
+        </fieldset>   
+    </div>
 </div>
+
 	
 <script>
 	

@@ -5,15 +5,15 @@ import java.util.List;
 import com.nimbusds.oauth2.sdk.Response;
 
 public class ExpectedHomeworkResponses {
-    private List<Response> responses;
+    private List<HomeworkResponse> responses;
     private int numOfResponses;
 
     // Getters and setters
-    public List<Response> getResponses() {
+    public List<HomeworkResponse> getResponses() {
         return responses;
     }
 
-    public void setResponses(List<Response> responses) {
+    public void setResponses(List<HomeworkResponse> responses) {
         this.responses = responses;
     }
 

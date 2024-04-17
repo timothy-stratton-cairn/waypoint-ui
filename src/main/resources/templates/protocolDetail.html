@@ -28,9 +28,12 @@
 						<div class="col-md-3">
                             <label>Completion:</label> <span th:text="|${protocol.completionPercent}%|"></span>
                         </div>
-                         <div class = "col-md-3"><label>Progress: </label>
+                         <div class = "col-md-1">
+							 <label>Progress: </label>
+                         </div>
+                         	<div class = "col-md-3">
 							<input type="text" id="progressInput" th:value="${protocol.progress}" class="form-control">
-						</div>
+							</div>
                         <div class="col-md-3">
                             <label>Number of Steps:</label> <span th:text="${protocol.stepCount}"></span>
                         </div>

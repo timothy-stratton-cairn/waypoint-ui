@@ -69,11 +69,20 @@ public class MainController {
 	}
 
 	@GetMapping("/dashboard")
-	public String homePage(@RequestParam(name = "msg", required = false) String msg, Model model) {
+	public String homePage(@RequestParam(name = "msg", required = false) String msg, Model model,HttpSession session) {
 		User usr = userDAO.getUser();
 		if (usr == null) {
 			return "home";
 		}
+
+
+		int sessionUserId = userHelper.getUserId(usr);
+        User sessionUser = userHelper.getUser(usr, sessionUserId);
+        if (sessionUser.getRoles() != null) {
+            String userRoles = String.join(", ", sessionUser.getRoles());
+            session.setAttribute("userRoles", userRoles);
+        }
+		
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", helper.getDashboard(usr));
