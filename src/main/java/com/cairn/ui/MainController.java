@@ -396,14 +396,6 @@ public class MainController {
 		return "homeworkTemplates";
 	}
 
-	@GetMapping("viewHomeworkTemplate/{tempId}/")
-	public String editHomeworkTemplate(@PathVariable int tempId, Model model) {
-		User currentUser = userDAO.getUser();
-
-		HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, tempId);
-		model.addAttribute("template", template);
-		return "editHomeworkTemplate";
-	}
 
 	@GetMapping("/profile")
 	public String userProfile(Model model) {
@@ -606,7 +598,19 @@ public class MainController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user name");
 		}
 	}
-	
+	@GetMapping("editHomeworkTemplate/")
+	public String editHomeworkTemplate( Model model) {
+		User currentUser = userDAO.getUser();
+		return "editHomeworkTemplate";
+	}
+	@GetMapping("viewHomeworkTemplate/{tempId}/")
+	public String viewHomeworkTemplate(@PathVariable int tempId, Model model) {
+		User currentUser = userDAO.getUser();
+
+		HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, tempId);
+		model.addAttribute("template", template);
+		return "viewHomeworkTemplate";
+	}
 	
 	@PostMapping("/newHomeworkTemplate/{templateBody}")
 	public ResponseEntity<String>saveHomeworkTemplate(@RequestBody  String templateBody){

@@ -11,10 +11,13 @@
 	function selectTemplate(id){
 	    window.location = '/viewHomeworkTemplate/' + id + '/';		
 	}
+	function newTemplate(){
+		window.location = '/editHomeworkTemplate/'
+	}
 </script>
 <body>
 	<div class="container">
-		<a class="btn btn-secondary" onclick="selectTemplate(0)">New Template</a>
+		<a class="btn btn-secondary" onclick="newTemplate()">New Template</a>
 	</div>
 	<div class="container">
 		<div class="row note_card">
