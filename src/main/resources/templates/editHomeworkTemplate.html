@@ -3,8 +3,9 @@
 <head>
     <title>Edit Homework</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
@@ -12,45 +13,161 @@
 <div class="container">
     <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
 </div>
-	<br>
-<div class = "container">
-	<div class="row note_card">
-		<fieldset>
-			<legend>Edit Homework</legend>
-			<div class="form-group">
-	                    <label for="templateName">Name:</label>
-	                    <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
-	        </div>
-	        <div class ="form-group">
-	                    <label for="templateDetails">Description:</label>
-	                    <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
-	        </div>
-		</fieldset>
-	</div>
-</div>
+<br>
 
-<div class="container">
-    <div class="row note_card">
-		<fieldset>
-	        <legend>Homework Questions</legend>
-	        <div class="rowheader row">
-	            <div class="col">Question</div>
-	            <div class="col">Type</div>
-	            <div class="col">Required</div>
-	        </div>
-	        <div th:each="question, stat : ${template.questions}" th:id="|row_${stat.index}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
-	            <div class="col" th:text="${question.question}"></div>
-	            <div class="col" th:text="${question.questionType}"></div>
-	            <div class="col" th:text="${question.isRequired ? 'Yes' : 'No'}"></div>
-	        </div>
-	        <br>
-        </fieldset>   
+<form id="homeworkForm" action="/newHomeworkTemplate" method="post">
+    <div class="container">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Edit Homework</legend>
+                <div class="form-group">
+                    <label for="templateName">Name:</label>
+                    <input type="text" id="templateName" name="name" class="form-control" placeholder="Homework Name">
+                </div>
+                <div class="form-group">
+                    <label for="templateDetails">Description:</label>
+                    <textarea id="templateDetails" name="description" class="form-control" rows="3" placeholder="Homework Description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="isMultiResponse">Is Multi-Response:</label>
+                    <select class="form-control" id="isMultiResponse" name="isMultiResponse">
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                    </select>
+                </div>
+                <div id="questionsContainer"></div>
+                <button type="button" class="btn btn-primary" onclick="addQuestion()">Add Homework Question</button>
+                <!-- Hidden input to store JSON data -->
+                <input type="hidden" name="templateBody" id="templateBody">
+                <button type="submit" class="btn btn-success" onclick="prepareSubmit()">Save Template</button>
+            </fieldset>
+        </div>
     </div>
-</div>
+</form>
 
-	
 <script>
-	
+let questions = [];
+
+function addQuestion() {
+    const container = document.getElementById('questionsContainer');
+    const questionIndex = container.children.length;
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'card mb-3';
+    questionDiv.innerHTML = `
+        <div class="card-body">
+            <div class="form-group">
+                <label>Question Abbreviation:</label>
+                <input type="text" class="form-control" id="questionAbbr_${questionIndex}">
+            </div>
+            <div class="form-group">
+                <label>Question:</label>
+                <input type="text" class="form-control" id="question_${questionIndex}">
+            </div>
+            <div class="form-group">
+                <label>Question Type:</label>
+                <select class="form-control" id="questionType_${questionIndex}">
+                    <option value="STRING">String</option>
+                    <option value="SELECT_OPTION">Select Option</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Is Required:</label>
+                <select class="form-control" id="isRequired_${questionIndex}">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Trigger Protocol Creation:</label>
+                <select class="form-control" onchange="toggleTriggerFields(this, ${questionIndex})" id="triggerProtocolCreation_${questionIndex}">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+            </div>
+            <div id="triggerFields_${questionIndex}" style="display: none;">
+                <div class="form-group">
+                    <label>Trigger Response:</label>
+                    <input type="text" class="form-control" id="triggerResponse_${questionIndex}">
+                </div>
+                <div class="form-group">
+                    <label>Trigger Tooltip:</label>
+                    <input type="text" class="form-control" id="triggerTooltip_${questionIndex}">
+                </div>
+            </div>
+            <div id="responseOptions_${questionIndex}"></div>
+            <button type="button" class="btn btn-secondary" onclick="addResponseOption(${questionIndex})">Add Response Option</button>
+        </div>
+    `;
+    container.appendChild(questionDiv);
+}
+
+function addResponseOption(questionIndex) {
+    const optionsContainer = document.getElementById(`responseOptions_${questionIndex}`);
+    const optionIndex = optionsContainer.children.length;
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'form-group';
+    optionDiv.innerHTML = `
+        <label>Response:</label>
+        <input type="text" class="form-control" id="response_${questionIndex}_${optionIndex}">
+        <label>Tooltip:</label>
+        <input type="text" class="form-control" id="tooltip_${questionIndex}_${optionIndex}">
+    `;
+    optionsContainer.appendChild(optionDiv);
+}
+
+function toggleTriggerFields(select, index) {
+    const display = select.value === 'true' ? 'block' : 'none';
+    document.getElementById(`triggerFields_${index}`).style.display = display;
+}
+
+function prepareSubmit() {
+    const name = document.getElementById('templateName').value;
+    const description = document.getElementById('templateDetails').value;
+    const isMultiResponse = document.getElementById('isMultiResponse').value === 'true';
+
+    Array.from(document.getElementById('questionsContainer').children).forEach((card, index) => {
+        const questionAbbr = document.getElementById(`questionAbbr_${index}`).value;
+        const question = document.getElementById(`question_${index}`).value;
+        const questionType = document.getElementById(`questionType_${index}`).value;
+        const isRequired = document.getElementById(`isRequired_${index}`).value === 'true';
+        const triggerProtocolCreation = document.getElementById(`triggerProtocolCreation_${index}`).value === 'true';
+
+        let responseOptions = [];
+        const optionsContainer = document.getElementById(`responseOptions_${index}`);
+        Array.from(optionsContainer.getElementsByClassName('form-group')).forEach((optionDiv, optionIndex) => {
+            const response = document.getElementById(`response_${index}_${optionIndex}`).value;
+            const tooltip = document.getElementById(`tooltip_${index}_${optionIndex}`).value;
+            responseOptions.push({response, tooltip});
+        });
+
+        let triggeringResponse = {response: null, tooltip: null};
+        if (triggerProtocolCreation) {
+            triggeringResponse.response = document.getElementById(`triggerResponse_${index}`).value;
+            triggeringResponse.tooltip = document.getElementById(`triggerTooltip_${index}`).value;
+        }
+
+        questions.push({
+            questionAbbr,
+            question,
+            questionType,
+            isRequired,
+            responseOptions,
+            triggerProtocolCreation,
+            triggeringResponse,
+            triggeredProtocolId: null
+        });
+    });
+
+    const templateData = JSON.stringify({
+        name,
+        description,
+        isMultiResponse,
+        homeworkQuestions: questions
+    }, null, 2); // Pretty print JSON for readability
+
+    // Set the hidden input's value to the JSON string
+    document.getElementById('templateBody').value = templateData;
+}
 </script>
 </body>
 </html>

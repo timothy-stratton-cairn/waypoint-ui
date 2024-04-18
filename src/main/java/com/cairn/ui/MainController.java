@@ -399,8 +399,8 @@ public class MainController {
 	@GetMapping("viewHomeworkTemplate/{tempId}/")
 	public String editHomeworkTemplate(@PathVariable int tempId, Model model) {
 		User currentUser = userDAO.getUser();
-		HomeworkTemplateHelper helper = new HomeworkTemplateHelper();
-		HomeworkTemplate template = helper.getTemplate(currentUser, tempId);
+
+		HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, tempId);
 		model.addAttribute("template", template);
 		return "editHomeworkTemplate";
 	}
@@ -408,9 +408,9 @@ public class MainController {
 	@GetMapping("/profile")
 	public String userProfile(Model model) {
 		User usr = userDAO.getUser();
-		UserHelper helper = new UserHelper();// Fetch the currently logged-in user using UserDAO
-		int id = helper.getUserId(usr);
-		User currentUser = helper.getUser(usr, id);
+
+		int id = userHelper.getUserId(usr);
+		User currentUser = userHelper.getUser(usr, id);
 		model.addAttribute("user", currentUser);
 		return "userProfile";
 	}
@@ -418,9 +418,9 @@ public class MainController {
 	@GetMapping("/changeUserInfo")
 	public String showChangeUserInfoForm(Model model) {
 		User usr = userDAO.getUser();
-		UserHelper helper = new UserHelper();// Fetch the currently logged-in user using UserDAO
-		int id = helper.getUserId(usr);
-		User currentUser = helper.getUser(usr, id);
+
+		int id = userHelper.getUserId(usr);
+		User currentUser = userHelper.getUser(usr, id);
 		model.addAttribute("user", currentUser);// Adds the object to the model to be accessed by the form
 		return "changeUserInfo";
 	}
@@ -442,13 +442,13 @@ public class MainController {
 	@GetMapping("protocolClients/{protocolId}")
 	public String ProtocolClients(@PathVariable int ProtocolId, Model model) {
 		User currentUser = userDAO.getUser();
-		ProtocolHelper phelper = new ProtocolHelper();
-		Protocol protocol = phelper.getProtocol(currentUser, ProtocolId);
-		UserHelper uhelper = new UserHelper();
+		
+		Protocol protocol = protocolHelper.getProtocol(currentUser, ProtocolId);
 		ArrayList<Integer> userIds = protocol.getUsers();
+		
 		List<User> userList = new ArrayList<>();
 		for (Integer id : userIds) {
-			User user = uhelper.getUser(currentUser, id);
+			User user = userHelper.getUser(currentUser, id);
 			userList.add(user);
 		}
 		model.addAttribute("UserList", userList);
@@ -549,11 +549,11 @@ public class MainController {
 	public ResponseEntity<Object> updateUserPassword(@PathVariable String opassword, @PathVariable String npassword,
 			Model model) {
 		User currentUser = userDAO.getUser();
-		UserHelper helper = new UserHelper();
-		System.out.println(helper.getUserId(currentUser));
-		int id = helper.getUserId(currentUser);
+
+		System.out.println(userHelper.getUserId(currentUser));
+		int id = userHelper.getUserId(currentUser);
 		try {
-			helper.changeUserPassword(currentUser, id, opassword, npassword);
+			userHelper.changeUserPassword(currentUser, id, opassword, npassword);
 		} catch (Exception e) {
 			System.out.println("Error in addClient:");
 			e.printStackTrace(); // Print the stack trace to the console
@@ -567,11 +567,11 @@ public class MainController {
 	public ResponseEntity<Object> updateUserDetails(@PathVariable String firstName, @PathVariable String lastName,
 			@PathVariable String email, Model model) {
 		User currentUser = userDAO.getUser();
-		UserHelper helper = new UserHelper();
-		System.out.print(helper.getUserId(currentUser));
-		int id = helper.getUserId(currentUser);
+
+		System.out.print(userHelper.getUserId(currentUser));
+		int id = userHelper.getUserId(currentUser);
 		try {
-			helper.updateUserDetails(currentUser, id, firstName, lastName, email);
+			userHelper.updateUserDetails(currentUser, id, firstName, lastName, email);
 
 		} catch (Exception e) {
 			System.out.println("Error in updateUserDetails:");
@@ -592,8 +592,7 @@ public class MainController {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Current user not found");
 			}
 
-			UserHelper helper = new UserHelper();
-			User assignedUser = helper.getUser(currentUser, id);
+			User assignedUser = userHelper.getUser(currentUser, id);
 
 			if (assignedUser == null) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Assigned user not found");
@@ -602,6 +601,23 @@ public class MainController {
 			String result = assignedUser.getFirstName() + " " + assignedUser.getLastName();
 			System.out.println(result);
 			return ResponseEntity.ok(result);
+		} catch (Exception e) {
+			System.err.println("Error retrieving user name: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user name");
+		}
+	}
+	
+	
+	@PostMapping("/newHomeworkTemplate/{templateBody}")
+	public ResponseEntity<String>saveHomeworkTemplate(@RequestBody  String templateBody){
+		String result = "";
+		try {
+		User currentUser = userDAO.getUser();
+		if (currentUser == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Current user not found");
+		}
+		homeworkTemplateHelper.newTemplate(currentUser,templateBody);
+		return ResponseEntity.ok(result);
 		} catch (Exception e) {
 			System.err.println("Error retrieving user name: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user name");
