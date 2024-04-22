@@ -81,7 +81,7 @@
 				<div class="row">
 					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
 						class="note_card col-md-5">
-						<a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
+						<a th:href="@{/viewProtocol/{id}/{userId}(id=${pcol.id}, userId=${userId})}">
 							<div class="flip-card ">
 								<div class="flip-card-inner">
 									<div class="flip-card-front">

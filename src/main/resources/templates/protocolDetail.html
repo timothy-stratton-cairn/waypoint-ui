@@ -107,6 +107,27 @@
     </div>
 </div>
 
+<div class = "container">
+
+	<div class = "row note_card">
+		<fieldset>
+			<legend>Homeworks</legend>
+				<div class="rowheader row">
+					<div class="col">Name</div>
+					<div class="col">Description</div>
+					<div class="col">Action</div>
+				</div>
+				<div th:each="template, stat : ${homeworks}" th:id="|row_${homeworks.name}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
+					<div class="col" th:text="${homeworks.name}"></div>
+					<div class="col" th:text="${homeworks.description}"></div>
+					<div class="col">
+						<a class="btn btn-secondary" th:href="">Details</a>
+					</div>
+				</div>
+		</fieldset>
+	</div>
+</div>
+
 <div class="container mt-3">
     <button onclick="history.back()" class="btn btn-primary">Back</button>
 </div>

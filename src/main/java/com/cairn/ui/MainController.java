@@ -1,5 +1,7 @@
 package com.cairn.ui;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +24,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.cairn.ui.helper.DashboardHelper;
+import com.cairn.ui.helper.HomeworkHelper;
 import com.cairn.ui.helper.HomeworkTemplateHelper;
 import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.helper.ProtocolStepTemplateHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.Dashboard;
+import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
@@ -50,6 +54,9 @@ public class MainController {
 
 	@Autowired
 	HomeworkTemplateHelper homeworkTemplateHelper;
+	
+	//@Autowired
+	//HomeworkHelper homeworkHelper;
 
 	@Autowired
 	ProtocolHelper protocolHelper;
@@ -106,11 +113,15 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 
 		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
-
+		HomeworkHelper homeworkHelper = new HomeworkHelper();
+		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, pcolId);
+		
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", protocol.getSteps());
 		model.addAttribute("protocolId", pcolId);
 		model.addAttribute("userId", userId);
+		model.addAttribute("homeworks",allHomeworks);
+		
 		List<ProtocolStep> steps = protocol.getSteps();
 		if (steps != null) {
 			for (ProtocolStep step : steps) {
@@ -252,6 +263,8 @@ public class MainController {
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
+		HomeworkHelper homeworkHelper = new HomeworkHelper();
+		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(usr, id);
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
 
@@ -259,7 +272,7 @@ public class MainController {
 		model.addAttribute("protocol", pcol);
 		model.addAttribute("steps", listSteps);
 		model.addAttribute("allSteps", allSteps);
-
+		model.addAttribute("homework",allHomeworks);
 		return "displayProtocol";
 	}
 
@@ -453,13 +466,13 @@ public class MainController {
 		User client = userHelper.getUser(currentUser, clientId);
 		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
 		ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId); // this
-																											// needs to
+		int userId = userHelper.getUserId(currentUser);																						// needs to
 																											// be
 																											// written
 																											// up on the
 																											// helper
 																											// side
-
+		model.addAttribute("userId",userId);
 		model.addAttribute("client", client);
 		model.addAttribute("clientId", clientId);
 		model.addAttribute("protocolList", pcolList);
@@ -603,6 +616,7 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 		return "editHomeworkTemplate";
 	}
+	
 	@GetMapping("viewHomeworkTemplate/{tempId}/")
 	public String viewHomeworkTemplate(@PathVariable int tempId, Model model) {
 		User currentUser = userDAO.getUser();
@@ -612,20 +626,47 @@ public class MainController {
 		return "viewHomeworkTemplate";
 	}
 	
-	@PostMapping("/newHomeworkTemplate/{templateBody}")
-	public ResponseEntity<String>saveHomeworkTemplate(@RequestBody  String templateBody){
-		String result = "";
-		try {
-		User currentUser = userDAO.getUser();
-		if (currentUser == null) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Current user not found");
-		}
-		homeworkTemplateHelper.newTemplate(currentUser,templateBody);
-		return ResponseEntity.ok(result);
-		} catch (Exception e) {
-			System.err.println("Error retrieving user name: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user name");
-		}
-	}
+    @PostMapping("/newHomeworkTemplate")
+    public ResponseEntity<String> saveHomeworkTemplate(@RequestBody String templateBody) {
+        try {
+            // Decode URL-encoded string
+            String decodedBody = URLDecoder.decode(templateBody, StandardCharsets.UTF_8.toString());
+
+            // Log the raw decoded body for debugging
+
+            // Clean up to ensure the JSON starts correctly
+            int jsonStartIndex = decodedBody.indexOf("\"name\"");
+            //if (jsonStartIndex == -1) {
+           //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request body: JSON starting with '{\"name\"' not found.");
+           // }
+            
+            // Extract the JSON correctly including the first curly brace and trim any leading/trailing whitespace
+            String cleanJson = "{\n" + decodedBody.substring(jsonStartIndex).trim();
+
+            // Optionally, log the cleaned JSON for debugging
+            System.out.println("Cleaned JSON Data: " + cleanJson);
+
+            // Further JSON processing here...
+            User currentUser = userDAO.getUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Current user not found");
+            }
+            homeworkTemplateHelper.newTemplate(currentUser, cleanJson);
+            return ResponseEntity.ok("Template processed successfully");
+        } catch (Exception e) {
+            System.err.println("Error in processing template: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
+        }
+    }
+    
+    
+    @GetMapping("homeworkDisplay/{homeworkId}")
+    public String homeworkDisplay(@PathVariable int homeworkId,Model model) {
+    	User currentUser = userDAO.getUser();
+    	HomeworkHelper hwHelper = new HomeworkHelper();
+    	Homework homework = hwHelper.getHomeworkByProtocol(currentUser, homeworkId);
+    	model.addAttribute("homework",homework);
+    	return "homeworkDisplay";
+    }
 
 }

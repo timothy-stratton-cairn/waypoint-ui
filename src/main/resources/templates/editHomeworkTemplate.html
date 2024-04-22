@@ -15,7 +15,9 @@
 </div>
 <br>
 
-<form id="homeworkForm" action="/newHomeworkTemplate" method="post">
+<form id="homeworkForm"  th:action="@{/newHomeworkTemplate}" method="post">
+	<input type="hidden" name="_csrf" value="${_csrf.token}">
+
     <div class="container">
         <div class="row note_card">
             <fieldset>
@@ -140,7 +142,7 @@ function prepareSubmit() {
             responseOptions.push({response, tooltip});
         });
 
-        let triggeringResponse = {response: null, tooltip: null};
+        let triggeringResponse = {response: "", tooltip: ""};
         if (triggerProtocolCreation) {
             triggeringResponse.response = document.getElementById(`triggerResponse_${index}`).value;
             triggeringResponse.tooltip = document.getElementById(`triggerTooltip_${index}`).value;
@@ -167,6 +169,9 @@ function prepareSubmit() {
 
     // Set the hidden input's value to the JSON string
     document.getElementById('templateBody').value = templateData;
+    console.log("Prepared JSON Data:", templateData);
+    
+    return true;
 }
 </script>
 </body>
