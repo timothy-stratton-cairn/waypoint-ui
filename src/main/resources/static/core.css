@@ -32,7 +32,7 @@ p {
 	margin-right: 10px;
 	border-color: #413F3d;
 	border-width: 2px;
-	background-color: #EEE;
+	background-color: #F2EFEA;
 	border-width: 2px;
 	border-style: groove;
 	border-bottom: transparent;
@@ -145,7 +145,7 @@ label {
 
 /* Style the back side */
 .flip-card-back {
-	background-color: #697184;
+	background-color: #546473;
 	color: white;
 	transform: rotateY(180deg);
 }
@@ -196,9 +196,8 @@ a {
 }
 
 .navbar-default:hover .navbar-nav>li>a:hover {
-	color: #413F3D;
-	background-color: #F1F2EF;
-	font-weight: bold;
+	color: #546473;
+	background-color: #F2EFEA;
 	border-radius: 4px;
 }
 
@@ -484,15 +483,15 @@ img {
 }
 
 .btn-primary {
-	color: #EEE;
+	color: #F2EFEA;
 	background-color: #413F3D;
 }
 
 .btn-secondary {
-	color: #FFF;
-	background-color: #8B93A6;
+	color: #F2EFEA;
+	background-color: #657584;
 	padding: .1rem .60rem;
-	border-color: #800006;
+	border-color: #CA895F;
 }
 
 .title-sub {
@@ -567,7 +566,7 @@ img {
 }
 
 .jumbotron {
-	color: #697184;
+	color: #546473;
 	background-color: #F2F1EF;
 	margin-top: 10px;
 	padding: 2% 2% 2% 2%;
@@ -690,15 +689,14 @@ fieldset {
 
 .even:hover,
 .odd:hover {
-	color: #F2F1EF;
+	color: #F2EFEA;
 	background-color: #777;
-	font-weight: bold;
 }
 
 .even {
-	color: #697184;
-	background-color: #EEE;
-	border-color: #697184;
+	color: #546473;
+	background-color: #F2EFEA;
+	border-color: #546473;
 	border-width: 2px;
 	border-style: double;
 	margin-top: 3px;
@@ -707,9 +705,9 @@ fieldset {
 }
 
 .rowheader {
-	color: #EEE;
+	color: #F2EFEA;
 	background-color: #413F3D;
-	border-color: #697184;
+	border-color: #546473;
 	border-width: 3px;
 	border-style: outset;
 	margin-top: 3px;
@@ -720,9 +718,9 @@ fieldset {
 }
 
 .odd {
-	color: #697184;
+	color: #546473;
 	background-color: #BBB;
-	border-color: #697184;
+	border-color: #546473;
 	border-width: 2px;
 	border-style: double;
 	margin-top: 3px;
@@ -732,9 +730,9 @@ fieldset {
 
 legend {
 	padding: 0.2em 0.5em;
-	border: 2px solid #697184;
-	color: #EEE;
-	background-color: #697184;
+	border: 2px solid #546473;
+	color: #F2EFEA;
+	background-color: #546473;
 	text-align: center;
 	border-radius: 5px;
 }

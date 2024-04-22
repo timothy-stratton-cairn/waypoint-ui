@@ -14,18 +14,18 @@
             <legend>Protocol Details</legend>
             <div>
                     <div class="row"> <!-- Adjusted layout starts here -->
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label>Name:</label> <span th:text="${protocol.name}"></span>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label>Needs Attention:</label> <span th:text="${protocol.needsAttention} ? 'Yes': 'No'"></span>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label>Last Status Update:</label> <span th:text="${protocol.lastStatus}"></span>
                         </div>
                     </div>              	
                     <div class ="row">
-						<div class="col-md-3">
+						<div class="col-md-2">
                             <label>Completion:</label> <span th:text="|${protocol.completionPercent}%|"></span>
                         </div>
                          <div class = "col-md-1">
@@ -62,8 +62,9 @@
                     </div>
 	                    <div class="row">
 						    <div class="col-md-12">
-						        <div onclick="saveProtocolCommentsAndGoal()" class="btn btn-primary">Save</div>
-					            <div class = "btn btn-primary" th:onclick="goToHomeworkTemplates()">Homework</div>
+						        <button onclick="saveProtocolCommentsAndGoal()" class="btn btn-primary">Save</button>
+						        <button type="button" class = "btn btn-primary" th:onclick="goToHomeworkTemplates()">Homework</button>
+						        <button type="button" class = "btn btn-primary" th:onclick="'goToClient(' + ${userId} + ');'">Client View</button>
 						    </div>
 						</div>
                 </form>
@@ -106,6 +107,27 @@
     </div>
 </div>
 
+<div class = "container">
+
+	<div class = "row note_card">
+		<fieldset>
+			<legend>Homeworks</legend>
+				<div class="rowheader row">
+					<div class="col">Name</div>
+					<div class="col">Description</div>
+					<div class="col">Action</div>
+				</div>
+				<div th:each="template, stat : ${homeworks}" th:id="|row_${homeworks.name}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
+					<div class="col" th:text="${homeworks.name}"></div>
+					<div class="col" th:text="${homeworks.description}"></div>
+					<div class="col">
+						<a class="btn btn-secondary" th:href="">Details</a>
+					</div>
+				</div>
+		</fieldset>
+	</div>
+</div>
+
 <div class="container mt-3">
     <button onclick="history.back()" class="btn btn-primary">Back</button>
 </div>
@@ -120,6 +142,9 @@
         function saveprotocol(){
             window.location = '/saveProtocol/'+id;
         }
+        function goToClient(id) {
+			window.location.href = '/clientProfile/' + id;
+		}
         function goToHomeworkTemplates() {
 			window.location.href = '/homeworkTemplates/';
 		}

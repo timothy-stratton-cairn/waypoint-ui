@@ -19,6 +19,14 @@ public class Protocol {
 	private int completedSteps;
 	private ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
 	private ArrayList<Integer> users = new ArrayList<Integer>();
+	private int userId;
+
+	public int getUserId() {
+		return this.userId;
+	}
+	public void setUserId(int id) {
+		this.userId = id;
+	}
 
 	public int getId() {
 		return id;

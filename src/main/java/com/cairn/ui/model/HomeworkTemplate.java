@@ -48,8 +48,8 @@ public class HomeworkTemplate {
 		this.numClients = numClients;
 	}
 
-    public void setQuestions(List<HomeworkQuestion> questions2) {
-        this.questions = questions2;
+    public void setQuestions(List<HomeworkQuestion> questions) {
+        this.questions = questions;
     }
     
 }

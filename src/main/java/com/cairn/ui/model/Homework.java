@@ -9,6 +9,7 @@ public class Homework {
 
 	private int id;
 	private int templateId;
+	private String description;
 	private String name;
 	private String response;
 	private int clientId;
@@ -77,6 +78,12 @@ public class Homework {
         }
 
 		return results;
+	}
+	public void setDescription(String Description) {
+		this.description = Description;
+	}
+	public String getDescription() {
+		return description;
 	}
 	public int getTemplateId() {
 		return templateId;

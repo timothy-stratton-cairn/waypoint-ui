@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <title>Edit Homework</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+
+<div class="container">
+    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+</div>
+	<br>
+<div class = "container">
+	<div class="row note_card">
+		<fieldset>
+			<legend>Edit Homework</legend>
+			<div class="form-group">
+	                    <label for="templateName">Name:</label>
+	                    <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
+	        </div>
+	        <div class ="form-group">
+	                    <label for="templateDetails">Description:</label>
+	                    <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
+	        </div>
+		</fieldset>
+	</div>
+</div>
+
+<div class="container">
+    <div class="row note_card">
+		<fieldset>
+	        <legend>Homework Questions</legend>
+	        <div class="rowheader row">
+	            <div class="col">Question</div>
+	            <div class="col">Type</div>
+	            <div class="col">Required</div>
+	        </div>
+	        <div th:each="question, stat : ${homework.questions}" th:id="|row_${homework.index}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
+	            <div class="col" th:text="${question.question}"></div>
+	            <div class="col" th:text="${question.questionType}"></div>
+	            <div class="col" th:text="${question.isRequired ? 'Yes' : 'No'}"></div>
+	        </div>
+	        <br>
+        </fieldset>   
+    </div>
+</div>
+
+	
+<script>
+	
+</script>
+</body>
+</html>
