@@ -100,7 +100,7 @@ public class HomeworkTemplateHelper{
 				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("No Homeworks returned");
+			System.out.println("testing");
 		}
 
 		return results;

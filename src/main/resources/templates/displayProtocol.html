@@ -125,11 +125,34 @@
 		        </fieldset>
 		    </div>
 		</div>
-	<div class = "row note_card">
-		<fieldset>
-			<legend>Homeworks</legend>
-		</fieldset>
-	</div>
+		
+
+<div class="row note_card">
+    <fieldset>
+        <legend>Assigned Homework</legend>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Step Name</th>
+                        <th>Homework Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${stepHomeworkList}">
+                        <td th:text="${item.stepName}">Step</td>
+                        <td th:text="${item.homeworkName}">Homework Name</td>
+                    </tr>
+                    <!-- Display message if no stepHomework data is available -->
+                    <tr th:if="${#lists.isEmpty(stepHomeworkList)}">
+                        <td colspan="2">No homework assigned.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
     
     <!-- Steps Section with Tabs -->
     <div class="row note_card">

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.cairn.ui.dto.HomeworkListDto;
 import com.cairn.ui.helper.DashboardHelper;
 import com.cairn.ui.helper.HomeworkHelper;
 import com.cairn.ui.helper.HomeworkTemplateHelper;
@@ -114,6 +115,7 @@ public class MainController {
 
 		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
 		HomeworkHelper homeworkHelper = new HomeworkHelper();
+		System.out.println("Calling getHomeworkByProtocol");
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, pcolId);
 		
 		model.addAttribute("protocol", protocol);
@@ -263,16 +265,16 @@ public class MainController {
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
-		HomeworkHelper homeworkHelper = new HomeworkHelper();
-		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(usr, id);
+
+
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
+
 
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", pcol);
 		model.addAttribute("steps", listSteps);
 		model.addAttribute("allSteps", allSteps);
-		model.addAttribute("homework",allHomeworks);
 		return "displayProtocol";
 	}
 
@@ -386,10 +388,12 @@ public class MainController {
 	public String edit_step(@PathVariable int stepId, Model model) {
 		User usr = (User) userDAO.getUser();
 		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
-
+		HomeworkHelper hwHelper = new HomeworkHelper();
+		//ArrayList<Homework> assignedHomework = hwHelper.getHomeworkByProtocolId(usr, stepId);
 		if (stepId == 0) {
 			// Create a new step with default values
 			ProtocolStepTemplate step = new ProtocolStepTemplate();
+			
 			model.addAttribute("step", step);
 		} else {
 			ProtocolStepTemplate step = protocolTemplateHelper.getStep(usr, stepId);
@@ -664,8 +668,8 @@ public class MainController {
     public String homeworkDisplay(@PathVariable int homeworkId,Model model) {
     	User currentUser = userDAO.getUser();
     	HomeworkHelper hwHelper = new HomeworkHelper();
-    	Homework homework = hwHelper.getHomeworkByProtocol(currentUser, homeworkId);
-    	model.addAttribute("homework",homework);
+    	//HomeworkListDto homework = hwHelper.getHomeworkByProtocol(currentUser, homeworkId);
+    	//model.addAttribute("homework",homework);
     	return "homeworkDisplay";
     }
 
