@@ -53,8 +53,9 @@ public class HomeworkHelper{
 			return results;
 		}
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework+ "protocol/" + protocolId;
+		String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework+ "protocol/" + protocolId;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		System.out.println(apiUrl);
 		// Make the GET request and retrieve the response
 				try {
 					ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -93,7 +94,7 @@ public class HomeworkHelper{
 					}
 				} catch (Exception e) {
 
-					System.out.println("Testing");
+					System.out.println("No Homeworks Returned");
 
 				}
 				return results;
@@ -103,7 +104,7 @@ public class HomeworkHelper{
 
     	HomeworkListDto result = new HomeworkListDto();
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework+ "protocol/" + id;
+		String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework+ "protocol/" + id;
 		
 		System.out.println(apiUrl);
 		

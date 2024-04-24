@@ -117,7 +117,13 @@ public class MainController {
 		HomeworkHelper homeworkHelper = new HomeworkHelper();
 		System.out.println("Calling getHomeworkByProtocol");
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, pcolId);
-		
+		if (allHomeworks != null && !allHomeworks.isEmpty()) {
+		    for (Homework homework : allHomeworks) {
+		        System.out.println("Homework Name: " + homework.getName() + ", Description: " + homework.getDescription());
+		    }
+		} else {
+		    System.out.println("No homeworks found or list is empty");
+		}
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", protocol.getSteps());
 		model.addAttribute("protocolId", pcolId);
