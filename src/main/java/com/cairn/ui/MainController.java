@@ -276,10 +276,30 @@ public class MainController {
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
 
+		List<ProtocolStepTemplate> fullStepList= new ArrayList<ProtocolStepTemplate>(); //there's a method to this madness. getStepList doesn't get homeworks
+		
+		for (ProtocolStepTemplate step: listSteps) {
+			int stepId = step.getId();
+			ProtocolStepTemplate fullStep = protocolTemplateHelper.getStep(usr, stepId);
+			System.out.println(fullStep);
+			fullStepList.add(fullStep);
+		}
 
+		System.out.println(fullStepList);
+		for (ProtocolStepTemplate step :fullStepList) {
+			if (step.getHomework() != null) {
+			for (HomeworkTemplate homework : step.getHomework()) {
+				System.out.println(homework.getName());
+		
+			}
+			
+			}
+			System.out.println(step.getType());
+		}
+		
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", pcol);
-		model.addAttribute("steps", listSteps);
+		model.addAttribute("steps", fullStepList);
 		model.addAttribute("allSteps", allSteps);
 		return "displayProtocol";
 	}

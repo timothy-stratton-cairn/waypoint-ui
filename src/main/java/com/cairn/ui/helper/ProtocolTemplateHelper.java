@@ -429,6 +429,7 @@ public class ProtocolTemplateHelper {
 								entry.setDescription(element.get("description").asText());
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
+								
 								// Test data, fix this later
 								entry.setType(idx++);
 								if (idx > 4) {

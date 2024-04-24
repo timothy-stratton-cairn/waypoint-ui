@@ -102,11 +102,18 @@ public class ProtocolStepTemplateHelper{
 							if (element != null) {
 								HomeworkTemplate curHw = new HomeworkTemplate();
 								curHw.setName(element.get("name").asText());
+								
 								curHw.setId(Integer.parseInt(element.get("id").asText()));
 								curHw.setDescription(element.get("description").asText());
 								homeworks.add(curHw);
+								System.out.println(curHw);
 							}
-						}result.setHomework(homeworks);
+							else {
+								System.out.println("No Homework Retrieved");
+							}
+						}
+						System.out.println(homeworks);
+						result.setHomework(homeworks);
 					}
 					} catch (JsonMappingException e) {
 						e.printStackTrace();
