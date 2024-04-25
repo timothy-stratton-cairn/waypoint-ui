@@ -11,7 +11,7 @@ public class HomeworkTemplate {
 	private int id;
 	private String name;
 	private String description;
-	private List<HomeworkQuestion> questions;
+	private List<HomeworkQuestionsTemplate> questions;
 	private int numClients;
 	
 	public HomeworkTemplate() {
@@ -31,7 +31,7 @@ public class HomeworkTemplate {
 		return numClients;
 	}
 	
-	public List<HomeworkQuestion> getQuestions() {
+	public List<HomeworkQuestionsTemplate> getQuestions() {
 	        return questions;
 	    }
 	    
@@ -48,7 +48,7 @@ public class HomeworkTemplate {
 		this.numClients = numClients;
 	}
 
-    public void setQuestions(List<HomeworkQuestion> questions) {
+    public void setQuestions(List<HomeworkQuestionsTemplate> questions) {
         this.questions = questions;
     }
     

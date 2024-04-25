@@ -13,6 +13,7 @@ public class Homework {
 	private String name;
 	private String response;
 	private int clientId;
+	private ArrayList<HomeworkQuestion> questions;
 
 	public int getId() {
 		return id;
@@ -102,6 +103,12 @@ public class Homework {
 	}
 	public void setClientId(int clientId) {
 		this.clientId = clientId;
+	}
+	public ArrayList<HomeworkQuestion> getQuestions() {
+		return questions;
+	}
+	public void setQuestions(ArrayList<HomeworkQuestion> questions) {
+		this.questions = questions;
 	}
 	
 }

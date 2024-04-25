@@ -17,6 +17,7 @@ import com.cairn.ui.Constants;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.ExpectedHomeworkResponses;
 import com.cairn.ui.model.HomeworkQuestion;
+import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkResponse;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
@@ -114,9 +115,9 @@ public class HomeworkTemplateHelper{
 
         JsonNode questionsNode = rootNode.path("homeworkQuestions").path("questions");
         if (!questionsNode.isMissingNode()) {
-            List<HomeworkQuestion> questions = new ArrayList<>();
+            List<HomeworkQuestionsTemplate> questions = new ArrayList<>();
             questionsNode.forEach(questionNode -> {
-                HomeworkQuestion question = new HomeworkQuestion();
+                HomeworkQuestionsTemplate question = new HomeworkQuestionsTemplate();
                 question.setQuestionAbbreviation(questionNode.path("questionAbbreviation").asText());
                 question.setQuestion(questionNode.path("question").asText());
                 question.setQuestionType(questionNode.path("questionType").asText());

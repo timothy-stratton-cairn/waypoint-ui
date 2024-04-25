@@ -88,11 +88,7 @@
 			<groupId>org.projectlombok</groupId>
 			<version>${lombok.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.cairn.waypoint.dashboard</groupId>
-			<artifactId>waypoint-dashboard-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -122,7 +122,8 @@
                 <div class="col" th:text="${homework.name}">Default Name</div>
                 <div class="col" th:text="${homework.description}">Default Description</div>
                 <div class="col">
-                    <a class="btn btn-secondary" th:href="@{/homework/details(homeworkId=${homework.id})}">Details</a>
+                    <button type="button" class="btn btn-primary" th:onclick="'viewHomeworkDetails('+${homework.id}+');'">Details</button>
+
                 </div>
             </div>
         </fieldset>
@@ -281,7 +282,10 @@
 		        alert('Failed to update the protocol. Error: ' + error.message);
 		    });
 		}
-
+	 function viewHomeworkDetails(homeworkId) {
+		    var url = '/homeworkDisplay/' + homeworkId ;
+		    window.location.href = url;
+		}
 
     </script>
 

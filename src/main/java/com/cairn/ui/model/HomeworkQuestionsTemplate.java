@@ -1,14 +1,15 @@
 package com.cairn.ui.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class HomeworkQuestion {
+public class HomeworkQuestionsTemplate {
 	private int questionId;
     private String questionAbbreviation;
     private String question;
     private String questionType;
     private boolean isRequired;
-    private String userResponse;
+    private ExpectedHomeworkResponses expectedHomeworkResponses;
 
     // Getters and setters
     
@@ -49,14 +50,14 @@ public class HomeworkQuestion {
     public void setRequired(boolean required) {
         isRequired = required;
     }
+	public ExpectedHomeworkResponses getExpectedHomeworkResponses() {
+		return expectedHomeworkResponses;
+	}
+	public void setExpectedHomeworkResponses(ArrayList<ExpectedHomeworkResponses> responses) {
+		this.expectedHomeworkResponses = responses;
+	}
 
-    public String getUserResponse() {
-        return userResponse;
-    }
 
-    public void setUserResponse(String userResponse) {
-        this.userResponse = userResponse;
-    }
 }
 
 

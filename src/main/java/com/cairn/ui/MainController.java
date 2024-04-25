@@ -33,6 +33,7 @@ import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.Dashboard;
 import com.cairn.ui.model.Homework;
+import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
@@ -119,7 +120,7 @@ public class MainController {
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, pcolId);
 		if (allHomeworks != null && !allHomeworks.isEmpty()) {
 		    for (Homework homework : allHomeworks) {
-		        System.out.println("Homework Name: " + homework.getName() + ", Description: " + homework.getDescription());
+		        System.out.println("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription());
 		    }
 		} else {
 		    System.out.println("No homeworks found or list is empty");
@@ -129,7 +130,7 @@ public class MainController {
 		model.addAttribute("protocolId", pcolId);
 		model.addAttribute("userId", userId);
 		model.addAttribute("homeworks",allHomeworks);
-		
+
 		List<ProtocolStep> steps = protocol.getSteps();
 		if (steps != null) {
 			for (ProtocolStep step : steps) {
@@ -694,8 +695,11 @@ public class MainController {
     public String homeworkDisplay(@PathVariable int homeworkId,Model model) {
     	User currentUser = userDAO.getUser();
     	HomeworkHelper hwHelper = new HomeworkHelper();
-    	//HomeworkListDto homework = hwHelper.getHomeworkByProtocol(currentUser, homeworkId);
-    	//model.addAttribute("homework",homework);
+    	Homework homework = hwHelper.getHomeworkByHomeworkId(currentUser, homeworkId);
+    	for (HomeworkQuestion question : homework.getQuestions()) {
+    		System.out.println("Question: " + question.getQuestion() + "User Response : " + question.getUserResponse());
+    	}
+    	model.addAttribute("homework",homework);
     	return "homeworkDisplay";
     }
 

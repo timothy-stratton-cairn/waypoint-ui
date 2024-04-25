@@ -1,6 +1,7 @@
 package com.cairn.ui.helper;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,6 +16,7 @@ import com.cairn.ui.dto.HomeworkDto;
 import com.cairn.ui.dto.HomeworkListDto;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Homework;
+import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStats;
@@ -74,6 +76,7 @@ public class HomeworkHelper{
 									// Access and print array elements
 									if (element != null) {
 										entry = new Homework();
+										entry.setId(element.get("homeworkId").asInt());
 										entry.setName(element.get("name").asText());
 										if (element.has("description") && !element.get("description").isNull()) {
 			                                entry.setDescription(element.get("description").asText());
@@ -125,5 +128,77 @@ public class HomeworkHelper{
 		}
     	
     	return result;
+    }
+    
+    public Homework getHomeworkByHomeworkId(User usr, int id) {
+    	Homework result = new Homework();
+        if (usr == null) {
+            System.out.println("No User found");
+            return null; // Returning null to indicate user not found, handle accordingly
+        }
+
+        String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework + id;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        System.out.println(apiUrl);
+
+        try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				System.out.println("API response: " + jsonResponse);
+				ObjectMapper objectMapper = new ObjectMapper();
+
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					result.setName(jsonNode.get("name").asText());
+					result.setId(jsonNode.get("homeworkId").asInt());
+					result.setDescription(jsonNode.get("description").asText());
+			
+					JsonNode homeworkQuestionsNode = jsonNode.get("homeworkQuestions");
+					ArrayList<HomeworkQuestion> homeworkQuestion = new ArrayList<HomeworkQuestion>();
+					if (homeworkQuestionsNode != null) {
+						JsonNode questionsNode = jsonNode.path("homeworkQuestions").path("questions");
+						if ( questionsNode.isArray()) {
+							for( JsonNode questionNode: questionsNode) {
+									HomeworkQuestion curQuestion = new HomeworkQuestion();
+						
+									curQuestion.setQuestionId(questionNode.path("questionId").asInt());
+									
+									curQuestion.setQuestionAbbreviation(questionNode.path("questionAbbr").asText());
+								
+									curQuestion.setQuestion(questionNode.path("question").asText());
+									
+									curQuestion.setQuestionType(questionNode.path("questionType").asText());
+									
+									curQuestion.setRequired(questionNode.path("isRequired").asBoolean());
+									
+									curQuestion.setUserResponse(questionNode.path("userResponse").asText());
+									
+									homeworkQuestion.add(curQuestion);
+								
+								
+							}
+						} else {
+						    System.out.println("No 'questions' array found in the JSON response.");
+						}
+					}
+					result.setQuestions(homeworkQuestion);
+					
+					
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("Error "+ e);
+				}
+            } else {
+                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+        	e.printStackTrace();
+            System.out.println("Error processing the homework fetch request: " + e.getMessage());
+        }
+        return result; // Return null to indicate that no homework was fetched
     }
 }

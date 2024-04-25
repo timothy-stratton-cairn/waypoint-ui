@@ -18,12 +18,13 @@
 		<fieldset>
 			<legend>Edit Homework</legend>
 			<div class="form-group">
-	                    <label for="templateName">Name:</label>
-	                    <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
+	       	            <label for="homeworkName">Name:</label>
+	                    <input type="text" id="homeworkName" name="homeworkName" class="form-control" th:value="${homework.name}">
 	        </div>
 	        <div class ="form-group">
-	                    <label for="templateDetails">Description:</label>
-	                    <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
+	                    <label for="hoemworkDetails">Description:</label>
+	                    <textarea id="homeworkDetails" name="homeworkDescription" class="form-control" rows="3" th:text="${homework.description}"></textarea>
+	        
 	        </div>
 		</fieldset>
 	</div>
@@ -31,19 +32,26 @@
 
 <div class="container">
     <div class="row note_card">
-		<fieldset>
-	        <legend>Homework Questions</legend>
-	        <div class="rowheader row">
-	            <div class="col">Question</div>
-	            <div class="col">Type</div>
-	            <div class="col">Required</div>
-	        </div>
-	        <div th:each="question, stat : ${homework.questions}" th:id="|row_${homework.index}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
-	            <div class="col" th:text="${question.question}"></div>
-	            <div class="col" th:text="${question.questionType}"></div>
-	            <div class="col" th:text="${question.isRequired ? 'Yes' : 'No'}"></div>
-	        </div>
-	        <br>
+        <fieldset>
+            <legend>Homework Questions</legend>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Type</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="question : ${homework.questions}">
+                            <td th:text="${question.question}">Question Text</td>
+                            <td th:text="${question.questionType}">Question Type</td>
+                            <td th:text="${question.userResponse}">User Response</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </fieldset>   
     </div>
 </div>
