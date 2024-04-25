@@ -3,6 +3,7 @@ package com.cairn.ui;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -282,20 +283,12 @@ public class MainController {
 		for (ProtocolStepTemplate step: listSteps) {
 			int stepId = step.getId();
 			ProtocolStepTemplate fullStep = protocolTemplateHelper.getStep(usr, stepId);
-			System.out.println(fullStep);
 			fullStepList.add(fullStep);
 		}
 
-		System.out.println(fullStepList);
 		for (ProtocolStepTemplate step :fullStepList) {
-			if (step.getHomework() != null) {
-			for (HomeworkTemplate homework : step.getHomework()) {
-				System.out.println(homework.getName());
-		
-			}
 			
-			}
-			System.out.println(step.getType());
+			System.out.println("Step Type "+step.getType());
 		}
 		
 		model.addAttribute("protocolId", id);
@@ -316,33 +309,55 @@ public class MainController {
 		return "displayProtocol";
 	}
 
-	@PatchMapping("saveProtocol/{id}")
-	public ResponseEntity<?> saveProtocol(@PathVariable int id) {
-		try {
-			User usr = (User) userDAO.getUser();
-			ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
-
-			if (pcol != null) {
-				protocolTemplateHelper.saveProtocolTemplate(usr, pcol);
-				return ResponseEntity.ok().body("Protocol with ID " + id + " updated successfully.");
-			} else {
-				return ResponseEntity.notFound().build();
-			}
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("An error occurred while saving the protocol.");
-		}
+	
+	@PatchMapping("/saveProtocol/{id}")
+	public ResponseEntity<?> saveProtocol(@PathVariable int id, @RequestBody String requestBody) {
+		System.out.println("Save Protocol called");
+	    try {
+	        User usr = (User) userDAO.getUser();
+	        String decodedBody = URLDecoder.decode(requestBody, StandardCharsets.UTF_8.toString());
+	        protocolTemplateHelper.saveProtocolTemplate(usr, id, decodedBody); 
+	        return ResponseEntity.ok("Template processed successfully");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("An error occurred while saving the protocol: " + e.getMessage());
+	    }
 	}
 
+    @PatchMapping("/updateProtocol/{id}")
+    public ResponseEntity<?> updateProtocol(@PathVariable int id, @RequestBody ProtocolTemplate updateRequest) {
+        User usr = (User) userDAO.getUser();
+        if (usr == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+
+        String description = updateRequest.getDescription();
+
+        String name = updateRequest.getName();
+
+        try {
+            protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
+            protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Protocol updated successfully"));
+        } catch (Exception e) {
+            System.out.println("Error in updateProtocol:");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error updating protocol: " + e.getMessage()));
+        }
+    }
+	
+	
+	
 	@PatchMapping("/saveStep/{stepId}")
-	public ResponseEntity<?> saveStep(@PathVariable int stepId) {
+	public ResponseEntity<?> saveStep(@PathVariable int stepId, @PathVariable String requestBody ) {
 		try {
 			User usr = (User) userDAO.getUser();
 
 			ProtocolStepTemplate pstep = protocolTemplateHelper.getStep(usr, stepId);
 
 			if (pstep != null) {
-				protocolTemplateHelper.saveTemplateStep(usr, pstep);
+				protocolTemplateHelper.saveTemplateStep(usr, stepId, requestBody);
 				return ResponseEntity.ok().body("Step with ID " + stepId + " updated successfully.");
 			} else {
 				return ResponseEntity.notFound().build();

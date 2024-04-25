@@ -5,87 +5,6 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Protocol Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script>
-        var protocolId = [[${protocolId}]]; 
-        
-        function editProtocol(id) {
-            window.location = '/editStep/' + id;
-        }
-        function disableProtocol(id) {
-            alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
-        }
-        function saveprotocol(){
-            window.location = '/saveProtocol/'+id;
-        }
-        function addStep() {
-            const container = document.querySelector("#stepsContainer");
-            const template = document.querySelector("#stepTemplate").content.cloneNode(true);
-            container.appendChild(template);
-        }
-
-		function confirmStep(buttonElement) {
-		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-		
-		    var selectElement = buttonElement.previousElementSibling;
-		    var stepId = selectElement.value; // This assumes your dropdown directly gives you the stepId as its value
-		
-		    fetch(`/addStepToProtocol/${protocolId}/${stepId}`, {
-		        method: 'PATCH', // Use uppercase for HTTP methods
-		        headers: {
-		            'Accept': 'application/json',
-		            'Content-Type': 'application/json',
-		            [csrfHeader]: csrfToken
-		        }
-		        // No body needed since stepId is in the URL
-		    })
-		    .then(response => {
-		        if(response.ok) {
-		            alert("Step added successfully.");
-		            window.location.reload(); // if successful, reload page.
-		        } else {
-		            response.text().then(text => { throw new Error(text); });
-		        }
-		    })
-		    .catch(error => {
-		        console.error('Error adding step:', error);
-		        alert('Failed to add the step. Error: ' + error.message);
-		    });
-		}
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabs = document.querySelectorAll('.nav-tabs .nav-link');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const type = this.getAttribute('data-type');
-                    filterStepsByType(type);
-                    
-                    // Update active tab styling
-                    tabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        });
-
-		function filterStepsByType(type) {
-		    const steps = document.querySelectorAll('#stepsContent > div');
-		    steps.forEach(step => {
-		        if (type === 'all' || step.getAttribute('data-type') === type) {
-		            step.style.display = ''; // Show
-		        } else {
-		            step.style.display = 'none'; // Hide
-		        }
-		    });
-		}
-		
-	    function viewHomeworkDetails(homeworkId) {
-		    var url = '/viewHomeworkTemplate/' + homeworkId + '/';
-		    window.location.href = url;
-		}
-
-    </script>
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
@@ -99,8 +18,16 @@
                     <div>
                         <label for="name"><strong>Name:</strong></label>
                         <input type="text" id="name" name="name" th:value="${protocol.name}" />
+                        <label for="type" class="m-md-3"><strong>Type:</strong></label>
+		                <input class="text" id="type" name="type" th:field="${protocol.type}"/>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="saveprotocol('+${step.id}+')">Save</button>
+                    <div class="col-md-12">
+									<label for="description"><strong>Description:</strong></label>
+									<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
+					</div>
+                     <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
+
+
                 </form>
             </fieldset>
         </div>
@@ -114,17 +41,23 @@
 		            <div>
 		                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
 		                    <div>
-		                        <div >
+		                        <div class ="row" >
 		                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
 		                            <input type="form-control" id="name" name="name" th:value="${protocol.name}" />
 		                            <label for="type" class="m-md-3"><strong>Type:</strong></label>
 		                            <input class="text" id="type" name="type" th:field="${protocol.type}"/>
 		                        </div>
+		                        <div class="row">
+									<label for="description"><strong>Description:</strong></label>
+									<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
+								</div>
 		                     	<!--<div class="md-2">
 		                            <strong>ID:</strong> <span th:text="${protocol.id}"></span>
 		                        </div> -->
 		                    </div>
-		                <button type="button" class="btn btn-primary" onclick="saveprotocol('+${step.id}+')">Save</button>
+		              		 <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
+
+
 		                </form>
 		            </div>
 		        </fieldset>
@@ -225,7 +158,120 @@
 <div class="container mt-3">
     <button onclick="history.back()" class="btn btn-primary">Back</button>
 </div>
+    <script>
+        var protocolId = [[${protocolId}]]; 
+        
+        function editProtocol(id) {
+            window.location = '/editStep/' + id;
+        }
+        function disableProtocol(id) {
+            alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
+        }
+		function saveProtocol(id) {
+		    var name = document.getElementById('name').value;
+		    var description = document.getElementById('description').value;
+		    
+		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+		
+		    var data = {
+		        name: name,
+		        description: description,
+		    };
+		  
+		    fetch(`/updateProtocol/${id}`, { 
+		        method: 'PATCH',
+		        headers: {
+		            'Content-Type': 'application/json',
+		            [csrfHeader]: csrfToken 
+		        },
+		        body: JSON.stringify(data)
+		    })
+		    .then(response => {
+		        if (response.ok) {
+		            alert("Protocol updated successfully.");
+		            return response.json();
+		        } else {
+		            throw new Error('Failed to update protocol.');
+		        }
+		    })
+		    .then(data => console.log(data))
+		    .catch(error => {
+		        console.error('Error:', error);
+		        alert('Failed to update the protocol. Error: ' + error.message);
+		    });
+		}
 
+
+        function addStep() {
+            const container = document.querySelector("#stepsContainer");
+            const template = document.querySelector("#stepTemplate").content.cloneNode(true);
+            container.appendChild(template);
+        }
+
+		function confirmStep(buttonElement) {
+		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+		
+		    var selectElement = buttonElement.previousElementSibling;
+		    var stepId = selectElement.value; // This assumes your dropdown directly gives you the stepId as its value
+		
+		    fetch(`/addStepToProtocol/${protocolId}/${stepId}`, {
+		        method: 'PATCH', // Use uppercase for HTTP methods
+		        headers: {
+		            'Accept': 'application/json',
+		            'Content-Type': 'application/json',
+		            [csrfHeader]: csrfToken
+		        }
+		        // No body needed since stepId is in the URL
+		    })
+		    .then(response => {
+		        if(response.ok) {
+		            alert("Step added successfully.");
+		            window.location.reload(); // if successful, reload page.
+		        } else {
+		            response.text().then(text => { throw new Error(text); });
+		        }
+		    })
+		    .catch(error => {
+		        console.error('Error adding step:', error);
+		        alert('Failed to add the step. Error: ' + error.message);
+		    });
+		}
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.nav-tabs .nav-link');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const type = this.getAttribute('data-type');
+                    filterStepsByType(type);
+                    
+                    // Update active tab styling
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+
+		function filterStepsByType(type) {
+		    const steps = document.querySelectorAll('#stepsContent > div');
+		    steps.forEach(step => {
+		        if (type === 'all' || step.getAttribute('data-type') === type) {
+		            step.style.display = ''; // Show
+		        } else {
+		            step.style.display = 'none'; // Hide
+		        }
+		    });
+		}
+		
+	    function viewHomeworkDetails(homeworkId) {
+		    var url = '/viewHomeworkTemplate/' + homeworkId + '/';
+		    window.location.href = url;
+		}
+
+    </script>
 </body>
 </html>
 

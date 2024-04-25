@@ -53,7 +53,7 @@ public class HomeworkQuestionsTemplate {
 	public ExpectedHomeworkResponses getExpectedHomeworkResponses() {
 		return expectedHomeworkResponses;
 	}
-	public void setExpectedHomeworkResponses(ArrayList<ExpectedHomeworkResponses> responses) {
+	public void setExpectedHomeworkResponses(ExpectedHomeworkResponses responses) {
 		this.expectedHomeworkResponses = responses;
 	}
 

@@ -182,12 +182,104 @@ public class ProtocolTemplateHelper {
 	 * @param theTemplate A protocol template instance we want to save (create or update).
 	 * @return int. Return code is the protocol id on successful save or less than 1 for an error.
 	 */
-	public int saveProtocolTemplate(User usr,ProtocolTemplate theTemplate) {
-		int result = 0;
+	public int saveProtocolTemplate(User usr, int tempId, String requestBody) {
+
+		int result = -1;
+
+	    // Prepare the request body
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate + "/" + tempId;
+	    HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
+	    
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            System.out.println("Assigned Step... " + response.getStatusCode());
+	            // Update result to indicate success
+	            result = 1;
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	            result = 0;
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Step not found or error in assigning step");
+	        e.printStackTrace();
+	        // Keep result as -1 or set to another specific value indicating error
+	    }
+		
+		
 		
 		return result;
 	}
+	
+	
+	public int updateProtocolTemplateName(User usr, int tempId, String name) {
+		int result = -1;
+		
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
 
+		headers.add("Content-Type", "application/json");
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + tempId;
+		String requestBody = "{\"name\": \""+name+"\"}";
+		
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating Comment");
+	        e.printStackTrace();
+		}
+		
+		return result;
+		
+	}
+	
+	public int updateProtocolTemplateDescription(User usr, int tempId, String description) {
+		int result = -1;
+		
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+
+		headers.add("Content-Type", "application/json");
+		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
+		String requestBody = "{\"description\": \""+description+"\"}";
+		System.out.println(requestBody);
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
+		System.out.println(apiUrl);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        System.out.println(response);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating Comment");
+	        e.printStackTrace();
+		}
+		System.out.println(result);
+		return result;
+		
+	}
 	/**
 	 * Save a protocol template
 	 * 
@@ -196,9 +288,33 @@ public class ProtocolTemplateHelper {
 	 * @param theStep A protocol template step instance we want to save (create or update).
 	 * @return int. Return code is the step id on successful save or less than 1 for an error.
 	 */
-	public int saveTemplateStep(User usr,ProtocolStepTemplate theStep) {
-		int result = 0;
+	public int saveTemplateStep(User usr, int tempId, String requestBody ) {
+		int result = -1;
+
+	    // Prepare the request body
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get;
+	    HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
+	    
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            System.out.println("Assigned Step... " + response.getStatusCode());
+	            // Update result to indicate success
+	            result = 1;
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	            result = 0;
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Step not found or error in assigning step");
+	        e.printStackTrace();
+	        // Keep result as -1 or set to another specific value indicating error
+	    }
 		
+	    
 		return result;
 	}
 

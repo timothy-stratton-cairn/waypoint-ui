@@ -505,8 +505,7 @@ public class ProtocolHelper {
 		int result = 0;
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
-	    Instant timestamp = Instant.now();
-	    String username = usr.getUsername();
+
 		headers.add("Content-Type", "application/json");
 		String requestBody = "{\"comment\": \""+comment+"\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId;
