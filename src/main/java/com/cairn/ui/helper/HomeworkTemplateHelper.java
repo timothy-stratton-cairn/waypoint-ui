@@ -108,6 +108,8 @@ public class HomeworkTemplateHelper{
 
 		
 	}
+    
+    
     private void populateTemplateFromJson(JsonNode rootNode, HomeworkTemplate template) { //helper to populate the template properly from a json 
         template.setId(rootNode.path("id").asInt());
         template.setName(rootNode.path("name").asText());
@@ -195,4 +197,9 @@ public class HomeworkTemplateHelper{
 		return result;
 
 	}
+    
+    public int removeQuestionFromTemplate(User usr,int tempId, List<HomeworkQuestionsTemplate> questions) {
+    	int result = -1;
+    	return result;
+    }
 }

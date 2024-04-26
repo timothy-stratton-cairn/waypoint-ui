@@ -35,6 +35,7 @@ import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.Dashboard;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
+import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
@@ -447,15 +448,6 @@ public class MainController {
 		return "edit_step";
 	}
 
-	@GetMapping("/homeworkTemplates/")
-	public String homeworkTemplates(Model model) {
-		User currentUser = userDAO.getUser();
-		ArrayList<HomeworkTemplate> templateList = homeworkTemplateHelper.getList(currentUser);
-		model.addAttribute("templates", templateList);
-		return "homeworkTemplates";
-	}
-
-
 	@GetMapping("/profile")
 	public String userProfile(Model model) {
 		User usr = userDAO.getUser();
@@ -657,6 +649,17 @@ public class MainController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user name");
 		}
 	}
+	
+
+	@GetMapping("/homeworkTemplates/")
+	public String homeworkTemplates(Model model) {
+		User currentUser = userDAO.getUser();
+		ArrayList<HomeworkTemplate> templateList = homeworkTemplateHelper.getList(currentUser);
+		model.addAttribute("templates", templateList);
+		return "homeworkTemplates";
+	}
+
+	
 	@GetMapping("editHomeworkTemplate/")
 	public String editHomeworkTemplate( Model model) {
 		User currentUser = userDAO.getUser();
@@ -704,7 +707,40 @@ public class MainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
         }
     }
-    
+
+    @PatchMapping("/removeHomeworkQuestionFromTemplate/{tempId}/{questionId}")
+    public ResponseEntity<?>removeHomeworkQuestionFromTemplate(@PathVariable int tempId, @PathVariable int questionID){
+    	User currentUser = userDAO.getUser();
+    	HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser,tempId);
+    	List<HomeworkQuestionsTemplate> questions = template.getQuestions();
+    	for(HomeworkQuestionsTemplate question : questions ) {
+    		if(question.getQuestionId()==questionID) {
+    			questions.remove(question);
+    		}
+    	}
+    	
+    	try{
+    		int apiCall = homeworkTemplateHelper.removeQuestionFromTemplate(currentUser, tempId, questions);
+    		if (apiCall == 1) {
+    			return ResponseEntity.ok("Template processed successfully");
+    		}else {
+    			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
+    		}
+    	}catch(Exception e) {
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
+    	}
+    }
+    @GetMapping("/homeworkList/{id}")
+    public String homeworkList(@PathVariable int id, Model model) {
+    	User currentUser = userDAO.getUser();
+    	HomeworkHelper helper = new HomeworkHelper();  // this will need to be autowired at some point 
+    	ArrayList<Homework> homeworks = helper.getHomeworkByProtocolId(currentUser, id);
+    	
+    	
+    	model.addAttribute("homeworks",homeworks);
+    	
+    	return "homeworkList";
+    }
     
     @GetMapping("homeworkDisplay/{homeworkId}")
     public String homeworkDisplay(@PathVariable int homeworkId,Model model) {
@@ -712,10 +748,35 @@ public class MainController {
     	HomeworkHelper hwHelper = new HomeworkHelper();
     	Homework homework = hwHelper.getHomeworkByHomeworkId(currentUser, homeworkId);
     	for (HomeworkQuestion question : homework.getQuestions()) {
-    		System.out.println("Question: " + question.getQuestion() + "User Response : " + question.getUserResponse());
     	}
     	model.addAttribute("homework",homework);
     	return "homeworkDisplay";
     }
+    
+
+    @PatchMapping("/assignUserResponseToHomework/{homeworkId}")
+    public ResponseEntity<?> assignUserResponseToHomework(@PathVariable int homeworkId, @RequestBody Map<String, String> responses) {
+        User currentUser = userDAO.getUser();
+        HomeworkHelper helper= new HomeworkHelper();
+        System.out.println("Responses: " + responses);
+
+        try {
+            for (Map.Entry<String, String> entry : responses.entrySet()) {
+                int questionId = Integer.parseInt(entry.getKey());  // Directly parse the key as questionId
+                String userResponse = entry.getValue();
+                System.out.println("Question ID: " + questionId + " Response: " + userResponse);
+
+                helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse);
+            }
+            return ResponseEntity.ok("Responses successfully updated");
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid question ID: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid question ID format");
+        } catch (Exception e) {
+            System.err.println("Error in processing responses: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error assigning user responses");
+        }
+    }
+    
 
 }

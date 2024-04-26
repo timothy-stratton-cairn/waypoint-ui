@@ -201,4 +201,45 @@ public class HomeworkHelper{
         }
         return result; // Return null to indicate that no homework was fetched
     }
+    
+    
+    public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse) {
+    	int result = -1;
+    	if (usr == null) {
+            System.out.println("No User found");
+            return result; // Returning null to indicate user not found, handle accordingly
+        }
+
+        String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework + homeworkId;
+        System.out.println("ID"+questionId+" Response " + userResponse);
+        String requestBody =  "{\n" +
+                "    \"responses\": [\n" +
+                "        {\n" +
+                "            \"questionId\":"+questionId+",\n" +
+                "            \"userResponse\": \""+userResponse+"\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+        
+        HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
+        System.out.println(apiUrl);
+        
+        try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+        }catch(Exception e) {
+        	e.printStackTrace();
+            System.out.println("Error assigning user response: " + e.getMessage());
+        	
+        }
+    	
+    	return result;
+    }
 }

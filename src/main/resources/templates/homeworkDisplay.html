@@ -29,36 +29,72 @@
 		</fieldset>
 	</div>
 </div>
+<div class = "container">
+	<div class="row note_card">
+		<fieldset>
+			<legend>Questions</legend>
+			<form id="homeworkForm" action="#" method="post">
+			    <div class="table-responsive">
+			        <table class="table">
+			            <thead>
+			                <tr>
+			                    <th>Question</th>
+			                    <th>Type</th>
+			                    <th>Response</th>
+			                </tr>
+			            </thead>
+			            <tbody>
+			                <tr th:each="question : ${homework.questions}">
+							    <td th:text="${question.question}"></td>
+							    <td th:text="${question.questionType}"></td>
+							    <td><input type="text" th:name="${question.questionId}" th:value="${question.userResponse}" /></td>
+							</tr>
 
-<div class="container">
-    <div class="row note_card">
-        <fieldset>
-            <legend>Homework Questions</legend>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Question</th>
-                            <th>Type</th>
-                            <th>Response</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="question : ${homework.questions}">
-                            <td th:text="${question.question}">Question Text</td>
-                            <td th:text="${question.questionType}">Question Type</td>
-                            <td th:text="${question.userResponse}">User Response</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </fieldset>   
-    </div>
+			            </tbody>
+			        </table>
+			    </div>
+			    <button type="submit" class="btn btn-primary">Submit Responses</button>
+			</form>
+		</fieldset>
+	</div>
 </div>
+	
+<script th:inline="javascript">
+    var homeworkId = [[${homeworkId}]];
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('homeworkForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            var jsonData = {};
+            formData.forEach(function(value, key){
+                // Assuming each key is already the questionId, directly use it
+                jsonData[key] = value;
+            });
 
-	
-<script>
-	
+            // Correctly form the URL with the homeworkId
+            fetch(`/assignUserResponseToHomework/${homeworkId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': [[${_csrf.token}]]
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    });
 </script>
+
+
+
+
+
+
 </body>
 </html>
