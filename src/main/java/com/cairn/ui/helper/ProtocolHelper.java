@@ -220,7 +220,11 @@ public class ProtocolHelper {
 								curStep.setName(element.get("name").asText());
 								curStep.setDescription(element.get("description").asText());
 								curStep.setNotes(element.get("stepNotes").get("notes").asText());
-								curStep.setCategory(element.get("category").asText());
+								
+								JsonNode stepCategoryNode = jsonNode.path("category");
+            				    if (!stepCategoryNode.isMissingNode() && !stepCategoryNode.path("id").isMissingNode()) {
+            				    	curStep.setCategoryId(element.get("category").asInt());
+            				    }
 								curStep.setStatus(element.get("status").asText());
 								steps.add(curStep);
 							}
@@ -276,8 +280,7 @@ public class ProtocolHelper {
 								entry.setDescription(element.get("description").asText());
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
-								// Test data, fix this later
-								entry.setCategory(element.get("category").asText());
+								entry.setCategoryName(element.path("category").asText());
 								results.add(entry);
 							}
 						}
@@ -348,8 +351,15 @@ public class ProtocolHelper {
 	                                curStep.setId(stepElement.has("id") && !stepElement.get("id").isNull() ? stepElement.get("id").intValue() : -1);
 	                                curStep.setName(stepElement.has("name") && !stepElement.get("name").isNull() ? stepElement.get("name").asText() : "null");
 	                                curStep.setDescription(stepElement.has("description") && !stepElement.get("description").isNull() ? stepElement.get("description").asText() : "null");
+	                                JsonNode stepCategoryNode = jsonNode.path("category");
+	            				    if (!stepCategoryNode.isMissingNode() && !stepCategoryNode.path("id").isMissingNode()) {
+	            				        curStep.setCategoryId(stepCategoryNode.path("id").asInt());
+	            				        curStep.setCategoryName(stepCategoryNode.path("name").asText());
+	            				        curStep.setCategoryDescription(stepCategoryNode.path("description").asText());
+	            				    } 
 	                                curStep.setNotes(stepElement.has("stepNotes") && !stepElement.get("stepNotes").isNull() && stepElement.get("stepNotes").has("notes") ? stepElement.get("stepNotes").get("notes").asText() : "null");
-	                                curStep.setCategory(stepElement.has("category") && !stepElement.get("category").isNull() ? stepElement.get("category").asText() : "null");
+	                                
+	                                curStep.setCategoryName(stepElement.has("category") && !stepElement.get("category").isNull() ? stepElement.get("category").asText() : "null");
 	                                curStep.setStatus(stepElement.has("status") && !stepElement.get("status").isNull() ? stepElement.get("status").asText() : "null");
 	                                steps.add(curStep);
 	                            }

@@ -6,21 +6,10 @@ public class ProtocolStep {
 	private String name;
 	private String description;
 	private String notes;
-	private String category;
 	private String status;
-	public String getCategory() {
-		/* 4 types of steps *
-		  0: Undefined
-		  1: Gather Data
-		  2: Run Analysis
-		  3: Craft Recommendation
-		  4: Share Education
-		   */
-		return category;
-	}
-	public void setCategory(String category) {
-		this.category = category;
-	}
+	private int categoryId;
+	private String categoryName;
+	private String categoryDescription;
 
 	public int getId() {
 		return id;
@@ -51,5 +40,23 @@ public class ProtocolStep {
 	}
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+	public int getCategoryId() {
+		return categoryId;
+	}
+	public void setCategoryId(int categoryId) {
+		this.categoryId = categoryId;
+	}
+	public String getCategoryName() {
+		return categoryName;
+	}
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+	public String getCategoryDescription() {
+		return categoryDescription;
+	}
+	public void setCategoryDescription(String categoryDescription) {
+		this.categoryDescription = categoryDescription;
 	}
 }

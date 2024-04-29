@@ -369,9 +369,49 @@ public class ProtocolTemplateHelper {
 	 * @param theStep A protocol template step instance we want to remove from the template.
 	 * @return int. Return code is 1 on successful remove or less than 1 for an error. 0 if the step was not assigned to the template.
 	 */
-	public int removeTemplateStep(User usr,ProtocolTemplate theTemplate, ProtocolStepTemplate theStep) {
+	
+	
+	public int removeTemplateStep(User usr, int tempId, ArrayList<ProtocolStepTemplate >steps) {
 		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    
+		String requestBody = "{\"associatedSteps\":[" + "{";
+		for (ProtocolStepTemplate step : steps) {
+			
+			String bodyString = "{\"id\": " + step.getId() + ", " +
+	                "\"name\": \"" + step.getName() + "\", " +
+	                "\"description\": \"" + step.getDescription() + "\", " +
+	                "\"category\": {" +
+	                "\"id\": " + step.getCategoryId() + ", " +
+	                "\"name\": \"" + step.getCategoryName() + "\", " +
+	                "\"description\": \"" + step.getCategoryDescription() + "\"" +
+	                "}}";
+			
+			requestBody = requestBody+bodyString;
+		}
+
+		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
 		
+		
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl,requestBody);
+		
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            System.out.println("Assigned Step... " + response.getStatusCode());
+	            // Update result to indicate success
+	            result = 1;
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	            result = 0;
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Step not found or error in assigning step");
+	        e.printStackTrace();
+	    }
+	        // Keep result as -1 or set to another specific value indicating error
 		return result;
 	}
 
@@ -406,9 +446,11 @@ public class ProtocolTemplateHelper {
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
-				    JsonNode stepTemplateCategoryNode = jsonNode.path("stepTemplateCategory");
+				    JsonNode stepTemplateCategoryNode = jsonNode.path("category");
 				    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
-				        result.setType(stepTemplateCategoryNode.path("id").asInt());
+				        result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
+				        result.setCategoryName(stepTemplateCategoryNode.path("name").asText());
+				        result.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
 				    } else {
 				        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
 				    }

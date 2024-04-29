@@ -2,6 +2,7 @@ package com.cairn.ui.model;
 
 import java.util.ArrayList;
 
+
 public class ProtocolStepTemplate {
 
 	private int id;
@@ -9,9 +10,9 @@ public class ProtocolStepTemplate {
 	private String description;
 	private int type;
 	private ArrayList<HomeworkTemplate> homework;
-	
-
-
+	private int categoryId;
+	private String categoryName;
+	private String categoryDescription;
 	public String getTypeDisplay() {
 		String returnValue = "Undefined";
 		switch (this.type) {
@@ -70,4 +71,25 @@ public class ProtocolStepTemplate {
 	public ArrayList<HomeworkTemplate> getHomework(){
 		return homework;
 	}
+	public int getCategoryId() {
+		return categoryId;
+	}
+	public void setCategoryId(int categoryId) {
+		this.categoryId = categoryId;
+	}
+	public String getCategoryName() {
+		return categoryName;
+	}
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+	public String getCategoryDescription() {
+		return categoryDescription;
+	}
+	public void setCategoryDescription(String categoryDescription) {
+		this.categoryDescription = categoryDescription;
+	}
+	
+
+
 }

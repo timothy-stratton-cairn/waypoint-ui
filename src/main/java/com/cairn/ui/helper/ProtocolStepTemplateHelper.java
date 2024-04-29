@@ -94,6 +94,14 @@ public class ProtocolStepTemplateHelper{
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+					JsonNode stepTemplateCategoryNode = jsonNode.path("category");
+				    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
+				        result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
+				        result.setCategoryName(stepTemplateCategoryNode.path("name").asText());
+				        result.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
+				    } else {
+				        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
+				    }
 					JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
 					ArrayList <HomeworkTemplate>homeworks = new ArrayList<HomeworkTemplate>();
 					if (perms.isArray()) {

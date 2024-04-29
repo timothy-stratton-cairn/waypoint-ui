@@ -127,19 +127,16 @@ public class MainController {
 		} else {
 		    System.out.println("No homeworks found or list is empty");
 		}
+		ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser,pcolId);
 		model.addAttribute("protocol", protocol);
-		model.addAttribute("steps", protocol.getSteps());
+		model.addAttribute("steps", steps);
 		model.addAttribute("protocolId", pcolId);
 		model.addAttribute("userId", userId);
 		model.addAttribute("homeworks",allHomeworks);
-
-		List<ProtocolStep> steps = protocol.getSteps();
-		if (steps != null) {
-			for (ProtocolStep step : steps) {
-				String statusWithUnderscores = step.getStatus().replace(' ', '_');
-				System.out.println(statusWithUnderscores);
-			}
+		for(ProtocolStep step : steps) {
+			System.out.println("Step Id "+step.getId() + "Step Category " + step.getCategoryName() + " Step Category Id "+ step.getCategoryId());
 		}
+
 		return "protocolDetail";
 	}
 
@@ -289,7 +286,7 @@ public class MainController {
 
 		for (ProtocolStepTemplate step :fullStepList) {
 			
-			System.out.println("Step Type "+step.getType());
+			System.out.println("Step id "+ step.getCategoryId());
 		}
 		
 		model.addAttribute("protocolId", id);
@@ -381,7 +378,9 @@ public class MainController {
 			associatedSteps = protocolTemplateHelper.getStepList(usr, id);
 		}
 		List<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr); // used for the drop down
-
+		for (ProtocolStepTemplate step : associatedSteps ) {
+			
+		}
 		// Add attributes to the model
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", protocol);
@@ -730,6 +729,29 @@ public class MainController {
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
     	}
     }
+    
+    @PatchMapping("/removeStepFromTemplate/{tempId}/{stepId}")
+    public ResponseEntity<?>removeStepFromTemplate(@PathVariable int tempId, @PathVariable int stepId){
+    	User currentUser = userDAO.getUser();
+    	ArrayList<ProtocolStepTemplate> steps = protocolTemplateHelper.getStepList(currentUser, tempId);
+    	for (ProtocolStepTemplate step : steps) {
+    		if(step.getId() == stepId) {
+    			steps.remove(step);
+    		}
+    	}
+    	try{
+    		int apiCall = protocolTemplateHelper.removeTemplateStep(currentUser, tempId, steps);
+    		if (apiCall == 1) {
+    			return ResponseEntity.ok("Template processed successfully");
+    		}else {
+    			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
+    		}
+    	}catch(Exception e) {
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
+    	}
+    }
+    
+    
     @GetMapping("/homeworkList/{id}")
     public String homeworkList(@PathVariable int id, Model model) {
     	User currentUser = userDAO.getUser();

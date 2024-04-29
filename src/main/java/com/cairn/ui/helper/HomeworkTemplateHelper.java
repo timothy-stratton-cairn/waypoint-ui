@@ -198,8 +198,47 @@ public class HomeworkTemplateHelper{
 
 	}
     
+    
+    
     public int removeQuestionFromTemplate(User usr,int tempId, List<HomeworkQuestionsTemplate> questions) {
     	int result = -1;
+    	String requestBody = "{\"homeworkQuestions\": {";
+    	
+    	for (HomeworkQuestionsTemplate question: questions) {
+    		String bodyString = "\"questions\": [" +
+                    "{" +
+                    "\"questionAbbreviation\": \"" + question.getQuestionAbbreviation() + "\"," +
+                    "\"question\": \"" + question.getQuestion() + "\"," +
+                    "\"questionType\": \"" + question.getQuestionType() + "\"," +
+                    "\"isRequired\": " + question.isRequired() + "," +
+                    "}}";
+    		
+    		requestBody = requestBody+bodyString;
+    		
+    	}
+    	String apiUrl = "http://96.61.158.12:8083" + Constants.api_homeworktemplate;
+    	HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
+    	
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating Comment");
+	        e.printStackTrace();
+		}
+    	
     	return result;
     }
+    
+    
+    
 }

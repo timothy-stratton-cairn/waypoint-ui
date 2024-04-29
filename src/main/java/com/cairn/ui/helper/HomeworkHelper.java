@@ -211,16 +211,15 @@ public class HomeworkHelper{
         }
 
         String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework + homeworkId;
-        System.out.println("ID"+questionId+" Response " + userResponse);
-        String requestBody =  "{\n" +
-                "    \"responses\": [\n" +
-                "        {\n" +
-                "            \"questionId\":"+questionId+",\n" +
-                "            \"userResponse\": \""+userResponse+"\"\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
-        
+        System.out.println("ID "+questionId + " Response " + userResponse);
+        String requestBody = "{\"responses\": [" +
+                "{" +
+                "\"questionId\": " + questionId + "," +
+                "\"userResponse\": \"" + userResponse + "\"" +
+                "}" +
+                "]}";
+
+        System.out.println(requestBody);
         HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
         System.out.println(apiUrl);
         

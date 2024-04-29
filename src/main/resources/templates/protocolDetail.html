@@ -73,39 +73,45 @@
     </div>
 </div>
 
- <div class="container">
+<div class="container">
     <!-- Steps Section with Tabs -->
     <div class="row note_card">
         <fieldset>
             <legend>Steps</legend>
             
             <!-- Tabs for filtering steps -->
-           <ul class="nav nav-tabs">
-			    <li class="nav-item tab"><span class="nav-link active" href="#" onclick="filterStepsByCategory('all')">All</span></li>
-			    <li class="nav-item tab"><span class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data')">Gather Data</span></li>
-			    <li class="nav-item tab"><span class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis')">Run Analysis</span></li>
-			    <li class="nav-item tab"><span class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations')">Craft Recommendations</span></li>
-			    <li class="nav-item tab"><span class="nav-link" href="#" onclick="filterStepsByCategory('Share Education')">Share Education</span></li>
+            <ul class="nav nav-tabs">
+			    <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterStepsByCategory('all'); return false;">All</a></li>
+			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data'); return false;">Gather Data</a></li>
+			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis'); return false;">Run Analysis</a></li>
+			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations'); return false;">Craft Recommendations</a></li>
+			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Share Education'); return false;">Share Education</a></li>
+			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Employment'); return false;">Employment</a></li>
 			</ul>
+
             <div id="stepsContent">
-			    <div th:each="step, iterStat : ${steps}" th:id="'row_' + ${step.id}" th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.category}">
-			        <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
-			        <div class="col-md-3" th:text="${step.status}">[Status]</div>
-			        <div class="col-md-3" th:text="${step.notes}">[Notes]</div>
-			        <div class="col-md-3">
-			            <!-- Actions column -->
-			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
-			            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
-			        </div>
-			        <div th:id="'noteContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for note container -->
-			        <div th:id="'stepContainer_' + ${step.id}"></div> <!-- Dynamically generated ID for step container -->
-			    </div>
-			</div>
+                <div th:each="step, iterStat : ${steps}" 
+                     th:id ="'row_' + ${step.id}" 
+                     th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" 
+                     th:data-type="${step.categoryName}">
+                    
+                    <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
+                    <div class="col-md-3" th:text="${step.status}">[Status]</div>
+                    <div class="col-md-3" th:text="${step.notes}">[Notes]</div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
+                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
+                    </div>
+                    
+                    <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
 
-
+                    <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
+                </div>
+            </div>
         </fieldset>
     </div>
 </div>
+
 
 <div class="container">
     <div class="row note_card">
@@ -151,12 +157,15 @@
 			window.location.href = '/homeworkTemplates/';
 		}
         
-		function filterStepsByCategory(category) {
+		function filterStepsByCategory(categoryId) {
 		    const steps = document.querySelectorAll('#stepsContent > div');
 		    let visibleStepsCount = 0;
+		    
+		    console.log(`Filtering steps by category: ${categoryId}`); // Log the category being filtered on
 		
 		    steps.forEach(step => {
-		        if (category === 'all' || step.getAttribute('data-type') === category) {
+		        console.log(`Step category: ${step.getAttribute('data-type')}`); // Log each step's category before comparison
+		        if (categoryId === 'all' || step.getAttribute('data-type') === categoryId) {
 		            step.style.display = ''; // Show
 		            visibleStepsCount++;
 		        } else {
@@ -164,14 +173,16 @@
 		        }
 		    });
 		
+		    console.log(`Total visible steps: ${visibleStepsCount}`); // Log the count of visible steps after filtering
+		
 		    // Check if there are no visible steps and display a message
 		    const noStepsMessage = document.getElementById('noStepsMessage');
 		    if (visibleStepsCount === 0) {
 		        if (!noStepsMessage) {
 		            const message = document.createElement('div');
 		            message.id = 'noStepsMessage';
-		            message.className = 'alert alert';
-		            message.textContent = 'No steps found';
+		            message.className = 'alert alert-warning';
+		            message.textContent = 'No steps found for this category';
 		            document.getElementById('stepsContent').appendChild(message);
 		        } else {
 		            noStepsMessage.style.display = ''; // Show existing message
@@ -180,6 +191,8 @@
 		        noStepsMessage.style.display = 'none'; // Hide message
 		    }
 		}
+
+
 	    function updateProgress(stepId) {
 			console.log(`Attempting to select: #stepContainer_${stepId}`); // Debugging
 	        const container = document.querySelector(`#stepContainer_${stepId}`);
