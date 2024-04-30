@@ -60,6 +60,7 @@
 					        <input type="text" id="commentInput" th:value="${protocol.comment}" class="form-control">
 					    </div>
                     </div>
+                    <div class="row">&nbsp;</div>
 	                    <div class="row">
 						    <div class="col-md-12">
 						        <button onclick="saveProtocolCommentsAndGoal()" class="btn btn-primary">Save</button>
@@ -116,7 +117,7 @@
 <div class="container">
     <div class="row note_card">
         <fieldset>
-            <legend>Homeworks</legend>
+            <legend>Homework</legend>
             <div class="rowheader row">
                 <div class="col">Name</div>
                 <div class="col">Description</div>
@@ -128,7 +129,7 @@
                 <div class="col" th:text="${homework.name}">Default Name</div>
                 <div class="col" th:text="${homework.description}">Default Description</div>
                 <div class="col">
-                    <button type="button" class="btn btn-primary" th:onclick="'viewHomeworkDetails('+${homework.id}+');'">Details</button>
+                    <button type="button" class="btn btn-sm btn-secondary" th:onclick="'viewHomeworkDetails('+${homework.id}+');'">Details</button>
 
                 </div>
             </div>
@@ -140,7 +141,6 @@
     <button onclick="history.back()" class="btn btn-primary">Back</button>
 </div>
    <script>
-        var protocolId = [[${protocolId}]];
         function editProtocol(id) {
             window.location = '/editStep/' + id;
         }

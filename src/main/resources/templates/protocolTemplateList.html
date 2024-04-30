@@ -6,14 +6,12 @@
 	    window.location = '/editProtocol/'+id;		
 	}
 </script>
-<div class="container">
-    <button class="btn btn-secondary" onclick="selectProtocol(0);">New Protocol</button>
-</div>
 <body>
 	<div class="container">
 		<div class="row note_card">
 			<fieldset>
 				<legend>Protocols</legend>
+				    <button class="btn btn-sm btn-primary" onclick="selectProtocol(0);">New Protocol</button>
 				<div class="row rowheader">
 					<div class="col">
 						Name
@@ -24,7 +22,7 @@
 				</div>
 				<div th:each="pcol, status: ${listProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
 					<div class="col" th:text="${pcol.name}"></div>
-					<div class="col"><a class="btn btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ');'}">Details</a></div>
+					<div class="col"><a class="btn btn-sm btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ');'}">Details</a></div>
 				</div>
 			</fieldset>
 			<div class="row ">&nbsp;</div>

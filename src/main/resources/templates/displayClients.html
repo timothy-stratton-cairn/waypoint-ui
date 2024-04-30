@@ -18,7 +18,7 @@
 		<div class="row note_card">
 			<fieldset>
 				<legend>Clients</legend>
-				<button class="btn btn-secondary" onclick="newClient();">New Client</button>
+				<button class="btn btn-primary" onclick="newClient();">New Client</button>
 				<div class="row">&nbsp;</div>
 				<div class="row rowheader">
 					<div class="col-md-2">First Name</div>
@@ -30,7 +30,7 @@
 					<div class="col-md-2" th:text="${user.firstName}">First Name</div>
 					<div class="col-md-2" th:text="${user.lastName}">First Name</div>
 					<div class="col-md-2">
-						<a th:href="@{'/clientProfile/' + ${user.id}}"><button class="btn btn-secondary">View Profile</button></a>
+						<a th:href="@{'/clientProfile/' + ${user.id}}"><button class="btn btn-sm btn-secondary">View Profile</button></a>
 					</div>
 				</div>
 			</fieldset>
