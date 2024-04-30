@@ -16,6 +16,17 @@ public class User {
 	private ArrayList<String> roles = new ArrayList<String>();
 	private ArrayList<User> dependents = new ArrayList<User>();	
 	private ArrayList<String> permissions = new ArrayList<String>();
+
+	public boolean isAdmin() {
+		boolean returnValue = false;
+		
+		for(String role : roles) {
+			if (role.equals("ADMIN")) {
+				returnValue = true;
+			}
+		}
+		return returnValue;
+	}
 	
 	public String getVerifypassword() {
 		return verifyPwd;

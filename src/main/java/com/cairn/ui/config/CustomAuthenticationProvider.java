@@ -1,5 +1,6 @@
 package com.cairn.ui.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +20,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.cairn.ui.Constants;
 import com.cairn.ui.model.User;
 import com.cairn.ui.model.UserDAO;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,8 +68,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 				// Iterate through the array elements
 				if (perms.isArray()) {
 					for (JsonNode element : perms) {
-						// Access and print array elements
 						if (element != null) {
+							System.out.println();
 							usr.addPermission(element.toString());
 						}
 					}
@@ -77,10 +77,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			if (response.getBody().contains("homework.create")) {
+			if (response.getBody().contains("admin.full")) {
 				Authentication auth = new UsernamePasswordAuthenticationToken(username, password,
 						List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
 				HashMap<String, Object> info = new HashMap<String, Object>();
+				ArrayList<String> roles = new ArrayList<String>();
+				roles.add("ADMIN");
+				usr.setRoles(roles);
 			    info.put("currentUser", usr);
 			    ((AbstractAuthenticationToken) auth).setDetails(info);
 				return auth;
@@ -88,6 +91,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 				Authentication auth = new UsernamePasswordAuthenticationToken(username, password,
 						List.of(new SimpleGrantedAuthority("ROLE_USER")));
 				HashMap<String, Object> info = new HashMap<String, Object>();
+				ArrayList<String> roles = new ArrayList<String>();
+				roles.add("USER");
+				usr.setRoles(roles);
 			    info.put("currentUser", usr);
 			    ((AbstractAuthenticationToken) auth).setDetails(info);
 				return auth;
