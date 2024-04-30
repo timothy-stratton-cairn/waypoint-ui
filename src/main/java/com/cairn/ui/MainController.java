@@ -478,6 +478,21 @@ public class MainController {
 
 		return "displayClients";
 	}
+	
+	@PatchMapping("addDependant/{clientId}/{dependantId}")
+	public ResponseEntity<Object> addDependant(@PathVariable int clientId,@PathVariable int dependantId ){
+		User currentUser = userDAO.getUser();
+		User client = userHelper.getUser(currentUser, clientId);
+		try {
+			
+		} catch (Exception e) {
+			System.out.println("Error in addClientToProtocol:");
+			e.printStackTrace(); // Print the stack trace to the console
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error adding client to protocol: " + e.getMessage());
+		}
+		return ResponseEntity.ok().build();
+	}
 
 	@GetMapping("protocolClients/{protocolId}")
 	public String ProtocolClients(@PathVariable int ProtocolId, Model model) {
@@ -505,8 +520,7 @@ public class MainController {
 																											// be
 																											// written
 																											// up on the
-																											// helper
-																											// side
+		
 		model.addAttribute("userId",userId);
 		model.addAttribute("client", client);
 		model.addAttribute("clientId", clientId);

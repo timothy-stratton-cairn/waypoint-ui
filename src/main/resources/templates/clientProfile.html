@@ -134,7 +134,8 @@
 												onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
 										</div>
 										<div class="col-md-8">
-											<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Homework</button>&nbsp;&nbsp;
+											<button class="btn btn-secondary" th:attr="onclick=|goToHomeworks('${pcol.id}');|">Homework</button>&nbsp;&nbsp;
+
 											<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Analysis</button>&nbsp;&nbsp;
 											<button class="btn btn-secondary"
 												onclick="goToHomeworkTemplates()">Recommendations</button>
@@ -304,7 +305,10 @@
 		}
 
 		function goToHomeworkTemplates() {
-			window.location.href = '/homeworkTemplates/';
+			window.location.href = '/homeworkList/';
+		}
+		function goToHomeworks(id) {
+			window.location.href = '/homeworkList/'+id;
 		}
 
 	</script th:inline="javascript">

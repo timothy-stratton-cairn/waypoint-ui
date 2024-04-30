@@ -193,6 +193,7 @@ public class ProtocolHelper {
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
 					result.setLastStatus(calendar.getTime());
+					
 					if (jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
 					    result.setGoal(jsonNode.get("goal").asText());
 					} else {
