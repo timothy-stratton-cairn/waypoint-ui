@@ -85,6 +85,7 @@ public class MainController {
 		if (usr == null) {
 			return "home";
 		}
+		session.setAttribute("me", usr);
 
 		int sessionUserId = userHelper.getUserId(usr);
 		User sessionUser = userHelper.getUser(usr, sessionUserId);
@@ -133,9 +134,6 @@ public class MainController {
 		model.addAttribute("protocolId", pcolId);
 		model.addAttribute("userId", userId);
 		model.addAttribute("homeworks",allHomeworks);
-		for(ProtocolStep step : steps) {
-			System.out.println("Step Id "+step.getId() + "Step Category " + step.getCategoryName() + " Step Category Id "+ step.getCategoryId());
-		}
 
 		return "protocolDetail";
 	}
