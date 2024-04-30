@@ -25,12 +25,14 @@
 				<legend>Homework </legend>
 				<div class="rowheader row">
 					<div class="col">Name</div>
+					<div class="col">Description</div>
 					<div class="col">Action</div>
 				</div>
-				<div th:each="homework, stat : ${homeworks}" th:id="|row_${homework.homeworkId}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
+				<div th:each="homework, stat : ${homeworks}" th:id="|row_${homework.id}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
 					<div class="col" th:text="${homework.name}"></div>
+					<div class="col" th:text="${homework.description}"></div>
 					<div class="col">
-						<a class="btn btn-secondary" th:href="${'javascript:selectTemplate(' + homework.homeworkId + ');'}">Details</a>
+						<a class="btn btn-secondary" th:href="${'javascript:selectTemplate(' + homework.id + ');'}">Details</a>
 					</div>
 				</div>
 			</fieldset>

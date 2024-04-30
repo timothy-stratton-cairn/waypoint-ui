@@ -17,6 +17,7 @@ public class Protocol {
 	private String completionPercent;
 	private int stepCount;
 	private int completedSteps;
+
 	private ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
 	private ArrayList<Integer> users = new ArrayList<Integer>();
 	private int userId;
@@ -120,4 +121,5 @@ public class Protocol {
 	public int getCompletedSteps() {
 		return completedSteps;
 	}
+
 }
