@@ -80,14 +80,6 @@ public class MainController {
 			return "home";
 		}
 		session.setAttribute("me", usr);
-
-		int sessionUserId = userHelper.getUserId(usr);
-		User sessionUser = userHelper.getUser(usr, sessionUserId);
-		if (sessionUser.getRoles() != null) {
-			String userRoles = String.join(", ", sessionUser.getRoles());
-			session.setAttribute("userRoles", userRoles);
-		}
-
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", helper.getDashboard(usr));
