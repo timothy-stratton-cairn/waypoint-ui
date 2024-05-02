@@ -18,13 +18,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.cairn.ui.dto.HomeworkListDto;
 import com.cairn.ui.helper.DashboardHelper;
 import com.cairn.ui.helper.HomeworkHelper;
 import com.cairn.ui.helper.HomeworkTemplateHelper;
@@ -32,7 +28,6 @@ import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.helper.ProtocolStepTemplateHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.UserHelper;
-import com.cairn.ui.model.Dashboard;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
@@ -41,11 +36,10 @@ import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
+import com.cairn.ui.model.ReportStat;
 import com.cairn.ui.model.User;
 import com.cairn.ui.model.UserDAO;
-import com.cairn.ui.model.UserDAOImpl;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -467,6 +461,10 @@ public class MainController {
 
 	@GetMapping("reports")
 	public String reports(Model model) {
+		ArrayList<ReportStat> rpt1 = new ArrayList<ReportStat>();
+		
+		rpt1 = 
+		model.addAttribute("rpt1", rpt1);
 		return "reports";
 	}
 

@@ -55,7 +55,7 @@ public class HomeworkHelper{
 			return results;
 		}
 
-		String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework+ "protocol/" + protocolId;
+		String apiUrl = Constants.api_server + Constants.api_homework+ "protocol/" + protocolId;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		System.out.println(apiUrl);
 		// Make the GET request and retrieve the response
@@ -107,7 +107,7 @@ public class HomeworkHelper{
 
     	HomeworkListDto result = new HomeworkListDto();
 
-		String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework+ "protocol/" + id;
+		String apiUrl = Constants.api_server + Constants.api_homework+ "protocol/" + id;
 		
 		System.out.println(apiUrl);
 		
@@ -137,7 +137,7 @@ public class HomeworkHelper{
             return null; // Returning null to indicate user not found, handle accordingly
         }
 
-        String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework + id;
+        String apiUrl = Constants.api_server + Constants.api_homework + id;
         HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
         System.out.println(apiUrl);
 
@@ -210,7 +210,7 @@ public class HomeworkHelper{
             return result; // Returning null to indicate user not found, handle accordingly
         }
 
-        String apiUrl = "http://96.61.158.12:8083" + Constants.api_homework + homeworkId;
+        String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
         System.out.println("ID "+questionId + " Response " + userResponse);
         String requestBody = "{\"responses\": [" +
                 "{" +

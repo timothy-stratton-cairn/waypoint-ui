@@ -104,7 +104,7 @@ public class UserHelper {
 		// Create a HttpEntity with the headers
 		
 		
-		String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + uid;
+		String apiUrl = Constants.api_server + Constants.api_userlist_get + "/" + uid;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		//String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
 
@@ -218,7 +218,7 @@ public class UserHelper {
 
 	    String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\"}";
 
-	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get +"/"+ id ;
+	    String apiUrl = Constants.auth_server + Constants.api_userlist_get +"/"+ id ;
 	    System.out.println(apiUrl);
 	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 
@@ -248,7 +248,7 @@ public class UserHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 	    String requestBody = "{\"oldPassword\":\"" + oldPassword + "\", \"newPassword\":\"" + newPassword + "\"}";
-	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + id + "/reset-password";
+	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + id + "/reset-password";
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
@@ -274,7 +274,7 @@ public class UserHelper {
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
-	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_me;
+	    String apiUrl = Constants.auth_server + Constants.api_me;
 	    HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
             ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);

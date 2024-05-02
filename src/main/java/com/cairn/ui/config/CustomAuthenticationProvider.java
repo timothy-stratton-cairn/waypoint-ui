@@ -77,6 +77,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+
 			if (response.getBody().contains("admin.full")) {
 				Authentication auth = new UsernamePasswordAuthenticationToken(username, password,
 						List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));

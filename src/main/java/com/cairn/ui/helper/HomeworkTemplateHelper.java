@@ -150,7 +150,7 @@ public class HomeworkTemplateHelper{
     public HomeworkTemplate getTemplate(User usr, int id) {
         HomeworkTemplate result = new HomeworkTemplate();
 
-        String apiUrl = "http://96.61.158.12:8083" + Constants.api_homeworktemplate + "/" + id;
+        String apiUrl = Constants.api_server + Constants.api_homeworktemplate + "/" + id;
         HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
         System.out.println(apiUrl);
         
@@ -174,7 +174,7 @@ public class HomeworkTemplateHelper{
     
     public int newTemplate(User usr, String templateBody) {
     	int result = 0;
-    	String apiUrl = "http://96.61.158.12:8083" + Constants.api_homeworktemplate;
+    	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
     	HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, templateBody);
     	
 		try {
@@ -216,7 +216,7 @@ public class HomeworkTemplateHelper{
     		requestBody = requestBody+bodyString;
     		
     	}
-    	String apiUrl = "http://96.61.158.12:8083" + Constants.api_homeworktemplate;
+    	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
     	HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
     	
 		try {
