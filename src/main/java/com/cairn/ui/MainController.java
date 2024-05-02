@@ -478,7 +478,7 @@ public class MainController {
 	}
 	
 	@PatchMapping("addDependant/{clientId}/{dependantId}")
-	public ResponseEntity<Object> addDependant(@PathVariable int clientId,@PathVariable int dependantId ){
+	public ResponseEntity<Object> addDependant(@PathVariable int clientId,@PathVariable String dependantUser ){
 		User currentUser = userDAO.getUser();
 		User client = userHelper.getUser(currentUser, clientId);
 		try {

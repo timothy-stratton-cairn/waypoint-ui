@@ -63,7 +63,7 @@
                     <div class="row">&nbsp;</div>
 	                    <div class="row">
 						    <div class="col-md-12">
-						        <button onclick="saveProtocolCommentsAndGoal()" class="btn btn-primary">Save</button>
+						        <button th:attr="onclick='saveProtocolCommentsAndGoal(' + ${protocol.id} + ');'"class="btn btn-primary">Save</button>
 						        <button type="button" class = "btn btn-primary" th:onclick="goToHomeworkTemplates()">Homework</button>
 						        <button type="button" class = "btn btn-primary" th:onclick="'goToClient(' + ${userId} + ');'">Client View</button>
 						    </div>
@@ -97,8 +97,8 @@
                      th:data-type="${step.categoryName}">
                     
                     <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
+                    <div class="col-md-3" th:text="${step.description}">[Description]</div>
                     <div class="col-md-3" th:text="${step.status}">[Status]</div>
-                    <div class="col-md-3" th:text="${step.notes}">[Notes]</div>
                     <div class="col-md-3">
                         <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
                         <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
@@ -266,7 +266,7 @@
 	        });
 	    }
 	    
-	    function saveProtocolCommentsAndGoal() {
+	    function saveProtocolCommentsAndGoal(id) {
 		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 		    
@@ -274,7 +274,7 @@
 		    var comment = document.getElementById('commentInput').value;
 		    var progress = document.getElementById('progressInput').value;
 		
-		    fetch(`/updateProtocolCommentsGoalsAndProgress/${protocolId}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}`, {
+		    fetch(`/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}`, {
 		        method: 'PATCH',
 		        headers: {
 		            'Accept': 'application/json',
