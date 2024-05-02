@@ -280,6 +280,7 @@ public class ProtocolHelper {
 								entry = new ProtocolStep();
 								entry.setDescription(element.get("description").asText());
 								entry.setName(element.get("name").asText());
+								entry.setStatus(element.path("status").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
 								entry.setCategoryName(element.path("category").asText());
 								results.add(entry);

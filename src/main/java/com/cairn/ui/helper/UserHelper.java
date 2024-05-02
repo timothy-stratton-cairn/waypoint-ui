@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
@@ -211,6 +212,7 @@ public class UserHelper {
 		return result;
 
 	}
+
 	
 	
 	public int updateUserDetails(User usr, int id ,String firstName, String lastName, String email) {
@@ -295,4 +297,48 @@ public class UserHelper {
         return result; 
     }
 
+	
+	public int addDependant(User usr, int clientid, ArrayList<User> users) {
+	    int result = 0;
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.add("Content-Type", "application/json");
+
+	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_me;
+
+	    StringBuilder tempBody = new StringBuilder("{ \"dependants\":[");
+	    for (int i = 0; i < users.size(); i++) {
+	        User user = users.get(i);
+	        tempBody.append(String.format("{\"id\":%d,\"firstName\":\"%s\",\"lastName\":\"%s\",\"userName\":\"%s\"}",
+	            user.getId(), user.getFirstName(), user.getLastName(), user.getUsername()));
+	        if (i < users.size() - 1) {
+	            tempBody.append(",");
+	        }
+	    }
+	    tempBody.append("]}");
+	    String requestBody = tempBody.toString();
+	    
+	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating User Details");
+	        e.printStackTrace();
+		}
+		return result;
+	}
+
+	
 }
