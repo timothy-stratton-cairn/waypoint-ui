@@ -33,25 +33,29 @@
     </div>
 </div>
 
+<!-- Homework Form -->
 <div class="container">
     <div class="row note_card">
         <fieldset>
             <legend>Assigned Homework</legend>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" id="homeworkTable">
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>Remove</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="homework : ${step.homework}">
-                            <td th:text="${homework.name}">Homework Name</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="btn btn-primary" id="btnAddHomeworkTemplate">Add Homework Template</button>
+            <!-- Updated to include selection and button in one place -->
+            <select class="form-control mt-2" id="homeworkTemplateDropdown">
+                <option value="">Select Homework Template</option>
+                <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}">Homework Template Name</option>
+            </select>
+            <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate();">Add Homework</button>
         </fieldset>
     </div>
 </div>
@@ -79,6 +83,10 @@
     document.getElementById('btnAddHomeworkTemplate').addEventListener('click', function() {
         document.getElementById('homeworkTemplateSelector').style.display = 'block';
     });
+    
+    function saveStep(id){
+		
+	}
 
     function confirmHomeworkTemplate() {
 		var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
