@@ -8,60 +8,53 @@
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
+<div class="container mt-3">
+    <button onclick="history.back()" class="btn btn-primary">Back</button>
+</div>
 <div class="container">
     <!-- Protocol Details Form for New Protocol (ID = 0) -->
     <div th:if="${protocol.id == null || protocol.id == 0}">
         <div class="row note_card">
             <fieldset>
                 <legend>Protocol Details</legend>
-                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
-                    <div>
-                        <label for="name"><strong>Name:</strong></label>
-                        <input type="text" id="name" name="name" th:value="${protocol.name}" />
-		                <input class="text" id="type" name="type" th:field="${protocol.type}"/>
-                    </div>
-                    <div class="col-md-12">
-									<label for="description"><strong>Description:</strong></label>
-									<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
-					</div>
-                     <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
-
-
-                </form>
+                <div>
+	                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
+	                    <div class ="row" >
+	                        <label for="name" class="mr-md-3"><strong>Name:</strong></label>
+	                        <input type="form-control" id="name" name="name" th:value="${protocol.name}" />
+	                    </div>
+	                    <div class="row">
+							<label for="description"><strong>Description:</strong></label>
+							<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
+						</div>
+	                </form>
+                </div>
             </fieldset>
         </div>
     </div>
 
     <!-- Protocol Details Display for Existing Protocol -->
-		<div th:if="${protocol.id != null && protocol.id > 0}">
-		    <div class="row note_card">
-		        <fieldset>
-		            <legend>Protocol Details</legend>
-		            <div>
-		                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
-		                    <div>
-		                        <div class ="row" >
-		                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
-		                            <input type="form-control" id="name" name="name" th:value="${protocol.name}" />
-		                            <label for="type" class="m-md-3"><strong>Type:</strong></label>
-		                            <input class="text" id="type" name="type" th:field="${protocol.type}"/>
-		                        </div>
-		                        <div class="row">
-									<label for="description"><strong>Description:</strong></label>
-									<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
-								</div>
-		                     	<!--<div class="md-2">
-		                            <strong>ID:</strong> <span th:text="${protocol.id}"></span>
-		                        </div> -->
-		                    </div>
-		              		 <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
-
-
-		                </form>
-		            </div>
-		        </fieldset>
-		    </div>
-		</div>
+	<div th:if="${protocol.id != null && protocol.id > 0}">
+	    <div class="row note_card">
+	        <fieldset>
+	            <legend>Protocol Details</legend>
+	            <div>
+	                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
+	                    <div>
+	                        <div class ="row" >
+	                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
+	                            <input type="form-control" id="name" name="name" th:value="${protocol.name}" />
+	                        </div>
+	                        <div class="row">
+								<label for="description"><strong>Description:</strong></label>
+								<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
+							</div>
+	                    </div>
+	                </form>
+	            </div>
+	        </fieldset>
+	    </div>
+	</div>
 		
 
 	<div class="row note_card">
@@ -151,22 +144,23 @@
             </div>
             <br>
             
-            <button type="button" class="btn btn-primary" th:onclick="'editProtocol();'">New Step</button>
+            <button type="button" class="btn btn-primary" th:onclick="'newStepl();'">New Step</button>
             <button type="button" class="btn btn-primary" onclick="addStep();">Add Step</button>
         </fieldset>
     </div>
 </div>
-
-
-<div class="container mt-3">
-    <button onclick="history.back()" class="btn btn-primary">Back</button>
+<div class="container">
+	 <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
 </div>
     <script>
         var protocolId = [[${protocolId}]]; 
         
-        function editProtocol() {
-            window.location = '/newStep/';
+        function editProtocol(id) {
+            window.location = '/editStep/'+ id;
         }
+        function newStep(){
+			 window.location = '/newStep/';
+		}
         function disableProtocol(id) {
             alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
         }

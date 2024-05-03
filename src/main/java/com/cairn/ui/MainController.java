@@ -315,7 +315,7 @@ public class MainController {
 	public String newProtocol(@PathVariable int id, Model model) {
 		return "displayProtocol";
 	}
-
+	
 	
 	@PatchMapping("/saveProtocol/{id}")
 	public ResponseEntity<?> saveProtocol(@PathVariable int id, @RequestBody String requestBody) {
