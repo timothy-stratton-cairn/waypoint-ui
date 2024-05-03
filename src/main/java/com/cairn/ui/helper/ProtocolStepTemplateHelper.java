@@ -2,6 +2,7 @@ package com.cairn.ui.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,61 @@ public class ProtocolStepTemplateHelper{
             this.restTemplate = new RestTemplate(requestFactory);
         }
         return this.restTemplate;
+    }
+    
+    
+    public int addStepTemplate(User usr, ProtocolStepTemplate newStep) {
+    	int result = -1;
+    	List<HomeworkTemplate> homeworkList = newStep.getHomework();
+	    StringBuilder homeworkIds = new StringBuilder("\"linkedHomeworkTemplateIds\":");
+	    
+	    if (homeworkList == null || homeworkList.isEmpty()) {
+	        homeworkIds.append("null"); 
+	    } else {
+	        homeworkIds.append("[");
+	        for (int i = 0; i < homeworkList.size(); i++) {
+	            HomeworkTemplate hw = homeworkList.get(i);
+	            homeworkIds.append(hw.getId());
+	            if (i < homeworkList.size() - 1) {
+	                homeworkIds.append(", ");  // Append a comma and a space if not the last element
+	            }
+	        }
+	        homeworkIds.append("]");  // Close the array outside the loop
+	    }
+	    
+	    // Construct the final JSON string
+	    String requestBody = "{"
+	            + "\"name\": \"" + newStep.getName() + "\","
+	            + "\"description\": \"" + newStep.getDescription() + "\","
+	            + "\"linkedStepTaskId\": null,"  
+	            + homeworkIds.toString() + ","
+	            + "\"stepTemplateCategoryId\": " + newStep.getCategoryId() + "}";
+	    
+	    
+	    
+
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate ;
+		System.out.println(apiUrl);
+		System.out.println(requestBody);
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to Post data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			result = -1;
+			System.out.println("Error in addStepTemplate");
+	        e.printStackTrace();
+		}
+    	return result;
     }
     
     

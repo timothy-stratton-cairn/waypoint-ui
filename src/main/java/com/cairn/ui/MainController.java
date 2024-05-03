@@ -285,10 +285,35 @@ public class MainController {
 	}
 
 	// Place holders for creating new and saving changes to steps and protocols
-	@PostMapping("/newStep/")
-	public String newStep(@PathVariable int id, Model model) {
-		return "edit_step";
+	@GetMapping("/newStep/")
+	public String newStep(Model model) {
+		ProtocolStepTemplate step = new ProtocolStepTemplate();
+		User usr = (User) userDAO.getUser();
+		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
+		for (HomeworkTemplate hw: templatelist) {
+			System.out.println("Homework ID: " + hw.getId() + " Homework Name: "+ hw.getName());
+		}
+		
+		model.addAttribute("homework", templatelist);
+		model.addAttribute("step", step);
+
+		return "newStep";
 	}
+	
+	@PostMapping("/saveStep/")
+	public ResponseEntity<?> saveStep(@RequestBody ProtocolStepTemplate newStep) {
+		User usr = (User) userDAO.getUser();	  
+		
+	    try {
+			protocolStepTemplateHelper.addStepTemplate(usr, newStep);
+	        return ResponseEntity.ok("Template processed successfully");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("An error occurred while saving the Step Template: " + e.getMessage());
+	    }
+	}
+
+
 
 	@PostMapping("/newProtocol/")
 	public String newProtocol(@PathVariable int id, Model model) {

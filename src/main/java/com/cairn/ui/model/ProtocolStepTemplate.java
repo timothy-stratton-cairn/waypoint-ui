@@ -13,6 +13,8 @@ public class ProtocolStepTemplate {
 	private int categoryId;
 	private String categoryName;
 	private String categoryDescription;
+	
+	
 	public String getTypeDisplay() {
 		String returnValue = "Undefined";
 		switch (this.type) {
