@@ -27,6 +27,7 @@ import com.cairn.ui.helper.HomeworkTemplateHelper;
 import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.helper.ProtocolStepTemplateHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
+import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
@@ -67,6 +68,9 @@ public class MainController {
 
 	@Autowired
 	UserHelper userHelper;
+
+	@Autowired
+	ReportHelper reportHelper;
 
 	@GetMapping("/")
 	public String startPage() {
@@ -478,10 +482,11 @@ public class MainController {
 
 	@GetMapping("reports")
 	public String reports(Model model) {
+		User usr = userDAO.getUser();
 		ArrayList<ReportStat> rpt1 = new ArrayList<ReportStat>();
+		rpt1 = reportHelper.getStatsReport(usr);
 		
-		rpt1 = 
-		model.addAttribute("rpt1", rpt1);
+		model.addAttribute("rpt1", rpt1.get(0));
 		return "reports";
 	}
 
