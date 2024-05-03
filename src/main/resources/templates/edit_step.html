@@ -30,7 +30,13 @@
 						<textarea id="stepDetails" name="stepDetails" class="form-control" rows="3"
 							th:text="${step.description}"></textarea>
 					</div>
-					<button type="button" class="btn btn-secondary" th:onclick="saveStep(${stepId});">Save</button>
+					<!-- Correct way to call saveStep with Thymeleaf variable passed to JavaScript -->
+						<button type="button" class="btn btn-secondary" th:attr="onclick='saveStep(' + ${stepId} + ');'">Save</button>
+
+
+
+
+
 				</form>
 			</fieldset>
 		</div>
@@ -92,7 +98,7 @@
 		});
 
 		function saveStep(id) {
-			alert("Saved")
+		    alert("Saved, step ID: " + id);
 		}
 
 		function confirmHomeworkTemplate() {
