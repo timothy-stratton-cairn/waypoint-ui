@@ -536,11 +536,8 @@ public class MainController {
 		User client = userHelper.getUser(currentUser, clientId);
 		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
 		ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId); // this
-		int userId = userHelper.getUserId(currentUser);																						// needs to
-																											// be
-																											// written
-																											// up on the
-		
+		int userId = userHelper.getUserId(currentUser);
+
 		model.addAttribute("userId",userId);
 		model.addAttribute("client", client);
 		model.addAttribute("clientId", clientId);
