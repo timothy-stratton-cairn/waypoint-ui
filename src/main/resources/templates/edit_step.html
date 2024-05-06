@@ -68,7 +68,7 @@
 					<option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}">
 						Homework Template Name</option>
 				</select>
-				<button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate();">Add
+				<button type="button" id="btnAddHomeworkTemplate" class="btn btn-primary mt-2" onclick="addHomeworkTemplate();">Add
 					Homework</button>
 			</fieldset>
 		</div>
@@ -98,7 +98,6 @@
 		});
 
 		function saveStep(id) {
-		    alert("Saved, step ID: " + id);
 		}
 
 		function confirmHomeworkTemplate() {

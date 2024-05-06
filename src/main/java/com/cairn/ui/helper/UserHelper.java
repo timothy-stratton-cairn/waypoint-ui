@@ -105,7 +105,7 @@ public class UserHelper {
 		// Create a HttpEntity with the headers
 		
 		
-		String apiUrl = Constants.api_server + Constants.api_userlist_get + "/" + uid;
+		String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + uid;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		//String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
 

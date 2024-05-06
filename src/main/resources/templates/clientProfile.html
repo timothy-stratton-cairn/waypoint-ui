@@ -229,7 +229,7 @@
 			}
 
 			// Perform the PATCH request
-			fetch(`/addClientToProtocol/${clientId}/${protocolId}`, {
+			fetch(`/addClientToProtocol/[[${clientId}]]/` + protocolId, {
 				method: 'POST',
 				headers: {
 					'Accept': 'application/json',
@@ -241,7 +241,6 @@
 				.then(response => {
 					console.log(`confirmProtocol: Fetch response status is ${response.status}.`);
 					if (response.ok) {
-						alert("Step added successfully.");
 						apTracker = true;
 						window.location.reload(); // Reload page if successful
 					} else {
