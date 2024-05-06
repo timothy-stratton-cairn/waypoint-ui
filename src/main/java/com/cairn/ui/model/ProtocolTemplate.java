@@ -30,9 +30,6 @@ public class ProtocolTemplate {
 		  2: Life Cycle */
 		return type;
 	}
-	public void setType(int type) {
-		this.type = type;
-	}
 	public boolean isActive() {
 		return active;
 	}

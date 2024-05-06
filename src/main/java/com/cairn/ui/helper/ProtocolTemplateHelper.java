@@ -101,6 +101,38 @@ public class ProtocolTemplateHelper {
 		return results;
 	}
 	
+	public int newProtocolTemplate (User usr, ProtocolTemplate template) {
+		int result = -1;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate;
+		
+		StringBuilder associatedStepTemplateIds = new StringBuilder("\"associatedStepTemplateIds\":[");
+		ArrayList<ProtocolStepTemplate>stepList = template.getSteps();
+		for (int i = 0; i < stepList.size(); i++) {
+			ProtocolStepTemplate step = stepList.get(i);
+			associatedStepTemplateIds.append(step.getId());
+			if (i < stepList.size() - 1) {
+				associatedStepTemplateIds.append(", ");  // Append a comma and a space if not the last element
+            }
+		}
+		associatedStepTemplateIds.append(']');
+		String requestBody = "{"  
+				+ "\"name\": \"" + template.getName() + "\","
+				+ "\"description\": \"" + template.getDescription() + "\","
+				+ associatedStepTemplateIds.toString()+
+				"}";
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl,requestBody);
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+			System.out.println("Preview Request: "+requestBody);
+			result = 1;
+			
+		}catch(Exception e) {
+			System.out.println("No protocols returned");
+		}
+		return result;
+	}
+	
+	
 	
 	//same as above but instead grabbing all types 
 	public ArrayList<ProtocolStepTemplate> getAllSteps(User usr) {
@@ -526,7 +558,7 @@ public class ProtocolTemplateHelper {
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
 								// Test data, fix this later
-								entry.setType(idx++);
+
 								results.add(entry);
 								if (idx > 4) {
 									idx = 1;

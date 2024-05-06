@@ -16,7 +16,18 @@
 	}
 </script>
 <body>
+	<div class ="container">
+		<div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
+		        <!-- Success message will be displayed here -->
+		    </div>
+		
+		    <!-- Display error message -->
+		    <div th:if="${not #strings.isEmpty(error)}" class="alert alert-danger" th:text="${error}">
+		        <!-- Error message will be displayed here -->
+		    </div>
+	</div>
 	<div class="container">
+
 		<div class="row note_card">
 			<fieldset>
 				<legend>Homework Templates</legend>

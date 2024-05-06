@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cairn.ui.helper.DashboardHelper;
 import com.cairn.ui.helper.HomeworkHelper;
@@ -315,10 +317,37 @@ public class MainController {
 
 
 
-	@PostMapping("/newProtocol/")
-	public String newProtocol(@PathVariable int id, Model model) {
-		return "displayProtocol";
+	@GetMapping("/newProtocol/")
+	public String newProtocol( Model model) {
+		User usr = (User) userDAO.getUser();
+		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
+		model.addAttribute("allSteps", allSteps);
+		return "newProtocolTemplate";
 	}
+	
+    @PostMapping("/createNewProtocolTemplate/")
+    public ResponseEntity<?> createNewProtocolTemplate(@RequestBody ProtocolTemplate requestBody){
+        System.out.println("Calling createNewProtocolTemplate");
+
+        try {
+            User usr = (User) userDAO.getUser();
+            int call = protocolTemplateHelper.newProtocolTemplate(usr, requestBody);
+            if (call == 1) {
+                System.out.println("Success!");
+                Map<String, String> success = new HashMap<>();
+                success.put("message", "Template processed successfully");
+                return ResponseEntity.ok(success);
+            } else {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "An error occurred while creating the protocol.");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            }
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "An error occurred while creating the protocol: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 	
 	
 	@PatchMapping("/saveProtocol/{id}")
@@ -707,7 +736,7 @@ public class MainController {
 	}
 	
     @PostMapping("/newHomeworkTemplate")
-    public ResponseEntity<String> saveHomeworkTemplate(@RequestBody String templateBody) {
+    public String saveHomeworkTemplate(@RequestBody String templateBody,RedirectAttributes redirectAttributes) {
         try {
             // Decode URL-encoded string
             String decodedBody = URLDecoder.decode(templateBody, StandardCharsets.UTF_8.toString());
@@ -728,14 +757,32 @@ public class MainController {
 
             // Further JSON processing here...
             User currentUser = userDAO.getUser();
+
+            String call = homeworkTemplateHelper.newTemplate(currentUser, cleanJson);
             if (currentUser == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Current user not found");
+                redirectAttributes.addFlashAttribute("error", "User not found.");
+                return "redirect:/login";
             }
-            homeworkTemplateHelper.newTemplate(currentUser, cleanJson);
-            return ResponseEntity.ok("Template processed successfully");
+            if (call == "Sucess") {
+            redirectAttributes.addFlashAttribute("success", "Homework template saved successfully.");
+            return "redirect:/homeworkTemplates/";
+            }
+            else {
+            	redirectAttributes.addFlashAttribute("error", "Error processing template: " + call);
+            	return "redirect:/editHomeworkTemplate/";
+            }
+        } catch (HttpClientErrorException.Conflict e) {
+            // Specifically handle the conflict exception
+            String errorResponse = e.getResponseBodyAsString();
+            System.err.println("Conflict Error: " + errorResponse);
+            redirectAttributes.addFlashAttribute("error", "Homework Template already exists.");
+            return "redirect:/editHomeworkTemplate/";
+
+
         } catch (Exception e) {
             System.err.println("Error in processing template: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
+            redirectAttributes.addFlashAttribute("error", "Error processing template: " + e.getMessage());
+            return "redirect:/newHomeworkTemplate";
         }
     }
 

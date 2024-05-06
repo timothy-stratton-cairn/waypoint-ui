@@ -5,13 +5,16 @@
 	function selectProtocol(id){
 	    window.location = '/editProtocol/'+id;		
 	}
+	function newProtocol(){
+		window.location = '/newProtocol/';
+	}
 </script>
 <body>
 	<div class="container">
 		<div class="row note_card">
 			<fieldset>
 				<legend>Protocols</legend>
-				    <button class="btn btn-sm btn-primary" onclick="selectProtocol(0);">New Protocol</button>
+				    <button class="btn btn-sm btn-primary" onclick="newProtocol();">New Protocol</button>
 				<div class="row rowheader">
 					<div class="col">
 						Name

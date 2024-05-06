@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Protocol Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+<div class="container mt-3">
+    <button onclick="history.back()" class="btn btn-primary">Back</button>
+</div>
+
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Protocol Details</legend>
+            <form id="protocolForm">
+                <div class="row">
+                    <label for="protocolName" class="mr-md-3"><strong>Name:</strong></label>
+                    <input type="text" class="form-control" id="protocolName" name="name"/>
+                </div>
+                <div class="row">
+                    <label for="protocolDescription"><strong>Description:</strong></label>
+                    <input type="text" class="form-control" id="protocolDescription" name="description"/>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Steps</legend>
+            
+            <!-- Tabs for filtering steps -->
+            <ul class="nav nav-tabs">
+                <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterStepsByCategory('all'); return false;">All</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data'); return false;">Gather Data</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis'); return false;">Run Analysis</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations'); return false;">Craft Recommendations</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Share Education'); return false;">Share Education</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Employment'); return false;">Employment</a></li>
+            </ul>
+            <!-- Steps Display Area -->
+            <div id="stepsContent">
+                <!-- Existing steps will be shown here -->
+            </div>
+
+            <!-- Add Step Dropdown -->
+            <div class="form-group">
+                <label for="stepSelector">Add Step:</label>
+                <select class="form-control" id="stepSelector">
+                    <option th:each="step : ${allSteps}" th:value="${step.id}" th:text="${step.name}"></option>
+                </select>
+                <button type="button" class="btn btn-primary" onclick="addStep()">Add Step</button>
+            </div>
+
+            
+        </fieldset>
+    </div>
+</div>
+<div class = "container">
+	<button type="button" class="btn btn-primary" onclick="saveProtocolTemplate()">Save Template</button>
+</div>
+<script>
+	    function editProtocol(id) {
+            window.location = '/editStep/' + id;
+        }
+        function disableProtocol(id) {
+            alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
+        }
+        function saveprotocol(){
+            window.location = '/newProtocol/';
+        }
+        function goToClient(id) {
+			window.location.href = '/clientProfile/' + id;
+		}
+        function goToHomeworkTemplates() {
+			window.location.href = '/homeworkTemplates/';
+		}
+	
+			function filterStepsByCategory(categoryId) {
+		    const steps = document.querySelectorAll('#stepsContent > div');
+		    let visibleStepsCount = 0;
+		    
+		    console.log(`Filtering steps by category: ${categoryId}`); // Log the category being filtered on
+		
+		    steps.forEach(step => {
+		        console.log(`Step category: ${step.getAttribute('data-type')}`); // Log each step's category before comparison
+		        if (categoryId === 'all' || step.getAttribute('data-type') === categoryId) {
+		            step.style.display = ''; // Show
+		            visibleStepsCount++;
+		        } else {
+		            step.style.display = 'none'; // Hide
+		        }
+		    });
+		
+		    console.log(`Total visible steps: ${visibleStepsCount}`); // Log the count of visible steps after filtering
+		
+		    // Check if there are no visible steps and display a message
+		    const noStepsMessage = document.getElementById('noStepsMessage');
+		    if (visibleStepsCount === 0) {
+		        if (!noStepsMessage) {
+		            const message = document.createElement('div');
+		            message.id = 'noStepsMessage';
+		            message.className = 'alert alert-warning';
+		            message.textContent = 'No steps found for this category';
+		            document.getElementById('stepsContent').appendChild(message);
+		        } else {
+		            noStepsMessage.style.display = ''; // Show existing message
+		        }
+		    } else if (noStepsMessage) {
+		        noStepsMessage.style.display = 'none'; // Hide message
+		    }
+		}
+		
+		 function viewHomeworkDetails(homeworkId) {
+		    var url = '/homeworkDisplay/' + homeworkId ;
+		    window.location.href = url;
+		}
+		
+		function saveProtocolTemplate() {
+    		const name = document.getElementById('protocolName').value;
+		    const description = document.getElementById('protocolDescription').value;
+		    const steps = Array.from(document.querySelectorAll('#stepsContent > .row')).map(row => ({
+		        id: parseInt(row.getAttribute('data-step-id')),
+		        name: row.querySelector('.col-md-9').textContent.trim()
+		    }));
+		
+		    const protocolData = {
+		        name: name,
+		        description: description,
+		        steps: steps
+		    };
+		
+		    fetch('/createNewProtocolTemplate/', {
+		        method: 'POST',
+		        headers: {
+		            'Content-Type': 'application/json',
+		            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+		        },
+		        body: JSON.stringify(protocolData)
+		    })
+		    .then(response => {
+		        if (!response.ok) {
+		            throw new Error('Network response was not ok');
+		        }
+		        return response.json(); // Expecting JSON response
+		    })
+		    .then(data => {
+		        if (data.message) {
+		            alert(data.message);
+		            window.location.href = '/protocolTemplates'; // Redirect to protocol templates page
+		        } else if (data.error) {
+		            alert(data.error);
+		        }
+		    })
+		    .catch(error => alert('Error creating protocol template: ' + error));
+		}
+
+		function addStep() {
+		    const select = document.getElementById('stepSelector');
+		    const selectedOption = select.options[select.selectedIndex];
+		    const stepsContainer = document.getElementById('stepsContent');
+		
+		    // Create a new row for the step
+		    const newRow = document.createElement('div');
+		    newRow.className = 'row';
+		    newRow.innerHTML = `<div class="col-md-9">${selectedOption.text}</div>
+		                        <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
+		    newRow.setAttribute('data-step-id', selectedOption.value);
+		
+		    stepsContainer.prepend(newRow); // Use prepend to add the new step to the top
+		}
+		
+		function removeStep(button) {
+		    const row = button.parentNode.parentNode;
+		    row.parentNode.removeChild(row);
+		}
+
+
+</script>
+</body>
+</html>

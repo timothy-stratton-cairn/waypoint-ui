@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
@@ -172,8 +173,8 @@ public class HomeworkTemplateHelper{
         return result;
     }
     
-    public int newTemplate(User usr, String templateBody) {
-    	int result = 0;
+    public String newTemplate(User usr, String templateBody) {
+    	String result = "Process not yet set ";
     	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
     	HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, templateBody);
     	
@@ -181,18 +182,25 @@ public class HomeworkTemplateHelper{
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
 
-	            result = 1;
+	            result = "Success ";
 	        } else {
-	        	result = -1;
+	        	result = "Failed to fetch data. Status code: " + response.getStatusCode();
 	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
+		} catch (HttpClientErrorException.Conflict e) {
+            // Specifically handle the conflict exception
+            String errorResponse = e.getResponseBodyAsString();
+            System.err.println("Conflict Error: " + errorResponse);
+            result = "Error"+ errorResponse;
 		}
 		catch(Exception e) {
 			System.out.println("Error in updating Comment");
 	        e.printStackTrace();
+	        result = "Error in creating new Template: " + e;
 		}
+		
 			
 		return result;
 
