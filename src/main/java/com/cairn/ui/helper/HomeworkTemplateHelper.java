@@ -182,7 +182,7 @@ public class HomeworkTemplateHelper{
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
 
-	            result = "Success ";
+	            result = "Success";
 	        } else {
 	        	result = "Failed to fetch data. Status code: " + response.getStatusCode();
 	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());

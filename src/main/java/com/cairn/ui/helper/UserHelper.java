@@ -182,34 +182,32 @@ public class UserHelper {
 	}
 	
 	
-	public int addUser(User usr, String username,String firstName,String lastName,int role, String email, String password) {
-		int result = 0;
+	public String addUser(User loggedInUser, User newUser) {
+
+		ArrayList<String> roles = newUser.getRoles();
+		int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers
 	    String requestBody = String.format(
 	            "{\"username\": \"%s\", \"firstName\": \"%s\", \"lastName\": \"%s\", \"roleIds\": [%d], \"email\": \"%s\", \"password\": \"%s\"}",
-	            username, firstName, lastName, role, email, password
+	            newUser.getUsername(), newUser.getFirstName(), newUser.getLastName(),role,newUser.getEmail() , newUser.getPassword()
 	        );
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
-	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+	    HttpEntity<String> entity = Entity.getEntityWithBody(loggedInUser, apiUrl,requestBody);
 		System.out.println(apiUrl);
 		System.out.println(entity);
-		try {
+	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
+	            return "Success";
 	        } else {
-	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			System.out.println("Error in updating Comment");
+	            return "Error: " + response.getStatusCode() + " - " + response.getBody();
+	        }
+	    } catch (HttpClientErrorException e) {
+	        return "Error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
+	    } catch (Exception e) {
 	        e.printStackTrace();
-		}
-			
-		return result;
+	        return "Error: An internal error occurred";
+	    }
+	
 
 	}
 

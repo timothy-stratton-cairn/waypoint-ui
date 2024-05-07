@@ -12,6 +12,16 @@
     <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
 </div>
 <div class="container">
+		<div class ="container">
+		<div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
+		        <!-- Success message will be displayed here -->
+		    </div>
+		
+		    <!-- Display error message -->
+		    <div th:if="${not #strings.isEmpty(error)}" class="alert alert-danger" th:text="${error}">
+		        <!-- Error message will be displayed here -->
+		    </div>
+	</div>
     <div class="row note_card">
         <fieldset>
             <legend>New Client</legend>
@@ -52,50 +62,51 @@
 				</div>
                 
 
-                <button type="button" class="btn btn-secondary" onclick="saveClient();">Save</button>
+                <button type="submit" class="btn btn-secondary" onclick="saveClient(); return false;">Save</button>
+
             </form>
         </fieldset>
     </div>
     
 </div>
     <script>
-            function saveClient() {
-		        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-		        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+		function saveClient() {
+		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 		
-		        // Gather input values from the form
-		        var email = encodeURIComponent(document.getElementById('email').value);
-		        var firstName = encodeURIComponent(document.getElementById('firstName').value);
-		        var lastName = encodeURIComponent(document.getElementById('lastName').value);
-		        var username = encodeURIComponent(document.getElementById('username').value);
-		        var password = encodeURIComponent(document.getElementById('password').value);
-		        var role = encodeURIComponent(document.getElementById('role').value);
+		    var clientData = JSON.stringify({
+		        username: document.getElementById('username').value,
+		        firstName: document.getElementById('firstName').value,
+		        lastName: document.getElementById('lastName').value,
+		        email: document.getElementById('email').value,
+		        password: document.getElementById('password').value,
+		        roles: [document.getElementById('role').value]
+		    });
 		
-		        // Construct the request URL with path variables
-		        var requestUrl = `/addClient/${username}/${firstName}/${lastName}/${role}/${email}/${password}`;
-		
-		        // Send a POST request to the server
-		        fetch(requestUrl, {
-		            method: 'POST',
-		            headers: {
-		                'Accept': 'application/json',
-		                'Content-Type': 'application/json',
-		                [csrfHeader]: csrfToken
-		            }
-		        })
-		        .then(response => {
-		            if(response.ok) {
-		                alert("Client added successfully.");
+		    fetch('/addClient/', {
+		        method: 'POST',
+		        headers: {
+		            'Content-Type': 'application/json',
+		            'Accept': 'application/json',
+		            [csrfHeader]: csrfToken
+		        },
+		        body: clientData
+		    })
+		    .then(response => response.json())
+		    .then(data => {
+		        if (data.message) {
+		            window.location.href = '/clients'; // Redirect on success
+		        } else {
+		            throw new Error(data.error || 'Unknown error occurred.');
+		        }
+		    })
+		    .catch(error => {
+		        console.error('Error adding client:', error);
+		        alert('Error: ' + error.message);
+		    });
+		}
 
-		            } else {
-		                response.text().then(text => { throw Error(text); });
-		            }
-		        })
-		        .catch(error => {
-		            console.error('Error adding client:', error);
-		            alert('Failed to add the client. Error: ' + error.message);
-		        });
-		    }
+
     </script>
 </body>
 </html>

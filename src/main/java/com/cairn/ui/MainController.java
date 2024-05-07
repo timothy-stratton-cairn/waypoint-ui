@@ -627,23 +627,30 @@ public class MainController {
 	public String newClient(Model model) {
 		return "newClient";
 	}
+	
+	@PostMapping("/addClient/")
+	public ResponseEntity<Object> addClient(@RequestBody User requestBody) {
+	    User currentUser = userDAO.getUser();
+	    String call = userHelper.addUser(currentUser, requestBody);
 
-	@PostMapping("addClient/{username}/{firstName}/{lastName}/{role}/{email}/{password}")
-	public ResponseEntity<Object> addClient(@PathVariable String username, @PathVariable String firstName,
-			@PathVariable String lastName, @PathVariable int role, @PathVariable String email,
-			@PathVariable String password, Model model) {
-		User currentUser = userDAO.getUser();
-		try {
-			userHelper.addUser(currentUser, username, firstName, lastName, role, email, password);
+	    if (call.startsWith("Success")) {
+	        return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
+	    } else {
+	        Map<String, String> errorResponse = new HashMap<>();
+	        errorResponse.put("error", "Error processing the request");
 
-		} catch (Exception e) {
-			System.out.println("Error in addClient:");
-			e.printStackTrace(); // Print the stack trace to the console
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Error adding client: " + e.getMessage());
-		}
-		return ResponseEntity.ok().build();
+	        // Customize this logic to parse the actual error message
+	        if (call.contains("error")) {
+	            // Extract the "error" field and remove unnecessary details
+	            String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8, call.indexOf("\",", call.indexOf("\"error\":\"")));
+	            errorResponse.put("error", errorMessage);
+	        }
+	        System.out.println(errorResponse);
+	        return ResponseEntity.badRequest().body(errorResponse);
+	    }
 	}
+
+
 
 	@PostMapping("/updateUserPassword/{oldpassword}/{newpassword}/")
 	public ResponseEntity<Object> updateUserPassword(@PathVariable String opassword, @PathVariable String npassword,
@@ -760,7 +767,7 @@ public class MainController {
                 redirectAttributes.addFlashAttribute("error", "User not found.");
                 return "redirect:/login";
             }
-            if (call == "Sucess") {
+            if (call == "Success") {
             redirectAttributes.addFlashAttribute("success", "Homework template saved successfully.");
             return "redirect:/homeworkTemplates/";
             }
