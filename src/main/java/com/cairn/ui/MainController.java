@@ -506,9 +506,20 @@ public class MainController {
 		int id = userHelper.getUserId(usr);
 		User currentUser = userHelper.getUser(usr, id);
 		model.addAttribute("user", currentUser);// Adds the object to the model to be accessed by the form
+		model.addAttribute("id",id);
 		return "changeUserInfo";
 	}
-
+	
+	@GetMapping("/changeClientInfo/{id}") //basically the same from above but for clients that aren't the current user, requires a different page. 
+	public String changeClientInfo(@PathVariable int id, Model model) {
+		User usr = userDAO.getUser();
+		User client = userHelper.getUser(usr, id);
+		int clientId = client.getId();
+		model.addAttribute("user", client);
+		model.addAttribute("id",clientId);
+		return "changeUserInfo";
+	}
+	
 	@GetMapping("reports")
 	public String reports(Model model) {
 		User usr = userDAO.getUser();
@@ -652,31 +663,38 @@ public class MainController {
 
 
 
-	@PostMapping("/updateUserPassword/{oldpassword}/{newpassword}/")
-	public ResponseEntity<Object> updateUserPassword(@PathVariable String opassword, @PathVariable String npassword,
-			Model model) {
+	@PostMapping("/updateUserPassword/{id}")
+	public ResponseEntity<Object> updateUserPassword(@PathVariable int id, @RequestBody User requestBody) {
 		User currentUser = userDAO.getUser();
 
 		System.out.println(userHelper.getUserId(currentUser));
-		int id = userHelper.getUserId(currentUser);
-		try {
-			userHelper.changeUserPassword(currentUser, id, opassword, npassword);
-		} catch (Exception e) {
-			System.out.println("Error in addClient:");
-			e.printStackTrace(); // Print the stack trace to the console
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Error Changing Password: " + e.getMessage());
-		}
-		return ResponseEntity.ok().build();
+		
+		
+		String call = userHelper.changeUserPassword(currentUser, id, requestBody.getPassword(), requestBody.getVerifypassword());
+		if (call.startsWith("Success")) {
+	        return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
+	    } else {
+	        Map<String, String> errorResponse = new HashMap<>();
+	        errorResponse.put("error", "Error processing the request");
+
+
+	        if (call.contains("error")) {
+
+	            String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8, call.indexOf("\",", call.indexOf("\"error\":\"")));
+	            errorResponse.put("error", errorMessage);
+	        }
+	        System.out.println(errorResponse);
+	        return ResponseEntity.badRequest().body(errorResponse);
+	    }
 	}
 
-	@PatchMapping("/updateUserDetails/{firstName}/{lastName}/{email}/")
-	public ResponseEntity<Object> updateUserDetails(@PathVariable String firstName, @PathVariable String lastName,
+	@PatchMapping("/updateUserDetails/{id}/{firstName}/{lastName}/{email}/")
+	public ResponseEntity<Object> updateUserDetails(@PathVariable int id, @PathVariable String firstName, @PathVariable String lastName,
 			@PathVariable String email, Model model) {
 		User currentUser = userDAO.getUser();
 
-		System.out.print(userHelper.getUserId(currentUser));
-		int id = userHelper.getUserId(currentUser);
+		System.out.println("Calling updateUserDetails");
+
 		try {
 			userHelper.updateUserDetails(currentUser, id, firstName, lastName, email);
 

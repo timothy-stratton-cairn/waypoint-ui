@@ -49,22 +49,25 @@
 				<legend> Change Password</legend>
 						<form id = "passwordForm">
 				    <div class="form-group">
-	                    <label for="stepName">Old Password:</label>
-	                    <input type="password" id="password" name="oldPassword" class="form-control" th:value = "${user.password}">
-	                </div>
-	                
-	                <div class="form-group">
-	                    <label for="stepName">New  Password:</label>
-	                    <input type="password" id="password" name="newPassword" class="form-control" th:value = "${user.password}">
-	                </div>
-	                <button type="button" class="btn btn-secondary" onclick="savePassword()">Save</button>
+					    <label for="oldPassword">Old Password:</label>
+					    <input type="password" id="oldPassword" name="oldPassword" class="form-control">
+					</div>
+					
+					<div class="form-group">
+					    <label for="newPassword">New Password:</label>
+					    <input type="password" id="newPassword" name="newPassword" class="form-control">
+					</div>
+					
+					<button type="button" class="btn btn-secondary" onclick="savePassword()">Save</button>
+
 	                </form>
 			</fieldset>
 		</div>
 	</div>
 
-<script>
-    function saveUserDetails() {
+<script th:inline="javascript">
+	 const clientId = [[${id}]];
+    function saveUserDetails(id) {
 
 		console.log("saveUserDetails: Function called.");
 
@@ -76,7 +79,7 @@
 	    var lastName = document.getElementById('lastName').value;
 	
 	    // Construct the request URL
-	    var requestUrl = `/updateUserDetails/${firstName}/${lastName}/${email}/`;
+	    var requestUrl = `/updateUserDetails/${clientId}/${firstName}/${lastName}/${email}/`;
 	
 
 	    fetch(requestUrl, {
@@ -101,32 +104,41 @@
 	    });
 	}
     // Doing this as a different button cause it requires a different type of method a Post as opposed to a Patch
-    function savePassword() {
-	    // Get password input values
+	 function savePassword() {
 	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-		    
-	    var oldPassword = document.getElementById('oldPassword').value; 
-	    var newPassword = document.getElementById('newPassword').value; 
-	    
-	    // Construct the request URL
-	    var requestUrl = `/updateUserPassword/${oldPassword}/${newPassword}/`;
 	
-	    // Make the POST request
-	    fetch(requestUrl, {
-        	method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            }
+	    var oldPassword = document.getElementById('oldPassword').value;
+	    var newPassword = document.getElementById('newPassword').value;
+	
+	    var userObj = {
+	        "pwd": oldPassword,
+	        "verifyPwd": newPassword
+	    };
+	
+	    fetch('/updateUserPassword/'+clientId, {
+	        method: 'POST',
+	        headers: {
+	            'Accept': 'application/json',
+	            'Content-Type': 'application/json',
+	            [csrfHeader]: csrfToken
+	        },
+	        body: JSON.stringify(userObj)
 	    })
-	    .then(response => {
-	        if (response.ok) {
+	    .then(response => response.json().then(data => ({
+	        status: response.status,
+	        body: data
+	    })))
+	    .then(result => {
+	        if (result.status === 200) {
 	            alert('Password updated successfully.');
-	            window.location.reload(); 
+	            window.location.reload();
 	        } else {
-	            alert('Failed to update password.');
+	            if (result.body.error) {
+	                alert('Error updating password: ' + result.body.error);
+	            } else {
+	                alert('Failed to update password.');
+	            }
 	        }
 	    })
 	    .catch(error => {
@@ -134,6 +146,8 @@
 	        alert('Error updating password.');
 	    });
 	}
+
+
 </script>
 </body>>
 <div th:insert="~{footer :: main}">...</div>

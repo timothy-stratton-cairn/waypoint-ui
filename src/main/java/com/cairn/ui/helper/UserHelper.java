@@ -215,7 +215,8 @@ public class UserHelper {
 	
 	public int updateUserDetails(User usr, int id ,String firstName, String lastName, String email) {
 		int result = 0;
-
+		System.out.println("Calling userhelper updateUserDetails. FirstName: "+ firstName + " LastName: "+lastName+" Email: "+email );
+		
 	    String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\"}";
 
 	    String apiUrl = Constants.auth_server + Constants.api_userlist_get +"/"+ id ;
@@ -225,10 +226,10 @@ public class UserHelper {
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-
+	        	System.out.println("Success!");
 	            result = 1;
 	        } else {
-	        	result = -1;
+	        	
 	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
@@ -242,8 +243,8 @@ public class UserHelper {
 	}
 	
 	
-	public int changeUserPassword(User usr,int id, String oldPassword, String newPassword) {
-		int result =0;
+	public String changeUserPassword(User usr,int id, String oldPassword, String newPassword) {
+		
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
@@ -253,21 +254,17 @@ public class UserHelper {
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
+	            return "Success";
 	        } else {
-	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			System.out.println("Error in updating User Password");
-	        e.printStackTrace();
-		}
-		return result;
-	}
+	            return "Error: " + response.getStatusCode() + " - " + response.getBody();
+	        }
+		    } catch (HttpClientErrorException e) {
+		        return "Error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return "Error: An internal error occurred";
+		    }
+	    }
 
 	public int getUserId(User usr) {
 		int result = 0;
