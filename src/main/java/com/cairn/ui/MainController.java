@@ -926,7 +926,7 @@ public class MainController {
     		}
     	}
     	model.addAttribute("steps",stepList);
-    	return"analysis";
+
     	return"recommendations";
     }
 
