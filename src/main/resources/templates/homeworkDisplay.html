@@ -47,8 +47,12 @@
 			                <tr th:each="question : ${homework.questions}">
 							    <td th:text="${question.question}"></td>
 							    <td th:text="${question.questionType}"></td>
-							    <td><input type="text" th:name="${question.questionId}" th:value="${question.userResponse}" /></td>
+							    <td>
+							        <input type="text" th:name="response_${question.questionId}" th:value="${question.userResponse}" class="form-control"/>
+							        <input type="file" th:name="file_${question.questionId}" class="form-control"/>
+							    </td>
 							</tr>
+
 
 			            </tbody>
 			        </table>
@@ -61,40 +65,47 @@
 	
 <script th:inline="javascript">
     var homeworkId = [[${homeworkId}]];
-    document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('homeworkForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            var formData = new FormData(this);
-            var jsonData = {};
-            formData.forEach(function(value, key){
-                // Assuming each key is already the questionId, directly use it
-                jsonData[key] = value;
-            });
+	document.addEventListener('DOMContentLoaded', function () {
+	    document.getElementById('homeworkForm').addEventListener('submit', function (event) {
+	        event.preventDefault();
+	        var formData = new FormData(this);
+	
+	        // Add each question response and file to formData
+	        var rows = document.querySelectorAll('tbody tr');
+	        rows.forEach(function (row, index) {
+	            var questionId = row.querySelector('input[type=text]').name.split('_')[1];
+	            var response = row.querySelector('input[type=text]').value;
+	            var fileInput = row.querySelector('input[type=file]');
+	
+	            // Add the question id and response to the form data
+	            formData.append(`responses[${index}].id`, questionId);
+	            formData.append(`responses[${index}].response`, response);
+	
+	            // Only append the file if one is selected
+	            if (fileInput.files.length > 0) {
+	                formData.append(`responses[${index}].file`, fileInput.files[0]);
+	            }
+	        });
+	
+	        // Send formData to the server
+	        fetch(`/assignUserResponseToHomework/${homeworkId}`, {
+	            method: 'PATCH',
+	            headers: {
+	                'X-CSRF-TOKEN': [[${_csrf.token}]]
+	            },
+	            body: formData
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	            alert('Success:', data);
+	        })
+	        .catch((error) => {
+	            console.error('Error:', error);
+	        });
+	    });
+});
 
-            // Correctly form the URL with the homeworkId
-            fetch(`/assignUserResponseToHomework/${homeworkId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': [[${_csrf.token}]]
-                },
-                body: JSON.stringify(jsonData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
-    });
 </script>
-
-
-
-
-
 
 </body>
 </html>

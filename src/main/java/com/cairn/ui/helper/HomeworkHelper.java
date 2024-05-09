@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
@@ -203,7 +208,7 @@ public class HomeworkHelper{
     }
     
     
-    public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse) {
+    /*public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse) {
     	int result = -1;
     	if (usr == null) {
             System.out.println("No User found");
@@ -240,5 +245,61 @@ public class HomeworkHelper{
         }
     	
     	return result;
+    }*/
+    public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath) {
+        int result = -1;
+        
+        String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+
+        // Prepare the JSON part of the request
+        String requestBody = "{\"responses\": [{\"questionId\": " + questionId + ", \"userResponse\": \"" + userResponse + "\"}]}";
+        HttpHeaders headersJson = new HttpHeaders();
+        headersJson.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> partJson = Entity.getEntityWithBody(usr, apiUrl, requestBody);
+
+        // Prepare the MultiValueMap to be the body of the request
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("json", partJson);
+        HttpEntity<Resource> partFile;
+        
+        if (filePath==null) {
+
+        if (filePath != null && !filePath.trim().isEmpty()) {
+            Resource fileResource = new FileSystemResource(filePath);
+            if (fileResource.exists() && fileResource.isReadable()) {
+                System.out.println("File Path readable: " + filePath);
+                
+                partFile = Entity.getFileEntity(usr, apiUrl, fileResource);
+            } else {
+                System.out.println("File path does not exist or is not readable: " + filePath);
+                partFile = Entity.getFileEntity(usr, apiUrl, null);
+            }
+        } else {
+            System.out.println("No file will be attached as the file path is either null or empty.");
+            partFile = Entity.getFileEntity(usr, apiUrl, null);
+        }
+        body.add("files", partFile);
+        // Set up headers for the multipart request
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + usr.getToken());
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        System.out.println(body);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                result = 1; // Indicates success
+            } else {
+                result = -1;
+                System.out.println("Failed to update the homework response. Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error assigning user response: " + e.getMessage());
+        }
+
+        return result;
     }
+
 }

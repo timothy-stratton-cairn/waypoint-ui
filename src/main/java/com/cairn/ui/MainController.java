@@ -31,6 +31,7 @@ import com.cairn.ui.helper.ProtocolStepTemplateHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
+import com.cairn.ui.model.AssignedHomeworkResponse;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
@@ -878,19 +879,19 @@ public class MainController {
     
 
     @PatchMapping("/assignUserResponseToHomework/{homeworkId}")
-    public ResponseEntity<?> assignUserResponseToHomework(@PathVariable int homeworkId, @RequestBody Map<String, String> responses) {
+    public ResponseEntity<?> assignUserResponseToHomework(@PathVariable int homeworkId, @RequestBody List<AssignedHomeworkResponse> responses) {
         User currentUser = userDAO.getUser();
         HomeworkHelper helper= new HomeworkHelper();
         System.out.println("Responses: " + responses);
 
         try {
-            for (Map.Entry<String, String> entry : responses.entrySet()) {
-                int questionId = Integer.parseInt(entry.getKey());  // Directly parse the key as questionId
-                String userResponse = entry.getValue();
-                System.out.println("Question ID: " + questionId + " Response: " + userResponse);
-
-                helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse);
-            }
+        	for (AssignedHomeworkResponse response: responses) {
+            int questionId = response.getId();
+            String userResponse = response.getResponse();
+            System.out.println("Question ID: " + questionId + " Response: " + userResponse);
+            //String path = "/Users/wesleyanderson/Desktop/Screenshot 2024-04-01 at 3.57.37 AM.png";
+            helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse,null);
+        	}
             return ResponseEntity.ok("Responses successfully updated");
         } catch (NumberFormatException e) {
             System.err.println("Invalid question ID: " + e.getMessage());
@@ -901,5 +902,32 @@ public class MainController {
         }
     }
     
+    
+    @GetMapping("/analysis/{id}")
+    public String analysis(@PathVariable int id, Model model) {
+    	User currentUser = userDAO.getUser();
+    	ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
+    	for (ProtocolStep step: stepList) {
+    		if (step.getCategoryId() !=2) {
+    			stepList.remove(step);
+    		}
+    	}
+    	model.addAttribute("steps",stepList);
+    	return"analysis";
+    }
+    
+    @GetMapping("/recommendations/{id}")
+    public String recomendations(@PathVariable int id, Model model) {
+    	User currentUser = userDAO.getUser();
+    	ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
+    	for (ProtocolStep step: stepList) {
+    		if (step.getCategoryId() !=3) {
+    			stepList.remove(step);
+    		}
+    	}
+    	model.addAttribute("steps",stepList);
+    	return"analysis";
+    	return"recommendations";
+    }
 
 }
