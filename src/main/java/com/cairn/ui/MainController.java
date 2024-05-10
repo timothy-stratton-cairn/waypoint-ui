@@ -883,23 +883,24 @@ public class MainController {
         User currentUser = userDAO.getUser();
         HomeworkHelper helper= new HomeworkHelper();
         System.out.println("Responses: " + responses);
-
         try {
-        	for (AssignedHomeworkResponse response: responses) {
-            int questionId = response.getId();
-            String userResponse = response.getResponse();
-            System.out.println("Question ID: " + questionId + " Response: " + userResponse);
-            //String path = "/Users/wesleyanderson/Desktop/Screenshot 2024-04-01 at 3.57.37 AM.png";
-            helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse,null);
-        	}
+            for (AssignedHomeworkResponse response : responses) {
+                int questionId = response.getId();
+                String userResponse = response.getResponse();
+                String path = response.getFilePath();  // Assuming you have a getter for filePath
+                System.out.println("Question ID: " + questionId + " Response: " + userResponse + " FilePath: " + path);
+                helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse, path);
+            }
             return ResponseEntity.ok("Responses successfully updated");
         } catch (NumberFormatException e) {
             System.err.println("Invalid question ID: " + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid question ID format");
         } catch (Exception e) {
-            System.err.println("Error in processing responses: " + e.getMessage());
+            e.printStackTrace(); // This will print stack trace to the console
+            System.err.println("Error in processing responses: " + (e.getMessage() != null ? e.getMessage() : "Unknown Error"));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error assigning user responses");
         }
+
     }
     
     
@@ -926,7 +927,6 @@ public class MainController {
     		}
     	}
     	model.addAttribute("steps",stepList);
-
     	return"recommendations";
     }
 
