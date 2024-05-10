@@ -35,92 +35,87 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class HomeworkHelper{
-	
+public class HomeworkHelper {
+
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
 
-    private RestTemplate restTemplate;
+	private RestTemplate restTemplate;
 
+	private RestTemplate getRestTemplate() {
+		if (this.restTemplate == null) {
+			// Using HttpComponentsClientHttpRequestFactory to support PATCH
+			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+			requestFactory.setConnectTimeout(5000);
+			this.restTemplate = new RestTemplate(requestFactory);
+		}
+		return this.restTemplate;
+	}
 
+	public ArrayList<Homework> getHomeworkByProtocolId(User usr, int protocolId) {
 
-
-    private RestTemplate getRestTemplate() {
-        if (this.restTemplate == null) {
-            // Using HttpComponentsClientHttpRequestFactory to support PATCH
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-            requestFactory.setConnectTimeout(5000); 
-            this.restTemplate = new RestTemplate(requestFactory);
-        }
-        return this.restTemplate;
-    }
-    
-
-    public ArrayList<Homework> getHomeworkByProtocolId(User usr, int protocolId){
-
-    	ArrayList<Homework> results = new ArrayList<Homework>();
+		ArrayList<Homework> results = new ArrayList<Homework>();
 		if (usr == null) {
 			System.out.println("No User found");
 			return results;
 		}
 
-		String apiUrl = Constants.api_server + Constants.api_homework+ "protocol/" + protocolId;
+		String apiUrl = Constants.api_server + Constants.api_homework + "protocol/" + protocolId;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		System.out.println(apiUrl);
 		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
+				JsonNode jsonNode;
 				try {
-					ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-					// Process the response
-					if (response.getStatusCode().is2xxSuccessful()) {
-						String jsonResponse = response.getBody();
-						ObjectMapper objectMapper = new ObjectMapper();	
-						JsonNode jsonNode;
-						try {
-							jsonNode = objectMapper.readTree(jsonResponse);
-							JsonNode hwork = jsonNode.get("homeworks");
-							// Iterate through the array elements
-							Homework entry = null;
-							if (hwork.isArray()) {
-								for (JsonNode element : hwork) {
-									// Access and print array elements
-									if (element != null) {
-										entry = new Homework();
-										entry.setId(element.get("homeworkId").asInt());
-										entry.setName(element.get("name").asText());
-										entry.setParentStepId(element.path("parentProtocolStepId").asInt());
-										if (element.has("description") && !element.get("description").isNull()) {
-			                                entry.setDescription(element.get("description").asText());
-			                            } else {
-			                                entry.setDescription("No Description Given");
-			                            }
-										results.add(entry);
-									}
+					jsonNode = objectMapper.readTree(jsonResponse);
+					JsonNode hwork = jsonNode.get("homeworks");
+					// Iterate through the array elements
+					Homework entry = null;
+					if (hwork.isArray()) {
+						for (JsonNode element : hwork) {
+							// Access and print array elements
+							if (element != null) {
+								entry = new Homework();
+								entry.setId(element.get("homeworkId").asInt());
+								entry.setName(element.get("name").asText());
+								if (element.has("description") && !element.get("description").isNull()) {
+									entry.setDescription(element.get("description").asText());
+								} else {
+									entry.setDescription("No Description Given");
 								}
+								results.add(entry);
 							}
-						} catch (JsonMappingException e) {
-							e.printStackTrace();
-						} catch (JsonProcessingException e) {
-							e.printStackTrace();
 						}
-					} else {
-						System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
 					}
-				} catch (Exception e) {
-
-					System.out.println("No Homeworks Returned");
-
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
 				}
-				return results;
-    }
-    
-    public HomeworkListDto getHomeworkByProtocol(User usr, int id) {
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
 
-    	HomeworkListDto result = new HomeworkListDto();
+			System.out.println("No Homeworks Returned");
 
-		String apiUrl = Constants.api_server + Constants.api_homework+ "protocol/" + id;
-		
+		}
+		return results;
+	}
+
+	public HomeworkListDto getHomeworkByProtocol(User usr, int id) {
+
+		HomeworkListDto result = new HomeworkListDto();
+
+		String apiUrl = Constants.api_server + Constants.api_homework + "protocol/" + id;
+
 		System.out.println(apiUrl);
-		
+
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -136,22 +131,22 @@ public class HomeworkHelper{
 		} catch (Exception e) {
 			System.out.println("No Testing");
 		}
-    	
-    	return result;
-    }
-    
-    public Homework getHomeworkByHomeworkId(User usr, int id) {
-    	Homework result = new Homework();
-        if (usr == null) {
-            System.out.println("No User found");
-            return null; // Returning null to indicate user not found, handle accordingly
-        }
 
-        String apiUrl = Constants.api_server + Constants.api_homework + id;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        System.out.println(apiUrl);
+		return result;
+	}
 
-        try {
+	public Homework getHomeworkByHomeworkId(User usr, int id) {
+		Homework result = new Homework();
+		if (usr == null) {
+			System.out.println("No User found");
+			return null; // Returning null to indicate user not found, handle accordingly
+		}
+
+		String apiUrl = Constants.api_server + Constants.api_homework + id;
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		System.out.println(apiUrl);
+
+		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
@@ -165,127 +160,87 @@ public class HomeworkHelper{
 					result.setName(jsonNode.get("name").asText());
 					result.setId(jsonNode.get("homeworkId").asInt());
 					result.setDescription(jsonNode.get("description").asText());
-			
+
 					JsonNode homeworkQuestionsNode = jsonNode.get("homeworkQuestions");
 					ArrayList<HomeworkQuestion> homeworkQuestion = new ArrayList<HomeworkQuestion>();
 					if (homeworkQuestionsNode != null) {
 						JsonNode questionsNode = jsonNode.path("homeworkQuestions").path("questions");
-						if ( questionsNode.isArray()) {
-							for( JsonNode questionNode: questionsNode) {
-									HomeworkQuestion curQuestion = new HomeworkQuestion();
-						
-									curQuestion.setQuestionId(questionNode.path("questionId").asInt());
-									
-									curQuestion.setQuestionAbbreviation(questionNode.path("questionAbbr").asText());
-								
-									curQuestion.setQuestion(questionNode.path("question").asText());
-									
-									curQuestion.setQuestionType(questionNode.path("questionType").asText());
-									
-									curQuestion.setRequired(questionNode.path("isRequired").asBoolean());
-									
-									curQuestion.setUserResponse(questionNode.path("userResponse").asText());
-									
-									homeworkQuestion.add(curQuestion);
-								
-								
+						if (questionsNode.isArray()) {
+							for (JsonNode questionNode : questionsNode) {
+								HomeworkQuestion curQuestion = new HomeworkQuestion();
+
+								curQuestion.setQuestionId(questionNode.path("questionId").asInt());
+
+								curQuestion.setQuestionAbbreviation(questionNode.path("questionAbbr").asText());
+
+								curQuestion.setQuestion(questionNode.path("question").asText());
+
+								curQuestion.setQuestionType(questionNode.path("questionType").asText());
+
+								curQuestion.setRequired(questionNode.path("isRequired").asBoolean());
+
+								curQuestion.setUserResponse(questionNode.path("userResponse").asText());
+
+								homeworkQuestion.add(curQuestion);
+
 							}
 						} else {
-						    System.out.println("No 'questions' array found in the JSON response.");
+							System.out.println("No 'questions' array found in the JSON response.");
 						}
 					}
 					result.setQuestions(homeworkQuestion);
-					
-					
-					
+
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println("Error "+ e);
+					System.out.println("Error " + e);
 				}
-            } else {
-                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-            }
-        } catch (Exception e) {
-        	e.printStackTrace();
-            System.out.println("Error processing the homework fetch request: " + e.getMessage());
-        }
-        return result; // Return null to indicate that no homework was fetched
-    }
-    
-    
-    /*public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse) {
-    	int result = -1;
-    	if (usr == null) {
-            System.out.println("No User found");
-            return result; // Returning null to indicate user not found, handle accordingly
-        }
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error processing the homework fetch request: " + e.getMessage());
+		}
+		return result; // Return null to indicate that no homework was fetched
+	}
 
-        String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
-        System.out.println("ID "+questionId + " Response " + userResponse);
-        String requestBody = "{\"responses\": [" +
-                "{" +
-                "\"questionId\": " + questionId + "," +
-                "\"userResponse\": \"" + userResponse + "\"" +
-                "}" +
-                "]}";
+	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath)
+			throws IOException {
+		final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+		final String filename = filePath.split("/")[filePath.split("/").length - 1];
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath);
 
-        System.out.println(requestBody);
-        HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
-        System.out.println(apiUrl);
-        
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
+		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-        }catch(Exception e) {
-        	e.printStackTrace();
-            System.out.println("Error assigning user response: " + e.getMessage());
-        	
-        }
-    	
-    	return result;
-    }*/
-    public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath)
-        throws IOException {
-        System.out.println("AssignAnswersToHomework called: ");
-        System.out.println("Paramaters: User: "+ usr +" homeworkId: "+ homeworkId+ " Question Id: "+ questionId + " userResponse: "+ userResponse+ " fileaPath: "+ filePath);
-    				final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
-    				final String filename = filePath.split("/")[filePath.split("/").length - 1];
-    				InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath);
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-    				MultiValueMap<String,Object> multipartRequest = new LinkedMultiValueMap<>();
+		// #### HERE YOU ADD YOUR ACCESS TOKEN ####
+		requestHeaders.setBearerAuth(usr.getAuthToken());
 
-    				HttpHeaders requestHeaders = new HttpHeaders();
-    				requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+		HttpHeaders requestHeadersAttachment = new HttpHeaders();
+		;
+		requestHeadersAttachment.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		HttpEntity<ByteArrayResource> attachmentPart;
+		ByteArrayResource fileAsResource = new ByteArrayResource(
+				filePath == null || filePath.isEmpty() ? new byte[0] : Objects.requireNonNull(is).readAllBytes()) {
+			@Override
 
-    				//#### HERE YOU ADD YOUR ACCESS TOKEN ####
-    				requestHeaders.setBearerAuth(usr.getAuthToken());
+			public String getFilename() {
+				return filename;
+			}
+		};
+		System.out.println("File Path: " + filePath + " fileAsResource: " + fileAsResource);
+		attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
 
-    			HttpHeaders requestHeadersAttachment = new HttpHeaders();;
-    			requestHeadersAttachment.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-    			HttpEntity<ByteArrayResource> attachmentPart;
-    			ByteArrayResource fileAsResource = new ByteArrayResource(filePath == null || filePath.isEmpty() ? new byte[0] : Objects.requireNonNull(is).readAllBytes()){
-    				@Override
-    		
-    				public String getFilename(){
-    					return filename;
-    				}
-    			};
-    			System.out.println("File Path: "+filePath + " fileAsResource: " + fileAsResource);
-    			attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
+		multipartRequest.set("files", attachmentPart);
 
-    			multipartRequest.set("files", attachmentPart);
-
-    			//#### HERE WAS MY BIGGEST HURDLE - THIS APPROACH REQUIRES THE JSON PART OF THE MULTIPART/FORM_DATA ####
-    			//#### TO BE THE EXACT REPRESENTATION OF THE SERVER-SIDE DTO. IT DIDN'T WORK FOR ME OTHERWISE ####
-    			HttpHeaders requestHeadersJSON = new HttpHeaders();
-    			requestHeadersJSON.setContentType(MediaType.APPLICATION_JSON);
+		// #### HERE WAS MY BIGGEST HURDLE - THIS APPROACH REQUIRES THE JSON PART OF THE
+		// MULTIPART/FORM_DATA ####
+		// #### TO BE THE EXACT REPRESENTATION OF THE SERVER-SIDE DTO. IT DIDN'T WORK
+		// FOR ME OTHERWISE ####
+		HttpHeaders requestHeadersJSON = new HttpHeaders();
+		requestHeadersJSON.setContentType(MediaType.APPLICATION_JSON);
 //    			UpdateHomeworkResponseDetailsListDto requestBody = UpdateHomeworkResponseDetailsListDto.builder()
 //    					.responses(List.of(UpdateHomeworkResponseDetailsDto.builder()
 //    							.questionId(questionId)
@@ -293,19 +248,21 @@ public class HomeworkHelper{
 //    							.build()))
 //    					.build();
 //    			HttpEntity<UpdateHomeworkResponseDetailsListDto> requestEntityJSON = new HttpEntity<>(requestBody, requestHeadersJSON);
-    			String requestBody = "{\"responses\": [{\"questionId\": " + questionId + ", \"userResponse\": \"" + userResponse + "\"}]}";
-    			HttpEntity<String> requestEntityJSON = new HttpEntity<>(requestBody, requestHeadersJSON);
+		String requestBody = "{\"responses\": [{\"questionId\": " + questionId + ", \"userResponse\": \"" + userResponse
+				+ "\"}]}";
+		HttpEntity<String> requestEntityJSON = new HttpEntity<>(requestBody, requestHeadersJSON);
 
-    			multipartRequest.set("json",requestEntityJSON);
-    			this.restTemplate= getRestTemplate();
-    			HttpEntity<MultiValueMap<String,Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);//final request
+		multipartRequest.set("json", requestEntityJSON);
+		this.restTemplate = getRestTemplate();
+		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);// final
+																														// request
 
-    			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
+		ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
 
-    			if (response.getStatusCode().is2xxSuccessful()) {
-    				return 1;
-    			} else {
-    				return -1;
-    			}
-    		}
+		if (response.getStatusCode().is2xxSuccessful()) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}
 }
