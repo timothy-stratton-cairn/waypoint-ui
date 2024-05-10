@@ -35,7 +35,7 @@
 							<label for="description"><strong>Description:</strong></label>
 							</div>
 							<div class = "col-md-11">
-							<input type="text"id="description"name = "description"th:value="${protocol.description}">
+							<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
 							</div>
 						</div>
 	                </form>
@@ -53,16 +53,22 @@
 	            <button onclick="history.back()" class="btn btn-primary">Back</button>
 	            <div>
 	                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
-	                    <div>
-	                        <div class ="row" >
-	                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
-	                            <input type="form-control" id="name" name="name" th:value="${protocol.name}" />
-	                        </div>
-	                        <div class="row">
-								<label for="description"><strong>Description:</strong></label>
-								<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
+	                    <div class ="row" >
+							<div class="col-md-1">
+	                        <label for="name" class="mr-md-3"><strong>Name:</strong></label>
 							</div>
+							<div class = "col-md-11">
+	                        <input type="text" id="name" name="name" th:value="${protocol.name}"class="form-control" />
+	                        </div>
 	                    </div>
+	                    <div class="row">
+	                        <div class="col-md-1">
+	                            <label for="description"><strong>Description:</strong></label>
+	                        </div>
+	                        <div class="col-md-11">
+	                            <input type="text" id="description" name="description" th:value="${protocol.description}" class="form-control"/>
+	                        </div>
+                    	</div>
 	                </form>
 	            </div>
 	            <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
