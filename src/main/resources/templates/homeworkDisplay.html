@@ -34,7 +34,7 @@
 		<fieldset>
 			<legend>Questions</legend>
 			<form id="homeworkForm" action="#" method="post">
-			    <div class="table-responsive">
+			    <span class="table-responsive">
 			        <table class="table">
 			            <thead>
 			                <tr>
@@ -47,7 +47,34 @@
 			                <tr th:each="question : ${homework.questions}">
 							    <td th:text="${question.question}"></td>
 							    <td th:text="${question.questionType}"></td>
-							    <td><input type="text" th:name="${question.questionId}" th:value="${question.userResponse}" /></td>
+							    <td>
+									  <span th:switch="${question.questionType}">
+						                <span th:case="'FILE'">
+											<input type="file" th:name="${question.questionId}" th:value="${question.userResponse}" />
+										</span>
+						                <span th:case="'DATE'">
+											<input type="date" th:name="${question.questionId}" th:value="${question.userResponse}" />
+										</span>
+						                <span th:case="'DATETIME'">
+											<input type="datetime-local" th:name="${question.questionId}" th:value="${question.userResponse}" />
+										</span>
+						                <span th:case="'BOOLEAN'">
+											<input type="checkbox" th:name="${question.questionId}" th:value="${question.userResponse}" />
+										</span>
+						                <span th:case="'SELECT_OPTION'">
+											<input type="radio" name="SELECT_TEST" id="opt1" value="Option 1">
+											<input type="radio" name="SELECT_TEST" id="opt2" value="Option 2">
+											<input type="radio" name="SELECT_TEST" id="opt3" value="Option 3">
+										</span>
+						                <span th:case="'MULTI_SELECT_OPTION'">
+											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt1" value="Option 1">
+											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt2" value="Option 2">
+											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt3" value="Option 3">
+										</span>
+						                <span th:case="*">
+											<input type="text" th:name="${question.questionId}" th:value="${question.userResponse}" />
+										</span>
+    </td>
 							</tr>
 
 			            </tbody>
