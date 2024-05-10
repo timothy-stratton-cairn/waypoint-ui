@@ -63,13 +63,7 @@
 					</table>
 				</div>
 				<!-- Updated to include selection and button in one place -->
-				<select class="form-control mt-2" id="homeworkTemplateDropdown">
-					<option value="">Select Homework Template</option>
-					<option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}">
-						Homework Template Name</option>
-				</select>
-				<button type="button" id="btnAddHomeworkTemplate" class="btn btn-primary mt-2" onclick="addHomeworkTemplate();">Add
-					Homework</button>
+				<button type="button" id="btnAddHomeworkTemplate" class="btn btn-primary mt-2" onclick="addHomeworkTemplate();">Add Homework</button>
 			</fieldset>
 		</div>
 	</div>
@@ -77,6 +71,8 @@
 
 	<!-- Homework Template Selection -->
 	<div class="container mt-3">
+
+		<fieldset>
 		<div id="homeworkTemplateSelector" style="display:none;">
 			<select class="form-control mt-2" id="homeworkTemplateDropdown" name="homeworkTemplateId">
 				<option value="">Select Homework Template</option>
@@ -85,6 +81,8 @@
 			</select>
 			<button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate()">Confirm</button>
 		</div>
+		</fieldset>
+
 	</div>
 
 

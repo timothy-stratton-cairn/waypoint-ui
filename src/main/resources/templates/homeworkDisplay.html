@@ -15,23 +15,14 @@
 			<legend>Edit Homework</legend>
 			<button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
 			<div class="form-group">
-	       	            <label for="homeworkName">Name:</label>
-	                    <input type="text" id="homeworkName" name="homeworkName" class="form-control" th:value="${homework.name}">
-	        </div>
-	        <div class ="form-group">
-	                    <label for="hoemworkDetails">Description:</label>
-	                    <textarea id="homeworkDetails" name="homeworkDescription" class="form-control" rows="3" th:text="${homework.description}"></textarea>
-	        
-	        </div>
-		</fieldset>
-	</div>
-</div>
+			    <label for="homeworkName"><strong>Name:</strong></label>
+			    <span id="homeworkName"  th:text="${homework.name}">Homework Name</span>
+			</div>
+			<div class="form-group">
+			    <label for="homeworkDetails"><strong>Description:</strong></label>
+			    <span id="homeworkDetails" th:text="${homework.description}">Homework Description</span>
+			</div>
 
-
-<div class = "container">
-	<div class="row note_card">
-		<fieldset>
-			<legend>Questions</legend>
 			<form id="homeworkForm" action="#" method="post">
 			    <span class="table-responsive">
 			        <table class="table">
@@ -81,8 +72,9 @@
 
 			            </tbody>
 			        </table>
+			        <button type="submit" class="btn btn-primary">Submit Responses</button>
+			        <br>
 			    </div>
-			    <button type="submit" class="btn btn-primary">Submit Responses</button>
 			</form>
 		</fieldset>
 	</div>
