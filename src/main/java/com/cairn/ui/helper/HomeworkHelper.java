@@ -87,6 +87,7 @@ public class HomeworkHelper{
 										entry = new Homework();
 										entry.setId(element.get("homeworkId").asInt());
 										entry.setName(element.get("name").asText());
+										entry.setParentStepId(element.path("parentProtocolStepId").asInt());
 										if (element.has("description") && !element.get("description").isNull()) {
 			                                entry.setDescription(element.get("description").asText());
 			                            } else {

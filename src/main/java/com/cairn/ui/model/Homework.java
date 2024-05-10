@@ -13,6 +13,7 @@ public class Homework {
 	private String name;
 	private String response;
 	private int clientId;
+	private int parentStepId;
 	private ArrayList<HomeworkQuestion> questions;
 
 	public int getId() {
@@ -56,6 +57,12 @@ public class Homework {
 	}
 	public void setQuestions(ArrayList<HomeworkQuestion> questions) {
 		this.questions = questions;
+	}
+	public int getParentStepId() {
+		return parentStepId;
+	}
+	public void setParentStepId(int parentStepId) {
+		this.parentStepId = parentStepId;
 	}
 	
 }

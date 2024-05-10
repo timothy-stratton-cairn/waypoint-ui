@@ -8,27 +8,39 @@
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
-<div class="container mt-3">
-    <button onclick="history.back()" class="btn btn-primary">Back</button>
-</div>
+
+   
+
 <div class="container">
+
     <!-- Protocol Details Form for New Protocol (ID = 0) -->
     <div th:if="${protocol.id == null || protocol.id == 0}">
         <div class="row note_card">
             <fieldset>
                 <legend>Protocol Details</legend>
+                <button onclick="history.back()" class="btn btn-primary">Back</button>
                 <div>
+					
 	                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
 	                    <div class ="row" >
+							<div class="col-md-1">
 	                        <label for="name" class="mr-md-3"><strong>Name:</strong></label>
-	                        <input type="form-control" id="name" name="name" th:value="${protocol.name}" />
+							</div>
+							<div class = "col-md-11">
+	                        <input type="text" id="name" name="name" th:value="${protocol.name}" />
+	                        </div>
 	                    </div>
 	                    <div class="row">
+							<div class="col-md-1">
 							<label for="description"><strong>Description:</strong></label>
-							<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
+							</div>
+							<div class = "col-md-11">
+							<input type="text"id="description"name = "description"th:value="${protocol.description}">
+							</div>
 						</div>
 	                </form>
                 </div>
+	 			<button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
             </fieldset>
         </div>
     </div>
@@ -38,6 +50,7 @@
 	    <div class="row note_card">
 	        <fieldset>
 	            <legend>Protocol Details</legend>
+	            <button onclick="history.back()" class="btn btn-primary">Back</button>
 	            <div>
 	                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
 	                    <div>
@@ -52,6 +65,7 @@
 	                    </div>
 	                </form>
 	            </div>
+	            <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
 	        </fieldset>
 	    </div>
 	</div>
@@ -148,9 +162,6 @@
             <button type="button" class="btn btn-primary" onclick="addStep();">Add Step</button>
         </fieldset>
     </div>
-</div>
-<div class="container">
-	 <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
 </div>
     <script>
         var protocolId = [[${protocolId}]]; 

@@ -6,16 +6,15 @@
     <title>Protocol Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<body>
+<div>
 <div th:insert="~{header :: main}">...</div>
-<div class="container mt-3">
-    <button onclick="history.back()" class="btn btn-primary">Back</button>
-<div class="container">
+	<div class="container">
     <!-- Steps Section with Tabs -->
     <div class="row note_card">
         <fieldset>
             <legend>Recommendations</legend>
-
+			<button onclick="history.back()" class="btn btn-primary">Back</button>
+			<div class="container">
             <div id="stepsContent">
                 <div th:each="step, iterStat : ${steps}" 
                      th:id ="'row_' + ${step.id}" 
@@ -33,6 +32,29 @@
                     <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
 
                     <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+</div>
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Homework</legend>
+            <div class="rowheader row">
+                <div class="col">Name</div>
+                <div class="col">Description</div>
+                <div class="col">Action</div>
+            </div>
+
+            <div th:each="homework, stat : ${homeworks}" th:id="|row_${stat.index}|"
+                 th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
+                <div class="col" th:text="${homework.name}">Default Name</div>
+                <div class="col" th:text="${homework.description}">Default Description</div>
+                <div class="col">
+                    <button type="button" class="btn btn-sm btn-secondary" th:onclick="'viewHomeworkDetails('+${homework.id}+');'">Details</button>
+
                 </div>
             </div>
         </fieldset>

@@ -130,6 +130,80 @@ public class MainController {
 
 		return "protocolDetail";
 	}
+	@GetMapping("/analysis/{id}")
+	public String analysis(@PathVariable int id, Model model) {
+	    User currentUser = userDAO.getUser();
+	    ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
+	    ArrayList<Integer>stepIds = new ArrayList<Integer>();
+	    HomeworkHelper homeworkHelper = new HomeworkHelper();
+	    ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
+	    
+	    for (ProtocolStep step : stepList) {
+	        System.out.println("Step " + step.getName() + " Category: " + step.getCategoryId());
+	        if (step.getCategoryId() == 2) {
+	            stepIds.add(step.getId());
+	        }
+	    }
+	    // Using removeIf to directly filter elements
+	    stepList.removeIf(step -> step.getCategoryId() != 2);
+	    
+	    
+	    for (ProtocolStep step: stepList) {
+	    	System.out.println("Step "+ step.getName() + " Catagory: "+ step.getCategoryId());
+	    }
+
+	    if (allHomeworks != null && !allHomeworks.isEmpty()) {
+	        for (Homework homework : allHomeworks) {
+	            System.out.println("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription() + " Parent Step Id: "+ homework.getParentStepId());
+	        }
+	    } else {
+	        System.out.println("No homeworks found or list is empty");
+	    }
+	    if (allHomeworks != null && !allHomeworks.isEmpty()) {
+	        allHomeworks.removeIf(homework -> !stepIds.contains(homework.getParentStepId())); // Remove homeworks whose ParentStepId is not in stepIds
+	    }
+	    
+	    
+		model.addAttribute("homeworks",allHomeworks);
+	    model.addAttribute("steps", stepList);
+	    
+	    return "analysis";
+	}
+    
+    @GetMapping("/recommendations/{id}")
+    public String recomendations(@PathVariable int id, Model model) {
+    	User currentUser = userDAO.getUser();
+	    ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
+	    ArrayList<Integer>stepIds = new ArrayList<Integer>();
+	    HomeworkHelper homeworkHelper = new HomeworkHelper(); 
+	    ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
+	    
+	    for (ProtocolStep step : stepList) {
+	        System.out.println("Step " + step.getName() + " Category: " + step.getCategoryId());
+	        if (step.getCategoryId() == 2) {
+	            stepIds.add(step.getId());
+	        }
+	    }
+	    // Using removeIf to directly filter elements
+	    stepList.removeIf(step -> step.getCategoryId() != 3);
+	    for (ProtocolStep step: stepList) {
+	    	System.out.println("Step "+ step.getName() + " Catagory: "+ step.getCategoryId());
+	    }
+	    if (allHomeworks != null && !allHomeworks.isEmpty()) {
+	        for (Homework homework : allHomeworks) {
+	            System.out.println("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription() + " Parent Step Id: "+ homework.getParentStepId());
+	        }
+	    } else {
+	        System.out.println("No homeworks found or list is empty");
+	    }
+	    if (allHomeworks != null && !allHomeworks.isEmpty()) {
+	        allHomeworks.removeIf(homework -> !stepIds.contains(homework.getParentStepId())); // Remove homeworks whose ParentStepId is not in stepIds
+	    } System.out.println("No homeworks found or list is empty");
+	    
+		model.addAttribute("homeworks",allHomeworks);
+    	model.addAttribute("steps",stepList);
+    	return"recommendations";
+    }
 
 	@PatchMapping("/updateProtocolComment/{protocolId}/{comment}")
 	public ResponseEntity<Object> updateProtocolComment(@PathVariable int protocolId, @PathVariable String comment,
@@ -286,6 +360,7 @@ public class MainController {
 		model.addAttribute("allSteps", allSteps);
 		return "displayProtocol";
 	}
+	
 
 	// Place holders for creating new and saving changes to steps and protocols
 	@GetMapping("/newStep/")
@@ -904,30 +979,6 @@ public class MainController {
     }
     
     
-    @GetMapping("/analysis/{id}")
-    public String analysis(@PathVariable int id, Model model) {
-    	User currentUser = userDAO.getUser();
-    	ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
-    	for (ProtocolStep step: stepList) {
-    		if (step.getCategoryId() !=2) {
-    			stepList.remove(step);
-    		}
-    	}
-    	model.addAttribute("steps",stepList);
-    	return"analysis";
-    }
-    
-    @GetMapping("/recommendations/{id}")
-    public String recomendations(@PathVariable int id, Model model) {
-    	User currentUser = userDAO.getUser();
-    	ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
-    	for (ProtocolStep step: stepList) {
-    		if (step.getCategoryId() !=3) {
-    			stepList.remove(step);
-    		}
-    	}
-    	model.addAttribute("steps",stepList);
-    	return"recommendations";
-    }
+
 
 }

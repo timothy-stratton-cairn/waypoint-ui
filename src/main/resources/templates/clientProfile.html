@@ -16,6 +16,7 @@
 		<div class="note_card">
 			<fieldset>
 				<legend>Client</legend>
+				<button onclick="history.back()" class="btn btn-primary">Back</button>
 				<div>
 					<label>Client Name:</label>
 					<span th:text="${client.firstName} + ' ' + ${client.lastName}"></span>
@@ -77,6 +78,9 @@
 		<div class="note_card">
 			<fieldset>
 				<legend>Assigned Protocols</legend>
+				
+				
+				
 				<div class="row">
 					<div class="col-2">
 						<input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
@@ -140,20 +144,18 @@
 										<div class="col-md-8">
 											<button class="btn btn-secondary" th:attr="onclick=|goToHomeworks('${pcol.id}');|">Homework</button>&nbsp;&nbsp;
 
-											<button class="btn btn-secondary" onclick="goToHomeworkTemplates()">Analysis</button>&nbsp;&nbsp;
+											<button class="btn btn-secondary"th:attr="onclick=|viewAnalysis('${pcol.id}');|">Analysis</button>&nbsp;&nbsp;
 											<button class="btn btn-secondary"
-												onclick="goToHomeworkTemplates()">Recommendations</button>
+												th:attr="onclick=|viewRecommendations('${pcol.id}');|">Recommendations</button>
 										</div>
 									</div>
 								</div>
 							</div>
+					<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+					</fieldset>
+						<div id="protocolContainer"></div>
+					</fieldset>
 					</div>
-					<div class="col-2">
-						<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
-					</div>
-			</fieldset>
-			<div id="protocolContainer"></div>
-			</fieldset>
 		</div>
 
 
@@ -172,14 +174,15 @@
 	</div>
 
 
-	<div class="container mt-3">
-		<button onclick="history.back()" class="btn btn-primary">Back</button>
-	</div>
-
-
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 	<script th:inline="javascript">
+	   function viewAnalysis(id){
+		   window.location= '/analysis/'+id;
+	   }
+	   function viewRecommendations(id){
+		   window.location= '/recommendations/'+id;
+	   }
 		// Activate the first tab by default
 		var firstTabEl = document.querySelector('#dependentTabs .nav-link');
 		var firstTab = new bootstrap.Tab(firstTabEl);
