@@ -1,8 +1,5 @@
 package com.cairn.ui.dto;
 
-import com.cairn.waypoint.dashboard.endpoints.homework.dto.HomeworkQuestionListDto;
-import com.cairn.waypoint.dashboard.endpoints.homework.dto.HomeworkUserListDto;
-
 public class HomeworkDto {
 
   private String name;
