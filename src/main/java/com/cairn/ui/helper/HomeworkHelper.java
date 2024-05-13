@@ -1,15 +1,13 @@
 package com.cairn.ui.helper;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,14 +19,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.dto.HomeworkDto;
 import com.cairn.ui.dto.HomeworkListDto;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
-import com.cairn.ui.model.HomeworkTemplate;
-import com.cairn.ui.model.Protocol;
-import com.cairn.ui.model.ProtocolStats;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -292,6 +286,7 @@ public class HomeworkHelper {
 	    HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);
 
 	    // Make the HTTP call
+		this.restTemplate = getRestTemplate();
 	    ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
 	    return response.getStatusCode().is2xxSuccessful() ? 1 : -1;
 	}
