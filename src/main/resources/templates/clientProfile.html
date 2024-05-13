@@ -70,6 +70,7 @@
 						</div>
 					</div>
 				</div>
+					<a class="btn btn-sm btn-secondary" th:href="${'javascript:addDependant(' + client.id + ');'}">Add Dependant</a>
 			</fieldset>
 		</div>
 	</div>
@@ -177,12 +178,27 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 	<script th:inline="javascript">
+		
+	   function addDependant(id){
+		   window.location = '/createDependant/'+id;
+	   }
 	   function viewAnalysis(id){
 		   window.location= '/analysis/'+id;
 	   }
 	   function viewRecommendations(id){
 		   window.location= '/recommendations/'+id;
 	   }
+	   
+	   	function goToHomeworkTemplates() {
+			window.location.href = '/homeworkList/';
+		}
+		function goToHomeworks(id) {
+			window.location.href = '/homeworkList/'+id;
+		}
+		function editClient(id){
+			window.location.href= '/changeClientInfo/'+id;
+		}
+		
 		// Activate the first tab by default
 		var firstTabEl = document.querySelector('#dependentTabs .nav-link');
 		var firstTab = new bootstrap.Tab(firstTabEl);
@@ -310,15 +326,6 @@
 		    }
 		}
 
-		function goToHomeworkTemplates() {
-			window.location.href = '/homeworkList/';
-		}
-		function goToHomeworks(id) {
-			window.location.href = '/homeworkList/'+id;
-		}
-		function editClient(id){
-			window.location.href= '/changeClientInfo/'+id;
-		}
 	</script th:inline="javascript">
 </body>
 <div th:insert="~{footer :: main}">...</div>

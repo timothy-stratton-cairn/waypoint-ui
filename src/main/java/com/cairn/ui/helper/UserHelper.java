@@ -197,7 +197,7 @@ public class UserHelper {
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-	            return "Success";
+	            return "Success " + response.getBody();
 	        } else {
 	            return "Error: " + response.getStatusCode() + " - " + response.getBody();
 	        }

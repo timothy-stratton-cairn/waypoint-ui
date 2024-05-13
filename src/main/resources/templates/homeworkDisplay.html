@@ -31,25 +31,26 @@
 			                    <th>Question</th>
 			                    <th>Type</th>
 			                    <th>Response</th>
+			                    <th>File Path</th>
 			                </tr>
 			            </thead>
 			            <tbody>
-			                <tr th:each="question : ${homework.questions}">
+			                <tr th:each="question : ${homework.questions}" th:id="${question.questionId}">
 							    <td th:text="${question.question}"></td>
 							    <td th:text="${question.questionType}"></td>
 							    <td>
 									  <span th:switch="${question.questionType}">
 						                <span th:case="'FILE'">
-											<input type="file" th:name="${question.questionId}" th:value="${question.userResponse}" />
+											<input type="file" th:name="response" th:value="${question.userResponse}" />
 										</span>
 						                <span th:case="'DATE'">
-											<input type="date" th:name="${question.questionId}" th:value="${question.userResponse}" />
+											<input type="date" th:name="response" th:value="${question.userResponse}" />
 										</span>
 						                <span th:case="'DATETIME'">
-											<input type="datetime-local" th:name="${question.questionId}" th:value="${question.userResponse}" />
+											<input type="datetime-local" th:name="response" th:value="${question.userResponse}" />
 										</span>
 						                <span th:case="'BOOLEAN'">
-											<input type="checkbox" th:name="${question.questionId}" th:value="${question.userResponse}" />
+											<input type="checkbox" th:name="response" th:value="${question.userResponse}" />
 										</span>
 						                <span th:case="'SELECT_OPTION'">
 											<input type="radio" name="SELECT_TEST" id="opt1" value="Option 1">
@@ -62,10 +63,13 @@
 											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt3" value="Option 3">
 										</span>
 						                <span th:case="*">
-											<input type="text" th:name="${question.questionId}" th:value="${question.userResponse}" />
+											<input type="text" th:name="response" th:value="${question.userResponse}" />
 										</span>
-    </td>
-							</tr>
+   							 </td>
+   							 <td>
+                                    <input type="text" th:name="filePath" placeholder="File Path" />
+                             </td>
+						</tr>
 
 			            </tbody>
 			        </table>
@@ -87,12 +91,19 @@
             var assignedResponses = [];
             var rows = document.querySelectorAll('tbody tr');
             
+        
             rows.forEach(function (row) {
-                // Create a new AssignedHomeworkResponse DTO
+           // Ensure that both input elements exist before accessing their values
+                var responseInput = row.querySelector(`input[name='response']`);
+                var filePathInput = row.querySelector(`input[name='filePath']`);
+                
+                var responseValue = responseInput ? responseInput.value : "";
+                var filePathValue = filePathInput ? filePathInput.value : "";
+
                 var dto = {
-                    id: parseInt(row.querySelector('input').name, 10),
-                    response: row.querySelector('input').value,
-                    filePath: "" // Initially empty; to be populated later
+                    id: parseInt(row.id, 10), // Parse the ID as an integer
+                    response: responseValue,
+                    filePath: filePathValue ? filePathValue : "" // Set to null if empty
                 };
                 assignedResponses.push(dto);
             });

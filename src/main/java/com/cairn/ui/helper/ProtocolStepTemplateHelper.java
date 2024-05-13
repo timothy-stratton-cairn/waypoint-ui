@@ -197,4 +197,28 @@ public class ProtocolStepTemplateHelper{
     }
     
     
+    public int deleteHomeworkTemplate(User usr, int stepId, int homeworkId) {
+    	int result = -1;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get +"/"+ stepId + "?homeworkTemplateId="+homeworkId ;
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			result = -1;
+			System.out.println("Error in deleteHomeworkTemplate");
+	        e.printStackTrace();
+		}
+    	return result;
+    }
+    
 }

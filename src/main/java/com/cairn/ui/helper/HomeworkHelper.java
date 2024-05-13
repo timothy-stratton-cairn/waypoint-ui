@@ -204,12 +204,12 @@ public class HomeworkHelper {
 		return result; // Return null to indicate that no homework was fetched
 	}
 
-	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath)
-			throws IOException {
+/*	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath)
+		throws IOException {
 		final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
 		final String filename = filePath.split("/")[filePath.split("/").length - 1];
 		InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath);
-
+		System.out.println(filePath);
 		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
 		HttpHeaders requestHeaders = new HttpHeaders();
@@ -264,5 +264,38 @@ public class HomeworkHelper {
 		} else {
 			return -1;
 		}
+	}*/
+	
+	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath) throws IOException {
+	    final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+	    final String filename = new File(filePath).getName();
+	    
+	    byte[] fileData = filePath == null || filePath.isEmpty() ? new byte[0] : Files.readAllBytes(Paths.get(filePath));
+	    ByteArrayResource fileAsResource = new ByteArrayResource(fileData) {
+	        @Override
+	        public String getFilename() {
+	            return filename;
+	        }
+	    };
+
+	    // Prepare multipart request
+	    MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
+	    HttpHeaders requestHeaders = new HttpHeaders();
+	    requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+	    requestHeaders.setBearerAuth(usr.getAuthToken()); // Assuming auth token is necessary
+
+	    HttpHeaders requestHeadersAttachment = new HttpHeaders();
+	    requestHeadersAttachment.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+	    HttpEntity<ByteArrayResource> attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
+
+	    multipartRequest.add("files", attachmentPart);
+	    HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);
+
+	    // Make the HTTP call
+	    ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
+	    return response.getStatusCode().is2xxSuccessful() ? 1 : -1;
 	}
+
 }
+	
+	

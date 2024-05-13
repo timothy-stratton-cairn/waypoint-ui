@@ -7,12 +7,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -614,12 +617,38 @@ public class MainController {
 
 		return "displayClients";
 	}
+	@GetMapping("createDependant/{clientId}")
+	public String createDependant(@PathVariable int clientId, Model model) {
+		model.addAttribute("clientId",clientId);
+;		return "addDependant";
+	}
 	
-	@PatchMapping("addDependant/{clientId}/{dependantId}")
-	public ResponseEntity<Object> addDependant(@PathVariable int clientId,@PathVariable String dependantUser ){
+    public static int extractIdFromString(String response) {
+        // Define a regex pattern to capture the numeric value of "id"
+        Pattern pattern = Pattern.compile("\"id\":(\\d+)");
+        Matcher matcher = pattern.matcher(response);
+
+        // If the pattern matches, return the captured numeric value
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+
+        // Return -1 if no ID is found
+        return -1;
+    }
+	
+	@PatchMapping("addDependant/{clientId}")
+	public ResponseEntity<Object> addDependant(@PathVariable int clientId,@RequestBody User dependantUser ){
 		User currentUser = userDAO.getUser();
 		User client = userHelper.getUser(currentUser, clientId);
+		String userDependant = userHelper.addUser(currentUser, dependantUser);
+		int dependantId = extractIdFromString(userDependant);
+		User newDependant = userHelper.getUser(currentUser, dependantId);
+		ArrayList<User> dependants = client.getDependents();
+		dependants.add(newDependant);
+		
 		try {
+			userHelper.addDependant(currentUser, clientId, dependants);
 			
 		} catch (Exception e) {
 			System.out.println("Error in addClientToProtocol:");
@@ -721,6 +750,7 @@ public class MainController {
 	    String call = userHelper.addUser(currentUser, requestBody);
 
 	    if (call.startsWith("Success")) {
+	    	System.out.println(call);
 	        return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
 	    } else {
 	        Map<String, String> errorResponse = new HashMap<>();
@@ -907,17 +937,12 @@ public class MainController {
     	}
     }
     
-    @PatchMapping("/removeStepFromTemplate/{tempId}/{stepId}")
+    @DeleteMapping("/removeStepFromTemplate/{tempId}/{stepId}")
     public ResponseEntity<?>removeStepFromTemplate(@PathVariable int tempId, @PathVariable int stepId){
     	User currentUser = userDAO.getUser();
-    	ArrayList<ProtocolStepTemplate> steps = protocolTemplateHelper.getStepList(currentUser, tempId);
-    	for (ProtocolStepTemplate step : steps) {
-    		if(step.getId() == stepId) {
-    			steps.remove(step);
-    		}
-    	}
+
     	try{
-    		int apiCall = protocolTemplateHelper.removeTemplateStep(currentUser, tempId, steps);
+    		int apiCall = protocolTemplateHelper.deleteProtocolStepTemplate(currentUser, tempId, stepId);
     		if (apiCall == 1) {
     			return ResponseEntity.ok("Template processed successfully");
     		}else {
@@ -928,6 +953,23 @@ public class MainController {
     	}
     }
     
+    @DeleteMapping("/removeHomeworkFromStepTemplate/{stepId}/{homeworkId}")
+    public ResponseEntity<?>removeHomeworkFromStepTemplate(@PathVariable int stepId, @PathVariable int homeworkId){
+    	
+    	User currentUser = userDAO.getUser();
+
+    	try{
+    		int apiCall = protocolStepTemplateHelper.deleteHomeworkTemplate(currentUser, stepId, homeworkId);
+    		if (apiCall == 1) {
+    			return ResponseEntity.ok("Template processed successfully");
+    		}else {
+    			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
+    		}
+    	}catch(Exception e) {
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
+    	}
+    	
+    }
     
     @GetMapping("/homeworkList/{id}")
     public String homeworkList(@PathVariable int id, Model model) {
