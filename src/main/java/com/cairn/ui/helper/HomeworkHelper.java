@@ -2,12 +2,18 @@ package com.cairn.ui.helper;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,10 +25,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.dto.HomeworkDto;
 import com.cairn.ui.dto.HomeworkListDto;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
+import com.cairn.ui.model.HomeworkTemplate;
+import com.cairn.ui.model.Protocol;
+import com.cairn.ui.model.ProtocolStats;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -198,99 +208,52 @@ public class HomeworkHelper {
 		return result; // Return null to indicate that no homework was fetched
 	}
 
-/*	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath)
-		throws IOException {
+	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath)
+			throws IOException {
 		final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
-		final String filename = filePath.split("/")[filePath.split("/").length - 1];
-		InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath);
-		System.out.println(filePath);
 		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-		// #### HERE YOU ADD YOUR ACCESS TOKEN ####
 		requestHeaders.setBearerAuth(usr.getAuthToken());
 
 		HttpHeaders requestHeadersAttachment = new HttpHeaders();
-		;
+
 		requestHeadersAttachment.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 		HttpEntity<ByteArrayResource> attachmentPart;
-		ByteArrayResource fileAsResource = new ByteArrayResource(
-				filePath == null || filePath.isEmpty() ? new byte[0] : Objects.requireNonNull(is).readAllBytes()) {
-			@Override
 
-			public String getFilename() {
-				return filename;
-			}
-		};
-		System.out.println("File Path: " + filePath + " fileAsResource: " + fileAsResource);
-		attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+			final String filename = filePath.split("/")[filePath.split("/").length - 1];
+			ByteArrayResource fileAsResource = new ByteArrayResource(
+					filePath == null || filePath.isEmpty() ? new byte[0]
+							: Objects.requireNonNull(is).readAllBytes()) {
 
-		multipartRequest.set("files", attachmentPart);
+				@Override
+				public String getFilename() {
+					return filename;
+				}
+			};
 
-		// #### HERE WAS MY BIGGEST HURDLE - THIS APPROACH REQUIRES THE JSON PART OF THE
-		// MULTIPART/FORM_DATA ####
-		// #### TO BE THE EXACT REPRESENTATION OF THE SERVER-SIDE DTO. IT DIDN'T WORK
-		// FOR ME OTHERWISE ####
+			System.out.println("File Path: " + filePath + " fileAsResource: " + fileAsResource);
+			attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
+
+			multipartRequest.set("files", attachmentPart);
+		}
+
 		HttpHeaders requestHeadersJSON = new HttpHeaders();
 		requestHeadersJSON.setContentType(MediaType.APPLICATION_JSON);
-//    			UpdateHomeworkResponseDetailsListDto requestBody = UpdateHomeworkResponseDetailsListDto.builder()
-//    					.responses(List.of(UpdateHomeworkResponseDetailsDto.builder()
-//    							.questionId(questionId)
-//    							.userResponse(filename)
-//    							.build()))
-//    					.build();
-//    			HttpEntity<UpdateHomeworkResponseDetailsListDto> requestEntityJSON = new HttpEntity<>(requestBody, requestHeadersJSON);
-		String requestBody = "{\"responses\": [{\"questionId\": " + questionId + ", \"userResponse\": \"" + userResponse
+		String requestBody = "{\"responses\": [{\"questionId\": " + questionId + ", \"userResponse\": \"" + userResponse.split(
+				Pattern.quote("\\"))[userResponse.split(Pattern.quote("\\")).length-1]
 				+ "\"}]}";
 		HttpEntity<String> requestEntityJSON = new HttpEntity<>(requestBody, requestHeadersJSON);
 
 		multipartRequest.set("json", requestEntityJSON);
-		this.restTemplate = getRestTemplate();
-		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);// final
-																														// request
+		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);// final request
 
-		ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
+		ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
 
-		if (response.getStatusCode().is2xxSuccessful()) {
-			return 1;
-		} else {
-			return -1;
-		}
-	}*/
-	
-	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath) throws IOException {
-	    final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
-	    final String filename = new File(filePath).getName();
-	    
-	    byte[] fileData = filePath == null || filePath.isEmpty() ? new byte[0] : Files.readAllBytes(Paths.get(filePath));
-	    ByteArrayResource fileAsResource = new ByteArrayResource(fileData) {
-	        @Override
-	        public String getFilename() {
-	            return filename;
-	        }
-	    };
-
-	    // Prepare multipart request
-	    MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
-	    HttpHeaders requestHeaders = new HttpHeaders();
-	    requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-	    requestHeaders.setBearerAuth(usr.getAuthToken()); // Assuming auth token is necessary
-
-	    HttpHeaders requestHeadersAttachment = new HttpHeaders();
-	    requestHeadersAttachment.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-	    HttpEntity<ByteArrayResource> attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
-
-	    multipartRequest.add("files", attachmentPart);
-	    HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);
-
-	    // Make the HTTP call
-		this.restTemplate = getRestTemplate();
-	    ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
-	    return response.getStatusCode().is2xxSuccessful() ? 1 : -1;
+		return response.getStatusCode().is2xxSuccessful() ? 1 : -1;
 	}
 
 }
-	
-	
