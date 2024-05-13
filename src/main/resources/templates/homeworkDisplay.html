@@ -53,14 +53,17 @@
 											<input type="checkbox" th:name="response" th:value="${question.userResponse}" />
 										</span>
 						                <span th:case="'SELECT_OPTION'">
-											<input type="radio" name="SELECT_TEST" id="opt1" value="Option 1">
-											<input type="radio" name="SELECT_TEST" id="opt2" value="Option 2">
-											<input type="radio" name="SELECT_TEST" id="opt3" value="Option 3">
+											<select th:name="${question.questionId}" th:value="${question.userResponse}" >
+												<option value="">-- Please select an answer --</option>
+												<option id="opt1" value="Option 1">Option 1</option>
+												<option id="opt2" value="Option 2">Option 1</option>
+												<option id="opt3" value="Option 3">Option 1</option>
+											</select>
 										</span>
 						                <span th:case="'MULTI_SELECT_OPTION'">
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt1" value="Option 1">
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt2" value="Option 2">
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt3" value="Option 3">
+											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt1" value="Option 1"><label for="opt1">Option 1</label>
+											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt2" value="Option 2"><label for="opt2">Option 2</label>
+											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt3" value="Option 3"><label for="opt3">Option 3</label>
 										</span>
 						                <span th:case="*">
 											<input type="text" th:name="response" th:value="${question.userResponse}" />
