@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -1032,7 +1033,14 @@ public class MainController {
     	return"allClientProtocols";
     }
     
-    
+    @GetMapping("/protocolHistory/{clientId}/{name}")
+    public String protocolHistory(@PathVariable int clientId, @PathVariable String name, Model model) {
+        User currentUser = userDAO.getUser();
+        List<Protocol> allProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
+        List<Protocol> filteredProtocols = allProtocols.stream().filter(p -> p.getName().equals(name)).collect(Collectors.toList());
+        model.addAttribute("listProtocols", filteredProtocols);
+        return "allClientProtocols";
+    }
 
 
 }

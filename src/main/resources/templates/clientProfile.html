@@ -144,8 +144,8 @@
 										</div>
 										<div class="col-md-8">
 											<button class="btn btn-secondary" th:attr="onclick=|goToHomeworks('${pcol.id}');|">Homework</button>&nbsp;&nbsp;
-
 											<button class="btn btn-secondary"th:attr="onclick=|viewAnalysis('${pcol.id}');|">Analysis</button>&nbsp;&nbsp;
+											<button class="btn btn-secondary" th:attr="onclick=|protocolHistory('${pcol.name}');|">History</button>&nbsp;&nbsp;
 											<button class="btn btn-secondary"
 												th:attr="onclick=|viewRecommendations('${pcol.id}');|">Recommendations</button>
 										</div>
@@ -193,6 +193,9 @@
 	   }
 	   function viewHistory(){
 		   window.location='/allClientPrtotocols/'+clientId;
+	   }
+	   function protocolHistory(name){
+		   window.location='/protocolHistory/'+clientId+'/'+name;
 	   }
 	   function viewRecommendations(id){
 		   window.location= '/recommendations/'+id;
