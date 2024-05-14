@@ -616,7 +616,20 @@ public class MainController {
 	public String displayClients(Model model) {
 		User currentUser = userDAO.getUser();
 		ArrayList<User> userList = userHelper.getUserList(currentUser);
-		model.addAttribute("UserList", userList);
+		ArrayList<User> detailedUserList = new ArrayList<User>();
+		ArrayList<Integer> dependents = new ArrayList<Integer>();
+		for (User user: userList) {
+			detailedUserList.add(userHelper.getUser(currentUser, user.getId()));
+		}
+		for(User user: detailedUserList) {
+			for(User dependent: user.getDependents()) {
+				dependents.add(dependent.getId());
+			}
+			
+		}
+	    List<User> filteredUserList = userList.stream().filter(user -> !dependents.contains(user.getId())).collect(Collectors.toList());
+
+		model.addAttribute("UserList", filteredUserList);
 
 		return "displayClients";
 	}
