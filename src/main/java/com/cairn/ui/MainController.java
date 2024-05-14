@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
@@ -637,18 +639,20 @@ public class MainController {
         return -1;
     }
 	
-	@PatchMapping("addDependant/{clientId}")
+    @RequestMapping(value = "addDependant/{clientId}", method = {RequestMethod.POST, RequestMethod.PATCH})
 	public ResponseEntity<Object> addDependant(@PathVariable int clientId,@RequestBody User dependantUser ){
 		User currentUser = userDAO.getUser();
 		User client = userHelper.getUser(currentUser, clientId);
 		String userDependant = userHelper.addUser(currentUser, dependantUser);
 		int dependantId = extractIdFromString(userDependant);
+	
 		User newDependant = userHelper.getUser(currentUser, dependantId);
+		System.out.println("Dependant Created: "+ newDependant+ "Dependant ID "+dependantId);
 		ArrayList<User> dependants = client.getDependents();
 		dependants.add(newDependant);
 		
 		try {
-			userHelper.addDependant(currentUser, clientId, dependants);
+			userHelper.addDependant(currentUser, client, dependants);
 			
 		} catch (Exception e) {
 			System.out.println("Error in addClientToProtocol:");
