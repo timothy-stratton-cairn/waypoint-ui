@@ -23,6 +23,9 @@
 					<div class = "col">
 						Completion Percentage 
 					</div>
+					<div class = "col">
+						Last Updated
+					</div>
 					<div class="col">
 						Action
 					</div>
@@ -31,6 +34,7 @@
 					<div class="col" th:text="${pcol.name}"></div>
 					<div class="col" th:text="${pcol.description}"></div>
 					<div class="col" th:text="${pcol.completionPercent}"></div>
+					<div class="col" th:text="${pcol.lastStatus}"></div>
 					<div class="col"><a class="btn btn-sm btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ');'}">Details</a></div>
 				</div>
 			</fieldset>
