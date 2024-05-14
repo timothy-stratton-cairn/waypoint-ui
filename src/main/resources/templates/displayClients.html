@@ -5,11 +5,6 @@
 	<meta charset="UTF-8">
 	<title>Clients</title>
 
-	<script>
-		function newClient() {
-			window.location = '/newClient/';
-		}
-	</script>
 </head>
 
 <body>
@@ -19,7 +14,10 @@
 			<fieldset>
 				<legend>Clients</legend>
 				<button class="btn btn-primary" onclick="newClient();">New Client</button>
-				<div class="row">&nbsp;</div>
+
+				<div class="col-2">
+					<input type="text" id="protocolSearch" class="form-control" placeholder="Search clients...">
+				</div>
 				<div class="row rowheader">
 					<div class="col-md-2">First Name</div>
 					<div class="col-md-2">Last Name</div>
@@ -37,6 +35,41 @@
 		</div>
 	</div>
 	<div th:insert="~{footer :: main}">...</div>
+	
+		<script>
+		function newClient() {
+			window.location = '/newClient/';
+		}
+		
+		document.addEventListener('DOMContentLoaded', function () {
+		    var searchField = document.getElementById('protocolSearch'); // Make sure the ID matches your input field
+		
+		    searchField.addEventListener('input', function () {
+		        var searchTerm = this.value.toLowerCase();
+		
+		        // Select all client rows that should be dynamically shown/hidden
+		        var clients = document.querySelectorAll('.note_card .row:not(.rowheader)'); // Adjust the selector to specifically target only the rows that contain client data
+		
+		        clients.forEach(function (client) {
+		            // Query for first name and last name elements within each client row
+		            var firstNameElement = client.children[0]; // Assumes first name is the first child of the row
+		            var lastNameElement = client.children[1]; // Assumes last name is the second child of the row
+		
+		            // Extract text content if elements are found, otherwise use an empty string
+		            var firstName = firstNameElement ? firstNameElement.textContent.toLowerCase() : '';
+		            var lastName = lastNameElement ? lastNameElement.textContent.toLowerCase() : '';
+		
+		            // Determine if the row should be displayed based on search term presence
+		            var isMatch = firstName.includes(searchTerm) || lastName.includes(searchTerm);
+		
+		            // Set display property based on whether the row matches the search criteria
+		            client.style.display = isMatch ? '' : 'none'; // Only hide or show individual client rows
+		        });
+		    });
+		});
+
+
+	</script>
 </body>
 
 </html>
