@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<div th:insert="~{header :: main}">...</div>
+<script>
+	function selectProtocol(id){
+	    window.location = '/editProtocol/'+id;		
+	}
+
+</script>
+<body>
+	<div class="container">
+		<div class="row note_card">
+			<fieldset>
+				<legend>Protocols</legend>
+        			<button onclick="history.back()" class="btn btn-primary">Back</button>
+				<div class="row rowheader">
+					<div class="col">
+						Name
+					</div>
+					<div class = "col">
+						Description
+					</div>
+					<div class = "col">
+						Completion Percentage 
+					</div>
+					<div class="col">
+						Action
+					</div>
+				</div>
+				<div th:each="pcol, status: ${listProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+					<div class="col" th:text="${pcol.name}"></div>
+					<div class="col" th:text="${pcol.description}"></div>
+					<div class="col" th:text="${pcol.completionPercent}"></div>
+					<div class="col"><a class="btn btn-sm btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ');'}">Details</a></div>
+				</div>
+			</fieldset>
+			<div class="row ">&nbsp;</div>
+		</div>
+	</div>
+	<br />
+	<br />
+	<br />
+</body>
+<div th:insert="~{footer :: main}">...</div>
+</html>
