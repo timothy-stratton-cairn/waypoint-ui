@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload File</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Upload a File</h2>
+        <form id="fileUploadForm">
+            <input type="hidden" name="homeworkId" th:value="${homeworkId}" />
+            <input type="hidden" name="questionId" th:value="${questionId}" />
+            <div class="mb-3">
+                <label for="file" class="form-label">File:</label>
+                <input type="file" class="form-control" id="file" name="file" required />
+            </div>
+            <button type="button" onclick="uploadFile()" class="btn btn-primary">Upload</button>
+        </form>
+    </div>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function uploadFile() {
+            var form = document.getElementById('fileUploadForm');
+            var formData = new FormData(form);
+            var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            fetch('/uploadFileToHomework/', {
+                method: 'PATCH',
+                body: formData,
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                alert('File uploaded successfully!');
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error uploading file');
+            });
+        }
+    </script>
+</body>
+</html>

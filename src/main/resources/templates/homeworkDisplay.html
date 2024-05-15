@@ -31,7 +31,7 @@
 			                    <th>Question</th>
 			                    <th>Type</th>
 			                    <th>Response</th>
-			                    <th>File Path</th>
+			                    <th>File Upload</th>
 			                </tr>
 			            </thead>
 			            <tbody>
@@ -69,6 +69,9 @@
 											<input type="text" th:name="response" th:value="${question.userResponse}" />
 										</span>
    							 </td>
+	   						<td>
+								<input type="file" th:name="file" th:value="${question.file}" />
+							</td>
 						</tr>
 
 			            </tbody>

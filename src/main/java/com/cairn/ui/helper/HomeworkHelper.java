@@ -23,6 +23,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cairn.ui.Constants;
 import com.cairn.ui.dto.HomeworkDto;
@@ -255,5 +256,47 @@ public class HomeworkHelper {
 
 		return response.getStatusCode().is2xxSuccessful() ? 1 : -1;
 	}
+	
+	public int assigneFileUpload(User usr, int homeworkId, int questionId, String userResponse, MultipartFile file)
+	        throws IOException {
+		System.out.println("Calling AssignAnswerToHomeworkTest");
+		System.out.println("File Uploaded: " + file.getOriginalFilename() + " User Response: "+ userResponse);
+	    final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+	    MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
+
+	    HttpHeaders requestHeaders = new HttpHeaders();
+	    requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+	    requestHeaders.setBearerAuth(usr.getAuthToken());
+
+	    // Add the file as a part of the multipart request
+	    byte[] fileBytes = file.getBytes();
+	    ByteArrayResource fileAsResource = new ByteArrayResource(fileBytes) {
+	        @Override
+	        public String getFilename() {
+	            return file.getOriginalFilename();
+	        }
+	    };
+	    HttpHeaders requestHeadersAttachment = new HttpHeaders();
+	    requestHeadersAttachment.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+	    HttpEntity<ByteArrayResource> attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
+	    multipartRequest.add("files", attachmentPart);
+
+	    // Construct the JSON body containing the user response data
+	    String requestBody = "{\"responses\": [{\"questionId\": " + questionId + ", \"userResponse\": \"" + userResponse + "\"}]}";
+	    HttpHeaders requestHeadersJSON = new HttpHeaders();
+	    requestHeadersJSON.setContentType(MediaType.APPLICATION_JSON);
+	    HttpEntity<String> requestEntityJSON = new HttpEntity<>(requestBody, requestHeadersJSON);
+	    multipartRequest.add("json", requestEntityJSON);
+
+	    // Create the final HTTP request entity with the multipart request and headers
+	    HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);
+
+	    // Execute the HTTP PATCH request
+	    ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
+
+	    return response.getStatusCode().is2xxSuccessful() ? 1 : -1;
+	}
+
 
 }

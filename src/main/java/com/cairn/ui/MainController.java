@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cairn.ui.helper.DashboardHelper;
@@ -39,6 +40,7 @@ import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.AssignedHomeworkResponse;
 import com.cairn.ui.model.Homework;
+import com.cairn.ui.model.HomeworkFile;
 import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkTemplate;
@@ -1024,7 +1026,7 @@ public class MainController {
                 String userResponse = response.getResponse();
                 String path = response.getFilePath();  // Assuming you have a getter for filePath
                 System.out.println("Question ID: " + questionId + " Response: " + userResponse + " FilePath: " + path);
-                helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse, path);
+                //helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse, path);
             }
             return ResponseEntity.ok("Responses successfully updated");
         } catch (NumberFormatException e) {
@@ -1036,6 +1038,28 @@ public class MainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error assigning user responses");
         }
 
+    }
+    @GetMapping("/uploadFile/{homeworkId}/{questionId}")
+    public String uploadFil(@PathVariable int homeworkId, @PathVariable int questionId, Model model){
+    	model.addAttribute("questionId",questionId);
+    	return"uploadFile";
+    	
+    }
+    @PatchMapping("/uploadFileToHomework/")
+    public ResponseEntity<?> uploadFileToHomework(@RequestParam("file") MultipartFile file, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
+    	 User currentUser = userDAO.getUser();
+         HomeworkHelper helper= new HomeworkHelper();
+         System.out.println("Calling upoloadFileToHomework");
+        try {
+            
+            helper.assigneFileUpload(currentUser, homeworkId, questionId, "testing", file);
+            return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
+
+           
+        }catch (Exception e) {
+                System.err.println("Error uploading file: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Error uploading file\"}");
+            }
     }
     
     @GetMapping("/allClientPrtotocols/{clientId}")

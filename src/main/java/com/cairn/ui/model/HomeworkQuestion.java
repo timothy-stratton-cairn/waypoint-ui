@@ -2,6 +2,8 @@ package com.cairn.ui.model;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class HomeworkQuestion {
 	private int questionId;
     private String questionAbbreviation;
@@ -9,6 +11,7 @@ public class HomeworkQuestion {
     private String questionType;
     private boolean isRequired;
     private String userResponse;
+    private MultipartFile file;
 
     // Getters and setters
     
@@ -57,6 +60,12 @@ public class HomeworkQuestion {
     public void setUserResponse(String userResponse) {
         this.userResponse = userResponse;
     }
+	public MultipartFile getFile() {
+		return file;
+	}
+	public void setFile(MultipartFile file) {
+		this.file = file;
+	}
 }
 
 
