@@ -29,12 +29,14 @@
                     <div class="col-md-1">
                         <label>CoClient:</label>
                     </div>
-                    <div class="col-md-1">
+                     <div th:if="${coclient.firstName != null and coclient.firstName != '' and coclient.lastName != null and coclient.lastName != ''}" class="col-md-1">
                         <a th:href="@{/clientProfile/{id}(id=${coclient.id})}" style="color: black;">
                             <span th:text="${coclient.firstName} + ' ' + ${coclient.lastName}"></span>
                         </a>
                     </div>
-                    <div class="col-md-3">
+                    
+                </div>
+                <div class="col-3">
                         <div class="input-group">
                             <select class="form-select" id="coClientSelect">
                                 <option value="">Select CoClient</option>
@@ -44,7 +46,6 @@
                             <button class="btn btn-primary" type="button" onclick="addCoClient()">Add CoClient</button>
                         </div>
                     </div>
-                </div>
 
 				<div>
 					<label>Roles:</label>
