@@ -122,5 +122,17 @@ public class Protocol {
 	public int getCompletedSteps() {
 		return completedSteps;
 	}
+	public int getCatagoryId() {
+		return catagoryId;
+	}
+	public void setCatagoryId(int catagoryId) {
+		this.catagoryId = catagoryId;
+	}
+	public void setStepCount(int stepCount) {
+		this.stepCount = stepCount;
+	}
+	public void setCompletedSteps(int completedSteps) {
+		this.completedSteps = completedSteps;
+	}
 
 }

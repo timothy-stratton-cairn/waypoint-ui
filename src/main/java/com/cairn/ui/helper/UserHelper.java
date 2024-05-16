@@ -375,17 +375,18 @@ public class UserHelper {
 
 	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + client.getId();
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-	    RestTemplate restTemplate = new RestTemplate();
 
 	    try {
-	        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	    	ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-	            System.out.println("Success!");
+	        System.out.println("Success!");
 	            result = 1;
 	        } else {
-	            result = -1;
+	        	result = -1;
 	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	        }
+	            // Update result to indicate a specific type of failure
+	        }  
+			
 	    } catch (Exception e) {
 	        System.out.println("Error in updating User Details");
 	        e.printStackTrace();
