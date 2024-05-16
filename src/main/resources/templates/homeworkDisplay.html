@@ -9,133 +9,120 @@
 <body>
 <div th:insert="~{header :: main}">...</div>
 
-<div class = "container">
-	<div class="row note_card">
-		<fieldset>
-			<legend>Edit Homework</legend>
-			<button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
-			<div class="form-group">
-			    <label for="homeworkName"><strong>Name:</strong></label>
-			    <span id="homeworkName"  th:text="${homework.name}">Homework Name</span>
-			</div>
-			<div class="form-group">
-			    <label for="homeworkDetails"><strong>Description:</strong></label>
-			    <span id="homeworkDetails" th:text="${homework.description}">Homework Description</span>
-			</div>
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Edit Homework</legend>
+            <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+            <div class="form-group">
+                <label for="homeworkName"><strong>Name:</strong></label>
+                <span id="homeworkName" th:text="${homework.name}">Homework Name</span>
+            </div>
+            <div class="form-group">
+                <label for="homeworkDetails"><strong>Description:</strong></label>
+                <span id="homeworkDetails" th:text="${homework.description}">Homework Description</span>
+            </div>
 
-			<form id="homeworkForm" action="#" method="post">
-			    <span class="table-responsive">
-			        <table class="table">
-			            <thead>
-			                <tr>
-			                    <th>Question</th>
-			                    <th>Type</th>
-			                    <th>Response</th>
-			                    <th>File Upload</th>
-			                </tr>
-			            </thead>
-			            <tbody>
-			                <tr th:each="question : ${homework.questions}" th:id="${question.questionId}">
-							    <td th:text="${question.question}"></td>
-							    <td th:text="${question.questionType}"></td>
-							    <td>
-									  <span th:switch="${question.questionType}">
-						                <span th:case="'FILE'">
-											<input type="file" th:name="response" th:value="${question.userResponse}" />
-										</span>
-						                <span th:case="'DATE'">
-											<input type="date" th:name="response" th:value="${question.userResponse}" />
-										</span>
-						                <span th:case="'DATETIME'">
-											<input type="datetime-local" th:name="response" th:value="${question.userResponse}" />
-										</span>
-						                <span th:case="'BOOLEAN'">
-											<input type="checkbox" th:name="response" th:value="${question.userResponse}" />
-										</span>
-						                <span th:case="'SELECT_OPTION'">
-											<select th:name="${question.questionId}" th:value="${question.userResponse}" >
-												<option value="">-- Please select an answer --</option>
-												<option id="opt1" value="Option 1">Option 1</option>
-												<option id="opt2" value="Option 2">Option 1</option>
-												<option id="opt3" value="Option 3">Option 1</option>
-											</select>
-										</span>
-						                <span th:case="'MULTI_SELECT_OPTION'">
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt1" value="Option 1"><label for="opt1">Option 1</label>
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt2" value="Option 2"><label for="opt2">Option 2</label>
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt3" value="Option 3"><label for="opt3">Option 3</label>
-										</span>
-						                <span th:case="*">
-											<input type="text" th:name="response" th:value="${question.userResponse}" />
-										</span>
-   							 </td>
-	   						<td>
-								<input type="file" th:name="file" th:value="${question.file}" />
-							</td>
-						</tr>
-
-			            </tbody>
-			        </table>
-			        <button type="submit" class="btn btn-primary">Submit Responses</button>
-			        <br>
-			    </div>
-			</form>
-		</fieldset>
-	</div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Type</th>
+                        <th>Response</th>
+                        <th>File Upload</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <form th:each="question : ${homework.questions}" th:id="${question.questionId}">
+						<input type="hidden" name="homeworkId" th:value="${homeworkId}" />
+						<input type="hidden" name="questionId" th:value="${question.questionId}"/>
+                        <tr>
+                            <td th:text="${question.question}"></td>
+                            <td th:text="${question.questionType}"></td>
+                            <td>
+                                <span th:switch="${question.questionType}">
+                                    <span th:case="'FILE'">
+                                        <input type="file" name="response" th:value="${question.userResponse}" />
+                                    </span>
+                                    <span th:case="'DATE'">
+                                        <input type="date" name="response" th:value="${question.userResponse}" />
+                                    </span>
+                                    <span th:case="'DATETIME'">
+                                        <input type="datetime-local" name="response" th:value="${question.userResponse}" />
+                                    </span>
+                                    <span th:case="'BOOLEAN'">
+                                        <input type="checkbox" name="response" th:value="${question.userResponse}" />
+                                    </span>
+                                    <span th:case="'SELECT_OPTION'">
+                                        <select name="${question.questionId}" th:value="${question.userResponse}">
+                                            <option value="">-- Please select an answer --</option>
+                                            <option id="opt1" value="Option 1">Option 1</option>
+                                            <option id="opt2" value="Option 2">Option 1</option>
+                                            <option id="opt3" value="Option 3">Option 1</option>
+                                        </select>
+                                    </span>
+                                    <span th:case="'MULTI_SELECT_OPTION'">
+                                        <input type="checkbox" name="MULTI_SELECT_TEST" id="opt1" value="Option 1"><label for="opt1">Option 1</label>
+                                        <input type="checkbox" name="MULTI_SELECT_TEST" id="opt2" value="Option 2"><label for="opt2">Option 2</label>
+                                        <input type="checkbox" name="MULTI_SELECT_TEST" id="opt3" value="Option 3"><label for="opt3">Option 3</label>
+                                    </span>
+                                    <span th:case="*">
+                                        <input type="text" name="response" th:value="${question.userResponse}" />
+                                    </span>
+                                </span>
+                            </td>
+                            <td>
+                                <input type="file" name="file" value="${question.file}" />
+                            </td>
+                        </tr>
+                    </form>
+                    </tbody>
+                </table>
+            </div>
+            <button id="submitAll" class="btn btn-primary">Submit All Responses</button> 
+        </fieldset>
+    </div>
 </div>
-	
+
 <script th:inline="javascript">
-    var homeworkId = [[${homeworkId}]];
     document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('homeworkForm').addEventListener('submit', function (event) {
-            event.preventDefault();
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-            // Prepare a list to hold DTO objects
-            var assignedResponses = [];
-            var rows = document.querySelectorAll('tbody tr');
-            
-        
-            rows.forEach(function (row) {
-           // Ensure that both input elements exist before accessing their values
-                var responseInput = row.querySelector(`input[name='response']`);
-                var filePathInput = row.querySelector(`input[name='filePath']`);
-                
-                var responseValue = responseInput ? responseInput.value : "";
-                var filePathValue = filePathInput ? filePathInput.value : "";
+        var forms = document.querySelectorAll('form');
+        var currentIndex = 0;
 
-                var dto = {
-                    id: parseInt(row.id, 10), // Parse the ID as an integer
-                    response: responseValue,
-                    filePath: filePathValue ? filePathValue : "" // Set to null if empty
-                };
-                assignedResponses.push(dto);
-            });
-
-            // Correctly form the URL with the homeworkId
-            fetch(`/assignUserResponseToHomework/${homeworkId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': [[${_csrf.token}]]
-                },
-                body: JSON.stringify(assignedResponses)
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+        document.getElementById('submitAll').addEventListener('click', function () {
+            submitNextForm();
         });
+
+        function submitNextForm() {
+            if (currentIndex < forms.length) {
+                var formData = new FormData(forms[currentIndex]);
+
+                fetch('/uploadFileToHomework/', {
+                    method: 'PATCH',
+                    body: formData,
+                    headers: {
+                        [csrfHeader]: csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    alert('File uploaded successfully!');
+                    currentIndex++;
+                    submitNextForm(); // Submit the next form recursively
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('Error uploading file');
+                });
+            }
+        }
     });
 </script>
-
-
-
-
-
-
 
 </body>
 </html>

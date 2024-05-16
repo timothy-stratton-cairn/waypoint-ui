@@ -7,6 +7,7 @@ import java.util.Date;
 public class Protocol {
 
 	private int id;
+	private int catagoryId;
 	private String name;
 	private String goal;
 	private String progress;

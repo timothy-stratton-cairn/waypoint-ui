@@ -678,7 +678,25 @@ public class MainController {
 		}
 		return ResponseEntity.ok().build();
 	}
+    
+    @PatchMapping("addCoClient/{clientId}/{coClientId}")
+    public ResponseEntity<?>addCoClient(@PathVariable int clientId, @PathVariable int coClientId){
+    	User currentUser = userDAO.getUser();
+    	User client = userHelper.getUser(currentUser, clientId);
+		User coClient = userHelper.getUser(currentUser, coClientId);
+		
+		try {
+			userHelper.addCoClient(currentUser, client, coClient);
+			return ResponseEntity.ok().body("{\"message\": \"CoClient Successfully Added!\"}");
 
+	           
+        }catch (Exception e) {
+                System.err.println("Error uploading file: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Error adding CoClient\"}");
+          }
+		
+		
+    }
 	@GetMapping("protocolClients/{protocolId}")
 	public String ProtocolClients(@PathVariable int ProtocolId, Model model) {
 		User currentUser = userDAO.getUser();
@@ -702,7 +720,8 @@ public class MainController {
 		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
 		ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId); // this
 		int userId = userHelper.getUserId(currentUser);
-
+		ArrayList<User> coClientList = userHelper.getUserList(currentUser);
+		model.addAttribute("coclientList",coClientList);
 		model.addAttribute("userId",userId);
 		model.addAttribute("client", client);
 		model.addAttribute("clientId", clientId);
@@ -743,6 +762,7 @@ public class MainController {
 		model.addAttribute("protocol", protocol);
 		return "clientProtocol";
 	}
+
 
 	@PatchMapping("addHomeworkTemplateToStep/{stepTemplateId}/{homeworkTemplateId}/")
 	public ResponseEntity<Object> addHomeworkTemplateToStep(@PathVariable int stepTemplateId,
@@ -1046,13 +1066,13 @@ public class MainController {
     	
     }
     @PatchMapping("/uploadFileToHomework/")
-    public ResponseEntity<?> uploadFileToHomework(@RequestParam("file") MultipartFile file, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
+    public ResponseEntity<?> uploadFileToHomework(@RequestParam("file") MultipartFile file,@RequestParam("response") String userResponse, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
     	 User currentUser = userDAO.getUser();
          HomeworkHelper helper= new HomeworkHelper();
          System.out.println("Calling upoloadFileToHomework");
         try {
             
-            helper.assigneFileUpload(currentUser, homeworkId, questionId, "testing", file);
+            helper.assigneFileUpload(currentUser, homeworkId, questionId, userResponse, file);
             return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
 
            

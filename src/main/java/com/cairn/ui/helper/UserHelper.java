@@ -1,11 +1,14 @@
 package com.cairn.ui.helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -336,5 +339,58 @@ public class UserHelper {
 		return result;
 	}
 
+	
+	public int addCoClient(User usr, User client, User coClient) {
+	    int result = -1;
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+
+	    // Create the request body JSON structure using a Map
+	    Map<String, Object> requestBodyMap = new HashMap<>();
+	    requestBodyMap.put("id", client.getId());
+	    requestBodyMap.put("username", client.getUsername());
+	    requestBodyMap.put("firstName", client.getFirstName());
+	    requestBodyMap.put("lastName", client.getLastName());
+	    requestBodyMap.put("email", client.getEmail());
+	    requestBodyMap.put("roles", client.getRoles());
+
+	    Map<String, Object> coClientMap = new HashMap<>();
+	    coClientMap.put("id", coClient.getId());
+	    coClientMap.put("firstName", coClient.getFirstName());
+	    coClientMap.put("lastName", coClient.getLastName());
+	    coClientMap.put("username", coClient.getUsername());
+
+	    requestBodyMap.put("coClient", coClientMap);
+
+	    // Convert the Map to JSON
+	    ObjectMapper mapper = new ObjectMapper();
+	    String requestBody;
+	    try {
+	        requestBody = mapper.writeValueAsString(requestBodyMap);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return result;
+	    }
+
+	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + client.getId();
+	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+	    RestTemplate restTemplate = new RestTemplate();
+
+	    try {
+	        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            System.out.println("Success!");
+	            result = 1;
+	        } else {
+	            result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Error in updating User Details");
+	        e.printStackTrace();
+	    }
+	    return result;
+	}
 	
 }

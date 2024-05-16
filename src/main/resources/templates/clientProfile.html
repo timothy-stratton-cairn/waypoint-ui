@@ -25,10 +25,27 @@
 					<label>Email:</label>
 					<span th:text="${client.email}"></span>
 				</div>
-				<div>
-					<label>CoClient:</label>
-					<span th:text="${coclient.firstName} + ' ' + ${coclient.lastName}"></span>
-				</div>
+				<div class="row mb-3">
+                    <div class="col-md-1">
+                        <label>CoClient:</label>
+                    </div>
+                    <div class="col-md-1">
+                        <a th:href="@{/clientProfile/{id}(id=${coclient.id})}" style="color: black;">
+                            <span th:text="${coclient.firstName} + ' ' + ${coclient.lastName}"></span>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <select class="form-select" id="coClientSelect">
+                                <option value="">Select CoClient</option>
+                                <!-- Populate dropdown menu with CoClient list -->
+                                <option th:each="coClient : ${coclientList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
+                            </select>
+                            <button class="btn btn-primary" type="button" onclick="addCoClient()">Add CoClient</button>
+                        </div>
+                    </div>
+                </div>
+
 				<div>
 					<label>Roles:</label>
 					<span th:text="${#strings.arrayJoin(client.roles, ' ')}"></span>
@@ -79,7 +96,12 @@
 		<div class="note_card">
 			<fieldset>
 				<legend>Assigned Protocols</legend>
-				
+				 <!--<ul class="nav nav-tabs">
+                    <li class="nav-item tab"><a class="nav-link active" href="#" data-type="all">All</a></li>
+                    <li class="nav-item tab"><a class="nav-link" href="#" data-type="1">Active Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link" href="#" data-type="2">Completed Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link" href="#" data-type="3">Archived Protocols</a></li>
+                </ul>-->
 				
 				<div class="row">
 					<div class="col-2">
@@ -328,6 +350,18 @@
 				});
 			});
 		});
+		
+        function filterProtocolsByType(type) {
+            const protocols = document.querySelectorAll('#protocolContent > div');
+            protocols.forEach(protocol => {
+                if (type === 'all' || protocol.getAttribute('data-type') === type) {
+                    protocol.style.display = ''; // Show
+                } else {
+                    protocol.style.display = 'none'; // Hide
+                }
+            });
+        }
+
 
 
 		function flipCard(card) {
@@ -337,6 +371,36 @@
 		        console.error("No card element found");
 		    }
 		}
+            function addCoClient() {
+		        const selectedCoClientId = document.getElementById('coClientSelect').value;
+		        if (selectedCoClientId) {
+		            // Perform the PATCH request
+		            fetch(`/addCoClient/${clientId}/${selectedCoClientId}`, {
+		                method: 'PATCH',
+		                headers: {
+		                    'Accept': 'application/json',
+		                    'Content-Type': 'application/json',
+		                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').getAttribute('content')
+		                },
+		                credentials: 'include'
+		            })
+		            .then(response => response.json())
+		            .then(data => {
+		                if (data.message) {
+		                    alert(data.message); // Show success message
+		                    window.location.reload(); // Reload page if successful
+		                } else if (data.error) {
+		                    alert(data.error); // Show error message
+		                }
+		            })
+		            .catch(error => {
+		                console.error('Error adding CoClient:', error);
+		                alert('Failed to add the CoClient. Error: ' + error.message);
+		            });
+		        } else {
+		            alert('Please select a CoClient first.');
+		        }
+		    }
 
 	</script th:inline="javascript">
 </body>
