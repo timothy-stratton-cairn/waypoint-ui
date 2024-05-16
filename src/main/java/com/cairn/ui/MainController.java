@@ -657,6 +657,7 @@ public class MainController {
 	
     @RequestMapping(value = "addDependant/{clientId}", method = {RequestMethod.POST, RequestMethod.PATCH})
 	public ResponseEntity<Object> addDependant(@PathVariable int clientId,@RequestBody User dependantUser ){
+    	System.out.println("Calling addDependent from controller");
 		User currentUser = userDAO.getUser();
 		User client = userHelper.getUser(currentUser, clientId);
 		String userDependant = userHelper.addUser(currentUser, dependantUser);
@@ -681,7 +682,9 @@ public class MainController {
     
     @PatchMapping("addCoClient/{clientId}/{coClientId}")
     public ResponseEntity<?>addCoClient(@PathVariable int clientId, @PathVariable int coClientId){
+    	System.out.println("Calling Add CoClient for ClientID: " + clientId + " and CoClient ID: "+ coClientId);
     	User currentUser = userDAO.getUser();
+    	
     	User client = userHelper.getUser(currentUser, clientId);
 		User coClient = userHelper.getUser(currentUser, coClientId);
 		
@@ -1046,16 +1049,16 @@ public class MainController {
                 String userResponse = response.getResponse();
                 String path = response.getFilePath();  // Assuming you have a getter for filePath
                 System.out.println("Question ID: " + questionId + " Response: " + userResponse + " FilePath: " + path);
-                //helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse, path);
+                helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse, path);
             }
-            return ResponseEntity.ok("Responses successfully updated");
+            return ResponseEntity.ok().body("{\"message\": \"Success!\"}");
         } catch (NumberFormatException e) {
             System.err.println("Invalid question ID: " + e.getMessage());
-            return ResponseEntity.badRequest().body("Invalid question ID format");
+            return ResponseEntity.badRequest().body("{\"error\": \""+e.getMessage()+"\"}");
         } catch (Exception e) {
             e.printStackTrace(); // This will print stack trace to the console
             System.err.println("Error in processing responses: " + (e.getMessage() != null ? e.getMessage() : "Unknown Error"));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error assigning user responses");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \""+e.getMessage()+"\"}");
         }
 
     }
@@ -1066,13 +1069,13 @@ public class MainController {
     	
     }
     @PatchMapping("/uploadFileToHomework/")
-    public ResponseEntity<?> uploadFileToHomework(@RequestParam("file") MultipartFile file,@RequestParam("response") String userResponse, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
+    public ResponseEntity<?> uploadFileToHomework(@RequestParam("file") MultipartFile file, String userResponse, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
     	 User currentUser = userDAO.getUser();
          HomeworkHelper helper= new HomeworkHelper();
          System.out.println("Calling upoloadFileToHomework");
         try {
             
-            helper.assigneFileUpload(currentUser, homeworkId, questionId, userResponse, file);
+            helper.assigneFileUpload(currentUser, homeworkId, questionId, "File Upload", file);
             return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
 
            

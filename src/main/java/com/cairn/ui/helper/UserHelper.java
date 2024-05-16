@@ -298,7 +298,7 @@ public class UserHelper {
 	
 	public int addDependant(User usr, User client, ArrayList<User> users) {
 	    int result = 0;
-
+	    System.out.println("Calling addDepenedant from Helper");
 	    HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
@@ -319,6 +319,8 @@ public class UserHelper {
 	    requestBody = requestBody+tempBody.toString();
 	    System.out.println(requestBody);
 	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+	    System.out.println("Url: "+ apiUrl);
+	    System.out.println("RequestBody: "+ requestBody);
 
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
@@ -341,6 +343,7 @@ public class UserHelper {
 
 	
 	public int addCoClient(User usr, User client, User coClient) {
+		System.out.println("Calling addCoClient from User Helper with ClientId: "+ client.getId() + " and CoClientId: " +coClient.getId());
 	    int result = -1;
 	    HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
@@ -375,7 +378,8 @@ public class UserHelper {
 
 	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + client.getId();
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-
+	    System.out.println("Url: "+ apiUrl);
+	    System.out.println("RequestBody: "+ requestBody);
 	    try {
 	    	ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
