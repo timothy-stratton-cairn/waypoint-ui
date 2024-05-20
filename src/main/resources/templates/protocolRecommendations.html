@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Protocol Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+<div class="container">
+    <!-- Steps Section with Tabs -->
+    <div class="row note_card">
+        <fieldset>
+            <legend>Recommendations</legend>
+            <!-- Comments Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Comment</th>
+                            <th>Date</th>
+                            <th>Commenter</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="comment : ${protocol.comments}"
+                            th:if="${comment.commentType} == 'RECOMMENDATION'">
+                            <td th:text="${comment.comment}">Sample Comment</td>
+                            <td th:text="${#dates.format(comment.takenAt, 'yyyy-MM-dd HH:mm')}">Sample Date</td>
+                            <td th:text="${comment.takenBy}">Sample Commenter</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- New Recommendation Form -->
+            <div class="form-group mt-4">
+                <label for="newRecommendation"><strong>New Recommendation</strong></label>
+                <textarea id="newRecommendation" class="form-control" rows="4"></textarea>
+                <button type="button" class="btn btn-primary mt-3" onclick="postRecommendation()">Submit</button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script>
+	var protocolId = [[${protocolId}]];
+    function postRecommendation() {
+        const recommendation = document.getElementById('newRecommendation').value;
+        
+        $.ajax({
+            type: 'POST',
+            url: `/postRecommendations/${protocolId}`,
+            contentType: 'application/json',
+            data: JSON.stringify(recommendation),
+            success: function(response) {
+                alert(response.message || 'Success: Recommendation Posted!');
+                location.reload(); 
+            },
+            error: function(xhr) {
+                const errorMessage = xhr.responseJSON?.error || 'Error Posting Recommendation!';
+                alert(errorMessage);
+            }
+        });
+    }
+</script>
+</body>
+</html>

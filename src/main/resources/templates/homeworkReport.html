@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <title>View Homework</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <style>
+        .collapse-table {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+
+<div class="container">
+    <div class="row">
+        <fieldset class="col-12">
+            <legend>View Homework</legend>
+            <button type="button" class="btn btn-secondary mb-3" onclick="window.history.back();">Back</button>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="homework : ${homeworks}">
+                            <td th:text="${homework.name}">Homework Name</td>
+                            <td th:text="${homework.description}">Homework Description</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-secondary" th:onclick="'toggleQuestions(' + ${homework.id} + ')'">More Details</button>
+           
+                                    <button type="button" class="btn btn-secondary" th:onclick="'goToHomework(' + ${homework.id} + ')'">Go To</button>
+                                    <button type="button" class = "btn btn-secondary" >Email Request</button>
+                                    <!--This currently breaks the page don't know what's going on there
+                                    <button type="button" class="btn btn-secondary" th:onclick="'emailRequest(' + ${homework.id} + ', ' + ${#httpServletRequest.remoteUser} + ')'">Email Request</button>
+                                    -->
+                                    
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:each="homework : ${homeworks}" th:id="${homework.id}" class="collapse-table">
+                            <td colspan="3">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Question</th>
+                                                <th>Response</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="question : ${homework.questions}">
+                                                <td th:text="${question.question}">Question</td>
+                                                <td th:text="${question.userResponse}">Response</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleQuestions(id) {
+        $('#' + id).toggle();
+    }
+
+    function goToHomework(id) {
+        window.location = '/homeworkDisplay/' + id;
+    }
+
+    function emailRequest(homeworkId, userId) { 
+        let homeworkRow = $('#' + homeworkId);
+        let questions = homeworkRow.find('td');
+        let message = '';
+
+        questions.each(function() {
+            message += $(this).text() + '\n';
+        });
+
+        $.ajax({
+            type: 'POST',
+            url: '/sendEmail',
+            data: { userId: userId, message: message },
+            success: function(response) {
+                alert(response);
+            }
+        });
+    }
+</script>
+</body>
+</html>
+
+

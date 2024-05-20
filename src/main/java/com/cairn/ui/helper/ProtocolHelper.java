@@ -572,4 +572,8 @@ public class ProtocolHelper {
 		return result;
 		
 	}
+	
+	public int postRecomendation(User usr, int protocolId, String comment) {
+		return 1;
+	}
 }

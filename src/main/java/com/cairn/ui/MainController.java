@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -82,6 +84,9 @@ public class MainController {
 
 	@Autowired
 	ReportHelper reportHelper;
+	
+    //@Autowired
+    //private JavaMailSender mailSender;
 
 	@GetMapping("/")
 	public String startPage() {
@@ -1102,5 +1107,58 @@ public class MainController {
         return "allClientProtocols";
     }
 
+    @GetMapping("/homeworkReport/{clientId}")
+    public String homeworkReport(@PathVariable int clientId, Model model) {
+    	User currentUser = userDAO.getUser();
+    	HomeworkHelper helper= new HomeworkHelper();
+    	ArrayList<Homework> homeworks = helper.getHomeworkByUser(currentUser, clientId);
+    	ArrayList<Homework> homeworkDetails = new ArrayList<Homework>();
+    	for(Homework homework: homeworks) {
+    		Homework detailedHomework = helper.getHomeworkByHomeworkId(currentUser, homework.getId());
+
+    		homeworkDetails.add(detailedHomework);
+    	}
+    	model.addAttribute("homeworks", homeworkDetails);
+    	
+    	return "homeworkReport";
+    }
+    
+    @PostMapping("/sendEmail")
+    @ResponseBody
+    public String sendEmail(@RequestParam int userId, @RequestParam String message) {
+        User user = userHelper.getUser(null, userId);
+
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setTo(user.getEmail());
+        email.setSubject("Attention Required");
+        email.setText("Our Records indicate that we are missing some information\n Please complete the following questiosn\n "+message);
+
+        mailSender.send(email);
+        return "Email sent successfully";
+    }
+    
+    @GetMapping("/protocolRecommendations/{id}")
+    public String protocolRecomendations(@PathVariable int id, Model model) {
+    	User currentUser = userDAO.getUser();
+    	Protocol protocol = protocolHelper.getProtocol(currentUser, id);
+    	model.addAttribute("protocol",protocol);
+    	model.addAttribute("protocolId", protocol.getId());
+    	return "prtocolRecommendations";
+    }
+    @PostMapping("/postRecommendations/{id}")
+    public ResponseEntity<?> postRecommendation(@PathVariable int id,@RequestBody String recomendation){
+    	User currentUser = userDAO.getUser();
+    	try {
+    		protocolHelper.postRecomendation(currentUser, id, recomendation);
+            return ResponseEntity.ok().body("{\"message\": \"Success: Recomendation Posted!\"}");
+
+        }catch (Exception e) {
+                System.err.println("Error uploading file: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Error Posting Recomendation!\"}");
+            }
+    }
+    
+    
+    
 
 }
