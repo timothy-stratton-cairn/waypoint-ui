@@ -742,7 +742,9 @@ public class MainController {
 		model.addAttribute("clientId", clientId);
 		model.addAttribute("protocolList", pcolList);
 		model.addAttribute("assignedProtocols", assignedProtocols);
-
+		for (Protocol pcol: assignedProtocols) {
+			System.out.println("Status: "+pcol.getStatus());
+		}
 		if (client.getCoclient() != null) {
 			model.addAttribute("coclient", client.getCoclient());
 		} else {

@@ -333,6 +333,7 @@ public class ProtocolHelper {
 	                    entry.setDescription(element.has("description") && !element.get("description").isNull() ? element.get("description").asText() : "null");
 	                    entry.setId(element.has("id") && !element.get("id").isNull() ? element.get("id").intValue() : -1); // Consider using a default ID like -1
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	                    entry.setStatus(element.get("status").asText());
 	                    entry.setCompletionPercent(element.has("completionPercentage") && !element.get("completionPercentage").isNull() ? element.get("completionPercentage").asText() : "null");
 	                    entry.setLastStatus(sdf.parse(element.get("lastStatusUpdateTimestamp").asText()));
 	                    if (element.has("goal") && !element.get("goal").isNull()) {

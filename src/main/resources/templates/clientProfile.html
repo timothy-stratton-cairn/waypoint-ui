@@ -97,12 +97,13 @@
 		<div class="note_card">
 			<fieldset>
 				<legend>Assigned Protocols</legend>
-				 <!--<ul class="nav nav-tabs">
-                    <li class="nav-item tab"><a class="nav-link active" href="#" data-type="all">All</a></li>
-                    <li class="nav-item tab"><a class="nav-link" href="#" data-type="1">Active Protocols</a></li>
-                    <li class="nav-item tab"><a class="nav-link" href="#" data-type="2">Completed Protocols</a></li>
-                    <li class="nav-item tab"><a class="nav-link" href="#" data-type="3">Archived Protocols</a></li>
-                </ul>-->
+				  <ul class="nav nav-tabs">
+                    <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
+                    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
+                </ul>
+
 				
 				<div class="row">
 					<div class="col-2">
@@ -110,9 +111,10 @@
 					</div>
 				</div>
 				
-				<div class="row">
+				<div class="row"id="protocolContent">
 					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
-						class="note_card col-md-5">
+						class="note_card col-md-5"
+						th:data-type="${pcol.status}">
 						<a th:href="@{/viewProtocol/{id}/{userId}(id=${pcol.id}, userId=${userId})}">
 							<div class="flip-card ">
 								<div class="flip-card-inner">
@@ -352,17 +354,50 @@
 			});
 		});
 		
-        function filterProtocolsByType(type) {
+        function filterProtocolsByStatus(status) {
             const protocols = document.querySelectorAll('#protocolContent > div');
+            let visibleProtocolsCount = 0;
+
+            console.log(`Filtering protocols by status: ${status}`); // Log the status being filtered on
+
             protocols.forEach(protocol => {
-                if (type === 'all' || protocol.getAttribute('data-type') === type) {
+                console.log(`Protocol status: ${protocol.getAttribute('data-type')}`); // Log each protocol's status before comparison
+                if (status === 'all' || protocol.getAttribute('data-type') === status) {
                     protocol.style.display = ''; // Show
+                    visibleProtocolsCount++;
                 } else {
                     protocol.style.display = 'none'; // Hide
                 }
             });
+
+            console.log(`Total visible protocols: ${visibleProtocolsCount}`); // Log the count of visible protocols after filtering
+
+            // Check if there are no visible protocols and display a message
+            const noProtocolsMessage = document.getElementById('noProtocolsMessage');
+            if (visibleProtocolsCount === 0) {
+                if (!noProtocolsMessage) {
+                    const message = document.createElement('div');
+                    message.id = 'noProtocolsMessage';
+                    message.className = 'alert alert-warning';
+                    message.textContent = 'No protocols found for this status';
+                    document.getElementById('protocolContent').appendChild(message);
+                    
+                } else {
+                    noProtocolsMessage.style.display = ''; // Show existing message
+                }
+            } else if (noProtocolsMessage) {
+                noProtocolsMessage.style.display = 'none'; // Hide message
+            }
         }
 
+        // Add event listeners for filter tabs
+        document.querySelectorAll('.nav-link').forEach(tab => {
+            tab.addEventListener('click', function (event) {
+                event.preventDefault();
+                const status = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                filterProtocolsByStatus(status);
+            });
+        });
 
 
 		function flipCard(card) {
