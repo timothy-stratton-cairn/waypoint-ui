@@ -4,6 +4,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,6 +48,7 @@ import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
+import com.cairn.ui.model.ProtocolComments;
 import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
@@ -82,6 +86,9 @@ public class MainController {
 
 	@Autowired
 	ReportHelper reportHelper;
+	
+    //@Autowired
+    //private JavaMailSender mailSender;
 
 	@GetMapping("/")
 	public String startPage() {
@@ -130,6 +137,11 @@ public class MainController {
 		    System.out.println("No homeworks found or list is empty");
 		}
 		ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser,pcolId);
+		ProtocolComments mostRecentComment = protocol.getComments().stream()
+		        .filter(comment -> "COMMENT".equals(comment.getCommentType()))
+		        .max(Comparator.comparing(ProtocolComments::getTakenAt))
+		        .orElse(null);
+		model.addAttribute("mostRecentComment",mostRecentComment.getComment());
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", steps);
 		model.addAttribute("protocolId", pcolId);
@@ -247,15 +259,17 @@ public class MainController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}")
-	public ResponseEntity<Object> updateProtocolComment(@PathVariable int protocolId, @PathVariable String comment,
-			@PathVariable String goal, @PathVariable String progress, Model model) {
-		User currentUser = userDAO.getUser();
+	@PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}/{status}/")
+	public ResponseEntity<Object> updateProtocolComment( @PathVariable int protocolId, @PathVariable String comment,@PathVariable String goal, @PathVariable String progress, @PathVariable String status, 
+		    Model model) {
 
+		User currentUser = userDAO.getUser();
+		System.out.println("Status: " +status);
 		try {
-			protocolHelper.updateProtocolComment(currentUser, protocolId, comment);
+			protocolHelper.postProtocolComment(currentUser, protocolId,"COMMENT", comment);
 			protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
 			protocolHelper.updateProtocolProgress(currentUser, protocolId, progress);
+			protocolHelper.updateProtocolStatus(currentUser, protocolId, status);
 		} catch (Exception e) {
 			System.out.println("Error in addClientToProtocol:");
 			e.printStackTrace();
@@ -730,7 +744,9 @@ public class MainController {
 		model.addAttribute("clientId", clientId);
 		model.addAttribute("protocolList", pcolList);
 		model.addAttribute("assignedProtocols", assignedProtocols);
-
+		for (Protocol pcol: assignedProtocols) {
+			System.out.println("Status: "+pcol.getStatus());
+		}
 		if (client.getCoclient() != null) {
 			model.addAttribute("coclient", client.getCoclient());
 		} else {
@@ -1085,10 +1101,13 @@ public class MainController {
             }
     }
     
-    @GetMapping("/allClientPrtotocols/{clientId}")
+    @GetMapping("/allClientProtocols/{clientId}")
     public String allClientProtocols(@PathVariable int clientId, Model model) {
     	User currentUser = userDAO.getUser();
     	ArrayList<Protocol>listProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
+    	for (Protocol pcol: listProtocols) {
+    		System.out.print("Status: " + pcol.getStatus());
+    	}
     	model.addAttribute("listProtocols", listProtocols);
     	return"allClientProtocols";
     }
@@ -1102,5 +1121,70 @@ public class MainController {
         return "allClientProtocols";
     }
 
+    @GetMapping("/homeworkReport/{clientId}")
+    public String homeworkReport(@PathVariable int clientId, Model model) {
+    	User currentUser = userDAO.getUser();
+    	HomeworkHelper helper= new HomeworkHelper();
+    	ArrayList<Homework> homeworks = helper.getHomeworkByUser(currentUser, clientId);
+    	ArrayList<Homework> homeworkDetails = new ArrayList<Homework>();
+    	for(Homework homework: homeworks) {
+    		Homework detailedHomework = helper.getHomeworkByHomeworkId(currentUser, homework.getId());
 
-}
+    		homeworkDetails.add(detailedHomework);
+    	}
+    	model.addAttribute("homeworks", homeworkDetails);
+    	
+    	return "homeworkReport";
+    }
+    
+    @PostMapping("/sendEmail")
+    @ResponseBody
+    public String sendEmail(@RequestParam int userId, @RequestParam String message) {
+        User user = userHelper.getUser(null, userId);
+
+        //SimpleMailMessage email = new SimpleMailMessage();
+        //email.setTo(user.getEmail());
+        //email.setSubject("Attention Required");
+        //email.setText("Our Records indicate that we are missing some information\n Please complete the following questiosn\n "+message);
+
+        //mailSender.send(email);
+        return "Email sent successfully";
+    }
+    
+    @GetMapping("/protocolRecommendations/{id}")
+    public String protocolRecomendations(@PathVariable int id, Model model) {
+    	User currentUser = userDAO.getUser();
+    	Protocol protocol = protocolHelper.getProtocol(currentUser, id);
+    	model.addAttribute("protocol",protocol);
+    	model.addAttribute("protocolId", protocol.getId());
+    	return "protocolRecommendations";
+    }
+    
+    @PostMapping("/postRecommendations/{id}")
+    public ResponseEntity<?> postRecommendation(@PathVariable int id,@RequestBody String recommendation){
+    	User currentUser = userDAO.getUser();
+    	System.out.println("Calling postRecommendation");
+        if (recommendation.startsWith("\"") && recommendation.endsWith("\"")) {
+            recommendation = recommendation.substring(1, recommendation.length() - 1);
+        }
+
+    	System.out.print("Reccomendation: "+ recommendation);
+    	try {
+    		System.out.println("Success!");
+    		protocolHelper.postProtocolComment(currentUser, id,"RECOMMENDATION" ,recommendation);
+            return ResponseEntity.ok().body("{\"message\": \"Success: Recomendation Posted!\"}");
+            
+
+        }catch (Exception e) {
+        		System.out.print(e);
+                System.err.println("Error uploading file: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Error Posting Recomendation!\"}");
+            }
+    }
+    
+
+    }
+    
+    
+    
+

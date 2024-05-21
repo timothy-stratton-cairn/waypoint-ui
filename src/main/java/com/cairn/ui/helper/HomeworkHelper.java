@@ -139,6 +139,80 @@ public class HomeworkHelper {
 
 		return result;
 	}
+	
+	public ArrayList<Homework> getHomeworkByUser(User usr, int protocolId) {
+
+		ArrayList<Homework> results = new ArrayList<Homework>();
+		if (usr == null) {
+			System.out.println("No User found");
+			return results;
+		}
+
+		String apiUrl = Constants.api_server + Constants.api_homework + "account/" + protocolId;
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		System.out.println(apiUrl);
+		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String jsonResponse = response.getBody();
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                try {
+                    JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+                    JsonNode hwork = jsonNode.get("homeworks");
+
+                    // Iterate through the array elements
+                    if (hwork != null && hwork.isArray()) {
+                        for (JsonNode element : hwork) {
+                            if (element != null) {
+                                Homework entry = new Homework();
+                                entry.setId(element.get("homeworkId").asInt());
+                                entry.setName(element.get("name").asText());
+                                entry.setDescription(element.has("description") && !element.get("description").isNull()
+                                        ? element.get("description").asText()
+                                        : "No Description Given");
+
+                                JsonNode homeworkQuestionsNode = element.get("homeworkQuestions");
+                                ArrayList<HomeworkQuestion> homeworkQuestions = new ArrayList<>();
+                                
+                                if (homeworkQuestionsNode != null && homeworkQuestionsNode.isArray()) {
+                                    for (JsonNode questionNode : homeworkQuestionsNode) {
+                                        HomeworkQuestion curQuestion = new HomeworkQuestion();
+                                        curQuestion.setQuestionId(questionNode.path("questionId").asInt());
+                                        curQuestion.setQuestionAbbreviation(questionNode.path("questionAbbr").asText());
+                                        curQuestion.setQuestion(questionNode.path("question").asText());
+                                        curQuestion.setQuestionType(questionNode.path("questionType").asText());
+                                        curQuestion.setRequired(questionNode.path("isRequired").asBoolean());
+                                        curQuestion.setUserResponse(questionNode.path("userResponse").asText());
+
+                                        homeworkQuestions.add(curQuestion);
+                                    }
+                                } else {
+                                    System.out.println("No 'homeworkQuestions' array found in the JSON response.");
+                                }
+                                entry.setQuestions(homeworkQuestions);
+
+                                results.add(entry);
+                            }
+                        }
+                    } else {
+                        System.out.println("No 'homeworks' array found in the JSON response.");
+                    }
+                } catch (JsonMappingException e) {
+                    e.printStackTrace();
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.out.println("No Homeworks Returned");
+        }
+        return results;
+	}
 
 	public Homework getHomeworkByHomeworkId(User usr, int id) {
 		Homework result = new Homework();

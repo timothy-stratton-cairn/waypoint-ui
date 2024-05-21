@@ -23,6 +23,16 @@
                         <div class="col-md-2">
                             <label>Needs Attention:</label> <span th:text="${protocol.needsAttention} ? 'Yes': 'No'"></span>
                         </div>
+                        <div class="col-md-1">
+                        <label>Status:</label>
+                        </div>
+                        <div class="col-md-3">
+	                        <select id="statusDropdown" class="form-control">
+	                            <option value="IN_PROGRESS" th:selected="${protocol.status} == 'IN_PROGRESS'">In Progress</option>
+	                            <option value="COMPLETED" th:selected="${protocol.status} == 'COMPLETED'">Completed</option>
+	                            <option value="ARCHIVED" th:selected="${protocol.status} == 'ARCHIVED'">Archived</option>
+	                        </select>
+	                    </div>
                         <div class="col-md-4">
                             <label>Last Status Update:</label> <span th:text="${protocol.lastStatus}"></span>
                         </div>
@@ -31,15 +41,16 @@
 						<div class="col-md-2">
                             <label>Completion:</label> <span th:text="|${protocol.completionPercent}%|"></span>
                         </div>
+                        <div class="col-md-2">
+                            <label>Number of Steps:</label> <span th:text="${protocol.stepCount}"></span>
+                        </div>
                          <div class = "col-md-1">
 							 <label>Progress: </label>
                          </div>
                          	<div class = "col-md-3">
 							<input type="text" id="progressInput" th:value="${protocol.progress}" class="form-control">
-							</div>
-                        <div class="col-md-3">
-                            <label>Number of Steps:</label> <span th:text="${protocol.stepCount}"></span>
-                        </div>
+						</div>
+                        
 					</div>
 					<div class ="row">
 						<div class="col-md-12">
@@ -56,12 +67,13 @@
                      
 					</div>
                     <div class="row">
-					    <div class="col-md-1">
-					        <label>Comments:</label>
-					    </div>
-					    <div class="col-md-11">
-					        <input type="text" id="commentInput" th:value="${protocol.comment}" class="form-control">
-					    </div>
+				        <div class="col-md-1">
+				            <label>Comments:</label>
+				        </div>
+				        <div class="col-md-11">
+				            <input type="text" id="commentInput" th:value="${mostRecentComment}" class="form-control">
+				        </div>
+				    </div>
                     </div>
                     <div class="row">&nbsp;</div>
 	                    <div class="row">
@@ -273,8 +285,11 @@
 		    var goal = document.getElementById('goalInput').value;
 		    var comment = document.getElementById('commentInput').value;
 		    var progress = document.getElementById('progressInput').value;
-		
-		    fetch(`/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}`, {
+		    var status = document.getElementById('statusDropdown').value;
+			console.log('Status:', status);
+		    var url = `/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/`;
+		    console.log('URL:', url);
+		    fetch(`/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/`, {
 		        method: 'PATCH',
 		        headers: {
 		            'Accept': 'application/json',
