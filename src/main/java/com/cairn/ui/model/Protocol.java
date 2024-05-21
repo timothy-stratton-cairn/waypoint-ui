@@ -12,7 +12,8 @@ public class Protocol {
 	private String goal;
 	private String progress;
 	private String description;
-	private String comment;
+	private String status;
+	private ArrayList<ProtocolComments> comments;
 	private boolean needsAttention;
 	private Date lastStatus;
 	private String completionPercent;
@@ -51,9 +52,6 @@ public class Protocol {
 	public String getDescription() {
 		return description;
 	}
-	public String getComment() {
-		return comment;
-	}
 	public boolean isNeedsAttention() {
 		return needsAttention;
 	}
@@ -70,9 +68,7 @@ public class Protocol {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+
 	public void setNeedsAttention(boolean needsAttention) {
 		this.needsAttention = needsAttention;
 	}
@@ -133,6 +129,18 @@ public class Protocol {
 	}
 	public void setCompletedSteps(int completedSteps) {
 		this.completedSteps = completedSteps;
+	}
+	public ArrayList<ProtocolComments> getComments() {
+		return comments;
+	}
+	public void setComments(ArrayList<ProtocolComments> comments) {
+		this.comments = comments;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }
