@@ -604,7 +604,35 @@ public class ProtocolHelper {
 			System.out.println("Error in updating progress");
 	        e.printStackTrace();
 		}
-			
+		
+	
 		return result;
 	}
+	
+	public int updateProtocolStatus(User usr, int protocolId, String status) {
+		int result = -1;
+		String requestBody = "{\"status\": \"" + status + "\"}";
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId +'/'+"status";
+		System.out.println("Request Body: "+ requestBody);
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+		System.out.println(apiUrl);
+		System.out.println(entity);
+		
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }
+	        }catch(Exception e) {
+				System.out.println("Error in updating progress");
+		        e.printStackTrace();
+			}  
+		return result;
+		}
+	
 }

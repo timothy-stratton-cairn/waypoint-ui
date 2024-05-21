@@ -141,7 +141,7 @@ public class MainController {
 		        .filter(comment -> "COMMENT".equals(comment.getCommentType()))
 		        .max(Comparator.comparing(ProtocolComments::getTakenAt))
 		        .orElse(null);
-		model.addAttribute("mostRecentComment",mostRecentComment);
+		model.addAttribute("mostRecentComment",mostRecentComment.getComment());
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", steps);
 		model.addAttribute("protocolId", pcolId);
@@ -259,15 +259,17 @@ public class MainController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}")
-	public ResponseEntity<Object> updateProtocolComment(@PathVariable int protocolId, @PathVariable String comment,
-			@PathVariable String goal, @PathVariable String progress, Model model) {
-		User currentUser = userDAO.getUser();
+	@PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}/{status}/")
+	public ResponseEntity<Object> updateProtocolComment( @PathVariable int protocolId, @PathVariable String comment,@PathVariable String goal, @PathVariable String progress, @PathVariable String status, 
+		    Model model) {
 
+		User currentUser = userDAO.getUser();
+		System.out.println("Status: " +status);
 		try {
 			protocolHelper.postProtocolComment(currentUser, protocolId,"COMMENT", comment);
 			protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
 			protocolHelper.updateProtocolProgress(currentUser, protocolId, progress);
+			protocolHelper.updateProtocolStatus(currentUser, protocolId, status);
 		} catch (Exception e) {
 			System.out.println("Error in addClientToProtocol:");
 			e.printStackTrace();
@@ -1137,12 +1139,12 @@ public class MainController {
     public String sendEmail(@RequestParam int userId, @RequestParam String message) {
         User user = userHelper.getUser(null, userId);
 
-        SimpleMailMessage email = new SimpleMailMessage();
-        email.setTo(user.getEmail());
-        email.setSubject("Attention Required");
-        email.setText("Our Records indicate that we are missing some information\n Please complete the following questiosn\n "+message);
+        //SimpleMailMessage email = new SimpleMailMessage();
+        //email.setTo(user.getEmail());
+        //email.setSubject("Attention Required");
+        //email.setText("Our Records indicate that we are missing some information\n Please complete the following questiosn\n "+message);
 
-        mailSender.send(email);
+        //mailSender.send(email);
         return "Email sent successfully";
     }
     
@@ -1177,7 +1179,9 @@ public class MainController {
             }
     }
     
+
+    }
+    
     
     
 
-}
