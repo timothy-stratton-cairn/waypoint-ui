@@ -49,23 +49,29 @@
 <script>
 	var protocolId = [[${protocolId}]];
     function postRecommendation() {
-        const recommendation = document.getElementById('newRecommendation').value;
-        
-        $.ajax({
-            type: 'POST',
-            url: `/postRecommendations/${protocolId}`,
-            contentType: 'application/json',
-            data: JSON.stringify(recommendation),
-            success: function(response) {
-                alert(response.message || 'Success: Recommendation Posted!');
-                location.reload(); 
-            },
-            error: function(xhr) {
-                const errorMessage = xhr.responseJSON?.error || 'Error Posting Recommendation!';
-                alert(errorMessage);
-            }
-        });
-    }
+    const recommendation = document.getElementById('newRecommendation').value;
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+    
+    $.ajax({
+        type: 'POST',
+        url: `/postRecommendations/${protocolId}`,
+        contentType: 'application/json',
+        data: JSON.stringify(recommendation),
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader(csrfHeader, csrfToken);
+        },
+        success: function(response) {
+            alert(response.message || 'Success: Recommendation Posted!');
+            location.reload(); 
+        },
+        error: function(xhr) {
+            const errorMessage = xhr.responseJSON?.error || 'Error Posting Recommendation!';
+            alert(errorMessage);
+        }
+    });
+}
+
 </script>
 </body>
 </html>

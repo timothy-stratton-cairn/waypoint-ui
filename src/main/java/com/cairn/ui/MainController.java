@@ -1156,13 +1156,22 @@ public class MainController {
     }
     
     @PostMapping("/postRecommendations/{id}")
-    public ResponseEntity<?> postRecommendation(@PathVariable int id,@RequestBody String recomendation){
+    public ResponseEntity<?> postRecommendation(@PathVariable int id,@RequestBody String recommendation){
     	User currentUser = userDAO.getUser();
+    	System.out.println("Calling postRecommendation");
+        if (recommendation.startsWith("\"") && recommendation.endsWith("\"")) {
+            recommendation = recommendation.substring(1, recommendation.length() - 1);
+        }
+
+    	System.out.print("Reccomendation: "+ recommendation);
     	try {
-    		protocolHelper.postProtocolComment(currentUser, id,"RECOMMENDATION" ,recomendation);
+    		System.out.println("Success!");
+    		protocolHelper.postProtocolComment(currentUser, id,"RECOMMENDATION" ,recommendation);
             return ResponseEntity.ok().body("{\"message\": \"Success: Recomendation Posted!\"}");
+            
 
         }catch (Exception e) {
+        		System.out.print(e);
                 System.err.println("Error uploading file: " + e.getMessage());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Error Posting Recomendation!\"}");
             }

@@ -581,15 +581,15 @@ public class ProtocolHelper {
 	
 	public int postProtocolComment(User usr, int protocolId, String commentType,String comment) {
 		int result = 0;
-		String requestBody ="{\"comment\": \"" + comment + "\" \"commentType\": \""+commentType +"\"}";
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId;
-
+		String requestBody = String.format("{\"comment\": \"%s\", \"commentType\": \"%s\"}", comment, commentType);
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId +'/'+"comment";
+		System.out.println("Request Body: "+ requestBody);
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 		System.out.println(apiUrl);
 		System.out.println(entity);
 		
 		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
 
 	            result = 1;
