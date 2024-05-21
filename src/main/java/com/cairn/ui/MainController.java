@@ -141,6 +141,10 @@ public class MainController {
 		        .filter(comment -> "COMMENT".equals(comment.getCommentType()))
 		        .max(Comparator.comparing(ProtocolComments::getTakenAt))
 		        .orElse(null);
+		if (mostRecentComment == null) {
+			mostRecentComment = new ProtocolComments();
+			mostRecentComment.setComment("");
+		}
 		model.addAttribute("mostRecentComment",mostRecentComment.getComment());
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", steps);
