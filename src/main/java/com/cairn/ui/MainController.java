@@ -4,6 +4,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
+import com.cairn.ui.model.ProtocolComments;
 import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
@@ -135,6 +137,11 @@ public class MainController {
 		    System.out.println("No homeworks found or list is empty");
 		}
 		ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser,pcolId);
+		ProtocolComments mostRecentComment = protocol.getComments().stream()
+		        .filter(comment -> "COMMENT".equals(comment.getCommentType()))
+		        .max(Comparator.comparing(ProtocolComments::getTakenAt))
+		        .orElse(null);
+		model.addAttribute("mostRecentComment",mostRecentComment);
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", steps);
 		model.addAttribute("protocolId", pcolId);
@@ -258,7 +265,7 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 
 		try {
-			protocolHelper.updateProtocolComment(currentUser, protocolId, comment);
+			protocolHelper.postProtocolComment(currentUser, protocolId,"COMMENT", comment);
 			protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
 			protocolHelper.updateProtocolProgress(currentUser, protocolId, progress);
 		} catch (Exception e) {
@@ -1143,13 +1150,14 @@ public class MainController {
     	Protocol protocol = protocolHelper.getProtocol(currentUser, id);
     	model.addAttribute("protocol",protocol);
     	model.addAttribute("protocolId", protocol.getId());
-    	return "prtocolRecommendations";
+    	return "protocolRecommendations";
     }
+    
     @PostMapping("/postRecommendations/{id}")
     public ResponseEntity<?> postRecommendation(@PathVariable int id,@RequestBody String recomendation){
     	User currentUser = userDAO.getUser();
     	try {
-    		protocolHelper.postRecomendation(currentUser, id, recomendation);
+    		protocolHelper.postProtocolComment(currentUser, id,"RECOMMENDATION" ,recomendation);
             return ResponseEntity.ok().body("{\"message\": \"Success: Recomendation Posted!\"}");
 
         }catch (Exception e) {

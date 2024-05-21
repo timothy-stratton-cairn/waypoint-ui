@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Protocol;
+import com.cairn.ui.model.ProtocolComments;
 import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -174,17 +175,21 @@ public class ProtocolHelper {
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
-					JsonNode comments = jsonNode.get("protocolComments").get("comments");
-					String commentString = "";
-					if (comments.isArray()) {
-						for (JsonNode element : comments) {
-							// Access and print array elements
-							if (element != null) {
-								commentString += element.get("comment").asText();
-							}
-						}
-					}
-					result.setComment(commentString);
+					JsonNode commentsNode = jsonNode.path("protocolComments").path("comments");
+	                ArrayList<ProtocolComments> comments = new ArrayList<>();
+	                if (commentsNode.isArray()) {
+	                    for (JsonNode commentElement : commentsNode) {
+	                        ProtocolComments comment = new ProtocolComments();
+	                        comment.setComment(commentElement.get("comment").asText());
+	                        comment.setTakenAt(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(commentElement.get("takenAt").asText()));
+	                        comment.setTakenBy(commentElement.get("takenBy").asText());
+	                        comment.setCommentType(commentElement.get("commentType").asText());
+	                        comments.add(comment);
+	                    }
+	                }
+	                result.setComments(comments);
+
+					result.setStatus(jsonNode.path("status").asText());
 					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
 					result.setNeedsAttention(Boolean.valueOf(jsonNode.get("needsAttention").toString()));
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -573,7 +578,32 @@ public class ProtocolHelper {
 		
 	}
 	
-	public int postRecomendation(User usr, int protocolId, String comment) {
-		return 1;
+	public int postProtocolComment(User usr, int protocolId, String commentType,String comment) {
+		int result = 0;
+		String requestBody ="{\"comment\": \"" + comment + "\" \"commentType\": \""+commentType +"\"}";
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId;
+
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+		System.out.println(apiUrl);
+		System.out.println(entity);
+		
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating progress");
+	        e.printStackTrace();
+		}
+			
+		return result;
 	}
 }

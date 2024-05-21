@@ -23,6 +23,10 @@
                         <div class="col-md-2">
                             <label>Needs Attention:</label> <span th:text="${protocol.needsAttention} ? 'Yes': 'No'"></span>
                         </div>
+                        <div class="col-md-2">
+							<lable>Status:</lable><span th:text="${protocol.status}"></span>
+							
+						</div>
                         <div class="col-md-4">
                             <label>Last Status Update:</label> <span th:text="${protocol.lastStatus}"></span>
                         </div>
@@ -56,12 +60,13 @@
                      
 					</div>
                     <div class="row">
-					    <div class="col-md-1">
-					        <label>Comments:</label>
-					    </div>
-					    <div class="col-md-11">
-					        <input type="text" id="commentInput" th:value="${protocol.comment}" class="form-control">
-					    </div>
+				        <div class="col-md-1">
+				            <label>Comments:</label>
+				        </div>
+				        <div class="col-md-11">
+				            <input type="text" id="commentInput" th:value="${mostRecentComment}" class="form-control">
+				        </div>
+				    </div>
                     </div>
                     <div class="row">&nbsp;</div>
 	                    <div class="row">
