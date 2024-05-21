@@ -1101,10 +1101,13 @@ public class MainController {
             }
     }
     
-    @GetMapping("/allClientPrtotocols/{clientId}")
+    @GetMapping("/allClientProtocols/{clientId}")
     public String allClientProtocols(@PathVariable int clientId, Model model) {
     	User currentUser = userDAO.getUser();
     	ArrayList<Protocol>listProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
+    	for (Protocol pcol: listProtocols) {
+    		System.out.print("Status: " + pcol.getStatus());
+    	}
     	model.addAttribute("listProtocols", listProtocols);
     	return"allClientProtocols";
     }
