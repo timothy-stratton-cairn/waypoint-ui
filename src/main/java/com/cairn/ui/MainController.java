@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
@@ -87,8 +88,8 @@ public class MainController {
 	@Autowired
 	ReportHelper reportHelper;
 	
-    //@Autowired
-    //private JavaMailSender mailSender;
+    @Autowired
+    private JavaMailSender mailSender;
 
 	@GetMapping("/")
 	public String startPage() {
@@ -1137,23 +1138,36 @@ public class MainController {
     		homeworkDetails.add(detailedHomework);
     	}
     	model.addAttribute("homeworks", homeworkDetails);
+    	model.addAttribute("clientId",clientId);
     	
     	return "homeworkReport";
     }
-    
-    @PostMapping("/sendEmail")
-    @ResponseBody
-    public String sendEmail(@RequestParam int userId, @RequestParam String message) {
-        User user = userHelper.getUser(null, userId);
+    @PostMapping("/sendEmail/{userId}")
+    public ResponseEntity<String> sendEmail(@PathVariable int userId, @RequestBody Map<String, String> payload) {
+        User currentUser = userDAO.getUser();
+        User user = userHelper.getUser(currentUser, userId);
 
-        //SimpleMailMessage email = new SimpleMailMessage();
-        //email.setTo(user.getEmail());
-        //email.setSubject("Attention Required");
-        //email.setText("Our Records indicate that we are missing some information\n Please complete the following questiosn\n "+message);
+        String message = payload.get("message");
+        if (message == null || message.isEmpty()) {
+            return ResponseEntity.badRequest().body("Error: Message is empty");
+        }
 
-        //mailSender.send(email);
-        return "Email sent successfully";
+        try {
+            // Replace ": null\n" with ": \n" in the message
+            String formattedMessage = message.replace(": null\n", ": \n");
+
+            SimpleMailMessage email = new SimpleMailMessage();
+            email.setTo(user.getEmail());
+            email.setSubject("Attention Required");
+            email.setText("Our Records indicate that we are missing some information\nPlease complete the following questions:\n\n" + formattedMessage);
+            mailSender.send(email);
+            return ResponseEntity.ok().body("Success: Email Sent!");
+        } catch (MailException e) {
+            System.err.println("Error sending email: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Sending Email!");
+        }
     }
+
     
     @GetMapping("/protocolRecommendations/{id}")
     public String protocolRecomendations(@PathVariable int id, Model model) {

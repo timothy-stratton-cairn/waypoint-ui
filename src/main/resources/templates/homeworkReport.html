@@ -36,13 +36,8 @@
                             <td>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-secondary" th:onclick="'toggleQuestions(' + ${homework.id} + ')'">More Details</button>
-           
                                     <button type="button" class="btn btn-secondary" th:onclick="'goToHomework(' + ${homework.id} + ')'">Go To</button>
-                                    <button type="button" class = "btn btn-secondary" >Email Request</button>
-                                    <!--This currently breaks the page don't know what's going on there
-                                    <button type="button" class="btn btn-secondary" th:onclick="'emailRequest(' + ${homework.id} + ', ' + ${#httpServletRequest.remoteUser} + ')'">Email Request</button>
-                                    -->
-                                    
+                                    <button type="button" class="btn btn-secondary" th:onclick="'emailRequest(' + ${homework.id} + ', ' + ${clientId} + ')'">Email Request</button>
                                 </div>
                             </td>
                         </tr>
@@ -84,26 +79,37 @@
         window.location = '/homeworkDisplay/' + id;
     }
 
-    function emailRequest(homeworkId, userId) { 
+    function emailRequest(homeworkId, userId) {
         let homeworkRow = $('#' + homeworkId);
-        let questions = homeworkRow.find('td');
-        let message = '';
+        let message = 'Please complete the following questions:\n\n';
 
-        questions.each(function() {
-            message += $(this).text() + '\n';
+        homeworkRow.find('table tbody tr').each(function() {
+            let question = $(this).find('td:eq(0)').text().trim();
+            let response = $(this).find('td:eq(1)').text().trim();
+            message += question + ': ' + (response ? response : 'No response') + '\n';
         });
+
+        let csrfToken = $('meta[name="_csrf"]').attr('content');
+        let csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
         $.ajax({
             type: 'POST',
-            url: '/sendEmail',
-            data: { userId: userId, message: message },
+            url: '/sendEmail/' + userId,
+            contentType: 'application/json',
+            data: JSON.stringify({ message: message }),
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(csrfHeader, csrfToken);
+            },
             success: function(response) {
                 alert(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while sending the email.');
             }
         });
     }
 </script>
 </body>
 </html>
-
 
