@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>More Details Required</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body>
+    <div class="container mt-5">
+        <legend>More Information Required</legend>
+        <form id="detailsForm">
+            <input type="hidden" name="userId" th:value="${userId}" />
+            <input type="hidden" name="protocolId" th:value="${protocolId}" />
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="protocolName" class="form-label"><strong>Name:</strong></label>
+                    <input type="text" class="form-control" id="protocolName" name="protocolName" required />
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <label for="reoccurring" class="mr-md-3"><strong>Reoccurring:</strong></label>
+                    <input type="checkbox" id="reoccurring" name="reoccurring" onclick="toggleScheduleInput()"/>
+                </div>
+            </div>
+            
+            <div class="row mt-2" id="scheduleInputs" style="display: none;">
+                <div class="col-md-2">
+                    <label for="schedule" class="mr-md-3"><strong>Schedule:</strong></label>
+                </div>
+                <div class="col-md-3">
+                    <label for="year" class="d-inline"><strong>Year:</strong></label>
+                    <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="1" max="10">
+                </div>
+                <div class="col-md-3">
+                    <label for="month" class="d-inline"><strong>Month:</strong></label>
+                    <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="1" max="12">
+                </div>
+                <div class="col-md-3">
+                    <label for="day" class="d-inline"><strong>Day:</strong></label>
+                    <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="1" max="31">
+                </div>
+            </div>
+             
+            <button type="button" onclick="submitDetails()" class="btn btn-primary mt-4">Submit</button>
+        </form>
+    </div>
+ 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleScheduleInput() {
+            var scheduleInputs = document.getElementById('scheduleInputs');
+            var reoccurringCheckbox = document.getElementById('reoccurring');
+            if (reoccurringCheckbox.checked) {
+                scheduleInputs.style.display = 'flex';
+            } else {
+                scheduleInputs.style.display = 'none';
+            }
+        }
+
+        function submitDetails() {
+            var form = document.getElementById('detailsForm');
+            var formData = new FormData(form);
+            var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            var userId = formData.get('userId');
+            var protocolId = formData.get('protocolId');
+            
+            fetch(`/saveProtocolDetails`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fetch(`/addClientToProtocol/${userId}/${protocolId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            [csrfHeader]: csrfToken
+                        },
+                        credentials: 'include'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.opener.location.reload(); // Refresh parent page
+                            window.close(); // Close the popup
+                        } else {
+                            response.text().then(text => { throw new Error(text); });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error adding protocol:', error);
+                        alert('Failed to add the Protocol. Error: ' + error.message);
+                    });
+                } else {
+                    alert('Error saving protocol details');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error saving protocol details');
+            });
+        }
+    </script>
+</body>
+</html>
+

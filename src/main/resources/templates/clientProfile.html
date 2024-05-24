@@ -223,7 +223,7 @@
 		   window.location='/protocolHistory/'+clientId+'/'+name;
 	   }
 	   function viewRecommendations(id){
-		   window.location= '/protocolRecommendations/'+id;
+		   window.location= '/protocolRecommendations/'+id +'/'+clientId;
 	   }
 	   
 	   	function goToHomeworkTemplates() {
@@ -281,6 +281,12 @@
 			// Retrieve selected protocol ID
 			var selectElement = buttonElement.previousElementSibling;
 			var protocolId = selectElement ? selectElement.value : null;
+			
+		    const popupWidth = 800;
+		    const popupHeight = 400;
+		    const left = (screen.width - popupWidth) / 2;
+		    const top = (screen.height - popupHeight) / 2;
+		    window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
 			if (protocolId) {
 				console.log(`confirmProtocol: Selected protocol ID is ${protocolId}.`);
 			} else {

@@ -24,7 +24,38 @@
                 <div class="row">
                     <label for="protocolDescription"><strong>Description:</strong></label>
                     <input type="text" class="form-control" id="protocolDescription" name="description"/>
+                    
+                   
                 </div>
+                <div class="row">
+
+						<div class="col-md-3">
+	                    	<label for="reoccurring" class="mr-md-3"><strong>Default as Reoccurring?</strong></label>
+	                   		<input type="checkbox" id="reoccurring" name="reoccurring"/>
+						</div> 
+
+                </div>
+				<div class="row mt-3">
+					<div class="col-md-2">
+				    	<label for="schedule" class="mr-md-3"><strong>Default Schedule?</strong></label>
+				    </div>
+				    <div class="col-md-2">
+				        <label for="year" class="d-inline"><strong>Year</strong></label>
+				        <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="1" max="10" style="width: 60%;">
+				    </div>
+				
+				    <div class="col-md-2">
+				        <label for="month" class="d-inline"><strong>Month</strong></label>
+				        <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="1" max="12" style="width: 60%;">
+				    </div>
+				
+				    <div class="col-md-2">
+				        <label for="day" class="d-inline"><strong>Day</strong></label>
+				        <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="1" max="31" style="width: 60%;">
+				    </div>
+				</div>
+
+
             </form>
         </fieldset>
     </div>
@@ -125,16 +156,24 @@
 		}
 		
 		function saveProtocolTemplate() {
-    		const name = document.getElementById('protocolName').value;
+		    const name = document.getElementById('protocolName').value;
 		    const description = document.getElementById('protocolDescription').value;
+		    //const reoccurring = document.getElementById('reoccurring').checked;
+		    //const year = document.getElementById('year').value;
+		    //const month = document.getElementById('month').value;
+		    //const day = document.getElementById('day').value;
 		    const steps = Array.from(document.querySelectorAll('#stepsContent > .row')).map(row => ({
 		        id: parseInt(row.getAttribute('data-step-id')),
 		        name: row.querySelector('.col-md-9').textContent.trim()
 		    }));
+		    
+		    const schedule = [year, month, day];
 		
 		    const protocolData = {
 		        name: name,
 		        description: description,
+		        //reoccurring: reoccurring,
+		        //schedule: schedule,
 		        steps: steps
 		    };
 		
@@ -162,6 +201,7 @@
 		    })
 		    .catch(error => alert('Error creating protocol template: ' + error));
 		}
+
 
 		function addStep() {
 		    const select = document.getElementById('stepSelector');

@@ -1089,6 +1089,13 @@ public class MainController {
     	return"uploadFile";
     	
     }
+    @GetMapping("extraInfoPopUp/{userId}/{protocolId}")
+    public String extraInfoPopUp(@PathVariable int userId,@PathVariable int protocolId,Model model ){
+    	model.addAttribute("userId",userId);
+    	model.addAttribute("protocolId",protocolId);
+    	return"extraInfoPopUp";
+    	
+    }
     @PatchMapping("/uploadFileToHomework/")
     public ResponseEntity<?> uploadFileToHomework(@RequestParam("file") MultipartFile file, String userResponse, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
     	 User currentUser = userDAO.getUser();
@@ -1142,24 +1149,22 @@ public class MainController {
     	
     	return "homeworkReport";
     }
+    
+    
     @PostMapping("/sendEmail/{userId}")
-    public ResponseEntity<String> sendEmail(@PathVariable int userId, @RequestBody Map<String, String> payload) {
+    public ResponseEntity<String> sendEmail(@PathVariable int userId, @RequestParam String subject, @RequestParam String message) {
         User currentUser = userDAO.getUser();
         User user = userHelper.getUser(currentUser, userId);
 
-        String message = payload.get("message");
         if (message == null || message.isEmpty()) {
             return ResponseEntity.badRequest().body("Error: Message is empty");
         }
 
         try {
-            // Replace ": null\n" with ": \n" in the message
-            String formattedMessage = message.replace(": null\n", ": \n");
-
             SimpleMailMessage email = new SimpleMailMessage();
             email.setTo(user.getEmail());
-            email.setSubject("Attention Required");
-            email.setText("Our Records indicate that we are missing some information\nPlease complete the following questions:\n\n" + formattedMessage);
+            email.setSubject(subject);
+            email.setText(message);
             mailSender.send(email);
             return ResponseEntity.ok().body("Success: Email Sent!");
         } catch (MailException e) {
@@ -1167,14 +1172,15 @@ public class MainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Sending Email!");
         }
     }
-
     
-    @GetMapping("/protocolRecommendations/{id}")
-    public String protocolRecomendations(@PathVariable int id, Model model) {
+    @GetMapping("/protocolRecommendations/{id}/{clientId}")
+    public String protocolRecomendations(@PathVariable int id,@PathVariable int clientId ,Model model) {
     	User currentUser = userDAO.getUser();
+    
     	Protocol protocol = protocolHelper.getProtocol(currentUser, id);
     	model.addAttribute("protocol",protocol);
     	model.addAttribute("protocolId", protocol.getId());
+    	model.addAttribute("clientId",clientId);
     	return "protocolRecommendations";
     }
     
@@ -1199,6 +1205,9 @@ public class MainController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Error Posting Recomendation!\"}");
             }
     }
+    
+    
+    
     
 
     }
