@@ -42,8 +42,11 @@
 							    <td>
 									  <span th:switch="${question.questionType}">
 						                <span th:case="'FILE'">
-	                                        <button type="button" class="btn btn-primary upload-file-button">Upload File</button>
-	                                    </span>
+                                            <button type="button" class="btn btn-primary upload-file-button">Upload File</button>
+                                            <span th:if="${question.userResponse} != null and ${question.userResponse} != ''">
+                                                <button type="button" class="btn btn-primary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
+                                            </span>
+                                        </span>
 						                <span th:case="'DATE'">
 											<input type="date" th:name="response" th:value="${question.userResponse}" />
 										</span>
@@ -82,7 +85,8 @@
 		</fieldset>
 	</div>
 </div>
-	
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
     var homeworkId = [[${homeworkId}]];
     document.addEventListener('DOMContentLoaded', function () {
@@ -137,13 +141,38 @@
             });
         });
     });
+    
+        function downloadFile(button) {
+	    var fullUrl = $(button).data('guid');
+	    var guid = fullUrl.split('/').pop(); 
+	    fetch('/downloadFile/' + guid)
+	        .then(response => {
+	            if (response.ok) {
+	                const disposition = response.headers.get('Content-Disposition');
+	                let fileName = 'downloaded_file';
+	                if (disposition && disposition.includes('filename=')) {
+	                    fileName = disposition.split('filename=')[1].trim().replace(/["]/g, '');
+	                }
+	                return response.blob().then(blob => {
+	                    const url = window.URL.createObjectURL(blob);
+	                    const a = document.createElement('a');
+	                    a.style.display = 'none';
+	                    a.href = url;
+	                    a.download = fileName; 
+	                    document.body.appendChild(a);
+	                    a.click();
+	                    window.URL.revokeObjectURL(url);
+	                });
+	            } else {
+	                throw new Error('Network response was not ok');
+	            }
+	        })
+	        .catch(error => {
+	            console.error('There has been a problem with your fetch operation:', error);
+	            alert('An error occurred while downloading the file.');
+	        });
+	}
 </script>
-
-
-
-
-
-
 
 
 </body>

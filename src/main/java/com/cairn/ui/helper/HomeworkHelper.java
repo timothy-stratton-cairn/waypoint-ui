@@ -1,8 +1,12 @@
 package com.cairn.ui.helper;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -371,6 +375,32 @@ public class HomeworkHelper {
 
 	    return response.getStatusCode().is2xxSuccessful() ? 1 : -1;
 	}
+	
+	
+    public ResponseEntity<ByteArrayResource> downloadResponseFile(User usr, String guid) throws IOException, URISyntaxException {
+        String apiUrl = Constants.api_server + Constants.api_homework_response_file + guid;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 
+        ResponseEntity<ByteArrayResource> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, ByteArrayResource.class);
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            // Extract filename from Content-Disposition header
+            String contentDisposition = response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION);
+            String fileName = "downloaded_file";
+            if (contentDisposition != null && contentDisposition.contains("filename=")) {
+                fileName = contentDisposition.substring(contentDisposition.indexOf("filename=") + 9).replace("\"", "").trim();
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(response.getBody().contentLength())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(response.getBody());
+        } else {
+            throw new IOException("Failed to download file. Status code: " + response.getStatusCode());
+        }
+    }
 
 }

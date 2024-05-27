@@ -54,7 +54,15 @@
                                         <tbody>
                                             <tr th:each="question : ${homework.questions}">
                                                 <td th:text="${question.question}">Question</td>
-                                                <td th:text="${question.userResponse}">Response</td>
+                                                
+                                                
+                                               <td th:if="${question.questionType == 'FILE'}">
+												    <button type="button" class="btn btn-secondary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
+												</td>
+												<td th:if="${question.questionType != 'FILE'}" th:text="${question.userResponse}">Response</td>
+
+                                                
+                                                
                                             </tr>
                                         </tbody>
                                     </table>
@@ -71,7 +79,8 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script>
-	var clientId = [[${clientId}]];
+    var clientId = [[${clientId}]];
+
     function toggleQuestions(id) {
         $('#' + id).toggle();
     }
@@ -80,6 +89,43 @@
         window.location = '/homeworkDisplay/' + id;
     }
 
+
+
+    function downloadFile(button) {
+	    var fullUrl = $(button).data('guid');
+	    var guid = fullUrl.split('/').pop(); 
+	    fetch('/downloadFile/' + guid)
+	        .then(response => {
+	            if (response.ok) {
+	                const disposition = response.headers.get('Content-Disposition');
+	                let fileName = 'downloaded_file';
+	                if (disposition && disposition.includes('filename=')) {
+	                    fileName = disposition.split('filename=')[1].trim().replace(/["]/g, '');
+	                }
+	                return response.blob().then(blob => {
+	                    const url = window.URL.createObjectURL(blob);
+	                    const a = document.createElement('a');
+	                    a.style.display = 'none';
+	                    a.href = url;
+	                    a.download = fileName; 
+	                    document.body.appendChild(a);
+	                    a.click();
+	                    window.URL.revokeObjectURL(url);
+	                });
+	            } else {
+	                throw new Error('Network response was not ok');
+	            }
+	        })
+	        .catch(error => {
+	            console.error('There has been a problem with your fetch operation:', error);
+	            alert('An error occurred while downloading the file.');
+	        });
+	}
+
+
+
+    
+    
 
     function emailRequest(homeworkId, clientId) {
         let homeworkRow = $('#' + homeworkId);
@@ -111,9 +157,9 @@
                 alert('An error occurred while sending the email.');
             }
         });
-    
     }
 </script>
 </body>
 </html>
+
 

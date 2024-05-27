@@ -1,5 +1,7 @@
 package com.cairn.ui;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -13,7 +15,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -1206,11 +1211,20 @@ public class MainController {
             }
     }
     
-    
-    
-    
 
+    @GetMapping("/downloadFile/{guid}")
+    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable String guid) {
+        User currentUser = userDAO.getUser();
+        HomeworkHelper helper = new HomeworkHelper();
+        try {
+            System.out.println("Initiating file download...");
+            return helper.downloadResponseFile(currentUser, guid);
+        } catch (IOException | URISyntaxException e) {
+            System.err.println("Error Downloading File: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
+}
     
     
     
