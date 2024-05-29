@@ -1,14 +1,11 @@
 package com.cairn.ui.helper;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import com.cairn.ui.model.AssignedHomeworkResponseList;
+import com.cairn.ui.model.ExpectedHomeworkResponses;
+import com.cairn.ui.model.HomeworkResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,8 +13,6 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,14 +25,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.dto.HomeworkDto;
 import com.cairn.ui.dto.HomeworkListDto;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
-import com.cairn.ui.model.HomeworkTemplate;
-import com.cairn.ui.model.Protocol;
-import com.cairn.ui.model.ProtocolStats;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -246,7 +237,7 @@ public class HomeworkHelper {
 
 					JsonNode homeworkQuestionsNode = jsonNode.get("homeworkQuestions");
 					ArrayList<HomeworkQuestion> homeworkQuestion = new ArrayList<HomeworkQuestion>();
-					if (homeworkQuestionsNode != null) {
+					if (!homeworkQuestionsNode.isNull()) {
 						JsonNode questionsNode = jsonNode.path("homeworkQuestions").path("questions");
 						if (questionsNode.isArray()) {
 							for (JsonNode questionNode : questionsNode) {
@@ -263,6 +254,27 @@ public class HomeworkHelper {
 								curQuestion.setRequired(questionNode.path("isRequired").asBoolean());
 
 								curQuestion.setUserResponse(questionNode.path("userResponse").asText());
+
+								JsonNode expectedHomeworkResponsesNode = questionNode.get("expectedHomeworkResponses");
+								ArrayList<HomeworkResponse> homeworkQuestionExpectedResponses = new ArrayList<>();
+								if (!expectedHomeworkResponsesNode.isNull()) {
+									JsonNode expectedResponses = questionNode.path("expectedHomeworkResponses").path("responses");
+									if (!expectedResponses.isNull()) {
+										for (JsonNode responseNode : expectedResponses) {
+											HomeworkResponse curResponse = new HomeworkResponse();
+											curResponse.setResponse(responseNode.path("response").asText());
+											curResponse.setTooltip(responseNode.path("tooltip").asText());
+											homeworkQuestionExpectedResponses.add(curResponse);
+										}
+									}
+
+									ExpectedHomeworkResponses expectedHomeworkResponses = new ExpectedHomeworkResponses();
+									expectedHomeworkResponses.setResponses(homeworkQuestionExpectedResponses);
+									expectedHomeworkResponses.setNumOfResponses(questionNode.path("expectedHomeworkResponses").path("numOfResponses").intValue());
+
+									curQuestion.setExpectedHomeworkResponses(expectedHomeworkResponses);
+								}
+
 
 								homeworkQuestion.add(curQuestion);
 
@@ -285,6 +297,52 @@ public class HomeworkHelper {
 			System.out.println("Error processing the homework fetch request: " + e.getMessage());
 		}
 		return result; // Return null to indicate that no homework was fetched
+	}
+
+	public int submitHomeworkResponses(User user, int homeworkId,
+			AssignedHomeworkResponseList homeworkResponses, List<MultipartFile> files)
+      throws IOException {
+		final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
+
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+		requestHeaders.setBearerAuth(user.getAuthToken());
+
+		HttpHeaders requestHeadersAttachment = new HttpHeaders();
+
+		requestHeadersAttachment.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		HttpEntity<ByteArrayResource> attachmentPart;
+
+		if (files != null && !files.isEmpty()) {
+			for (MultipartFile file : files) {
+				try (InputStream is = file.getInputStream()) {
+					ByteArrayResource fileAsResource = new ByteArrayResource(is.readAllBytes()) {
+						@Override
+						public String getFilename() {return file.getOriginalFilename();}
+					};
+
+					attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
+					multipartRequest.add("files", attachmentPart);
+				}
+			}
+		} else {
+			attachmentPart = new HttpEntity<>(new ByteArrayResource(new byte[0]));
+			multipartRequest.add("files", attachmentPart);
+		}
+
+		HttpHeaders requestHeadersJSON = new HttpHeaders();
+		requestHeadersJSON.setContentType(MediaType.APPLICATION_JSON);
+		String requestBody = new ObjectMapper().writeValueAsString(homeworkResponses);
+		HttpEntity<String> requestEntityJSON = new HttpEntity<>(requestBody, requestHeadersJSON);
+
+		multipartRequest.set("json", requestEntityJSON);
+		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, requestHeaders);// final request
+
+		ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, requestEntity, String.class);
+
+		return response.getStatusCode().is2xxSuccessful() ? 1 : -1;
 	}
 
 	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath)

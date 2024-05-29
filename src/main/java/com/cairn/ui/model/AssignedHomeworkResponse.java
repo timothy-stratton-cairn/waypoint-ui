@@ -1,37 +1,22 @@
 package com.cairn.ui.model;
 
-import org.springframework.web.multipart.MultipartFile;
+public class AssignedHomeworkResponse {
+	private Long questionId;
+	private String userResponse;
 
-public class AssignedHomeworkResponse{
-	private int id;
-	private String response;
-	private String filePath;
-	private MultipartFile file;
-	
-	
-	public int getId() {
-		return id;
+	public Long getQuestionId() {
+		return questionId;
 	}
-	public void setId(int id) {
-		this.id = id;
+
+	public void setQuestionId(Long questionId) {
+		this.questionId = questionId;
 	}
-	public String getResponse() {
-		return response;
+
+	public String getUserResponse() {
+		return userResponse;
 	}
-	public void setResponse(String response) {
-		this.response = response;
+
+	public void setUserResponse(String userResponse) {
+		this.userResponse = userResponse;
 	}
-	public String getFilePath() {
-		return filePath;
-	}
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
-	public MultipartFile getFile() {
-		return file;
-	}
-	public void setFile(MultipartFile file) {
-		this.file = file;
-	}
-	
 }

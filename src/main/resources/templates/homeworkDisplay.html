@@ -24,7 +24,7 @@
 			    <span id="homeworkDetails" th:text="${homework.description}">Homework Description</span>
 			</div>
 
-			<form id="homeworkForm" action="#" method="post">
+			<form target="_blank" id="homeworkForm" action="#" method="post" th:action="@{/assignUserResponseToHomework/} + ${homeworkId}" enctype="multipart/form-data">
 			    <span class="table-responsive">
 			        <table class="table">
 			            <thead>
@@ -36,115 +36,97 @@
 			                </tr>
 			            </thead>
 			            <tbody>
-			                <tr th:each="question : ${homework.questions}" th:id="${question.questionId}">
-							    <td th:text="${question.question}"></td>
-							    <td th:text="${question.questionType}"></td>
-							    <td>
-									  <span th:switch="${question.questionType}">
-						                <span th:case="'FILE'">
-                                            <button type="button" class="btn btn-primary upload-file-button">Upload File</button>
-                                            <span th:if="${question.userResponse} != null and ${question.userResponse} != ''">
-                                                <button type="button" class="btn btn-primary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
-                                            </span>
-                                        </span>
-						                <span th:case="'DATE'">
-											<input type="date" th:name="response" th:value="${question.userResponse}" />
-										</span>
-						                <span th:case="'DATETIME'">
-											<input type="datetime-local" th:name="response" th:value="${question.userResponse}" />
-										</span>
-						                <span th:case="'BOOLEAN'">
-											<input type="checkbox" th:name="response" th:value="${question.userResponse}" />
-										</span>
-						                <span th:case="'SELECT_OPTION'">
-											<select th:name="${question.questionId}" th:value="${question.userResponse}" >
-												<option value="">-- Please select an answer --</option>
-												<option id="opt1" value="Option 1">Option 1</option>
-												<option id="opt2" value="Option 2">Option 1</option>
-												<option id="opt3" value="Option 3">Option 1</option>
-											</select>
-										</span>
-						                <span th:case="'MULTI_SELECT_OPTION'">
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt1" value="Option 1"><label for="opt1">Option 1</label>
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt2" value="Option 2"><label for="opt2">Option 2</label>
-											<input type="checkbox" name="MULTI_SELECT_TEST" id="opt3" value="Option 3"><label for="opt3">Option 3</label>
-										</span>
-						                <span th:case="*">
-											<input type="text" th:name="response" th:value="${question.userResponse}" />
-										</span>
-   							 </td>
-
-						</tr>
-
+			            	<tr th:each="question : ${homework.questions}" th:id="${question.questionId}">
+											<td th:text="${question.question}"></td>
+											<td th:text="${question.questionType}"></td>
+											<td>
+												<input type="hidden" name="questionIds" th:value="${question.questionId}"/>
+												<span th:switch="${question.questionType}">
+													<span th:case="'STRING'">
+															<input type="text" th:name="userResponses" th:value="${question.userResponse}" th:required="${question.isRequired} ? 'required' : null"/>
+													</span>
+													<span th:case="'INTEGER'">
+															<input type="number" th:name="userResponses" th:value="${question.userResponse}" th:required="${question.isRequired} ? 'required' : null"/>
+													</span>
+													<span th:case="'FLOAT'">
+															<input type="number" step="0.01" th:name="userResponses" th:value="${question.userResponse}" th:required="${question.isRequired} ? 'required' : null" />
+													</span>
+													<span th:case="'DATE'">
+															<input type="date" th:name="userResponses" th:value="${question.userResponse}" th:required="${question.isRequired} ? 'required' : null" />
+													</span>
+													<span th:case="'DATETIME'">
+															<input type="datetime-local" th:name="userResponses" th:value="${question.userResponse}" th:required="${question.isRequired} ? 'required' : null" />
+													</span>
+													<span th:case="'BOOLEAN'">
+														<input th:id="${question.questionId} + '-checkbox'" type="hidden" th:name="userResponses" th:value="${question.userResponse}"/>
+														<input th:id="${question.questionId}" class="boolean-checkbox" type="checkbox" th:checked="${question.userResponse}" th:required="${question.isRequired} ? 'required' : null"/>
+													</span>
+													<span th:case="'SELECT_OPTION'">
+															<input th:id="${question.questionId} + '-select-option'" type="hidden" th:name="userResponses" th:value="${question.userResponse}"/>
+															<select th:id="${question.questionId}" class="select-option" th:required="${question.isRequired} ? 'required' : null">
+																<option th:each="expectedResponse : ${question.expectedHomeworkResponses.responses}" th:text="${expectedResponse.response}" th:value="${expectedResponse.response}"
+																	th:selected="${question.userResponse != null and #arrays.contains(question.userResponse, expectedResponse.response)}"></option>
+															</select>
+													</span>
+													<span th:case="'MULTI_SELECT_OPTION'">
+															<input th:id="${question.questionId} + '-multi-select-option'" type="hidden" th:name="userResponses" th:value="${question.userResponse}"/>
+															<span th:each="expectedResponse : ${question.expectedHomeworkResponses.responses}"><input th:id="${question.questionId} + '-checkbox-' + ${expectedResponse.response}" class="multi-select-checkbox" type="checkbox" th:name="${expectedResponse.response}" th:value="${expectedResponse.response}"
+																th:checked="${question.userResponse != null and #arrays.contains(question.userResponse, expectedResponse.response)}"	/><label th:for="${question.questionId} + '-checkbox-' + ${expectedResponse.response}" th:text="${expectedResponse.response}"></label><br></span>
+													</span>
+													<span th:case="'FILE'">
+															<input th:id="${question.questionId} + '-filename'" type="hidden" th:name="userResponses" th:value="${question.userResponse}"/>
+															<input th:id="${question.questionId}" type="file" th:name="files" th:value="${question.userResponse}" th:required="${question.isRequired} ? 'required' : null"/>
+															<button th:if="${question.userResponse} != null and ${question.userResponse} != ''" type="button" class="btn btn-primary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
+													</span>
+												</span>
+										 </td>
+										</tr>
 			            </tbody>
 			        </table>
-			        <button type="submit" class="btn btn-primary">Submit Responses</button>
+			        <input onclick="window.history.back();" type="submit" class="btn btn-primary" value="Submit Responses">
 			        <br>
-			    </div>
+					</span>
 			</form>
 		</fieldset>
 	</div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
-    var homeworkId = [[${homeworkId}]];
-    document.addEventListener('DOMContentLoaded', function () {
-        // Handle click event for upload file buttons
-        document.querySelectorAll('.upload-file-button').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var questionId = button.closest('tr').id;
-                var url = '/uploadFile/' + homeworkId + '/' + questionId;
-                // Open popup window with specified dimensions
-                window.open(url, 'Upload File', 'width=600,height=400');
-            });
-        });
 
-        document.getElementById('homeworkForm').addEventListener('submit', function (event) {
-            event.preventDefault();
+	$("table input[type=file]").change(function() {
+		let id = this.id;
+		let hiddenInputId = "#" + id + "-filename";
+		$(hiddenInputId).val(this.value.replace("C:\\fakepath\\", ""));
+	});
 
-            // Prepare a list to hold DTO objects
-            var assignedResponses = [];
-            var rows = document.querySelectorAll('tbody tr');
-            
-            rows.forEach(function (row) {
-                // Ensure that both input elements exist before accessing their values
-                var responseInput = row.querySelector(`input[name='response']`);
-                var filePathInput = row.querySelector(`input[name='filePath']`);
-                
-                var responseValue = responseInput ? responseInput.value : "";
-                var filePathValue = filePathInput ? filePathInput.value : "";
+	$("table .select-option").change(function() {
+		var id = this.id;
+		$("#" + id + "-select-option").val(this.value);
+	});
 
-                var dto = {
-                    id: parseInt(row.id, 10), // Parse the ID as an integer
-                    response: responseValue,
-                    filePath: filePathValue ? filePathValue : "" // Set to null if empty
-                };
-                assignedResponses.push(dto);
-            });
+	$("table input[type=checkbox].boolean-checkbox").click(function() {
+		let id = this.id;
+		let hiddenInputId = "#" + id + "-checkbox";
+		$(hiddenInputId).val(this.checked);
+	});
 
-            // Correctly form the URL with the homeworkId
-            fetch(`/assignUserResponseToHomework/${homeworkId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': [[${_csrf.token}]]
-                },
-                body: JSON.stringify(assignedResponses)
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
-    });
-    
-        function downloadFile(button) {
+	$("table input[type=checkbox].multi-select-checkbox").click(function() {
+		let id = this.id.split('-')[0];
+
+		let checkedValues = [];
+		$("table input[type=checkbox].multi-select-checkbox:checked").each(function() {
+			checkedValues.push($(this).val());
+		});
+
+		let hiddenInputId = "#" + id + "-multi-select-option";
+		$(hiddenInputId).val(checkedValues.join(", "));
+	});
+
+  function downloadFile(button) {
 	    var fullUrl = $(button).data('guid');
-	    var guid = fullUrl.split('/').pop(); 
+	    var guid = fullUrl.split('/').pop();
 	    fetch('/downloadFile/' + guid)
 	        .then(response => {
 	            if (response.ok) {
@@ -158,7 +140,7 @@
 	                    const a = document.createElement('a');
 	                    a.style.display = 'none';
 	                    a.href = url;
-	                    a.download = fileName; 
+	                    a.download = fileName;
 	                    document.body.appendChild(a);
 	                    a.click();
 	                    window.URL.revokeObjectURL(url);

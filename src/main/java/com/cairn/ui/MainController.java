@@ -1,24 +1,28 @@
 package com.cairn.ui;
 
+import com.cairn.ui.model.AssignedHomeworkResponseList;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -49,8 +53,6 @@ import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.AssignedHomeworkResponse;
 import com.cairn.ui.model.Homework;
-import com.cairn.ui.model.HomeworkFile;
-import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
@@ -1057,36 +1059,54 @@ public class MainController {
     	User currentUser = userDAO.getUser();
     	HomeworkHelper hwHelper = new HomeworkHelper();
     	Homework homework = hwHelper.getHomeworkByHomeworkId(currentUser, homeworkId);
-    	for (HomeworkQuestion question : homework.getQuestions()) {
-    	}
     	model.addAttribute("homework",homework);
     	return "homeworkDisplay";
     }
     
 
-    @PatchMapping("/assignUserResponseToHomework/{homeworkId}")
-    public ResponseEntity<?> assignUserResponseToHomework(@PathVariable int homeworkId, @RequestBody List<AssignedHomeworkResponse> responses) {
-        User currentUser = userDAO.getUser();
-        HomeworkHelper helper= new HomeworkHelper();
-        System.out.println("Responses: " + responses);
-        try {
-            for (AssignedHomeworkResponse response : responses) {
-                int questionId = response.getId();
-                String userResponse = response.getResponse();
-                String path = response.getFilePath();  // Assuming you have a getter for filePath
-                System.out.println("Question ID: " + questionId + " Response: " + userResponse + " FilePath: " + path);
-                helper.assignAnswerToHomework(currentUser, homeworkId, questionId, userResponse, path);
-            }
-            return ResponseEntity.ok().body("{\"message\": \"Success!\"}");
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid question ID: " + e.getMessage());
-            return ResponseEntity.badRequest().body("{\"error\": \""+e.getMessage()+"\"}");
-        } catch (Exception e) {
-            e.printStackTrace(); // This will print stack trace to the console
-            System.err.println("Error in processing responses: " + (e.getMessage() != null ? e.getMessage() : "Unknown Error"));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \""+e.getMessage()+"\"}");
-        }
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    @PostMapping("/assignUserResponseToHomework/{homeworkId}")
+    public ResponseEntity<?> assignUserResponseToHomework(@PathVariable int homeworkId,
+				@RequestParam("questionIds") Long[] questionIds, //assumes questionIds and userResponses are the same length
+				@RequestParam("userResponses") String[] userResponses,
+				@RequestParam("files") Optional<List<MultipartFile>> files){
+			User currentUser = userDAO.getUser();
+			HomeworkHelper helper= new HomeworkHelper();
+			System.out.println("Responses: " + userResponses);
 
+			Iterator<Long> questionIdList = Arrays.asList(questionIds).iterator();
+			Iterator<String> userResponseList = Arrays.asList(userResponses).iterator();
+
+			Function<String, Optional<MultipartFile>> retrieveFile = files.<Function<String, Optional<MultipartFile>>>map(
+              multipartFiles -> (filename) -> multipartFiles.stream()
+                  .filter(file -> Objects.equals(file.getOriginalFilename(), filename)).findFirst())
+          .orElseGet(() -> (filename) -> Optional.empty());
+
+			List<AssignedHomeworkResponse> homeworkResponses = new ArrayList<>();
+			try {
+				for (int i = 0; i < questionIds.length; i++) {
+					AssignedHomeworkResponse assignedHomeworkResponse = new AssignedHomeworkResponse();
+
+					assignedHomeworkResponse.setQuestionId(questionIdList.next());
+					assignedHomeworkResponse.setUserResponse(userResponseList.next());
+
+					homeworkResponses.add(assignedHomeworkResponse);
+				}
+
+				AssignedHomeworkResponseList assignedHomeworkResponseList = new AssignedHomeworkResponseList();
+				assignedHomeworkResponseList.setResponses(homeworkResponses);
+
+				helper.submitHomeworkResponses(currentUser, homeworkId, assignedHomeworkResponseList,
+            files.orElseGet(List::of));
+				return ResponseEntity.ok().body("{\"message\": \"Success!\"}");
+			} catch (NumberFormatException e) {
+				System.err.println("Invalid question ID: " + e.getMessage());
+				return ResponseEntity.badRequest().body("{\"error\": \""+e.getMessage()+"\"}");
+			} catch (Exception e) {
+				e.printStackTrace(); // This will print stack trace to the console
+				System.err.println("Error in processing responses: " + (e.getMessage() != null ? e.getMessage() : "Unknown Error"));
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \""+e.getMessage()+"\"}");
+			}
     }
     @GetMapping("/uploadFile/{homeworkId}/{questionId}")
     public String uploadFil(@PathVariable int homeworkId, @PathVariable int questionId, Model model){

@@ -12,6 +12,7 @@ public class HomeworkQuestion {
     private boolean isRequired;
     private String userResponse;
     private MultipartFile file;
+    private ExpectedHomeworkResponses expectedHomeworkResponses;
 
     // Getters and setters
     
@@ -60,12 +61,21 @@ public class HomeworkQuestion {
     public void setUserResponse(String userResponse) {
         this.userResponse = userResponse;
     }
-	public MultipartFile getFile() {
-		return file;
-	}
-	public void setFile(MultipartFile file) {
+    public MultipartFile getFile() {
+    return file;
+    }
+    public void setFile(MultipartFile file) {
 		this.file = file;
 	}
+
+    public ExpectedHomeworkResponses getExpectedHomeworkResponses() {
+        return expectedHomeworkResponses;
+    }
+
+    public void setExpectedHomeworkResponses(
+        ExpectedHomeworkResponses expectedHomeworkResponses) {
+        this.expectedHomeworkResponses = expectedHomeworkResponses;
+    }
 }
 
 

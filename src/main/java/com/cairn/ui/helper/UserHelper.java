@@ -303,7 +303,7 @@ public class UserHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 
-	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/"+ client.getId();
+	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/"+ client.getId();
 	    
 	    StringBuilder tempBody = new StringBuilder("\"dependants\":[");
 	    for (int i = 0; i < users.size(); i++) {
@@ -376,7 +376,7 @@ public class UserHelper {
 	        return result;
 	    }
 
-	    String apiUrl = "http://96.61.158.12:8082" + Constants.api_userlist_get + "/" + client.getId();
+	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + client.getId();
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 	    System.out.println("Url: "+ apiUrl);
 	    System.out.println("RequestBody: "+ requestBody);
