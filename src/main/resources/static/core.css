@@ -750,3 +750,60 @@ legend {
 	color: #4d4d4c;
 	padding: 0.5em;
 }
+
+table.dataTable thead th {
+    color: #F2EFEA;
+	background-color: #413F3D;
+	border-color: #546473;
+	border-width: 3px;
+	border-style: outset;
+	margin-top: 3px;
+	margin-left: 1px;
+	margin-right: 1px;
+	font-size: larger;
+	font-weight: 600;
+}
+
+table.dataTable tbody tr {
+    background-color: #f9f9f9;
+}
+table.dataTable tbody tr:nth-child(odd) {
+    background-color: #f9f9f9; 
+}
+table.dataTable tbody tr:nth-child(even) {
+    color: rgb(0, 0, 0);
+	background-color: #BBB;
+	border-color: #546473;
+	border-width: 2px;
+	border-style: double;
+	margin-top: 3px;
+	margin-left: 1px;
+	margin-right: 1px;
+}
+table.dataTable tbody tr:hover {
+    background-color: rgb(79, 86, 89); 
+    color: white !important; 
+}
+table.dataTable {
+    border-collapse: collapse; 
+    border: 1px solid #dee2e6; 
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+
+    color: white !important; 
+    cursor: pointer;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: rgb(54, 53, 53);
+    color: white;
+    border: 1px solid rgb(0, 0, 0); 
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background-color: rgb(50, 54, 49); 
+    color: white !important; 
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+    background-color: rgb(85, 89, 83); 
+    border: 1px solid rgb(85, 85, 83);
+    cursor: pointer; 
+}

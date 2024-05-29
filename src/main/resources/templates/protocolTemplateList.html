@@ -1,39 +1,68 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
-<div th:insert="~{header :: main}">...</div>
-<script>
-	function selectProtocol(id){
-	    window.location = '/editProtocol/'+id;		
-	}
-	function newProtocol(){
-		window.location = '/newProtocol/';
-	}
-</script>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Protocols</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+</head>
+
 <body>
-	<div class="container">
-		<div class="row note_card">
-			<fieldset>
-				<legend>Protocols</legend>
-				    <button class="btn btn-sm btn-primary" onclick="newProtocol();">New Protocol</button>
-				<div class="row rowheader">
-					<div class="col">
-						Name
-					</div>
-					<div class="col">
-						Action
-					</div>
-				</div>
-				<div th:each="pcol, status: ${listProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
-					<div class="col" th:text="${pcol.name}"></div>
-					<div class="col"><a class="btn btn-sm btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ');'}">Details</a></div>
-				</div>
-			</fieldset>
-			<div class="row ">&nbsp;</div>
-		</div>
-	</div>
-	<br />
-	<br />
-	<br />
+    <div th:insert="~{header :: main}">...</div>
+    <div class="container">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Protocols</legend>
+                <button class="btn btn-sm btn-primary" onclick="newProtocol();">New Protocol</button>
+                    <table id="protocolTable" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="pcol, status: ${listProtocols}">
+                                <td th:text="${pcol.name}"></td>
+                                <td>
+                                    <a class="btn btn-sm btn-secondary" th:href="@{'/editProtocol/' + ${pcol.id}}">Details</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+            </fieldset>
+        </div>
+    </div>
+
+    <div th:insert="~{footer :: main}">...</div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        function newProtocol() {
+            window.location = '/newProtocol/';
+        }
+
+        $(document).ready(function() {
+            $('#protocolTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "lengthChange": true,
+                "pageLength": 10,
+                "dom": '<"top"f>rt<"bottom"lp><"clear">',
+                "createdRow": function(row, data, dataIndex) {
+                    if (dataIndex % 2 === 0) {
+                        $(row).addClass('even');
+                    } else {
+                        $(row).addClass('odd');
+                    }
+                    }
+            });
+        });
+    </script>
 </body>
-<div th:insert="~{footer :: main}">...</div>
+
 </html>
