@@ -1,5 +1,6 @@
 package com.cairn.ui.helper;
 
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -75,6 +76,14 @@ public class ProtocolHelper {
 								entry = new Protocol();
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
+								entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
+								if (element.has("completedOn") && !element.get("completedOn").isNull()) {
+								entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
+								}
+								else {
+									entry.setCompletionDate(null);	
+								}
+								
 								results.add(entry);
 							}
 						}
@@ -121,6 +130,14 @@ public class ProtocolHelper {
 	                    entry.setProgress(element.get("goalProgress").asText());
 	                    entry.setNeedsAttention(element.get("needsAttention").asBoolean());
 	                    entry.setCompletionPercent(element.get("completionPercentage").asText());
+	                    entry.setStatus(element.get("status").asText());
+	                    entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
+						if (element.has("completedOn") && !element.get("completedOn").isNull()) {
+						entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
+						}
+						else {
+							entry.setCompletionDate(null);	
+						}
 
 	                    // Parse associatedUsers
 	                    JsonNode associatedUsers = element.get("associatedUsers").get("userIds");
@@ -611,7 +628,7 @@ public class ProtocolHelper {
 	
 	public int updateProtocolStatus(User usr, int protocolId, String status) {
 		int result = -1;
-		String requestBody = "{\"status\": \"" + status + "\"}";
+		String requestBody = "{\"newProtocolStatus\": \"" + status + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId +'/'+"status";
 		System.out.println("Request Body: "+ requestBody);
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);

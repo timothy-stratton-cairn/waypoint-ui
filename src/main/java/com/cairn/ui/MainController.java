@@ -57,6 +57,7 @@ import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolComments;
+import com.cairn.ui.model.ProtocolReport;
 import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
@@ -1208,6 +1209,60 @@ public class MainController {
     	model.addAttribute("clientId",clientId);
     	return "protocolRecommendations";
     }
+    @GetMapping("/completionReport")
+    public String completionReport(Model model) {
+        User currentUser = userDAO.getUser();
+        ArrayList<ProtocolReport> reports = new ArrayList<ProtocolReport>();
+        ArrayList<ProtocolTemplate> templates = protocolTemplateHelper.getList(currentUser);
+
+        for (ProtocolTemplate template : templates) {
+            ArrayList<Protocol> tempPcolList = protocolHelper.getListbyTemplateId(currentUser, template.getId());
+
+            if (tempPcolList.isEmpty()) continue;  // Skip empty lists
+
+            // Filter out protocols with daysToComplete < 0
+            List<Protocol> completedProtocols = tempPcolList.stream()
+                .filter(p -> p.getDaysToComplete() >= 0)
+                .collect(Collectors.toList());
+
+            if (completedProtocols.isEmpty()) continue; 
+
+            completedProtocols.sort(Comparator.comparingInt(Protocol::getDaysToComplete));
+
+            int size = completedProtocols.size();
+            int meanDays = completedProtocols.stream().mapToInt(Protocol::getDaysToComplete).sum() / size;
+            int medianDays = completedProtocols.get(size / 2).getDaysToComplete();
+            int high = completedProtocols.get(size - 1).getDaysToComplete();
+            int low = completedProtocols.get(0).getDaysToComplete();
+
+            int highId = completedProtocols.get(size - 1).getId();
+            int lowId = completedProtocols.get(0).getId();
+
+            ProtocolReport report = new ProtocolReport();
+            report.setId(template.getId());
+            report.setMeanDays(meanDays);
+            report.setMedDays(medianDays);
+            report.setHigh(high);
+            report.setHighId(highId);
+            report.setLow(low);
+            report.setLowId(lowId);
+            report.setName(template.getName());
+
+            reports.add(report);
+        }
+
+        for (ProtocolReport report : reports) {
+            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
+                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
+        }
+
+        model.addAttribute("reports", reports);
+        return "completionReport";
+    }
+
+
+
     
     @PostMapping("/postRecommendations/{id}")
     public ResponseEntity<?> postRecommendation(@PathVariable int id,@RequestBody String recommendation){
@@ -1244,6 +1299,9 @@ public class MainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
+    
+    
 }
     
     

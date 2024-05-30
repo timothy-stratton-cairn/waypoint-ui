@@ -3,6 +3,7 @@ package com.cairn.ui.model;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class Protocol {
 
@@ -15,7 +16,11 @@ public class Protocol {
 	private String status;
 	private ArrayList<ProtocolComments> comments;
 	private boolean needsAttention;
+	private int templateId;
 	private Date lastStatus;
+	private Date startDate;
+	private Date completionDate;
+	private int daysToComplete;
 	private String completionPercent;
 	private int stepCount;
 	private int completedSteps;
@@ -141,6 +146,33 @@ public class Protocol {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public Date getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	public Date getCompletionDate() {
+		return completionDate;
+	}
+	public void setCompletionDate(Date completionDate) {
+		this.completionDate = completionDate;
+	}
+	
+	public int getDaysToComplete() {
+        if (completionDate == null || startDate == null) {
+            return -1; // -1 means the protocol has yet to be completed and can be left out of the calculus
+        } else {
+            long diffInMilli = completionDate.getTime() - startDate.getTime();
+            return (int) TimeUnit.DAYS.convert(diffInMilli, TimeUnit.MILLISECONDS);
+        }
+    }
+	public int getTemplateId() {
+		return templateId;
+	}
+	public void setTemplateId(int templateId) {
+		this.templateId = templateId;
 	}
 
 }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <title>Completion Report</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body>
+	<div th:insert="~{header :: main}">...</div>
+	<div class="container">
+		<div class="row note_card">
+			<fieldset>
+				<legend>Completion Report</legend>
+				<button type="button" class="btn btn-secondary mb-3" onclick="window.history.back();">Back</button>
+				
+				<div class="table-responsive">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Average Completion Time</th>
+								<th>Median Completion Time</th>
+								<th>Shortest Completion Time</th>
+								<th>Longest Completion Time</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:if="${reports.size() == 0}">
+								<td colspan="5" class="text-center">No Protocols have been completed</td>
+							</tr>
+							<tr th:each="report : ${reports}">
+								<td th:text="${report.name}"></td>
+								<td th:text="${report.meanDays}"></td>
+								<td th:text="${report.medDays}"></td>
+								<td th:text="${report.low}"></td>
+								<td th:text="${report.high}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+	<div th:insert="~{footer :: main}">...</div>
+	<script>
+		
+	</script>
+</body>
+</html>
