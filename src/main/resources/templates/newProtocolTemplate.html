@@ -200,23 +200,29 @@
 		function saveProtocolTemplate() {
 		    const name = document.getElementById('protocolName').value;
 		    const description = document.getElementById('protocolDescription').value;
-		    const dueDate = document.getElementById('protocolDueDate').value;
 		    //const reoccurring = document.getElementById('reoccurring').checked;
-		    //const year = document.getElementById('year').value;
-		    //const month = document.getElementById('month').value;
-		    //const day = document.getElementById('day').value;
+		    const yearDue = parseInt(document.getElementById('dueDateYear').value);
+		    const monthDue = parseInt(document.getElementById('dueDateMonth').value);
+		    const dayDue = parseInt(document.getElementById('dueDateDay').value);
+		
+		    const yearSchedule = parseInt(document.getElementById('year').value);
+		    const monthSchedule = parseInt(document.getElementById('month').value);
+		    const daySchedule = parseInt(document.getElementById('day').value);
+		
 		    const steps = Array.from(document.querySelectorAll('#stepsContent > .row')).map(row => ({
 		        id: parseInt(row.getAttribute('data-step-id')),
 		        name: row.querySelector('.col-md-9').textContent.trim()
 		    }));
-
-		    const schedule = [year, month, day];
+		
+		    const dueDate = [yearDue, monthDue, dayDue];
+		    const schedule = [yearSchedule, monthSchedule, daySchedule];
 		
 		    const protocolData = {
 		        name: name,
 		        description: description,
 		        //reoccurring: reoccurring,
-		        //schedule: schedule,
+		        dueDate: dueDate,
+		        schedule: schedule,
 		        steps: steps
 		    };
 		
@@ -244,6 +250,7 @@
 		    })
 		    .catch(error => alert('Error creating protocol template: ' + error));
 		}
+
 
 
 		function addStep() {
