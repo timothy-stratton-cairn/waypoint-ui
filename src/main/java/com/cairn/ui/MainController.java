@@ -749,13 +749,17 @@ public class MainController {
 		System.out.println(household.getName());
 		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
 		ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId); 
+		ArrayList<User>userList = userHelper.getUserList(currentUser);
 		int userId = userHelper.getUserId(currentUser);
 		ArrayList<User> clientList = household.getHouseholdAccounts();
 		ArrayList<User> primaryContact = household.getPrimaryContacts();
+		User primaryContactUser = !primaryContact.isEmpty() ? primaryContact.get(0) : null;
+	    
 		for (User client: clientList) {
 		System.out.println("Client Name: "+client.getFirstName()+ client.getLastName());
 		}
-		model.addAttribute("primaryContact",primaryContact);
+		model.addAttribute("primaryContact", primaryContactUser);
+		model.addAttribute("userList",userList);
 		model.addAttribute("coClientList",clientList);
 		model.addAttribute("userId",userId);
 		model.addAttribute("client", household);

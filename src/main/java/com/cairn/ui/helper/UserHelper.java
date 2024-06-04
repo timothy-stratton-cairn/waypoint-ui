@@ -128,6 +128,7 @@ public class UserHelper {
 	                            user.setLastName(account.get("lastName").asText());
 	                            user.setEmail(account.get("email").asText());
 	                            user.setRole("PRIMARY_CONTACT");
+	                            user.setPhoneNumber(account.get("phoneNumber").asText());
 	                            // Add more properties as needed
 	                            primaryContactsList.add(user);
 	                        }

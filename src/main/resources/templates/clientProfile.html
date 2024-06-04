@@ -15,43 +15,71 @@
         <!-- Client Information -->
         <div class="note_card">
             <fieldset>
-                <legend>Household</legend>
+                <legend> Household</legend>
+                
                 <button onclick="history.back()" class="btn btn-primary">Back</button>
-                <div>
-                    <label>Household Name:</label>
-                    <span th:text="${client.name}"></span>
-                </div>
-                <!-- CoClients -->
-                <div class="row mb-3">
-                    <div class="col-md-2">
-                        <label>Primary Contact:</label>
-                    </div>
-                    <div class="col-md-2">
-                        <!-- Display CoClients from clientList -->
-                        <span th:each="client : ${primaryContact}"th:text="${client.firstName + ' ' + client.lastName}"></span>
-                    </div>
-                    <div class="col-md-1">
-                        <label>Email:</label>
-                    </div>
-                    <div class="col-md-2">
-                        <!-- Display CoClients from clientList -->
-                        <span th:each="client : ${primaryContact}"th:text="${client.email}"></span>
-                    </div>
-                </div>
-                <div class ="row mb-3">
-					<div class = "col-md-1">
-						<label> CoClient: </label>
-					</div>
-					 <div class="col-md-11">
-                        <!-- Display CoClients from clientList -->
-                        <span th:each="client : ${coClientList}" th:text="${client.firstName + ' ' + client.lastName}"></span>
-                    </div>
+				<div class="row mb-3">
+				    <div class="col-md-3">
+				        <label>Name:</label>
+				        <span th:text="${client.name}"></span>
+				    </div>
 				</div>
 
+                <!-- CoClients -->
+				<div class="row mb-3">
+					    <div class="col-md-3">
+					        <label>Primary Contact:</label>
+					        <span th:each="client : ${primaryContact}" th:text="${client.firstName + ' ' + client.lastName}"></span>
+					    </div>
+					    <div class="col-md-3">
+					        <label>Email:</label>
+					        <span th:each="client : ${primaryContact}" th:text="${client.email}"></span>
+					    </div>
+					    <!--<div class="col-md-3">
+					        <label>Phone:</label>
+					        <span th:text="${client.phoneNumber}"></span>
+					    </div>-->
+					    <div class="col-md-3">
 
-                <div class="col">
-                    <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
-                </div>
+					        <a class="btn btn-sm btn-secondary" th:each="client : ${primaryContact}" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
+					    </div>
+					</div>
+
+				
+				<div class="row mb-3">
+				    <div class="col-md-12">
+				        <table class="table">
+				            <thead>
+				                <tr>
+				                    <th>CoClients</th>
+				                    <th>Action</th>
+				                </tr>
+				            </thead>
+				            <tbody>
+				                <tr th:each="client : ${coClientList}">
+				                    <td th:text="${client.firstName + ' ' + client.lastName}"></td>
+				                    <td>
+				                       <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
+				                    </td>
+				                </tr>
+				            </tbody>
+				        </table>
+				    </div>
+				</div>
+
+				    <div class="col-3">
+                        <div class="input-group">
+                            <select class="form-select" id="coClientSelect">
+                                <option value="">Select CoClient</option>
+                                <!-- Populate dropdown menu with CoClient list -->
+                                <option th:each="coClient : ${userList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
+                            </select>
+                            <button class="btn btn-primary" type="button" onclick="addCoClient()">Add CoClient</button>
+                        </div>
+                    </div>
+			<br>
+
+
             </fieldset>
         </div>
     </div>
