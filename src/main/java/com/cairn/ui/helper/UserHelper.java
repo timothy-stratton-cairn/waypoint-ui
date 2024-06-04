@@ -95,7 +95,79 @@ public class UserHelper {
 		return results;
 
 	}
-	
+	public Household getHouseholdById(User usr, int id) {
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get + id;
+	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	            String jsonResponse = response.getBody();
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            JsonNode jsonNode;
+	            try {
+	                jsonNode = objectMapper.readTree(jsonResponse);
+
+	                // Access relevant nodes directly
+	                JsonNode primaryContacts = jsonNode.get("primaryContacts");
+	                JsonNode householdAccounts = jsonNode.get("householdAccounts");
+
+	                // Construct Household object
+	                Household household = new Household();
+	                household.setId(jsonNode.get("id").asInt());
+	                household.setName(jsonNode.get("name").asText());
+
+	                // Populate primary contact details
+	                if (primaryContacts != null && primaryContacts.has("accounts")) {
+	                    JsonNode primaryAccounts = primaryContacts.get("accounts");
+	                    if (primaryAccounts.isArray() && primaryAccounts.size() > 0) {
+	                        ArrayList<User> primaryContactsList = new ArrayList<>();
+	                        for (JsonNode account : primaryAccounts) {
+	                            User user = new User();
+	                            user.setId(account.get("accountId").asInt()); // Assuming "accountId" is the correct field name
+	                            user.setFirstName(account.get("firstName").asText());
+	                            user.setLastName(account.get("lastName").asText());
+	                            user.setEmail(account.get("email").asText());
+	                            user.setRole("PRIMARY_CONTACT");
+	                            // Add more properties as needed
+	                            primaryContactsList.add(user);
+	                        }
+	                        household.setPrimaryContacts(primaryContactsList);
+	                    }
+	                }
+
+	                // Populate household accounts
+	                if (householdAccounts != null && householdAccounts.has("accounts")) {
+	                    JsonNode accounts = householdAccounts.get("accounts");
+	                    if (accounts.isArray()) {
+	                        ArrayList<User> householdAccountsList = new ArrayList<>();
+	                        for (JsonNode account : accounts) {
+	                            User user = new User();
+	                            user.setId(account.get("clientAccountId").asInt()); // Assuming "clientAccountId" is the correct field name
+	                            user.setFirstName(account.get("firstName").asText());
+	                            user.setLastName(account.get("lastName").asText());
+	                            // Add more properties as needed
+	                            householdAccountsList.add(user);
+	                        }
+	                        household.setHouseholdAccounts(householdAccountsList);
+	                    }
+	                }
+
+	                return household; // Return the constructed household
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        } else {
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	        }
+	    } catch (Exception e) {
+	        System.out.println("No Household data returned");
+	        e.printStackTrace();
+	    }
+	    return null; // Return null if the household with the given ID is not found
+	}
+
+
+
     public ArrayList<Household> getHouseholdList(User usr) {
         ArrayList<Household> results = new ArrayList<Household>();
         String apiUrl = this.authorizationApiBaseUrl + Constants.api_household;

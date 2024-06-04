@@ -745,25 +745,27 @@ public class MainController {
 	@GetMapping("clientProfile/{clientId}")
 	public String clientProfile(@PathVariable int clientId, Model model) {
 		User currentUser = userDAO.getUser();
-		User client = userHelper.getUser(currentUser, clientId);
+		Household household = userHelper.getHouseholdById(currentUser, clientId);
+		System.out.println(household.getName());
 		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
-		ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId); // this
+		ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId); 
 		int userId = userHelper.getUserId(currentUser);
-		ArrayList<User> coClientList = userHelper.getUserList(currentUser);
-		model.addAttribute("coclientList",coClientList);
+		ArrayList<User> clientList = household.getHouseholdAccounts();
+		ArrayList<User> primaryContact = household.getPrimaryContacts();
+		for (User client: clientList) {
+		System.out.println("Client Name: "+client.getFirstName()+ client.getLastName());
+		}
+		model.addAttribute("primaryContact",primaryContact);
+		model.addAttribute("coClientList",clientList);
 		model.addAttribute("userId",userId);
-		model.addAttribute("client", client);
+		model.addAttribute("client", household);
 		model.addAttribute("clientId", clientId);
 		model.addAttribute("protocolList", pcolList);
 		model.addAttribute("assignedProtocols", assignedProtocols);
 		for (Protocol pcol: assignedProtocols) {
 			System.out.println("Status: "+pcol.getStatus());
 		}
-		if (client.getCoclient() != null) {
-			model.addAttribute("coclient", client.getCoclient());
-		} else {
-			model.addAttribute("coclient", new User());
-		}
+		
 		return "clientProfile";
 	}
 

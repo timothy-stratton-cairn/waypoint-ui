@@ -6,6 +6,7 @@ public class Household{
 	private int id;
 	private String name;
 	private ArrayList<User>householdAccounts;
+	private ArrayList<User>primaryContacts;
 	
 	
 	public int getId() {
@@ -29,5 +30,11 @@ public class Household{
 	
 	public int getNumberOfAccounts() {
 		return householdAccounts.size();
+	}
+	public ArrayList<User> getPrimaryContacts() {
+		return primaryContacts;
+	}
+	public void setPrimaryContacts(ArrayList<User> primaryContacts) {
+		this.primaryContacts = primaryContacts;
 	}
 }

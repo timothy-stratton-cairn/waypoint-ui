@@ -2,208 +2,178 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<title>Client Profile</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<meta name="_csrf" th:content="${_csrf.token}" />
-	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title>Client Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body data-client-id="${clientId}">
-	<div th:insert="~{header :: main}">...</div>
+    <div th:insert="~{header :: main}">...</div>
 
-	<div class="container">
-		<!-- Client Information -->
-		<div class="note_card">
-			<fieldset>
-				<legend>Client</legend>
-				<button onclick="history.back()" class="btn btn-primary">Back</button>
-				<div>
-					<label>Client Name:</label>
-					<span th:text="${client.firstName} + ' ' + ${client.lastName}"></span>
-				</div>
-				<div>
-					<label>Email:</label>
-					<span th:text="${client.email}"></span>
-				</div>
-				<div class="row mb-3">
-                    <div class="col-md-1">
-                        <label>CoClient:</label>
-                    </div>
-                     <div th:if="${coclient.firstName != null and coclient.firstName != '' and coclient.lastName != null and coclient.lastName != ''}" class="col-md-1">
-                        <a th:href="@{/clientProfile/{id}(id=${coclient.id})}" style="color: black;">
-                            <span th:text="${coclient.firstName} + ' ' + ${coclient.lastName}"></span>
-                        </a>
-                    </div>
-                    
+    <div class="container">
+        <!-- Client Information -->
+        <div class="note_card">
+            <fieldset>
+                <legend>Household</legend>
+                <button onclick="history.back()" class="btn btn-primary">Back</button>
+                <div>
+                    <label>Household Name:</label>
+                    <span th:text="${client.name}"></span>
                 </div>
-                <div class="col-3">
-                        <div class="input-group">
-                            <select class="form-select" id="coClientSelect">
-                                <option value="">Select CoClient</option>
-                                <!-- Populate dropdown menu with CoClient list -->
-                                <option th:each="coClient : ${coclientList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
-                            </select>
-                            <button class="btn btn-primary" type="button" onclick="addCoClient()">Add CoClient</button>
+                <!-- CoClients -->
+                <div class="row mb-3">
+                    <div class="col-md-2">
+                        <label>Primary Contact:</label>
+                    </div>
+                    <div class="col-md-2">
+                        <!-- Display CoClients from clientList -->
+                        <span th:each="client : ${primaryContact}"th:text="${client.firstName + ' ' + client.lastName}"></span>
+                    </div>
+                    <div class="col-md-1">
+                        <label>Email:</label>
+                    </div>
+                    <div class="col-md-2">
+                        <!-- Display CoClients from clientList -->
+                        <span th:each="client : ${primaryContact}"th:text="${client.email}"></span>
+                    </div>
+                </div>
+                <div class ="row mb-3">
+					<div class = "col-md-1">
+						<label> CoClient: </label>
+					</div>
+					 <div class="col-md-11">
+                        <!-- Display CoClients from clientList -->
+                        <span th:each="client : ${coClientList}" th:text="${client.firstName + ' ' + client.lastName}"></span>
+                    </div>
+				</div>
+
+
+                <div class="col">
+                    <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Dependents Information -->
+        <div class="note_card">
+            <fieldset>
+                <legend>Dependents</legend>
+                <ul class="nav nav-tabs" id="dependentTabs" role="tablist">
+                    <li class="nav-item" th:each="dependent, iterStat : ${clientList}" th:if="${dependent.roles.contains('DEPENDENT')}" role="presentation">
+                        <button class="nav-link" th:id="'dependent-tab' + ${iterStat.index}" data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}" type="button" role="tab" th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="dependentTabsContent">
+                    <div th:each="dependent, iterStat : ${clientList}" th:if="${dependent.roles.contains('DEPENDENT')}" class="tab-pane fade" th:id="'dependent' + ${iterStat.index}" role="tabpanel">
+                        <div>
+                            <label>Id:</label>
+                            <span th:text="${dependent.id}"></span>
+                        </div>
+                        <div>
+                            <label>Username:</label>
+                            <span th:text="${dependent.username}"></span>
+                        </div>
+                        <div>
+                            <label>Name:</label>
+                            <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
                         </div>
                     </div>
+                </div>
+                <a class="btn btn-sm btn-secondary" th:href="${'javascript:addDependant(' + client.id + ');'}">Add Dependant</a>
+            </fieldset>
+        </div>
+    </div>
 
-				<div>
-					<label>Roles:</label>
-					<span th:text="${#strings.arrayJoin(client.roles, ' ')}"></span>
-				</div>
-				
-				<div class="col">
-						<a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
-					</div>
-			</fieldset>
-		</div>
-	</div>
-
-	<div class="container">
-		<!-- Dependents Information -->
-		<div class="note_card">
-			<fieldset>
-				<legend>Dependents</legend>
-				<ul class="nav nav-tabs" id="dependentTabs" role="tablist">
-					<li class="nav-item" th:each="dependent, iterStat : ${client.dependents}" role="presentation">
-						<button class="nav-link" th:id="'dependent-tab' + ${iterStat.index}" data-bs-toggle="tab"
-							th:data-bs-target="'#dependent' + ${iterStat.index}" type="button" role="tab"
-							th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></button>
-					</li>
-				</ul>
-				<div class="tab-content" id="dependentTabsContent">
-					<div th:each="dependent, iterStat : ${client.dependents}" class="tab-pane fade"
-						th:id="'dependent' + ${iterStat.index}" role="tabpanel">
-						<div>
-							<label>Id:</label>
-							<span th:text="${dependent.id}"></span>
-						</div>
-						<div>
-							<label>Username:</label>
-							<span th:text="${dependent.username}"></span>
-						</div>
-						<div>
-							<label>Name:</label>
-							<span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
-						</div>
-					</div>
-				</div>
-					<a class="btn btn-sm btn-secondary" th:href="${'javascript:addDependant(' + client.id + ');'}">Add Dependant</a>
-			</fieldset>
-		</div>
-	</div>
-
-	<div class="container">
-		<div class="note_card">
-			<fieldset>
-				<legend>Assigned Protocols</legend>
-				  <ul class="nav nav-tabs">
+    <div class="container">
+        <div class="note_card">
+            <fieldset>
+                <legend>Assigned Protocols</legend>
+                <ul class="nav nav-tabs">
                     <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
                     <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
                     <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
                     <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
                 </ul>
 
-				
-				<div class="row">
-					<div class="col-2">
-						<input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
-					</div>
-				</div>
-				
-				<div class="row"id="protocolContent">
-					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
-						class="note_card col-md-5"
-						th:data-type="${pcol.status}">
-						<a th:href="@{/viewProtocol/{id}/{userId}(id=${pcol.id}, userId=${userId})}">
-							<div class="flip-card ">
-								<div class="flip-card-inner">
-									<div class="flip-card-front">
-										<div class="container">
-											<div class="row" th:text="${pcol.name}"></div>
-											<hr />
+                <div class="row">
+                    <div class="col-2">
+                        <input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
+                    </div>
+                </div>
 
-											<div class="row">
-												<div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
-												<div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
-											</div>
+                <div class="row" id="protocolContent">
+                    <!-- Display Assigned Protocols -->
+                    <div th:each="pcol, status: ${assignedProtocols}" th:if="${pcol.roles.contains('PRIMARY_CONTACT')}" th:id="|row_${pcol.id}|" class="note_card col-md-5" th:data-type="${pcol.status}">
+                        <a th:href="@{/viewProtocol/{id}/{userId}(id=${pcol.id}, userId=${userId})}">
+                            <div class="flip-card ">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">
+                                        <div class="container">
+                                            <div class="row" th:text="${pcol.name}"></div>
+                                            <hr />
 
-											<div class="row">
-												<div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|">
-												</div>
-												<div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|">
-												</div>
-											</div>
+                                            <div class="row">
+                                                <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
+                                                <div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
+                                            </div>
 
-											<div class='row' th:text="|Description: ${pcol.description}"></div>
+                                            <div class="row">
+                                                <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
+                                                <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
+                                            </div>
 
-											<hr />
-											<!-- Actionable Items Section -->
-											<li th:each="step : ${pcol.steps}" th:if="${step.status != 'Done'}"
-												th:text="${step.name + ' - ' + step.status}">
-												<!-- This will list each step's name and status if not done -->
-											</li>
-											<div>
+                                            <div class='row' th:text="|Description: ${pcol.description}"></div>
 
-											</div>
-										</div>
-									</div>
-									<div class="flip-card-back">
-										<!--<h1>Education</h1>
-		                        <p>1. Here is an internal source...</p>
-		                        <p>2. Check out this link...</p><br />-->
-										<p>Actionable Items:</p>
-										<li th:each="step : ${pcol.steps}" th:if="${step.status != 'Done'}"
-											th:text="${step.name + ' - ' + step.status}">
-											<!-- This will list each step's name and status if not done -->
-										</li>
-									</div>
-								</div>
-							</div>
-						</a>
-						
-									<div class="row">
-										<div class="col-md-3">
-											<button type="button" class="btn btn-secondary"
-												onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
-										</div>
-										<div class="col-md-8">
-											<button class="btn btn-secondary" th:attr="onclick=|goToHomeworks('${pcol.id}');|">Homework</button>&nbsp;&nbsp;
-											<button class="btn btn-secondary"th:attr="onclick=|viewAnalysis('${pcol.id}');|">Analysis</button>&nbsp;&nbsp;
-											<button class="btn btn-secondary" th:attr="onclick=|protocolHistory('${pcol.name}');|">History</button>&nbsp;&nbsp;
-											<button class="btn btn-secondary"
-												th:attr="onclick=|viewRecommendations('${pcol.id}');|">Recommendations</button>
-										</div>
-									</div>
-								</div>
-							</div>
-					<div class = "row">
-						<div class = "col-3">
-							<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
-							<button type="button" class="btn btn-primary" onclick="viewHistory();">View All Protocols</button>
-						</div>
-					</div>
-					
-					</fieldset>
-						<div id="protocolContainer"></div>
-					</fieldset>
-					</div>
-		</div>
+                                            <hr />
+                                            <!-- Actionable Items Section -->
+                                            <li th:each="step : ${pcol.steps}" th:if="${step.status != 'Done'}" th:text="${step.name + ' - ' + step.status}"></li>
+                                        </div>
+                                    </div>
+                                    <div class="flip-card-back">
+                                        <p>Actionable Items:</p>
+                                        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'Done'}" th:text="${step.name + ' - ' + step.status}"></li>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-secondary" onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
+                            </div>
+                            <div class="col-md-8">
+                                <button class="btn btn-secondary" th:attr="onclick=|goToHomeworks('${pcol.id}');|">Homework</button>&nbsp;&nbsp;
+                                <button class="btn btn-secondary" th:attr="onclick=|viewAnalysis('${pcol.id}');|">Analysis</button>&nbsp;&nbsp;
+                                <button class="btn btn-secondary" th:attr="onclick=|protocolHistory('${pcol.name}');|">History</button>&nbsp;&nbsp;
+                                <button class="btn btn-secondary" th:attr="onclick=|viewRecommendations('${pcol.id}');|">Recommendations</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+                        <button type="button" class="btn btn-primary" onclick="viewHistory();">View All Protocols</button>
+                    </div>
+                </div>
+            </fieldset>
+            <div id="protocolContainer"></div>
+        </div>
+    </div>
 
-
-		<!--template for new protocol drop down -->
-		<template id="protocolTemplate">
-			<div class="new-protocol-row mb-3">
-				<select class="form-control" name="newProtocolId">
-					<option value="">Select Protocol</option>
-					<option th:each="protocol : ${protocolList}" th:value="${protocol.id}" th:text="${protocol.name}">
-					</option>
-				</select>
-				<button type="button" class="btn btn-secondary" onclick="confirmProtocol(this);">Confirm</button>
-			</div>
-		</template>
-
-	</div>
+    <!--template for new protocol drop down -->
+    <template id="protocolTemplate">
+        <div class="new-protocol-row mb-3">
+            <select class="form-control" name="newProtocolId">
+                <option value="">Select Protocol</option>
+                <option th:each="protocol : ${protocolList}" th:value="${protocol.id}" th:text="${protocol.name}"></option>
+            </select>
+            <button type="button" class="btn btn-secondary" onclick="confirmProtocol(this);">Confirm</button>
+        </div>
+    </template>
+	
 
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
