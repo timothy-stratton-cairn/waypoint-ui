@@ -197,6 +197,11 @@
 		    window.location.href = url;
 		}
 		
+		function calculateTotalDays(years, months, days) {
+		    const totalDays = years * 365 + months * 31 + days;
+		    return totalDays.toString(); // Convert the total days to a string
+		}
+		
 		function saveProtocolTemplate() {
 		    const name = document.getElementById('protocolName').value;
 		    const description = document.getElementById('protocolDescription').value;
@@ -209,13 +214,13 @@
 		    const monthSchedule = parseInt(document.getElementById('month').value);
 		    const daySchedule = parseInt(document.getElementById('day').value);
 		
+		    const dueDate = calculateTotalDays(yearDue, monthDue, dayDue);
+		    const schedule = calculateTotalDays(yearSchedule, monthSchedule, daySchedule);
+		
 		    const steps = Array.from(document.querySelectorAll('#stepsContent > .row')).map(row => ({
 		        id: parseInt(row.getAttribute('data-step-id')),
 		        name: row.querySelector('.col-md-9').textContent.trim()
 		    }));
-		
-		    const dueDate = [yearDue, monthDue, dayDue];
-		    const schedule = [yearSchedule, monthSchedule, daySchedule];
 		
 		    const protocolData = {
 		        name: name,

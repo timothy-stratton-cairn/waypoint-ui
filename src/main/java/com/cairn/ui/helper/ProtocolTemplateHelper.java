@@ -1,5 +1,6 @@
 package com.cairn.ui.helper;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -107,6 +108,10 @@ public class ProtocolTemplateHelper {
 		
 		StringBuilder associatedStepTemplateIds = new StringBuilder("\"associatedStepTemplateIds\":[");
 		ArrayList<ProtocolStepTemplate>stepList = template.getSteps();
+	    LocalDate today = LocalDate.now();
+	    int dueDateDays = Integer.parseInt(template.getDueDate()); // Assuming dueDate is stored as total days
+	    LocalDate actualDueDate = today.plusDays(dueDateDays);
+	    
 		for (int i = 0; i < stepList.size(); i++) {
 			ProtocolStepTemplate step = stepList.get(i);
 			associatedStepTemplateIds.append(step.getId());
@@ -118,7 +123,7 @@ public class ProtocolTemplateHelper {
 		String requestBody = "{"  
 				+ "\"name\": \"" + template.getName() + "\","
 				+ "\"description\": \"" + template.getDescription() + "\","
-				+ "\"dueDate\": \"" + template.getDueDate() + "\","
+				+ "\"dueDate\": \"" + actualDueDate.toString() + "\","
 				+ associatedStepTemplateIds.toString()+
 				"}";
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl,requestBody);

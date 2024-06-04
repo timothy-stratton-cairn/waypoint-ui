@@ -1,18 +1,16 @@
 package com.cairn.ui.model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ProtocolTemplate {
 
 	private int id;
 	private String name;
 	private String description;
-
+	private String dueDate;
+	private String schedule;
 	private int type;
 	private boolean active;
-	private List<Integer> dueDate;
-	private List<Integer> schedule;
 	private ArrayList<ProtocolStepTemplate> steps = new ArrayList<ProtocolStepTemplate>();
 
 	public int getId() {
@@ -52,17 +50,19 @@ public class ProtocolTemplate {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
-	public List<Integer> getSchedule() {
-		return schedule;
+	public String getDueDate() {
+		return dueDate;
 	}
-	public void setSchedule(List<Integer> schedule) {
-		this.schedule = schedule;
-	}
-	public void setDueDate(List<Integer> dueDate) {
+	public void setDueDate(String dueDate) {
 		this.dueDate = dueDate;
 	}
-	public List<Integer> getDueDate() {
-		return dueDate;
+	public String getSchedule() {
+		return schedule;
+	}
+	public void setSchedule(String schedule) {
+		this.schedule = schedule;
+	}
+	public void setType(int type) {
+		this.type = type;
 	}
 }
