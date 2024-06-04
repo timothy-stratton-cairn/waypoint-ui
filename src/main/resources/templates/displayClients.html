@@ -29,7 +29,7 @@
                     </thead>
                     <tbody>
                         <tr th:each="user, status: ${UserList}">
-                            <td th:text="${user.firstName} + ' ' + ${user.lastName}">Name</td>
+                            <td th:text="${user.name}">Name</td>
                             <td>
                                 <a th:href="@{'/clientProfile/' + ${user.id}}">
                                     <button class="btn btn-sm btn-secondary">View Profile</button>

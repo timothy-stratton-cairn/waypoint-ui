@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Entity;
+import com.cairn.ui.model.Household;
 import com.cairn.ui.model.ProtocolStats;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -95,6 +96,61 @@ public class UserHelper {
 
 	}
 	
+    public ArrayList<Household> getHouseholdList(User usr) {
+        ArrayList<Household> results = new ArrayList<Household>();
+        String apiUrl = this.authorizationApiBaseUrl + Constants.api_household;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        try {
+            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String jsonResponse = response.getBody();
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode;
+                try {
+                    jsonNode = objectMapper.readTree(jsonResponse);
+                    JsonNode households = jsonNode.get("households");
+                    if (households.isArray()) {
+                        for (JsonNode element : households) {
+                            Household household = new Household();
+                            household.setId(Integer.valueOf(element.get("id").asText()));
+                            household.setName(element.get("name").asText());
+
+                            // Parse household accounts
+                            JsonNode householdAccounts = element.get("householdAccounts");
+                            if (householdAccounts != null) {
+                                JsonNode accounts = householdAccounts.get("accounts");
+                                if (accounts.isArray()) {
+                                    ArrayList<User> householdUsers = new ArrayList<>();
+                                    for (JsonNode account : accounts) {
+                                        User user = new User();
+                                        user.setId(Integer.valueOf(account.get("id").asText()));
+                                        user.setFirstName(account.get("firstName").asText());
+                                        user.setLastName(account.get("lastName").asText());
+
+                                        user.setRole(account.get("role").asText());
+  
+                                        householdUsers.add(user);
+                                    }
+                                    household.setHouseholdAccounts(householdUsers);
+                                }
+                            }
+
+                            // Add household to results list
+                            results.add(household);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.out.println("No Household data returned");
+            e.printStackTrace();
+        }
+        return results;
+    }
 	/**
 	 * Get the user details
 	 * 

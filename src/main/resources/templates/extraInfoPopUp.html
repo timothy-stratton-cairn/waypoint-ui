@@ -44,6 +44,27 @@
                     <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="1" max="31">
                 </div>
             </div>
+            
+              <div class="row mt-2">
+					<div class="col-md-2">
+				    	<label for="dueDate" class="mr-md-1"><strong>Default Due Date</strong></label>
+				    </div>
+				    <div class="col-md-3">
+				        <label for="year" class="d-inline"><strong>Year</strong></label>
+				        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="1-10" min="1" max="10" style="width: 40%;">
+				    </div>
+				    
+				
+				    <div class="col-md-3">
+				        <label for="month" class="d-inline"><strong>Month</strong></label>
+				        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="1-12" min="1" max="12" style="width: 40%;">
+				    </div>
+				
+				    <div class="col-md-3">
+				        <label for="day" class="d-inline"><strong>Day</strong></label>
+				        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="1-31" min="1" max="31" style="width: 40%;">
+				    </div>
+				</div>
              
             <button type="button" onclick="submitDetails()" class="btn btn-primary mt-4">Submit</button>
         </form>

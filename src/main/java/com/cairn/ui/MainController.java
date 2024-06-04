@@ -55,6 +55,7 @@ import com.cairn.ui.model.AssignedHomeworkResponse;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkTemplate;
+import com.cairn.ui.model.Household;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolComments;
 import com.cairn.ui.model.ProtocolReport;
@@ -654,21 +655,9 @@ public class MainController {
 	@GetMapping("clients")
 	public String displayClients(Model model) {
 		User currentUser = userDAO.getUser();
-		ArrayList<User> userList = userHelper.getUserList(currentUser);
-		ArrayList<User> detailedUserList = new ArrayList<User>();
-		ArrayList<Integer> dependents = new ArrayList<Integer>();
-		for (User user: userList) {
-			detailedUserList.add(userHelper.getUser(currentUser, user.getId()));
-		}
-		for(User user: detailedUserList) {
-			for(User dependent: user.getDependents()) {
-				dependents.add(dependent.getId());
-			}
-			
-		}
-	    List<User> filteredUserList = userList.stream().filter(user -> !dependents.contains(user.getId())).collect(Collectors.toList());
+		ArrayList<Household> households = userHelper.getHouseholdList(currentUser);
 
-		model.addAttribute("UserList", filteredUserList);
+		model.addAttribute("UserList", households);
 
 		return "displayClients";
 	}

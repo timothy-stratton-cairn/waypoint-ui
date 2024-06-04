@@ -12,6 +12,7 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private String authToken;
+	private String role;
 	private User coclient;
 	private ArrayList<String> roles = new ArrayList<String>();
 	private ArrayList<User> dependents = new ArrayList<User>();	
@@ -254,5 +255,13 @@ public class User {
 
 	public void setPermissions(ArrayList<String> permissions) {
 		this.permissions = permissions;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 }

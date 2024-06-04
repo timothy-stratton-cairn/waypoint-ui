@@ -14,7 +14,9 @@ public class Constants {
 	static public final String api_ep_protocolsteptemplate_get = "/api/protocol-step-template/";
 	static public final String api_ep_protocolsteptemplate_assign = "/api/protocol-template/";
 
-	static public final String api_userlist_get = "/api/household";
+	static public final String api_userlist_get = "/api/account";
+	static public final String api_household = "/api/household";
+	static public final String api_household_get ="/api/household/";
 	static public final String api_dashboard_get = "/api/dashboard/protocol";
 	static public final String api_homeworktemplate = "/api/homework-template";	
 	static public final String api_homework_response_file = "/api/file/homework-response/";
