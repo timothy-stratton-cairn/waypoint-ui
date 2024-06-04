@@ -173,7 +173,7 @@ function prepareSubmit() {
             tooltip: document.getElementById(`triggerTooltip_${index}`).value
         } : {response: "", tooltip: ""};
 
-        const triggeredProtocolId = triggerProtocolCreation ? parseInt(document.getElementById(`triggeredProtocolId_${index}`).value, 10) : 0;
+        const triggeredProtocolId = triggerProtocolCreation ? parseInt(document.getElementById(`triggeredProtocolId_${index}`).value, 10) : null;
 
         return {
             questionAbbr,
