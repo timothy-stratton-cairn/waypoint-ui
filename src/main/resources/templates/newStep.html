@@ -136,7 +136,11 @@
             body: JSON.stringify(stepData)
         })
         .then(response => response.json())
-        .then(data => alert('Step saved successfully!'))
+        .then(data => {
+			    alert('Step saved successfully!');
+			    window.location.href = '/protocolStepTemplates';
+			})
+
         .catch(error => alert('Error saving step: ' + error));
     }
 </script>

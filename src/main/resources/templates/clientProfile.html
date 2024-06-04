@@ -56,10 +56,10 @@
 				                </tr>
 				            </thead>
 				            <tbody>
-				                <tr th:each="client : ${coClientList}">
-				                    <td th:text="${client.firstName + ' ' + client.lastName}"></td>
+				                <tr th:each="coclient : ${coClientList}">
+				                    <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
 				                    <td>
-				                       <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
+				                       <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
 				                    </td>
 				                </tr>
 				            </tbody>
