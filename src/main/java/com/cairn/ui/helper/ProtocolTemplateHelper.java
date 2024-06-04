@@ -118,6 +118,7 @@ public class ProtocolTemplateHelper {
 		String requestBody = "{"  
 				+ "\"name\": \"" + template.getName() + "\","
 				+ "\"description\": \"" + template.getDescription() + "\","
+				+ "\"dueDate\": \"" + template.getDueDate() + "\","
 				+ associatedStepTemplateIds.toString()+
 				"}";
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl,requestBody);

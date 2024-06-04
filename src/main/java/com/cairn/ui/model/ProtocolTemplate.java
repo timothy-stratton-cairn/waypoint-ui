@@ -7,6 +7,7 @@ public class ProtocolTemplate {
 	private int id;
 	private String name;
 	private String description;
+	private String dueDate;
 	private int type;
 	private boolean active;
 	private ArrayList<ProtocolStepTemplate> steps = new ArrayList<ProtocolStepTemplate>();
@@ -47,5 +48,11 @@ public class ProtocolTemplate {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public String getDueDate() {
+		return dueDate;
+	}
+	public void setDueDate(String dueDate) {
+		this.dueDate = dueDate;
 	}
 }

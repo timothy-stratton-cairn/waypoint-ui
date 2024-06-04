@@ -35,7 +35,8 @@
 		<li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
 		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/protocolTemplates">Protocol Templates</a></li>
         <li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/homeworkTemplates/">Homework Templates</a></li>
-		<li class="nav-item"><a class="nav-link" href="/reports">Reports</a></li>
+        <li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/protocolStepTemplates">Step Templates</a></li>
+		<li class="nav-item"><a class="nav-link" href="/completionReport">Reports</a></li>
 		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/clients">Clients</a></li>
 		<li class="nav-item"><a class="nav-link" href="/profile">My Admin</a></li>
 		<li class="divider"></li>

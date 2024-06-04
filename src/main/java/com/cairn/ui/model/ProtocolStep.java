@@ -1,5 +1,8 @@
 package com.cairn.ui.model;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 public class ProtocolStep {
 
 	private int id;
@@ -10,6 +13,9 @@ public class ProtocolStep {
 	private int categoryId;
 	private String categoryName;
 	private String categoryDescription;
+	private Date startDate;
+	private Date completionDate;
+	private int daysToComplete;
 
 	public int getId() {
 		return id;
@@ -59,4 +65,24 @@ public class ProtocolStep {
 	public void setCategoryDescription(String categoryDescription) {
 		this.categoryDescription = categoryDescription;
 	}
+	public Date getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	public Date getCompletionDate() {
+		return completionDate;
+	}
+	public void setCompletionDate(Date completionDate) {
+		this.completionDate = completionDate;
+	}
+	public int getDaysToComplete() {
+        if (completionDate == null || startDate == null) {
+            return -1; // -1 means the protocol has yet to be completed and can be left out of the calculus
+        } else {
+            long diffInMilli = completionDate.getTime() - startDate.getTime();
+            return (int) TimeUnit.DAYS.convert(diffInMilli, TimeUnit.MILLISECONDS);
+        }
+    }
 }

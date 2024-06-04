@@ -103,12 +103,11 @@ public class ProtocolHelper {
 		return results;
 
 	}
-	public ArrayList<Protocol> getListbyTemplateId(User usr,int tempId) {
+	public ArrayList<Protocol> getListbyTemplateId(User usr, int tempId) {
 	    ArrayList<Protocol> results = new ArrayList<>();
 
-
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/protocol-template/" + tempId;
-	    
+
 	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 	    // Make the GET request and retrieve the response
 	    try {
@@ -126,23 +125,60 @@ public class ProtocolHelper {
 	                    entry.setId(element.get("id").asInt());
 	                    entry.setName(element.get("name").asText());
 	                    entry.setDescription(element.get("description").asText());
-	                    entry.setGoal(element.get("goal").asText());
-	                    entry.setProgress(element.get("goalProgress").asText());
+	                    entry.setGoal(element.has("goal") ? element.get("goal").asText() : null);
+	                    entry.setProgress(element.has("goalProgress") ? element.get("goalProgress").asText() : null);
 	                    entry.setNeedsAttention(element.get("needsAttention").asBoolean());
-	                    entry.setCompletionPercent(element.get("completionPercentage").asText());
+	                    entry.setCompletionPercent(element.has("completionPercentage") ? element.get("completionPercentage").asText() : "0.0");
 	                    entry.setStatus(element.get("status").asText());
 	                    entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
-						if (element.has("completedOn") && !element.get("completedOn").isNull()) {
-						entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
-						}
-						else {
-							entry.setCompletionDate(null);	
-						}
 
-	                    // Parse associatedUsers
-	                    JsonNode associatedUsers = element.get("associatedUsers").get("userIds");
+	                    if (element.has("completedOn") && !element.get("completedOn").isNull()) {
+	                        entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
+	                    } else {
+	                        entry.setCompletionDate(null);
+	                    }
+
+	                    // Parse steps
+	                    JsonNode assoc = element.get("associatedSteps");
+	                    if (assoc != null && assoc.has("steps")) {
+	                        JsonNode asteps = assoc.get("steps");
+	                        ArrayList<ProtocolStep> steps = new ArrayList<>();
+	                        if (asteps.isArray()) {
+	                            for (JsonNode stepElement : asteps) {
+	                                ProtocolStep curStep = new ProtocolStep();
+	                                curStep.setId(stepElement.get("id").asInt());
+	                                curStep.setName(stepElement.get("name").asText());
+	                                curStep.setDescription(stepElement.get("description").asText());
+
+	                                JsonNode stepNotes = stepElement.get("stepNotes");
+	                                if (stepNotes != null && stepNotes.has("notes") && stepNotes.get("notes").isArray()) {
+	                                    curStep.setNotes(stepNotes.get("notes").toString());
+	                                } else {
+	                                    curStep.setNotes("");
+	                                }
+
+	                                if (stepElement.has("category")) {
+	                                    curStep.setCategoryName(stepElement.get("category").asText());
+	                                }
+
+	                                curStep.setStatus(stepElement.get("status").asText());
+	                                steps.add(curStep);
+	                            }
+	                            entry.setSteps(steps);
+	                        }
+	                    }
+
+	                    entry.setStepCount();
+	                    
+
+	                    // Parse associated users
+	                    JsonNode associatedUsers = element.get("associatedHouseholdId").get("householdIdS");
 	                    ArrayList<Integer> userIds = new ArrayList<>();
-	                    associatedUsers.forEach(user -> userIds.add(user.asInt()));
+	                    if (associatedUsers != null && associatedUsers.isArray()) {
+	                        for (JsonNode user : associatedUsers) {
+	                            userIds.add(user.asInt());
+	                        }
+	                    }
 	                    entry.setUsers(userIds);
 
 	                    results.add(entry);
@@ -158,6 +194,7 @@ public class ProtocolHelper {
 
 	    return results;
 	}
+
 
 	/**
 	 * Get a specific protocol.
@@ -192,6 +229,12 @@ public class ProtocolHelper {
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
+					if (jsonNode.has("dueDate") && !jsonNode.get("dueDate").isNull()) {
+						result.setDueDate(jsonNode.get("dueDate").asText());
+					} else {
+						 result.setDueDate("No Due Date"); // Fallback if goal is not set
+					}
+					
 					JsonNode commentsNode = jsonNode.path("protocolComments").path("comments");
 	                ArrayList<ProtocolComments> comments = new ArrayList<>();
 	                if (commentsNode.isArray()) {

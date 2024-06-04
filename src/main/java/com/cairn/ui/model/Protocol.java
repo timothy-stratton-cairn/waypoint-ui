@@ -19,6 +19,7 @@ public class Protocol {
 	private int templateId;
 	private Date lastStatus;
 	private Date startDate;
+	private String dueDate;
 	private Date completionDate;
 	private int daysToComplete;
 	private String completionPercent;
@@ -162,7 +163,7 @@ public class Protocol {
 	
 	public int getDaysToComplete() {
         if (completionDate == null || startDate == null) {
-            return -1; // -1 means the protocol has yet to be completed and can be left out of the calculus
+            return 3; // -1 means the protocol has yet to be completed and can be left out of the calculus
         } else {
             long diffInMilli = completionDate.getTime() - startDate.getTime();
             return (int) TimeUnit.DAYS.convert(diffInMilli, TimeUnit.MILLISECONDS);
@@ -173,6 +174,12 @@ public class Protocol {
 	}
 	public void setTemplateId(int templateId) {
 		this.templateId = templateId;
+	}
+	public String getDueDate() {
+		return dueDate;
+	}
+	public void setDueDate(String dueDate) {
+		this.dueDate = dueDate;
 	}
 
 }

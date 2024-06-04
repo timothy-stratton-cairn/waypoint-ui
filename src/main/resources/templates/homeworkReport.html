@@ -41,7 +41,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr th:each="homework : ${homeworks}" th:id="${homework.id}" class="collapse-table">
+                        <tr th:if="${#lists.size(homework.questions) > 0}" th:each="homework : ${homeworks}" th:id="'collapse-' + ${homework.id}" class="collapse-table">
                             <td colspan="3">
                                 <div class="table-responsive">
                                     <table class="table table-bordered">
@@ -54,15 +54,10 @@
                                         <tbody>
                                             <tr th:each="question : ${homework.questions}">
                                                 <td th:text="${question.question}">Question</td>
-                                                
-                                                
-                                               <td th:if="${question.questionType == 'FILE'}">
-												    <button type="button" class="btn btn-secondary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
-												</td>
-												<td th:if="${question.questionType != 'FILE'}" th:text="${question.userResponse}">Response</td>
-
-                                                
-                                                
+                                                <td th:if="${question.questionType == 'FILE'}">
+                                                    <button type="button" class="btn btn-secondary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
+                                                </td>
+                                                <td th:if="${question.questionType != 'FILE'}" th:text="${question.userResponse}">Response</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -82,53 +77,46 @@
     var clientId = [[${clientId}]];
 
     function toggleQuestions(id) {
-        $('#' + id).toggle();
+        $('#collapse-' + id).toggle();
     }
 
     function goToHomework(id) {
         window.location = '/homeworkDisplay/' + id;
     }
 
-
-
     function downloadFile(button) {
-	    var fullUrl = $(button).data('guid');
-	    var guid = fullUrl.split('/').pop(); 
-	    fetch('/downloadFile/' + guid)
-	        .then(response => {
-	            if (response.ok) {
-	                const disposition = response.headers.get('Content-Disposition');
-	                let fileName = 'downloaded_file';
-	                if (disposition && disposition.includes('filename=')) {
-	                    fileName = disposition.split('filename=')[1].trim().replace(/["]/g, '');
-	                }
-	                return response.blob().then(blob => {
-	                    const url = window.URL.createObjectURL(blob);
-	                    const a = document.createElement('a');
-	                    a.style.display = 'none';
-	                    a.href = url;
-	                    a.download = fileName; 
-	                    document.body.appendChild(a);
-	                    a.click();
-	                    window.URL.revokeObjectURL(url);
-	                });
-	            } else {
-	                throw new Error('Network response was not ok');
-	            }
-	        })
-	        .catch(error => {
-	            console.error('There has been a problem with your fetch operation:', error);
-	            alert('An error occurred while downloading the file.');
-	        });
-	}
-
-
-
-    
-    
+        var fullUrl = $(button).data('guid');
+        var guid = fullUrl.split('/').pop(); 
+        fetch('/downloadFile/' + guid)
+            .then(response => {
+                if (response.ok) {
+                    const disposition = response.headers.get('Content-Disposition');
+                    let fileName = 'downloaded_file';
+                    if (disposition && disposition.includes('filename=')) {
+                        fileName = disposition.split('filename=')[1].trim().replace(/["]/g, '');
+                    }
+                    return response.blob().then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = fileName; 
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    });
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+                alert('An error occurred while downloading the file.');
+            });
+    }
 
     function emailRequest(homeworkId, clientId) {
-        let homeworkRow = $('#' + homeworkId);
+        let homeworkRow = $('#collapse-' + homeworkId);
         let message = 'Our Records indicate that we are missing some information\nPlease complete the following questions:\n\n';
 
         homeworkRow.find('table tbody tr').each(function() {
@@ -161,5 +149,4 @@
 </script>
 </body>
 </html>
-
 

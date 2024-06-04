@@ -8,15 +8,15 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
-<div class ="container">
-	<div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
-	        <!-- Success message will be displayed here -->
-	    </div>
-	
-	    <!-- Display error message -->
-	    <div th:if="${not #strings.isEmpty(error)}" class="alert alert-danger" th:text="${error}">
-	        <!-- Error message will be displayed here -->
-	    </div>
+<div class="container">
+    <div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
+        <!-- Success message will be displayed here -->
+    </div>
+    
+    <!-- Display error message -->
+    <div th:if="${not #strings.isEmpty(error)}" class="alert alert-danger" th:text="${error}">
+        <!-- Error message will be displayed here -->
+    </div>
 </div>
 <div th:insert="~{header :: main}">...</div>
 
@@ -25,8 +25,8 @@
 </div>
 <br>
 
-<form id="homeworkForm"  th:action="@{/newHomeworkTemplate}" method="post">
-	<input type="hidden" name="_csrf" value="${_csrf.token}">
+<form id="homeworkForm" th:action="@{/newHomeworkTemplate}" method="post">
+    <input type="hidden" name="_csrf" value="${_csrf.token}">
 
     <div class="container">
         <div class="row note_card">
@@ -57,8 +57,12 @@
     </div>
 </form>
 
-<script>
-let questions = [];
+
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+let protocols = /*[[${protocols}]]*/ [];
+/*]]>*/
 
 function addQuestion() {
     const container = document.getElementById('questionsContainer');
@@ -102,6 +106,12 @@ function addQuestion() {
                     <input type="text" class="form-control" id="triggerResponse_${questionIndex}">
                 </div>
                 <div class="form-group">
+                    <label>Trigger Protocol:</label>
+                    <select class="form-control" id="triggeredProtocolId_${questionIndex}">
+                        <option value="">Select Protocol</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Trigger Tooltip:</label>
                     <input type="text" class="form-control" id="triggerTooltip_${questionIndex}">
                 </div>
@@ -111,6 +121,15 @@ function addQuestion() {
         </div>
     `;
     container.appendChild(questionDiv);
+
+    // Populate protocols dropdown
+    const protocolSelect = document.getElementById(`triggeredProtocolId_${questionIndex}`);
+    protocols.forEach(protocol => {
+        const option = document.createElement('option');
+        option.value = protocol.id;
+        option.textContent = protocol.name;
+        protocolSelect.appendChild(option);
+    });
 }
 
 function addResponseOption(questionIndex) {
@@ -137,28 +156,26 @@ function prepareSubmit() {
     const description = document.getElementById('templateDetails').value;
     const isMultiResponse = document.getElementById('isMultiResponse').value === 'true';
 
-    Array.from(document.getElementById('questionsContainer').children).forEach((card, index) => {
+    const questions = Array.from(document.getElementById('questionsContainer').children).map((card, index) => {
         const questionAbbr = document.getElementById(`questionAbbr_${index}`).value;
         const question = document.getElementById(`question_${index}`).value;
         const questionType = document.getElementById(`questionType_${index}`).value;
         const isRequired = document.getElementById(`isRequired_${index}`).value === 'true';
         const triggerProtocolCreation = document.getElementById(`triggerProtocolCreation_${index}`).value === 'true';
 
-        let responseOptions = [];
-        const optionsContainer = document.getElementById(`responseOptions_${index}`);
-        Array.from(optionsContainer.getElementsByClassName('form-group')).forEach((optionDiv, optionIndex) => {
-            const response = document.getElementById(`response_${index}_${optionIndex}`).value;
-            const tooltip = document.getElementById(`tooltip_${index}_${optionIndex}`).value;
-            responseOptions.push({response, tooltip});
-        });
+        const responseOptions = Array.from(document.getElementById(`responseOptions_${index}`).children).map((optionDiv, optionIndex) => ({
+            response: document.getElementById(`response_${index}_${optionIndex}`).value,
+            tooltip: document.getElementById(`tooltip_${index}_${optionIndex}`).value
+        }));
 
-        let triggeringResponse = {response: "", tooltip: ""};
-        if (triggerProtocolCreation) {
-            triggeringResponse.response = document.getElementById(`triggerResponse_${index}`).value;
-            triggeringResponse.tooltip = document.getElementById(`triggerTooltip_${index}`).value;
-        }
+        const triggeringResponse = triggerProtocolCreation ? {
+            response: document.getElementById(`triggerResponse_${index}`).value,
+            tooltip: document.getElementById(`triggerTooltip_${index}`).value
+        } : {response: "", tooltip: ""};
 
-        questions.push({
+        const triggeredProtocolId = triggerProtocolCreation ? parseInt(document.getElementById(`triggeredProtocolId_${index}`).value, 10) : 0;
+
+        return {
             questionAbbr,
             question,
             questionType,
@@ -166,8 +183,8 @@ function prepareSubmit() {
             responseOptions,
             triggerProtocolCreation,
             triggeringResponse,
-            triggeredProtocolId: null
-        });
+            triggeredProtocolId
+        };
     });
 
     const templateData = JSON.stringify({
@@ -182,10 +199,9 @@ function prepareSubmit() {
     console.log("Prepared JSON Data:", templateData);
     
     return true;
-    
 }
-
 
 </script>
 </body>
 </html>
+

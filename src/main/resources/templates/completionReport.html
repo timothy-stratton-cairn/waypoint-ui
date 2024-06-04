@@ -7,44 +7,147 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 <body>
-	<div th:insert="~{header :: main}">...</div>
-	<div class="container">
-		<div class="row note_card">
-			<fieldset>
-				<legend>Completion Report</legend>
-				<button type="button" class="btn btn-secondary mb-3" onclick="window.history.back();">Back</button>
-				
-				<div class="table-responsive">
-					<table class="table table-bordered">
-						<thead>
-							<tr>
-								<th>Name</th>
-								<th>Average Completion Time</th>
-								<th>Median Completion Time</th>
-								<th>Shortest Completion Time</th>
-								<th>Longest Completion Time</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr th:if="${reports.size() == 0}">
-								<td colspan="5" class="text-center">No Protocols have been completed</td>
-							</tr>
-							<tr th:each="report : ${reports}">
-								<td th:text="${report.name}"></td>
-								<td th:text="${report.meanDays}"></td>
-								<td th:text="${report.medDays}"></td>
-								<td th:text="${report.low}"></td>
-								<td th:text="${report.high}"></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</fieldset>
-		</div>
-	</div>
-	<div th:insert="~{footer :: main}">...</div>
-	<script>
-		
-	</script>
+    <div th:insert="~{header :: main}">...</div>
+    <div class="container">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Completion Report</legend>
+                <button type="button" class="btn btn-secondary mb-3" onclick="window.history.back();">Back</button>
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="reports-tab" data-toggle="tab" href="#reports" role="tab" aria-controls="reports" aria-selected="true">Protocol Completion by Protocol </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="userReports-tab" data-toggle="tab" href="#userReports" role="tab" aria-controls="userReports" aria-selected="false">Protocol Completion by User</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="stepReports-tab" data-toggle="tab" href="#stepReports" role="tab" aria-controls="stepReports" aria-selected="false">Step Completion by Step</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="userStepReports-tab" data-toggle="tab" href="#userStepReports" role="tab" aria-controls="userStepReports" aria-selected="false">Step Completion by Client</a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Average Completion Time</th>
+                                        <th>Median Completion Time</th>
+                                        <th>Shortest Completion Time</th>
+                                        <th>Longest Completion Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${reports.size() == 0}">
+                                        <td colspan="5" class="text-center">No Protocols have been completed</td>
+                                    </tr>
+                                    <tr th:each="report : ${reports}">
+                                        <td th:text="${report.name}"></td>
+                                        <td th:text="${report.meanDays}"></td>
+                                        <td th:text="${report.medDays}"></td>
+                                        <td th:text="${report.low}"></td>
+                                        <td th:text="${report.high}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="userReports" role="tabpanel" aria-labelledby="userReports-tab">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Average Completion Time</th>
+                                        <th>Median Completion Time</th>
+                                        <th>Shortest Completion Time</th>
+                                        <th>Longest Completion Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${userReports.size() == 0}">
+                                        <td colspan="5" class="text-center">No User Reports available</td>
+                                    </tr>
+                                    <tr th:each="report : ${userReports}">
+                                        <td th:text="${report.name}"></td>
+                                        <td th:text="${report.meanDays}"></td>
+                                        <td th:text="${report.medDays}"></td>
+                                        <td th:text="${report.low}"></td>
+                                        <td th:text="${report.high}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="stepReports" role="tabpanel" aria-labelledby="stepReports-tab">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Average Completion Time</th>
+                                        <th>Median Completion Time</th>
+                                        <th>Shortest Completion Time</th>
+                                        <th>Longest Completion Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${stepReports.size() == 0}">
+                                        <td colspan="5" class="text-center">No Step Reports available</td>
+                                    </tr>
+                                    <tr th:each="report : ${stepReports}">
+                                        <td th:text="${report.name}"></td>
+                                        <td th:text="${report.meanDays}"></td>
+                                        <td th:text="${report.medDays}"></td>
+                                        <td th:text="${report.low}"></td>
+                                        <td th:text="${report.high}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="userStepReports" role="tabpanel" aria-labelledby="userStepReports-tab">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Average Completion Time</th>
+                                        <th>Median Completion Time</th>
+                                        <th>Shortest Completion Time</th>
+                                        <th>Longest Completion Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${userStepReports.size() == 0}">
+                                        <td colspan="5" class="text-center">No User Step Reports available</td>
+                                    </tr>
+                                    <tr th:each="report : ${userStepReports}">
+                                        <td th:text="${report.name}"></td>
+                                        <td th:text="${report.meanDays}"></td>
+                                        <td th:text="${report.medDays}"></td>
+                                        <td th:text="${report.low}"></td>
+                                        <td th:text="${report.high}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div th:insert="~{footer :: main}">...</div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+

@@ -20,6 +20,9 @@
                         <div class="col-md-2">
                             <label>Name:</label> <span th:text="${protocol.name}"></span>
                         </div>
+                       	<div class = "col-md-2">
+							   <label>Due Date:</label><span th:text="${protocol.dueDate}"></span>
+						   </div>
                         <div class="col-md-2">
                             <label>Needs Attention:</label> <span th:text="${protocol.needsAttention} ? 'Yes': 'No'"></span>
                         </div>

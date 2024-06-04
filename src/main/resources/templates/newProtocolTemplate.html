@@ -18,23 +18,64 @@
             <legend>Protocol Details</legend>
             <form id="protocolForm">
                 <div class="row">
-                    <label for="protocolName" class="mr-md-3"><strong>Name:</strong></label>
-                    <input type="text" class="form-control" id="protocolName" name="name"/>
+					<div class="col-md-1">
+                    	<label for="protocolName" class="mr-md-3"><strong>Name:</strong></label>
+					</div>
+					<div class="col-md-10">
+                    	<input type="text" class="form-control" id="protocolName" name="name"/>
+					</div>
                 </div>
                 <div class="row">
+					<div class="col-md-1">
                     <label for="protocolDescription"><strong>Description:</strong></label>
+                    </div>
+                    <div class ="col-md-10">
                     <input type="text" class="form-control" id="protocolDescription" name="description"/>
-                    
+                    </div>
                    
                 </div>
+
+				<div class="row">
+					<div class="col-md-1">
+						<label for="protocolType" class="d-inline"><strong>Type:</strong></label>
+					</div>
+					<div class="col-md-2">
+						<select class="form-control" id="protocolType" name="type">
+							<option value="Life Cycle">Life Cycle</option>
+							<option value="Event">Event</option>
+						</select>
+					</div>
+				</div>
                 <div class="row">
-
-						<div class="col-md-3">
-	                    	<label for="reoccurring" class="mr-md-3"><strong>Default as Reoccurring?</strong></label>
+						<div class="col-md-2">
+							
+	                    	<label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
 	                   		<input type="checkbox" id="reoccurring" name="reoccurring"/>
-						</div> 
-
+						</div>
                 </div>
+                
+                				<div class="row mt-3">
+					<div class="col-md-2">
+				    	<label for="schedule" class="mr-md-1"><strong>Default Due Date after Assignment </strong></label>
+				    </div>
+				    <div class="col-md-2">
+				        <label for="year" class="d-inline"><strong>Year</strong></label>
+				        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="1-10" min="1" max="10" style="width: 40%;">
+				    </div>
+				    
+				
+				    <div class="col-md-2">
+				        <label for="month" class="d-inline"><strong>Month</strong></label>
+				        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="1-12" min="1" max="12" style="width: 40%;">
+				    </div>
+				
+				    <div class="col-md-2">
+				        <label for="day" class="d-inline"><strong>Day</strong></label>
+				        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="1-31" min="1" max="31" style="width: 40%;">
+				    </div>
+				</div>
+				
+                
 				<div class="row mt-3">
 					<div class="col-md-2">
 				    	<label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
@@ -43,6 +84,7 @@
 				        <label for="year" class="d-inline"><strong>Year</strong></label>
 				        <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="1" max="10" style="width: 40%;">
 				    </div>
+				    
 				
 				    <div class="col-md-2">
 				        <label for="month" class="d-inline"><strong>Month</strong></label>
@@ -158,6 +200,7 @@
 		function saveProtocolTemplate() {
 		    const name = document.getElementById('protocolName').value;
 		    const description = document.getElementById('protocolDescription').value;
+		    const dueDate = document.getElementById('protocolDueDate').value;
 		    //const reoccurring = document.getElementById('reoccurring').checked;
 		    //const year = document.getElementById('year').value;
 		    //const month = document.getElementById('month').value;
@@ -166,7 +209,7 @@
 		        id: parseInt(row.getAttribute('data-step-id')),
 		        name: row.querySelector('.col-md-9').textContent.trim()
 		    }));
-		    
+
 		    const schedule = [year, month, day];
 		
 		    const protocolData = {

@@ -45,6 +45,65 @@ public class ProtocolStepTemplateHelper{
         return this.restTemplate;
     }
     
+    public ArrayList<ProtocolStepTemplate> getStepList(User usr) {
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
+	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+    	ArrayList<ProtocolStepTemplate> stepTemplateList = new ArrayList<ProtocolStepTemplate>();
+    	
+        try {
+            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String jsonResponse = response.getBody();
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                JsonNode rootNode = objectMapper.readTree(jsonResponse);
+                if (rootNode.isArray()) {
+                    for (JsonNode jsonNode : rootNode) {
+                        ProtocolStepTemplate template = new ProtocolStepTemplate();
+                        template.setName(jsonNode.get("name").asText());
+                        template.setDescription(jsonNode.get("description").asText());
+                        template.setId(jsonNode.get("id").asInt());
+                        
+                        JsonNode stepTemplateCategoryNode = jsonNode.path("category");
+                        if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
+                            template.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
+                            template.setCategoryName(stepTemplateCategoryNode.path("name").asText());
+                            template.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
+                        } else {
+                            template.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
+                        }
+                        
+                        JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
+                        ArrayList<HomeworkTemplate> homeworks = new ArrayList<>();
+                        if (perms.isArray()) {
+                            for (JsonNode element : perms) {
+                                if (element != null) {
+                                    HomeworkTemplate curHw = new HomeworkTemplate();
+                                    curHw.setName(element.get("name").asText());
+                                    curHw.setId(element.get("id").asInt());
+                                    curHw.setDescription(element.get("description").asText());
+                                    homeworks.add(curHw);
+                                }
+                            }
+                            template.setHomework(homeworks);
+                        }
+                        
+                        stepTemplateList.add(template);
+                    }
+                }
+            } else {
+                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("No protocols returned");
+        }
+    	
+    	
+    	return stepTemplateList;
+    }
+    
+    
     
     public int addStepTemplate(User usr, ProtocolStepTemplate newStep) {
     	int result = -1;

@@ -442,6 +442,8 @@ public class MainController {
 
         try {
             User usr = (User) userDAO.getUser();
+            System.out.println("Due Date: "+requestBody.getDueDate());
+            
             int call = protocolTemplateHelper.newProtocolTemplate(usr, requestBody);
             if (call == 1) {
                 System.out.println("Success!");
@@ -548,6 +550,14 @@ public class MainController {
 		List<ProtocolTemplate> listProtocols = protocolTemplateHelper.getList(usr);
 		model.addAttribute("listProtocols", listProtocols);
 		return "protocolTemplateList";
+	}
+	
+	@GetMapping("/protocolStepTemplates")
+	public String protocolStepTemplateList(Model model) {
+		User usr = (User) userDAO.getUser();
+		ArrayList<ProtocolStepTemplate> listSteps= protocolTemplateHelper.getAllSteps(usr);
+		model.addAttribute("listSteps",listSteps);
+		return"ProtocolStepTemplateList";
 	}
 
 	@PatchMapping("/addStepToProtocol/{protocolId}/{stepId}")
@@ -923,6 +933,11 @@ public class MainController {
 	@GetMapping("editHomeworkTemplate/")
 	public String editHomeworkTemplate( Model model) {
 		User currentUser = userDAO.getUser();
+		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
+		model.addAttribute("protocols",pcolList);
+		for(ProtocolTemplate pcol: pcolList) {
+			System.out.println("Name: "+ pcol.getName());
+		}
 		return "editHomeworkTemplate";
 	}
 	
@@ -945,17 +960,13 @@ public class MainController {
 
             // Clean up to ensure the JSON starts correctly
             int jsonStartIndex = decodedBody.indexOf("\"name\"");
-            //if (jsonStartIndex == -1) {
-           //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request body: JSON starting with '{\"name\"' not found.");
-           // }
+
             
             // Extract the JSON correctly including the first curly brace and trim any leading/trailing whitespace
             String cleanJson = "{\n" + decodedBody.substring(jsonStartIndex).trim();
 
-            // Optionally, log the cleaned JSON for debugging
             System.out.println("Cleaned JSON Data: " + cleanJson);
 
-            // Further JSON processing here...
             User currentUser = userDAO.getUser();
 
             String call = homeworkTemplateHelper.newTemplate(currentUser, cleanJson);
@@ -1209,12 +1220,21 @@ public class MainController {
     	model.addAttribute("clientId",clientId);
     	return "protocolRecommendations";
     }
+    
+    //public ProtocolReport
     @GetMapping("/completionReport")
     public String completionReport(Model model) {
         User currentUser = userDAO.getUser();
         ArrayList<ProtocolReport> reports = new ArrayList<ProtocolReport>();
         ArrayList<ProtocolTemplate> templates = protocolTemplateHelper.getList(currentUser);
-
+        ArrayList<User> users = userHelper.getUserList(currentUser);
+        Map<String, ArrayList<ProtocolStep>> stepMap = new HashMap<>();
+        Map<Integer, ArrayList<Protocol>> userMap = new HashMap<>();
+        Map<Integer, ArrayList<ProtocolStep>> userStepMap = new HashMap<>();
+        
+        ArrayList<ProtocolReport> userReports = new ArrayList<>();
+        ArrayList<ProtocolReport> stepReports = new ArrayList<>();
+        ArrayList<ProtocolReport> userStepReports = new ArrayList<>();
         for (ProtocolTemplate template : templates) {
             ArrayList<Protocol> tempPcolList = protocolHelper.getListbyTemplateId(currentUser, template.getId());
 
@@ -1224,7 +1244,51 @@ public class MainController {
             List<Protocol> completedProtocols = tempPcolList.stream()
                 .filter(p -> p.getDaysToComplete() >= 0)
                 .collect(Collectors.toList());
+            for (Protocol protocol : completedProtocols) {  // for each protocol 
+                for (int userId : protocol.getUsers()) {    // for each userid 
+                    if (!userMap.containsKey(userId)) {     // set check to see if user is in the UserMap already if it is just add the protocol to the map 
+                        if (users.contains(userId)) {       // if it's not verify that the userID is real and not a bit of junk data 
+                            ArrayList<Protocol> tempList = new ArrayList<Protocol>();  // then add a new entry into the map
+                            tempList.add(protocol);
+                            userMap.put(userId, tempList);
+                        }
+                    } else {
+                        userMap.get(userId).add(protocol);
+                    }
+                    if (!userStepMap.containsKey(userId)){
+                    	if(protocol.getSteps()!=null) {
+                    		userStepMap.put(userId, protocol.getSteps());
+                    	}
+                    }
+                    else {
+                        for (ProtocolStep step : protocol.getSteps()) {
+                            boolean stepExists = false;
+                            for (ProtocolStep existingStep : userStepMap.get(userId)) {
+                                if (existingStep.getId() == step.getId()) {
+                                    stepExists = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!stepExists) {
+                                userStepMap.get(userId).add(step);
+                            }
+                        }
+                    }
+                }
 
+                for (ProtocolStep step : protocol.getSteps()) {  // this does the same thing but we don't need to bother with verifying
+                	if(step.getDaysToComplete()>=0) {
+                    if (!stepMap.containsKey(step.getName())) {    // if the step is real as it's a full step object in the array not just an id
+                        ArrayList<ProtocolStep> tempList = new ArrayList<ProtocolStep>(); //using names instead of ids because we can't change step names and I 
+                        tempList.add(step);                                   //don't have a way to get associated stepIds from this call, this is good enough 
+                        stepMap.put(step.getName(), tempList);
+                    } else {
+                        stepMap.get(step.getName()).add(step);
+                    }
+                }
+                }
+            }
             if (completedProtocols.isEmpty()) continue; 
 
             completedProtocols.sort(Comparator.comparingInt(Protocol::getDaysToComplete));
@@ -1250,17 +1314,136 @@ public class MainController {
 
             reports.add(report);
         }
+        
 
-        for (ProtocolReport report : reports) {
-            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
-                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
-                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
+        // Process userMap
+        for (Map.Entry<Integer, ArrayList<Protocol>> entry : userMap.entrySet()) {
+            int userId = entry.getKey();
+            ArrayList<Protocol> protocols = entry.getValue();
+
+            int size = protocols.size();
+            int meanDays = protocols.stream().mapToInt(Protocol::getDaysToComplete).sum() / size;
+            int medianDays = protocols.get(size / 2).getDaysToComplete();
+            int high = protocols.get(size - 1).getDaysToComplete();
+            int low = protocols.get(0).getDaysToComplete();
+
+            ProtocolReport report = new ProtocolReport();
+            for (User usr: users) {
+            	if (usr.getId() == userId) {
+            		report.setName(usr.getFirstName()+ " "+usr.getLastName());
+            	}
+            }
+            report.setId(userId);  // Assuming the ID can be user ID
+            report.setMeanDays(meanDays);
+            report.setMedDays(medianDays);
+            report.setHigh(high);
+            report.setLow(low);
+            
+
+            userReports.add(report);
         }
 
+        // Process stepMap
+        for (Map.Entry<String, ArrayList<ProtocolStep>> entry : stepMap.entrySet()) {
+            String stepName = entry.getKey();
+            ArrayList<ProtocolStep> protocols = entry.getValue();
+
+            int size = protocols.size();
+            int meanDays = protocols.stream().mapToInt(ProtocolStep::getDaysToComplete).sum() / size;
+            int medianDays = protocols.get(size / 2).getDaysToComplete();
+            int high = protocols.get(size - 1).getDaysToComplete();
+            int low = protocols.get(0).getDaysToComplete();
+
+            ProtocolReport report = new ProtocolReport();
+            report.setId(stepName.hashCode());  // Assuming a unique hash code for the step name
+            report.setMeanDays(meanDays);
+            report.setMedDays(medianDays);
+            report.setHigh(high);
+            report.setLow(low);
+            report.setName("Step: " + stepName);
+
+            stepReports.add(report);
+        }
+        
+        for (Map.Entry<Integer, ArrayList<ProtocolStep>> entry : userStepMap.entrySet()) {
+            int userId = entry.getKey();
+            ArrayList<ProtocolStep> protocols = entry.getValue();
+
+            int size = protocols.size();
+            int meanDays = protocols.stream().mapToInt(ProtocolStep::getDaysToComplete).sum() / size;
+            int medianDays = protocols.get(size / 2).getDaysToComplete();
+            int high = protocols.get(size - 1).getDaysToComplete();
+            int low = protocols.get(0).getDaysToComplete();
+            
+            ProtocolReport report = new ProtocolReport();
+            for (User usr: users) {
+            	if (usr.getId() == userId) {
+            		report.setName(usr.getFirstName()+ " "+usr.getLastName());
+            	}
+            }
+            report.setId(userId);  
+            report.setMeanDays(meanDays);
+            report.setMedDays(medianDays);
+            report.setHigh(high);
+            report.setLow(low);
+
+            userStepReports.add(report);
+        }
+
+        if (!reports.isEmpty()) {
+	        for (ProtocolReport report : reports) {
+	            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+	                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
+	                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
+	        	}
+        }
+       else {
+        		System.out.println("No Protocols in Template Report");
+        	}
+
+        if (!userReports.isEmpty()) {
+	        for (ProtocolReport report : userReports) {
+	        	
+	            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+	                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
+	                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
+	        	}
+        }
+        else {
+        		System.out.println("No Protocols in User Report");
+        	}
+        
+    	if (!stepReports.isEmpty()) {
+	        for (ProtocolReport report : stepReports) {
+	        	
+	            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+	                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
+	                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
+	        	}
+    	}
+        else {
+        		System.out.println("No Protocols in Step Report");
+        	}
+        if (!userStepReports.isEmpty()) {
+	        for (ProtocolReport report : userStepReports) {
+	        	
+	        	System.out.println("Report not Empty");
+	            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+	                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
+	                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
+	        	}
+        }
+    	else {
+    		System.out.println("No Protocols in User Step Report");
+    	}
+        
+        model.addAttribute("userReports", userReports);
+        model.addAttribute("stepReports", stepReports);
         model.addAttribute("reports", reports);
+        model.addAttribute("userStepReports",userStepReports);
         return "completionReport";
     }
-
+    
 
 
     
@@ -1299,6 +1482,9 @@ public class MainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
+    
+
     
     
     
