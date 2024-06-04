@@ -12,6 +12,12 @@
 					<h2 class="text-center">Login Form</h2>
 				</div>
 				<div class="card-body">
+					<div th:if="${param.logout}">
+						<div class="alert alert-success"> You have been logged out.</div>
+					</div>
+					<div th:if="${param.error}">
+						<div class="alert alert-danger"> Those are not valid credentials.</div>
+					</div>
 					<form method="post" role="form" th:action="@{/login}" class="form-horizontal">
 						<div class="form-group mb-3">
 							<label class="control-label"> Email</label>

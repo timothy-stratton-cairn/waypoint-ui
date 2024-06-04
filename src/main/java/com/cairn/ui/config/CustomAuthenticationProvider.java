@@ -52,56 +52,61 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
 		// Make a POST request to your authentication API
-		ResponseEntity<String> response = restTemplate.exchange(authorizationApiBaseUrl + "/api/oauth/token",
-				HttpMethod.POST, requestEntity, String.class);
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(authorizationApiBaseUrl + "/api/oauth/token",
+					HttpMethod.POST, requestEntity, String.class);
 
-		// Check if the response is successful (e.g., status code 200)
-		if (response.getStatusCode().is2xxSuccessful()) {
-			User usr = new User();
-			usr.setUsername(username);
-			try {
-				ObjectMapper objectMapper = new ObjectMapper();
+			// Check if the response is successful (e.g., status code 200)
+			if (response.getStatusCode().is2xxSuccessful()) {
+				User usr = new User();
+				usr.setUsername(username);
+				try {
+					ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode = objectMapper.readTree(response.getBody());
-				usr.setToken(jsonNode.get("accessToken").asText());
-				JsonNode perms = jsonNode.get("permissions");
-				// Iterate through the array elements
-				if (perms.isArray()) {
-					for (JsonNode element : perms) {
-						if (element != null) {
-							System.out.println();
-							usr.addPermission(element.toString());
+					JsonNode jsonNode = objectMapper.readTree(response.getBody());
+					usr.setToken(jsonNode.get("accessToken").asText());
+					JsonNode perms = jsonNode.get("permissions");
+					// Iterate through the array elements
+					if (perms.isArray()) {
+						for (JsonNode element : perms) {
+							if (element != null) {
+								System.out.println();
+								usr.addPermission(element.toString());
+							}
 						}
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
-			if (response.getBody().contains("admin.full")) {
-				Authentication auth = new UsernamePasswordAuthenticationToken(username, password,
-						List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-				HashMap<String, Object> info = new HashMap<String, Object>();
-				ArrayList<String> roles = new ArrayList<String>();
-				roles.add("ADMIN");
-				usr.setRoles(roles);
-			    info.put("currentUser", usr);
-			    ((AbstractAuthenticationToken) auth).setDetails(info);
-				return auth;
+				if (response.getBody().contains("admin.full")) {
+					Authentication auth = new UsernamePasswordAuthenticationToken(username, password,
+							List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+					HashMap<String, Object> info = new HashMap<String, Object>();
+					ArrayList<String> roles = new ArrayList<String>();
+					roles.add("ADMIN");
+					usr.setRoles(roles);
+					info.put("currentUser", usr);
+					((AbstractAuthenticationToken) auth).setDetails(info);
+					return auth;
+				} else {
+					Authentication auth = new UsernamePasswordAuthenticationToken(username, password,
+							List.of(new SimpleGrantedAuthority("ROLE_USER")));
+					HashMap<String, Object> info = new HashMap<String, Object>();
+					ArrayList<String> roles = new ArrayList<String>();
+					roles.add("USER");
+					usr.setRoles(roles);
+					info.put("currentUser", usr);
+					((AbstractAuthenticationToken) auth).setDetails(info);
+					return auth;
+				}
 			} else {
-				Authentication auth = new UsernamePasswordAuthenticationToken(username, password,
-						List.of(new SimpleGrantedAuthority("ROLE_USER")));
-				HashMap<String, Object> info = new HashMap<String, Object>();
-				ArrayList<String> roles = new ArrayList<String>();
-				roles.add("USER");
-				usr.setRoles(roles);
-			    info.put("currentUser", usr);
-			    ((AbstractAuthenticationToken) auth).setDetails(info);
-				return auth;
+				throw new BadCredentialsException("Authentication failed");
 			}
-		} else {
+		} catch (Exception e) {
 			throw new BadCredentialsException("Authentication failed");
 		}
+
 	}
 
 	@Override
