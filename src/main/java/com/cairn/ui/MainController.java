@@ -420,7 +420,7 @@ public class MainController {
 		
 	    try {
 			protocolStepTemplateHelper.addStepTemplate(usr, newStep);
-	        return ResponseEntity.ok("Template processed successfully");
+	        return ResponseEntity.ok("{\"message\": \"Template Successfully Created!\"}");
 	    } catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 	                .body("An error occurred while saving the Step Template: " + e.getMessage());

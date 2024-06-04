@@ -177,6 +177,7 @@ public class HomeworkTemplateHelper{
     	String result = "Process not yet set ";
     	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
     	HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, templateBody);
+    	System.out.println("Template Body: " + templateBody);
     	
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
