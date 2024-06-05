@@ -62,7 +62,6 @@
 <script th:inline="javascript">
 /*<![CDATA[*/
 let protocols = /*[[${protocols}]]*/ [];
-/*]]>*/
 
 function addQuestion() {
     const container = document.getElementById('questionsContainer');
@@ -100,21 +99,25 @@ function addQuestion() {
                     <option value="true">Yes</option>
                 </select>
             </div>
-            <div id="triggerFields_${questionIndex}" style="display: none;">
-                <div class="form-group">
-                    <label>Trigger Response:</label>
-                    <input type="text" class="form-control" id="triggerResponse_${questionIndex}">
-                </div>
-                <div class="form-group">
+
+                <div id="triggerFields_${questionIndex}" style="display: none;">
+					
+				<div class="form-group">
                     <label>Trigger Protocol:</label>
                     <select class="form-control" id="triggeredProtocolId_${questionIndex}">
                         <option value="">Select Protocol</option>
                     </select>
                 </div>
                 <div class="form-group">
+                    <label>Trigger Response:</label>
+                    <select class="form-control" id="triggerResponse_${questionIndex}"></select>
+                </div>
+                
+                <div class="form-group">
                     <label>Trigger Tooltip:</label>
                     <input type="text" class="form-control" id="triggerTooltip_${questionIndex}">
                 </div>
+                
             </div>
             <div id="responseOptions_${questionIndex}"></div>
             <button type="button" class="btn btn-secondary" onclick="addResponseOption(${questionIndex})">Add Response Option</button>
@@ -130,9 +133,35 @@ function addQuestion() {
         option.textContent = protocol.name;
         protocolSelect.appendChild(option);
     });
+    
+    // Populate trigger response select with response options
+    const triggerResponseSelect = document.getElementById(`triggerResponse_${questionIndex}`);
+    const responseInputs = Array.from(document.querySelectorAll(`#response_${questionIndex} input`));
+    responseInputs.forEach(input => {
+        const option = document.createElement('option');
+        option.value = input.value;
+        option.textContent = input.value;
+        triggerResponseSelect.appendChild(option);
+    });
+
+    // Add event listener to dynamically update trigger response select
+    const responseOptionsContainer = document.getElementById(`responseOptions_${questionIndex}`);
+    responseOptionsContainer.addEventListener('input', function() {
+        triggerResponseSelect.innerHTML = ''; // Clear existing options
+        responseInputs.forEach(input => {
+            const option = document.createElement('option');
+            option.value = input.value;
+            option.textContent = input.value;
+            triggerResponseSelect.appendChild(option);
+        });
+    });
 }
+// Define responseInputs array outside the function scope
+let responseInputs = [];
 
 function addResponseOption(questionIndex) {
+    console.log("Adding response option for question", questionIndex);
+
     const optionsContainer = document.getElementById(`responseOptions_${questionIndex}`);
     const optionIndex = optionsContainer.children.length;
     const optionDiv = document.createElement('div');
@@ -144,6 +173,25 @@ function addResponseOption(questionIndex) {
         <input type="text" class="form-control" id="tooltip_${questionIndex}_${optionIndex}">
     `;
     optionsContainer.appendChild(optionDiv);
+
+    // Update responseInputs array with newly created input elements
+    responseInputs.push(...optionDiv.querySelectorAll('input'));
+
+    console.log("Number of response inputs:", responseInputs.length);
+
+    // Add event listener to dynamically update trigger response select
+    const triggerResponseSelect = document.getElementById(`triggerResponse_${questionIndex}`);
+    optionsContainer.addEventListener('input', function() {
+        console.log("Event listener triggered for question", questionIndex);
+        triggerResponseSelect.innerHTML = ''; // Clear existing options
+        responseInputs.forEach(input => {
+            const option = document.createElement('option');
+            option.value = input.value;
+            option.textContent = input.value;
+            triggerResponseSelect.appendChild(option);
+            console.log("Added option:", option.value);
+        });
+    });
 }
 
 function toggleTriggerFields(select, index) {
@@ -201,7 +249,9 @@ function prepareSubmit() {
     return true;
 }
 
+/*]]>*/
 </script>
+
 </body>
 </html>
 
