@@ -35,6 +35,7 @@
                 <div class="form-group">
                     <label for="templateName">Name:</label>
                     <input type="text" id="templateName" name="name" class="form-control" placeholder="Homework Name">
+                     <small class="form-text text-muted">Name must be shorter than 32 characters.</small>
                 </div>
                 <div class="form-group">
                     <label for="templateDetails">Description:</label>
@@ -46,6 +47,7 @@
                         <option value="true">True</option>
                         <option value="false">False</option>
                     </select>
+
                 </div>
                 <div id="questionsContainer"></div>
                 <button type="button" class="btn btn-primary" onclick="addQuestion()">Add Homework Question</button>
@@ -134,29 +136,8 @@ function addQuestion() {
         protocolSelect.appendChild(option);
     });
     
-    // Populate trigger response select with response options
-    const triggerResponseSelect = document.getElementById(`triggerResponse_${questionIndex}`);
-    const responseInputs = Array.from(document.querySelectorAll(`#response_${questionIndex} input`));
-    responseInputs.forEach(input => {
-        const option = document.createElement('option');
-        option.value = input.value;
-        option.textContent = input.value;
-        triggerResponseSelect.appendChild(option);
-    });
-
-    // Add event listener to dynamically update trigger response select
-    const responseOptionsContainer = document.getElementById(`responseOptions_${questionIndex}`);
-    responseOptionsContainer.addEventListener('input', function() {
-        triggerResponseSelect.innerHTML = ''; // Clear existing options
-        responseInputs.forEach(input => {
-            const option = document.createElement('option');
-            option.value = input.value;
-            option.textContent = input.value;
-            triggerResponseSelect.appendChild(option);
-        });
-    });
 }
-// Define responseInputs array outside the function scope
+
 let responseInputs = [];
 
 function addResponseOption(questionIndex) {
@@ -183,7 +164,7 @@ function addResponseOption(questionIndex) {
     const triggerResponseSelect = document.getElementById(`triggerResponse_${questionIndex}`);
     optionsContainer.addEventListener('input', function() {
         console.log("Event listener triggered for question", questionIndex);
-        triggerResponseSelect.innerHTML = ''; // Clear existing options
+        triggerResponseSelect.innerHTML = ''; 
         responseInputs.forEach(input => {
             const option = document.createElement('option');
             option.value = input.value;
@@ -248,6 +229,10 @@ function prepareSubmit() {
     
     return true;
 }
+
+
+
+
 
 /*]]>*/
 </script>

@@ -123,7 +123,7 @@ public class ProtocolTemplateHelper {
 		String requestBody = "{"  
 				+ "\"name\": \"" + template.getName() + "\","
 				+ "\"description\": \"" + template.getDescription() + "\","
-				+ "\"dueDate\": \"" + actualDueDate.toString() + "\","
+				+ "\"dueDate\": \"" + dueDateDays + "\","
 				+ associatedStepTemplateIds.toString()+
 				"}";
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl,requestBody);
@@ -680,6 +680,7 @@ public class ProtocolTemplateHelper {
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+					result.setDueDate(jsonNode.get("dueDate").asText());
 					/* Add in the steps */
 					JsonNode perms = jsonNode.get("associatedSteps");
 					// Iterate through the array elements
