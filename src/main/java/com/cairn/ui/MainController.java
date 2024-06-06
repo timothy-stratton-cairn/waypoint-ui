@@ -1123,6 +1123,9 @@ public class MainController {
     }
     @GetMapping("extraInfoPopUp/{userId}/{protocolId}")
     public String extraInfoPopUp(@PathVariable int userId,@PathVariable int protocolId,Model model ){
+    	User currentUser = userDAO.getUser();
+    	ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(currentUser, protocolId);
+    	model.addAttribute("pcol",pcol);
     	model.addAttribute("userId",userId);
     	model.addAttribute("protocolId",protocolId);
     	return"extraInfoPopUp";

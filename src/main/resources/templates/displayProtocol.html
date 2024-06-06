@@ -30,6 +30,7 @@
 	                        <input type="text" id="name" name="name" th:value="${protocol.name}" />
 	                        </div>
 	                    </div>
+	                    <br>
 	                    <div class="row">
 							<div class="col-md-1">
 							<label for="description"><strong>Description:</strong></label>
@@ -38,6 +39,7 @@
 							<input type="form-control"id="description"name = "description"th:value="${protocol.description}">
 							</div>
 						</div>
+						<br>
 	                </form>
                 </div>
 	 			<button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
@@ -49,7 +51,7 @@
 	<div th:if="${protocol.id != null && protocol.id > 0}">
 	    <div class="row note_card">
 	        <fieldset>
-	            <legend>Protocol Details</legend>
+	            <legend>Protocol Template Details</legend>
 	            <button onclick="history.back()" class="btn btn-primary">Back</button>
 	            <div>
 	                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
@@ -61,6 +63,7 @@
 	                        <input type="text" id="name" name="name" th:value="${protocol.name}"class="form-control" />
 	                        </div>
 	                    </div>
+	                    <br>
 	                    <div class="row">
 	                        <div class="col-md-1">
 	                            <label for="description"><strong>Description:</strong></label>

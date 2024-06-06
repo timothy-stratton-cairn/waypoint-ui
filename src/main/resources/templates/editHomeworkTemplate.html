@@ -114,11 +114,7 @@ function addQuestion() {
                     <label>Trigger Response:</label>
                     <select class="form-control" id="triggerResponse_${questionIndex}"></select>
                 </div>
-                
-                <div class="form-group">
-                    <label>Trigger Tooltip:</label>
-                    <input type="text" class="form-control" id="triggerTooltip_${questionIndex}">
-                </div>
+
                 
             </div>
             <div id="responseOptions_${questionIndex}"></div>
@@ -199,7 +195,7 @@ function prepareSubmit() {
 
         const triggeringResponse = triggerProtocolCreation ? {
             response: document.getElementById(`triggerResponse_${index}`).value,
-            tooltip: document.getElementById(`triggerTooltip_${index}`).value
+            tooltip: findTooltipForResponse(responseOptions, document.getElementById(`triggerResponse_${index}`).value)
         } : {response: "", tooltip: ""};
 
         const triggeredProtocolId = triggerProtocolCreation ? parseInt(document.getElementById(`triggeredProtocolId_${index}`).value, 10) : null;
@@ -228,6 +224,15 @@ function prepareSubmit() {
     console.log("Prepared JSON Data:", templateData);
     
     return true;
+}
+
+function findTooltipForResponse(responseOptions, selectedResponse) {
+    for (const option of responseOptions) {
+        if (option.response === selectedResponse) {
+            return option.tooltip;
+        }
+    }
+    return ""; // Default empty tooltip if not found
 }
 
 

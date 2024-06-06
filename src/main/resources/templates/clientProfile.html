@@ -134,7 +134,7 @@
 
                 <div class="row" id="protocolContent">
                     <!-- Display Assigned Protocols -->
-                    <div th:each="pcol, status: ${assignedProtocols}" th:if="${pcol.roles.contains('PRIMARY_CONTACT')}" th:id="|row_${pcol.id}|" class="note_card col-md-5" th:data-type="${pcol.status}">
+                    <div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|" class="note_card col-md-5" th:data-type="${pcol.status}">
                         <a th:href="@{/viewProtocol/{id}/{userId}(id=${pcol.id}, userId=${userId})}">
                             <div class="flip-card ">
                                 <div class="flip-card-inner">

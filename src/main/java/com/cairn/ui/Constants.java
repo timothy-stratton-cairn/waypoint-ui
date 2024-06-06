@@ -7,7 +7,7 @@ public class Constants {
 	//static public final String auth_server = "http://127.0.0.1:8082";
 	static public final String api_ep_protocol = "/api/protocol";
 	static public final String api_me = "/api/oauth/me";
-	static public final String api_ep_protocolaccount= "/api/protocol/household/";
+	static public final String api_ep_protocolaccount= "/api/protocol/account/";
 	static public final String api_ep_protocoltemplate = "/api/protocol-template";
 	static public final String api_ep_protocoltemplateget = "/api/protocol-template/";
 	static public final String api_ep_protocolsteptemplate = "/api/protocol-step-template";

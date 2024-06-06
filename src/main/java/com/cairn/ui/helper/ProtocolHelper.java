@@ -458,10 +458,11 @@ public class ProtocolHelper {
 	public int addClient(User usr, int clientid, int protocolTemplateId) {
 		int result = 0;
 
-		String requestBody = "{\"protocolTemplateId\": " + protocolTemplateId + ", \"comment\": \"\", \"associatedAccountId\": " + clientid + "}";
+		String requestBody = "{\"protocolTemplateId\": " + protocolTemplateId + ", \"comment\": \"\", \"assignedHouseholdId\": " + clientid + "}";
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;//retrieves all protocols assigned to clientId
-		
+		System.out.println("URL: "+ apiUrl);
+		System.out.println("RequestBody: "+requestBody);
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);

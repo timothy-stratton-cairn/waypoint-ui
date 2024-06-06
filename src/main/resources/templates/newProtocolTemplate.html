@@ -8,15 +8,14 @@
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
-<div class="container mt-3">
-    <button onclick="history.back()" class="btn btn-primary">Back</button>
-</div>
 
 <div class="container">
     <div class="row note_card">
         <fieldset>
-            <legend>Protocol Details</legend>
+            <legend>New Protocol Template Details</legend>
+            <button onclick="history.back()" class="btn btn-primary">Back</button>
             <form id="protocolForm">
+				
                 <div class="row">
 					<div class="col-md-1">
                     	<label for="protocolName" class="mr-md-3"><strong>Name:</strong></label>
@@ -25,6 +24,7 @@
                     	<input type="text" class="form-control" id="protocolName" name="name"/>
 					</div>
                 </div>
+                <br>
                 <div class="row">
 					<div class="col-md-1">
                     <label for="protocolDescription"><strong>Description:</strong></label>
@@ -32,8 +32,8 @@
                     <div class ="col-md-10">
                     <input type="text" class="form-control" id="protocolDescription" name="description"/>
                     </div>
-                   
                 </div>
+                <br>
 
 				<div class="row">
 					<div class="col-md-1">
@@ -46,12 +46,24 @@
 						</select>
 					</div>
 				</div>
-                <div class="row">
-						<div class="col-md-2">
-							
-	                    	<label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
-	                   		<input type="checkbox" id="reoccurring" name="reoccurring"/>
-						</div>
+				<br>
+            </form>
+            <button type="button" class="btn btn-primary" onclick="saveProtocolTemplate()">Save Template</button>
+        </fieldset>
+    </div>
+</div>
+<div class="container">
+	    <div class="row note_card">
+        <fieldset>
+            <legend>Scheduling</legend>
+            <form>
+				
+			    <div class="row">
+					<div class="col-md-2">
+						
+                    	<label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
+                   		<input type="checkbox" id="reoccurring" name="reoccurring"/>
+					</div>
                 </div>
                 
                 <div class="row mt-3">
@@ -97,12 +109,12 @@
 				    </div>
 				</div>
 
-
-            </form>
+				
+			</form>
         </fieldset>
-    </div>
+	    </div>
+	
 </div>
-
 
 
 <div class="container">
