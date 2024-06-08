@@ -5,11 +5,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-    <style>
-        .collapse-table {
-            display: none;
-        }
-    </style>
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
@@ -26,6 +21,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Description</th>
+                            <th>Details</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -35,32 +31,31 @@
                             <td th:text="${homework.description}">Homework Description</td>
                             <td>
                                 <div>
-                                    <button type="button" class="btn btn-secondary" th:onclick="'toggleQuestions(' + ${homework.id} + ')'">More Details</button>
-                                    <button type="button" class="btn btn-secondary" th:onclick="'goToHomework(' + ${homework.id} + ')'">Go To</button>
-                                    <button type="button" class="btn btn-secondary" th:onclick="'emailRequest(' + ${homework.id} + ', ' + ${clientId} + ')'">Email Request</button>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Question</th>
+                                                    <th>Response</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="question : ${homework.questions}">
+                                                    <td th:text="${question.question}">Question</td>
+                                                    <td th:if="${question.questionType == 'FILE'}">
+                                                        <button type="button" class="btn btn-secondary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
+                                                    </td>
+                                                    <td th:if="${question.questionType != 'FILE'}" th:text="${question.userResponse}">Response</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </td>
-                        </tr>
-                        <tr th:if="${#lists.size(homework.questions) > 0}" th:each="homework : ${homeworks}" th:id="'collapse-' + ${homework.id}" class="collapse-table">
-                            <td colspan="3">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>Question</th>
-                                                <th>Response</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="question : ${homework.questions}">
-                                                <td th:text="${question.question}">Question</td>
-                                                <td th:if="${question.questionType == 'FILE'}">
-                                                    <button type="button" class="btn btn-secondary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
-                                                </td>
-                                                <td th:if="${question.questionType != 'FILE'}" th:text="${question.userResponse}">Response</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                            <td>
+                                <div>
+                                    <button type="button" class="btn btn-secondary" th:onclick="'goToHomework(' + ${homework.id} + ')'">Go To</button>
+                                    <button type="button" class="btn btn-secondary" th:onclick="'emailRequest(' + ${homework.id} + ', ' + ${clientId} + ')'">Email Request</button>
                                 </div>
                             </td>
                         </tr>
@@ -75,10 +70,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script>
     var clientId = [[${clientId}]];
-
-    function toggleQuestions(id) {
-        $('#collapse-' + id).toggle();
-    }
 
     function goToHomework(id) {
         window.location = '/homeworkDisplay/' + id;
@@ -116,7 +107,7 @@
     }
 
     function emailRequest(homeworkId, clientId) {
-        let homeworkRow = $('#collapse-' + homeworkId);
+        let homeworkRow = $('#details-' + homeworkId);
         let message = 'Our Records indicate that we are missing some information\nPlease complete the following questions:\n\n';
 
         homeworkRow.find('table tbody tr').each(function() {
@@ -149,5 +140,6 @@
 </script>
 </body>
 </html>
+
 
 

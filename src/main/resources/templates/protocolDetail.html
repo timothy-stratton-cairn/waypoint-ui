@@ -12,17 +12,19 @@
     <div class="row note_card">
         <fieldset>
             <legend>Protocol Details</legend>
-
 		    <button onclick="history.back()" class="btn btn-primary">Back</button>
-
             <div>
                     <div class="row"> <!-- Adjusted layout starts here -->
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label>Name:</label> <span th:text="${protocol.name}"></span>
                         </div>
+                       	<div class="col-md-1">
+							 <label>Due Date:</label>  
+                       	</div>
                        	<div class = "col-md-2">
-							   <label>Due Date:</label><span th:text="${protocol.dueDate}"></span>
-						   </div>
+                        	
+                        	<input type="date" id="dueDateInput" th:value="${protocol.dueDate}" class="form-control"/>
+                    	</div>
                         <div class="col-md-2">
                             <label>Needs Attention:</label> <span th:text="${protocol.needsAttention} ? 'Yes': 'No'"></span>
                         </div>
@@ -289,10 +291,11 @@
 		    var comment = document.getElementById('commentInput').value;
 		    var progress = document.getElementById('progressInput').value;
 		    var status = document.getElementById('statusDropdown').value;
+		    var dueDate = document.getElementById('dueDateInput').value;
 			console.log('Status:', status);
-		    var url = `/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/`;
+		    var url = `/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`;
 		    console.log('URL:', url);
-		    fetch(`/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/`, {
+		    fetch(`/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`, {
 		        method: 'PATCH',
 		        headers: {
 		            'Accept': 'application/json',

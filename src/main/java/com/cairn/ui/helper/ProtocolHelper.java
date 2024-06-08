@@ -229,8 +229,8 @@ public class ProtocolHelper {
 					result.setName(jsonNode.get("name").asText());
 					result.setDescription(jsonNode.get("description").asText());
 					result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
-					if (jsonNode.has("dueDate") && !jsonNode.get("dueDate").isNull()) {
-						result.setDueDate(jsonNode.get("dueDate").asText());
+					if (jsonNode.has("dueBy") && !jsonNode.get("dueBy").isNull()) {
+						result.setDueDate(jsonNode.get("dueBy").asText());
 					} else {
 						 result.setDueDate("No Due Date"); // Fallback if goal is not set
 					}
@@ -240,7 +240,7 @@ public class ProtocolHelper {
 	                if (commentsNode.isArray()) {
 	                    for (JsonNode commentElement : commentsNode) {
 	                        ProtocolComments comment = new ProtocolComments();
-	                        comment.setComment(commentElement.get("comment").asText());
+	                        comment.setComment(commentElement.has("comment") && !commentElement.get("comment").isNull() ? commentElement.get("comment").asText() : "No Comment");
 	                        comment.setTakenAt(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(commentElement.get("takenAt").asText()));
 	                        comment.setTakenBy(commentElement.get("takenBy").asText());
 	                        comment.setCommentType(commentElement.get("commentType").asText());
@@ -455,11 +455,16 @@ public class ProtocolHelper {
 	 * @param pcol
 	 */
 	
-	public int addClient(User usr, int clientid, int protocolTemplateId) {
+	public int addClient(User usr, int clientid, int protocolTemplateId, Protocol protocolRequest) {
 		int result = 0;
 
-		String requestBody = "{\"protocolTemplateId\": " + protocolTemplateId + ", \"comment\": \"\", \"assignedHouseholdId\": " + clientid + "}";
-
+	    String requestBody = String.format(
+	            "{\"protocolTemplateId\": %d, \"comment\": \"\", \"assignedHouseholdId\": %d, \"name\": \"%s\", \"dueDate\": \"%s\"}",
+	            protocolTemplateId,
+	            clientid,
+	            protocolRequest.getName(),
+	            protocolRequest.getDueDate()
+	        );
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;//retrieves all protocols assigned to clientId
 		System.out.println("URL: "+ apiUrl);
 		System.out.println("RequestBody: "+requestBody);
@@ -669,6 +674,32 @@ public class ProtocolHelper {
 	
 		return result;
 	}
+	public int updateProtocolDueDate(User usr, int protocolId, String dueDate) {
+		int result = -1;
+		String requestBody = "{\"dueDate\": \"" + dueDate + "\"}";
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/'+ protocolId ;
+		System.out.println("Request Body: "+ requestBody);
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+		System.out.println(apiUrl);
+		System.out.println(entity);
+		
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }
+	        }catch(Exception e) {
+				System.out.println("Error in updating progress");
+		        e.printStackTrace();
+			}  
+		return result;
+		}
+	
 	
 	public int updateProtocolStatus(User usr, int protocolId, String status) {
 		int result = -1;

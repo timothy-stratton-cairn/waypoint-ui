@@ -153,7 +153,7 @@ public class MainController {
 		        .orElse(null);
 		if (mostRecentComment == null) {
 			mostRecentComment = new ProtocolComments();
-			mostRecentComment.setComment("");
+			mostRecentComment.setComment("No Comments Have been made");
 		}
 		model.addAttribute("mostRecentComment",mostRecentComment.getComment());
 		model.addAttribute("protocol", protocol);
@@ -273,8 +273,8 @@ public class MainController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}/{status}/")
-	public ResponseEntity<Object> updateProtocolComment( @PathVariable int protocolId, @PathVariable String comment,@PathVariable String goal, @PathVariable String progress, @PathVariable String status, 
+	@PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}/{status}/{date}")
+	public ResponseEntity<Object> updateProtocolComment( @PathVariable int protocolId, @PathVariable String comment,@PathVariable String goal, @PathVariable String progress, @PathVariable String status, @PathVariable String date,
 		    Model model) {
 
 		User currentUser = userDAO.getUser();
@@ -284,6 +284,7 @@ public class MainController {
 			protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
 			protocolHelper.updateProtocolProgress(currentUser, protocolId, progress);
 			protocolHelper.updateProtocolStatus(currentUser, protocolId, status);
+			protocolHelper.updateProtocolDueDate(currentUser, protocolId, date);
 		} catch (Exception e) {
 			System.out.println("Error in addClientToProtocol:");
 			e.printStackTrace();
@@ -372,13 +373,17 @@ public class MainController {
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
-
+		System.out.println("Protocol Template DueDate: "+ pcol.getDueDate());
 
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
 
 		List<ProtocolStepTemplate> fullStepList= new ArrayList<ProtocolStepTemplate>(); //there's a method to this madness. getStepList doesn't get homeworks
-		
+		String dueBy = pcol.getDueDate();
+		int dueByDays = 0;
+		if (dueBy != null && !dueBy.isEmpty()) {
+		    dueByDays = Integer.parseInt(dueBy);
+		}
 		for (ProtocolStepTemplate step: listSteps) {
 			int stepId = step.getId();
 			ProtocolStepTemplate fullStep = protocolTemplateHelper.getStep(usr, stepId);
@@ -389,7 +394,7 @@ public class MainController {
 			
 			System.out.println("Step id "+ step.getCategoryId());
 		}
-		
+		model.addAttribute("dueBy", dueByDays);
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", pcol);
 		model.addAttribute("steps", fullStepList);
@@ -488,10 +493,12 @@ public class MainController {
         String description = updateRequest.getDescription();
 
         String name = updateRequest.getName();
+        String dueDate = updateRequest.getDueDate();
 
         try {
             protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
             protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
+            protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, dueDate);
             return ResponseEntity.ok(Collections.singletonMap("message", "Protocol updated successfully"));
         } catch (Exception e) {
             System.out.println("Error in updateProtocol:");
@@ -538,6 +545,7 @@ public class MainController {
 			
 		}
 		// Add attributes to the model
+
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", associatedSteps);
@@ -710,12 +718,17 @@ public class MainController {
     public ResponseEntity<?>addCoClient(@PathVariable int clientId, @PathVariable int coClientId){
     	System.out.println("Calling Add CoClient for ClientID: " + clientId + " and CoClient ID: "+ coClientId);
     	User currentUser = userDAO.getUser();
-    	
-    	User client = userHelper.getUser(currentUser, clientId);
-		User coClient = userHelper.getUser(currentUser, coClientId);
+    	Household household = userHelper.getHouseholdById(currentUser, clientId);
+    	ArrayList<Integer> householdIds = new ArrayList<Integer>();
+    	for (User usr: household.getHouseholdAccounts()) {
+    		householdIds.add(usr.getId());
+    	}
+    	for (int id: householdIds) {
+    		System.out.println("id: "+id);
+    	}
 		
 		try {
-			userHelper.addCoClient(currentUser, client, coClient);
+			userHelper.addHouseholdAccount(currentUser, clientId, householdIds);
 			return ResponseEntity.ok().body("{\"message\": \"CoClient Successfully Added!\"}");
 
 	           
@@ -773,23 +786,21 @@ public class MainController {
 		return "clientProfile";
 	}
 
-	@PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
-	public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolTemplateId,
-			Model model) {
-		try {
+    @PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
+    public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolTemplateId,@RequestBody Protocol protocolRequest) {
+    	System.out.println("Prptocol Name: " + protocolRequest.getDueDate() + " Protocol Due Date: "+ protocolRequest.getDueDate());
+        try {
+            User currentUser = userDAO.getUser();
+            protocolHelper.addClient(currentUser, clientId, protocolTemplateId, protocolRequest); // Perform the operation
 
-			User currentUser = userDAO.getUser();
-
-			protocolHelper.addClient(currentUser, clientId, protocolTemplateId); // Perform the operation
-
-		} catch (Exception e) {
-			System.out.println("Error in addClientToProtocol:");
-			e.printStackTrace(); // Print the stack trace to the console
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Error adding client to protocol: " + e.getMessage());
-		}
-		return ResponseEntity.ok().build();
-	}
+        } catch (Exception e) {
+            System.out.println("Error in addClientToProtocol:");
+            e.printStackTrace(); // Print the stack trace to the console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error adding client to protocol: " + e.getMessage());
+        }
+        return ResponseEntity.ok().build();
+    }
 
 	@GetMapping("clientProtocol/{pcolId}")
 	public String clientProtocol(@PathVariable int pcolId, Model model) {
@@ -1170,21 +1181,21 @@ public class MainController {
 
     @GetMapping("/homeworkReport/{clientId}")
     public String homeworkReport(@PathVariable int clientId, Model model) {
-    	User currentUser = userDAO.getUser();
-    	HomeworkHelper helper= new HomeworkHelper();
-    	ArrayList<Homework> homeworks = helper.getHomeworkByUser(currentUser, clientId);
-    	ArrayList<Homework> homeworkDetails = new ArrayList<Homework>();
-    	for(Homework homework: homeworks) {
-    		Homework detailedHomework = helper.getHomeworkByHomeworkId(currentUser, homework.getId());
+        User currentUser = userDAO.getUser();
+        HomeworkHelper helper = new HomeworkHelper();
+        ArrayList<Homework> homeworks = helper.getHomeworkByUser(currentUser, clientId);
+        ArrayList<Homework> homeworkDetails = new ArrayList<>();
+        for (Homework homework : homeworks) {
+            Homework detailedHomework = helper.getHomeworkByHomeworkId(currentUser, homework.getId());
+            homeworkDetails.add(detailedHomework);
+            System.out.println("Added homework with ID: " + detailedHomework.getId());
+        }
+        model.addAttribute("homeworks", homeworkDetails);
+        model.addAttribute("clientId", clientId);
 
-    		homeworkDetails.add(detailedHomework);
-    	}
-    	model.addAttribute("homeworks", homeworkDetails);
-    	model.addAttribute("clientId",clientId);
-    	
-    	return "homeworkReport";
+        return "homeworkReport";
     }
-    
+
     
     @PostMapping("/sendEmail/{userId}")
     public ResponseEntity<String> sendEmail(@PathVariable int userId, @RequestParam String subject, @RequestParam String message) {

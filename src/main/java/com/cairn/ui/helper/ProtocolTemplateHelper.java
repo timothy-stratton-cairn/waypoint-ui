@@ -318,6 +318,39 @@ public class ProtocolTemplateHelper {
 		return result;
 		
 	}
+	public int updateProtocolTemplateDueDate(User usr, int tempId, String date) {
+		int result = -1;
+		
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+
+		headers.add("Content-Type", "application/json");
+		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
+		String requestBody = "{\"dueDate\": \""+date+"\"}";
+		System.out.println(requestBody);
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
+		System.out.println(apiUrl);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        System.out.println(response);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating Comment");
+	        e.printStackTrace();
+		}
+		System.out.println(result);
+		return result;
+		
+	}
 	/**
 	 * Save a protocol template
 	 * 

@@ -143,7 +143,7 @@ public class HomeworkHelper {
 			return results;
 		}
 
-		String apiUrl = Constants.api_server + Constants.api_homework + "account/" + protocolId;
+		String apiUrl = Constants.api_server + Constants.api_homework + "household/" + protocolId;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		System.out.println(apiUrl);
 		// Make the GET request and retrieve the response

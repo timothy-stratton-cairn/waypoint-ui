@@ -470,6 +470,33 @@ public class UserHelper {
 		return result;
 	}
 
+	public int addHouseholdAccount(User usr, int primaryContactId, ArrayList<Integer> householdIds) {
+		int result = -1;
+
+		String requestBody = "{\"householdAccountIds\":" + householdIds.toString() + "}";
+	    String apiUrl = Constants.auth_server + Constants.api_household_get +primaryContactId;
+	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+	    System.out.println("requestBody: "+requestBody);
+	    try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+	        System.out.println("Success!");
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in updating User Details");
+	        e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
 	
 	public int addCoClient(User usr, User client, User coClient) {
 		System.out.println("Calling addCoClient from User Helper with ClientId: "+ client.getId() + " and CoClientId: " +coClient.getId());
