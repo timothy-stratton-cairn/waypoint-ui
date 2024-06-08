@@ -5,6 +5,11 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
@@ -30,7 +35,7 @@
                             <td th:text="${homework.name}">Homework Name</td>
                             <td th:text="${homework.description}">Homework Description</td>
                             <td>
-                                <div>
+                                <div th:id="'details-' + ${homework.id}" class="hidden mt-2">
                                     <div class="table-responsive">
                                         <table class="table table-bordered">
                                             <thead>
@@ -55,6 +60,7 @@
                             <td>
                                 <div>
                                     <button type="button" class="btn btn-secondary" th:onclick="'goToHomework(' + ${homework.id} + ')'">Go To</button>
+                                    <button type="button" class="btn btn-secondary" th:onclick="'toggleDetails(' + ${homework.id} + ')'">Details</button>
                                     <button type="button" class="btn btn-secondary" th:onclick="'emailRequest(' + ${homework.id} + ', ' + ${clientId} + ')'">Email Request</button>
                                 </div>
                             </td>
@@ -70,6 +76,15 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script>
     var clientId = [[${clientId}]];
+
+    function toggleDetails(id) {
+        var detailsElement = document.getElementById('details-' + id);
+        if (detailsElement.classList.contains('hidden')) {
+            detailsElement.classList.remove('hidden');
+        } else {
+            detailsElement.classList.add('hidden');
+        }
+    }
 
     function goToHomework(id) {
         window.location = '/homeworkDisplay/' + id;
@@ -140,6 +155,5 @@
 </script>
 </body>
 </html>
-
 
 
