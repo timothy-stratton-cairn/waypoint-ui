@@ -14,20 +14,25 @@
     <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
     <div class="row note_card">
         <fieldset>
-            <legend>New Step</legend>
+            <legend>New Step</legend>	
             <div class="form-group">
-                <label for="stepCategory">Category:</label>
-                <select class="form-control" id="stepCategory">
-                    <option value="1">Gather Data</option>
-                    <option value="2">Run Analysis</option>
-                    <option value="3">Craft Recommendations</option>
-                    <option value="4">Share Education</option>
-                    <option value="5">Employment</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="stepName">Name:</label>
-                <input type="text" id="stepName" class="form-control">
+				<div class="form-row">	
+					<div class="form-group col-md-9">
+		                <label for="stepName">Name:</label>
+		                <input type="text" id="stepName" class="form-control">
+		            </div>
+		            <div class="form-group col-md-3">
+		                <label for="stepCategory">Category:</label>
+		                <select class="form-control" id="stepCategory">
+		                    <option value="1">Gather Data</option>
+		                    <option value="2">Run Analysis</option>
+		                    <option value="3">Craft Recommendations</option>
+		                    <option value="4">Share Education</option>
+		                    <option value="5">Employment</option>
+		                </select>
+		            </div>
+	            </div>
+           
             </div>
             <div class="form-group">
                 <label for="stepDetails">Description:</label>
