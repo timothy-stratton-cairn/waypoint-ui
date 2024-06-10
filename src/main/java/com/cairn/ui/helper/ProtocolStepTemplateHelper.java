@@ -188,6 +188,39 @@ public class ProtocolStepTemplateHelper{
     	
     }
     
+    public int updateStepTemplate(User usr,int id ,ProtocolStepTemplate step) {
+    	int result = -1;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get +"/"+ id ;
+		System.out.println(apiUrl);
+		String requestBody = "{"
+		    + "\"name\": \"" + step.getName() + "\","
+		    + "\"description\": \"" + step.getDescription() + "\","
+		    + "\"stepTemplateCategoryId\": " + step.getCategoryId() + "}";
+		
+		System.out.println(requestBody);
+		    
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			result = -1;
+			System.out.println("Error in addHomeworkTemplate");
+	        e.printStackTrace();
+		}
+    	return result;
+
+    }
+    
     
     public ProtocolStepTemplate getTemplate(User usr, int id) {
     	

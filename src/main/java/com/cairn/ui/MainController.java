@@ -5,10 +5,14 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -115,6 +119,30 @@ public class MainController {
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", helper.getDashboard(usr));
+	    ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, usr.getId());
+	    ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	    Date currentDate = new Date();
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(currentDate);
+	    calendar.add(Calendar.DAY_OF_YEAR, 14);
+	    Date twoWeeksFromNow = calendar.getTime();
+
+	    for (Protocol pcol : pcolList) {
+	        String dueDateStr = pcol.getDueDate();
+	        if (dueDateStr != null) {
+	            try {
+	                Date dueDate = dateFormat.parse(dueDateStr);
+	                if (dueDate.after(currentDate) && dueDate.before(twoWeeksFromNow)) {
+	                    upcomingPcol.add(pcol);
+	                }
+	            } catch (ParseException e) {
+	                e.printStackTrace(); // Handle parse exception
+	            }
+	        }
+	    }
+	    
+	    model.addAttribute("upcomingProtocols", upcomingPcol);
 		// User currentUser = userDAO.getUser();
 		// UserHelper helper = new UserHelper();
 		return "UserDashboard";
@@ -430,6 +458,21 @@ public class MainController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 	                .body("An error occurred while saving the Step Template: " + e.getMessage());
 	    }
+	}
+	
+	@PatchMapping("/updateStep/{id}")
+	public ResponseEntity<?>updateStep(@PathVariable int id, @RequestBody ProtocolStepTemplate step){
+		User usr = (User) userDAO.getUser();	 
+		System.out.println(id);
+		
+	    try {
+			protocolStepTemplateHelper.updateStepTemplate(usr, id,step);
+	        return ResponseEntity.ok("{\"message\": \"Template Successfully Saved!\"}");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("An error occurred while saving the Step Template: " + e.getMessage());
+	    }
+		
 	}
 
 

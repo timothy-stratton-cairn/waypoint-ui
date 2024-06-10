@@ -55,7 +55,41 @@
 			</fieldset>
 			<div class="row ">&nbsp;</div>
 		</div>
+		
+		        <div class="row">
+            <fieldset>
+                <legend>Upcoming Protocols</legend>
+                <div class="row rowheader">
+                    <div class="col-md-2">
+                        Name
+                    </div>
+                    <div class="col-md-3">
+                        Description
+                    </div>
+                    <div class="col-md-2">
+                        Completion Percent
+                    </div>
+                    <div class="col-md-2">
+                        Status
+                    </div>
+                    <div class="col-md-3">
+                        Due Date
+                    </div>
+                </div>
+                <div th:each="pcol, status : ${upcomingProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+                    <div class="col-md-2" th:text="${pcol.name}"></div>
+                    <div class="col-md-3" th:text="${pcol.description}"></div>
+                    <div class="col-md-2" th:text="|${pcol.completionPercent}%|"></div>
+                    <div class="col-md-2" th:text="${pcol.status}"></div>
+                    <div class="col-md-3" th:text="${pcol.dueDate}"></div>
+                </div>
+                <div class="row ">&nbsp;</div>
+            </fieldset>
+            <div class="row ">&nbsp;</div>
+        </div>
+    </div>
 	</div>
+
 	<br />
 	<br />
 	<br />
