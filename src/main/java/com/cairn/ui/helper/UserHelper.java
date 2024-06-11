@@ -423,6 +423,31 @@ public class UserHelper {
         }
         return result; 
     }
+	public int getHouseholdId(User usr) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.add("Content-Type", "application/json");
+	    String apiUrl = Constants.auth_server + Constants.api_me;
+	    HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                ObjectMapper mapper = new ObjectMapper();
+                String json = response.getBody();
+                JsonNode root = mapper.readTree(json);
+                int accountId = root.path("householdId").asInt(); // Extract accountId
+                result = accountId;
+            } else {
+                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.out.println("Error in getting User ID");
+            e.printStackTrace();
+            result = -1;
+        }
+        return result; 
+    }
 
 	
 	public int addDependant(User usr, User client, ArrayList<User> users) {

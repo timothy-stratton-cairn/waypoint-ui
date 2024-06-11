@@ -396,6 +396,9 @@ public class ProtocolHelper {
 	                    entry.setStatus(element.get("status").asText());
 	                    entry.setCompletionPercent(element.has("completionPercentage") && !element.get("completionPercentage").isNull() ? element.get("completionPercentage").asText() : "null");
 	                    entry.setLastStatus(sdf.parse(element.get("lastStatusUpdateTimestamp").asText()));
+	                    if (element.has("dueBy")&& !element.get("goal").isNull()) {
+	                    	entry.setDueDate(element.get("dueBy").asText());
+	                    }
 	                    if (element.has("goal") && !element.get("goal").isNull()) {
 	                        entry.setProgress(element.get("goal").asText());
 	                    } else {

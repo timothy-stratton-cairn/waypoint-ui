@@ -115,11 +115,14 @@ public class MainController {
 		if (usr == null) {
 			return "home";
 		}
+
+
 		session.setAttribute("me", usr);
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", helper.getDashboard(usr));
-	    ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, usr.getId());
+		System.out.println("Me " + usr.getUsername());
+	    ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, userHelper.getHouseholdId(usr));
 	    ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	    Date currentDate = new Date();
@@ -127,9 +130,15 @@ public class MainController {
 	    calendar.setTime(currentDate);
 	    calendar.add(Calendar.DAY_OF_YEAR, 14);
 	    Date twoWeeksFromNow = calendar.getTime();
-
+	    if (pcolList.isEmpty()) {
+	    	System.out.println("No Protocols Returned");
+	    }
+	    else {
+	    	System.out.println(pcolList.size());
+	    }
 	    for (Protocol pcol : pcolList) {
 	        String dueDateStr = pcol.getDueDate();
+	        System.out.println("Protocol: "+ pcol.getName()+ "Due date:"+pcol.getDueDate());
 	        if (dueDateStr != null) {
 	            try {
 	                Date dueDate = dateFormat.parse(dueDateStr);
@@ -141,6 +150,7 @@ public class MainController {
 	            }
 	        }
 	    }
+	    System.out.println("Two Weeks from now: "+ twoWeeksFromNow);
 	    
 	    model.addAttribute("upcomingProtocols", upcomingPcol);
 		// User currentUser = userDAO.getUser();
@@ -759,12 +769,14 @@ public class MainController {
     
     @PatchMapping("addCoClient/{clientId}/{coClientId}")
     public ResponseEntity<?>addCoClient(@PathVariable int clientId, @PathVariable int coClientId){
-    	System.out.println("Calling Add CoClient for ClientID: " + clientId + " and CoClient ID: "+ coClientId);
+    	System.out.println("Calling Add CoClient for Household: " + clientId + " and CoClient ID: "+ coClientId);
     	User currentUser = userDAO.getUser();
     	Household household = userHelper.getHouseholdById(currentUser, clientId);
     	ArrayList<Integer> householdIds = new ArrayList<Integer>();
     	for (User usr: household.getHouseholdAccounts()) {
     		householdIds.add(usr.getId());
+    		householdIds.add(coClientId);
+    		
     	}
     	for (int id: householdIds) {
     		System.out.println("id: "+id);

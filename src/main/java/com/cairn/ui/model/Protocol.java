@@ -163,7 +163,7 @@ public class Protocol {
 	
 	public int getDaysToComplete() {
         if (completionDate == null || startDate == null) {
-            return 3; // -1 means the protocol has yet to be completed and can be left out of the calculus
+            return -1; // -1 means the protocol has yet to be completed and can be left out of the calculus
         } else {
             long diffInMilli = completionDate.getTime() - startDate.getTime();
             return (int) TimeUnit.DAYS.convert(diffInMilli, TimeUnit.MILLISECONDS);
