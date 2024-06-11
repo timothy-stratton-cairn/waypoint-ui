@@ -128,7 +128,7 @@ public class MainController {
 	    Date currentDate = new Date();
 	    Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(currentDate);
-	    calendar.add(Calendar.DAY_OF_YEAR, 14);
+	    calendar.add(Calendar.DAY_OF_YEAR, 7);
 	    Date twoWeeksFromNow = calendar.getTime();
 	    if (pcolList.isEmpty()) {
 	    	System.out.println("No Protocols Returned");
