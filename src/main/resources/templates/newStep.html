@@ -9,6 +9,11 @@
 <body>
 <div th:insert="~{header :: main}">...</div>
 
+<!-- Message banner -->
+<div class="container">
+    <div id="messageBanner" class="alert" style="display: none;" role="alert"></div>
+</div>
+
 <!-- Step Form -->
 <div class="container">
     <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
@@ -32,7 +37,6 @@
 		                </select>
 		            </div>
 	            </div>
-           
             </div>
             <div class="form-group">
                 <label for="stepDetails">Description:</label>
@@ -68,8 +72,6 @@
     </div>
 </div>
 
-
-
 <!-- Homework Template Selection (hidden by default) -->
 <div class="container mt-3" style="display:none;" id="homeworkTemplateSelector">
     <select class="form-control mt-2" id="homeworkTemplateDropdown">
@@ -79,20 +81,29 @@
     <button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate();">Confirm</button>
 </div>
 
-
-
 <div class="container">
 	<button type="button" class="btn btn-secondary" onclick="saveStep();">Save Step</button>
 </div>
 
 <script th:inline="javascript">
-	const maxHomeworkItems = 1; // this is the limit of Homeworks that can be added. Currently set to one as that 
-	                            // is the max that can be added at creation,if this changes we can adjust as nessesary. 
-	
+	const maxHomeworkItems = 1; // Limit of homework items that can be added
+
+    function showBannerMessage(message, type) {
+        var banner = document.getElementById('messageBanner');
+        banner.textContent = message;
+        banner.className = 'alert alert-' + type;
+        banner.style.display = 'block';
+    }
+
+    function hideBannerMessage() {
+        var banner = document.getElementById('messageBanner');
+        banner.style.display = 'none';
+    }
+
     function addHomeworkTemplate() {
         var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
         if (tableBody.rows.length >= maxHomeworkItems) {
-            alert("The Maximum number of homework items allowed has been reached, please remove a homework item before trying to add another.");
+            showBannerMessage("The maximum number of homework items allowed has been reached, please remove a homework item before trying to add another.", "warning");
             return; // Stop the function if the max limit is reached
         }
 
@@ -109,7 +120,7 @@
 
             homeworkSelect.selectedIndex = 0; // Reset the dropdown after adding
         } else {
-            alert("Please select a homework template before adding.");
+            showBannerMessage("Please select a homework template before adding.", "warning");
         }
     }
 
@@ -142,13 +153,13 @@
         })
         .then(response => response.json())
         .then(data => {
-			    alert('Step saved successfully!');
-			    window.location.href = '/protocolStepTemplates';
-			})
-
-        .catch(error => alert('Error saving step: ' + error));
+            showBannerMessage('Step saved successfully!', 'success');
+            setTimeout(() => window.location.href = '/protocolStepTemplates', 2000);
+        })
+        .catch(error => showBannerMessage('Error saving step: ' + error, 'danger'));
     }
 </script>
 
 </body>
 </html>
+

@@ -2,30 +2,35 @@
 <html xmlns="http://www.thymeleaf.org">
 
 <head>
-	<title>Edit Step</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<meta name="_csrf" th:content="${_csrf.token}" />
-	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title>Edit Step</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body>
-	<div th:insert="~{header :: main}">...</div>
+    <div th:insert="~{header :: main}">...</div>
 
-	<div class="container">
-		<button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
-	</div>
+    <!-- Message banner -->
+    <div class="container">
+        <div id="messageBanner" class="alert" style="display: none;" role="alert"></div>
+    </div>
 
-	<div class="container">
-		<div class="row note_card">
-			<fieldset class="col-12">
-				<legend>Edit Step</legend>
-				<form th:action="@{/saveStep}" method="post">
-					<input type="hidden" name="stepId" th:value="${step.id}">
-					<div class="form-row">
-						<div class="form-group col-md-9">
-							<label for="stepName">Name:</label>
-							<input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.name}">
-						</div>
+    <div class="container">
+        <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+    </div>
+
+    <div class="container">
+        <div class="row note_card">
+            <fieldset class="col-12">
+                <legend>Edit Step</legend>
+                <form th:action="@{/saveStep}" method="post">
+                    <input type="hidden" name="stepId" th:value="${step.id}">
+                    <div class="form-row">
+                        <div class="form-group col-md-9">
+                            <label for="stepName">Name:</label>
+                            <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.name}">
+                        </div>
                         <div class="form-group col-md-3">
                             <label for="stepCategory">Category:</label>
                             <select class="form-control" id="stepCategory" name="stepCategory">
@@ -36,160 +41,159 @@
                                 <option value="5" th:selected="${step.categoryId == 5}">Employment</option>
                             </select>
                         </div>
-					</div>
-					<div class="form-group">
-						<label for="stepDetails">Description:</label>
-						<textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.description}"></textarea>
-					</div>
-					<button type="button" class="btn btn-secondary" th:attr="onclick='saveStep(' + ${stepId} + ');'">Save</button>
-				</form>
-			</fieldset>
-		</div>
-	</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stepDetails">Description:</label>
+                        <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.description}"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-secondary" th:attr="onclick='saveStep(' + ${stepId} + ');'">Save</button>
+                </form>
+            </fieldset>
+        </div>
+    </div>
 
-	<!-- Homework Form -->
-	<div class="container">
-		<div class="row note_card">
-			<fieldset class="col-12">
-				<legend>Assigned Homework</legend>
-				<div class="table-responsive">
-					<table class="table" id="homeworkTable">
-						<thead>
-							<tr>
-								<th>Name</th>
-								<th>Action</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr th:each="homework : ${step.homework}">
-								<td th:text="${homework.name}">Homework Name</td>
-								<td>
+    <!-- Homework Form -->
+    <div class="container">
+        <div class="row note_card">
+            <fieldset class="col-12">
+                <legend>Assigned Homework</legend>
+                <div class="table-responsive">
+                    <table class="table" id="homeworkTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="homework : ${step.homework}">
+                                <td th:text="${homework.name}">Homework Name</td>
+                                <td>
                                     <button type="button" class="btn btn-secondary" th:attr="onclick='deleteHomework(' + ${homework.id} + ');'">Delete</button>
                                 </td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<button type="button" id="btnAddHomeworkTemplate" class="btn btn-primary mt-2" onclick="addHomeworkTemplate();">Add Homework</button>
-			</fieldset>
-		</div>
-	</div>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <select class="form-control mt-2" id="homeworkTemplateDropdown">
+                    <option value="">Select Homework Template</option>
+                    <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
+                </select>
+                <button type="button" class="btn btn-primary mt-2" onclick="confirmHomeworkTemplate();">Add Homework</button>
+            </fieldset>
+        </div>
+    </div>
 
-	<!-- Homework Template Selection -->
-	<div class="container mt-3">
-		<fieldset>
-			<div id="homeworkTemplateSelector" style="display:none;">
-				<select class="form-control mt-2" id="homeworkTemplateDropdown" name="homeworkTemplateId">
-					<option value="">Select Homework Template</option>
-					<option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}">Homework Template Name</option>
-				</select>
-				<button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate()">Confirm</button>
-			</div>
-		</fieldset>
-	</div>
+    <script th:inline="javascript">
+        var stepId = [[${stepId}]];
 
-	<script th:inline="javascript">
-		var stepId = [[${stepId}]];
+        function showBannerMessage(message, type) {
+            var banner = document.getElementById('messageBanner');
+            banner.textContent = message;
+            banner.className = 'alert alert-' + type;
+            banner.style.display = 'block';
+        }
 
-		document.getElementById('btnAddHomeworkTemplate').addEventListener('click', function () {
-			document.getElementById('homeworkTemplateSelector').style.display = 'block';
-		});
+        function hideBannerMessage() {
+            var banner = document.getElementById('messageBanner');
+            banner.style.display = 'none';
+        }
 
-		function saveStep(id) {
-	        var stepData = {
-	            "categoryId": document.getElementById("stepCategory").value,
-	            "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
-	            "name": document.getElementById("stepName").value,
-	            "description": document.getElementById("stepDetails").value,
-	            "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
-	                return {
-	                    "id": parseInt(row.dataset.homeworkId),
-	                    "name": row.cells[0].textContent.trim()
-	                };
-	            })
-	        };
-	
-	        fetch('/updateStep/' + id, {
-	            method: 'PATCH',
-	            headers: {
-	                'Content-Type': 'application/json',
-	                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
-	            },
-	            body: JSON.stringify(stepData)
-	        })
-	        .then(response => response.json())
-	        .then(data => {
-				    alert('Step saved successfully!');
-				    window.location.href = '/protocolStepTemplates';
-				})
-	
-	        .catch(error => alert('Error saving step: ' + error));
-	    }
+        function saveStep(id) {
+            var stepData = {
+                "categoryId": document.getElementById("stepCategory").value,
+                "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
+                "name": document.getElementById("stepName").value,
+                "description": document.getElementById("stepDetails").value,
+                "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
+                    return {
+                        "id": parseInt(row.dataset.homeworkId),
+                        "name": row.cells[0].textContent.trim()
+                    };
+                })
+            };
 
-		function confirmHomeworkTemplate() {
-			var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-			var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-			var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-			var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-			var homeworkTemplateId = document.getElementById('homeworkTemplateDropdown').value;
-			if (!homeworkTemplateId) {
-				alert('Please select a Homework Template.');
-				return;
-			}
-			var stepId = [[${stepId}]];
+            fetch('/updateStep/' + id, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                },
+                body: JSON.stringify(stepData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showBannerMessage('Step saved successfully!', 'success');
+                setTimeout(() => window.location.href = '/protocolStepTemplates', 2000);
+            })
+            .catch(error => showBannerMessage('Error saving step: ' + error, 'danger'));
+        }
 
-			fetch('/addHomeworkTemplateToStep/' + stepId + '/' + homeworkTemplateId + '/', {
-				method: 'PATCH',
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-					[csrfHeader]: csrfToken
-				},
-				credentials: 'include'
-			})
-				.then(response => {
-					if (response.ok) {
-						alert('Homework Template added successfully.');
-						window.location.reload();
-					} else {
-						alert('Failed to add Homework Template.');
-					}
-				})
-				.catch(error => {
-					console.error('Error:', error);
-					alert('Error adding Homework Template.');
-				});
-		}
+        function confirmHomeworkTemplate() {
+            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+            var homeworkTemplateId = document.getElementById('homeworkTemplateDropdown').value;
+            if (!homeworkTemplateId) {
+                showBannerMessage('Please select a Homework Template.', 'warning');
+                return;
+            }
+            var stepId = [[${stepId}]];
 
-		function deleteHomework(homeworkId) {
-			var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-			var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-			var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-			var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+            fetch('/addHomeworkTemplateToStep/' + stepId + '/' + homeworkTemplateId + '/', {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    showBannerMessage('Homework Template added successfully.', 'success');
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    showBannerMessage('Failed to add Homework Template.', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showBannerMessage('Error adding Homework Template.', 'danger');
+            });
+        }
 
-			fetch('/removeHomeworkFromStepTemplate/' + stepId + '/' + homeworkId, {
-				method: 'DELETE',
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-					[csrfHeader]: csrfToken
-				},
-				credentials: 'include'
-			})
-			.then(response => {
-				if (response.ok) {
-					alert('Homework removed successfully.');
-					window.location.reload();
-				} else {
-					alert('Failed to remove Homework.');
-				}
-			})
-			.catch(error => {
-				console.error('Error:', error);
-				alert('Error removing Homework.');
-			});
-		}
-	</script>
+        function deleteHomework(homeworkId) {
+            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+            fetch('/removeHomeworkFromStepTemplate/' + stepId + '/' + homeworkId, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    showBannerMessage('Homework removed successfully.', 'success');
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    showBannerMessage('Failed to remove Homework.', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showBannerMessage('Error removing Homework.', 'danger');
+            });
+        }
+    </script>
 </body>
 
 </html>
+

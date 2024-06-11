@@ -14,6 +14,11 @@
 <body>
 <div th:insert="~{header :: main}">...</div>
 
+<!-- Message banner -->
+<div class="container">
+    <div id="messageBanner" class="alert" style="display: none;" role="alert"></div>
+</div>
+
 <div class="container">
     <div class="row">
         <fieldset class="col-12">
@@ -45,12 +50,12 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr th:each="question : ${homework.questions}">
+                                                <tr th:each="question : ${homework.questions}" th:with="response=${question.userResponse == null ? question.userResponse : ''}">
                                                     <td th:text="${question.question}">Question</td>
                                                     <td th:if="${question.questionType == 'FILE'}">
                                                         <button type="button" class="btn btn-secondary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
                                                     </td>
-                                                    <td th:if="${question.questionType != 'FILE'}" th:text="${question.userResponse}">Response</td>
+                                                    <td th:if="${question.questionType != 'FILE'}" th:text="${response}">Response</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -76,6 +81,18 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script>
     var clientId = [[${clientId}]];
+
+    function showBannerMessage(message, type) {
+        var banner = document.getElementById('messageBanner');
+        banner.textContent = message;
+        banner.className = 'alert alert-' + type;
+        banner.style.display = 'block';
+    }
+
+    function hideBannerMessage() {
+        var banner = document.getElementById('messageBanner');
+        banner.style.display = 'none';
+    }
 
     function toggleDetails(id) {
         var detailsElement = document.getElementById('details-' + id);
@@ -117,7 +134,7 @@
             })
             .catch(error => {
                 console.error('There has been a problem with your fetch operation:', error);
-                alert('An error occurred while downloading the file.');
+                showBannerMessage('An error occurred while downloading the file.', 'danger');
             });
     }
 
@@ -144,16 +161,17 @@
                 xhr.setRequestHeader(csrfHeader, csrfToken);
             },
             success: function(response) {
-                alert(response);
+                showBannerMessage('Email sent successfully!', 'success');
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
-                alert('An error occurred while sending the email.');
+                showBannerMessage('An error occurred while sending the email.', 'danger');
             }
         });
     }
 </script>
 </body>
 </html>
+
 
 

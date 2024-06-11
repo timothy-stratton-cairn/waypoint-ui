@@ -1296,8 +1296,12 @@ public class MainController {
             List<Protocol> completedProtocols = tempPcolList.stream()
                 .filter(p -> p.getDaysToComplete() >= 0)
                 .collect(Collectors.toList());
+            for(Protocol protocol: completedProtocols) {
+            	System.out.println("Protocol in User List:"+protocol.getName() + "Protocol Users: "+ protocol.getUsers());
+            }
             for (Protocol protocol : completedProtocols) {  // for each protocol 
-                for (int userId : protocol.getUsers()) {    // for each userid 
+                for (int userId : protocol.getUsers()) {
+                	System.out.println("UserID: "+ userId);    // for each userid 
                     if (!userMap.containsKey(userId)) {     // set check to see if user is in the UserMap already if it is just add the protocol to the map 
                         if (users.contains(userId)) {       // if it's not verify that the userID is real and not a bit of junk data 
                             ArrayList<Protocol> tempList = new ArrayList<Protocol>();  // then add a new entry into the map
@@ -1385,7 +1389,7 @@ public class MainController {
             		report.setName(usr.getFirstName()+ " "+usr.getLastName());
             	}
             }
-            report.setId(userId);  // Assuming the ID can be user ID
+            report.setId(userId); 
             report.setMeanDays(meanDays);
             report.setMedDays(medianDays);
             report.setHigh(high);
