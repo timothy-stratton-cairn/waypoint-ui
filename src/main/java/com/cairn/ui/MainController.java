@@ -129,7 +129,7 @@ public class MainController {
 	    Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(currentDate);
 	    calendar.add(Calendar.DAY_OF_YEAR, 7);
-	    Date twoWeeksFromNow = calendar.getTime();
+	    Date upcomingWeek = calendar.getTime();
 	    if (pcolList.isEmpty()) {
 	    	System.out.println("No Protocols Returned");
 	    }
@@ -142,7 +142,7 @@ public class MainController {
 	        if (dueDateStr != null) {
 	            try {
 	                Date dueDate = dateFormat.parse(dueDateStr);
-	                if (dueDate.after(currentDate) && dueDate.before(twoWeeksFromNow)) {
+	                if (dueDate.after(currentDate) && dueDate.before(upcomingWeek)) {
 	                    upcomingPcol.add(pcol);
 	                }
 	            } catch (ParseException e) {
@@ -150,7 +150,7 @@ public class MainController {
 	            }
 	        }
 	    }
-	    System.out.println("Two Weeks from now: "+ twoWeeksFromNow);
+	
 	    
 	    model.addAttribute("upcomingProtocols", upcomingPcol);
 		// User currentUser = userDAO.getUser();
