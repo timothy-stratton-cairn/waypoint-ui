@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Clients</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+
+</head>
+
+<body>
+    <div th:insert="~{header :: main}">...</div>
+    <div class="container">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Clients</legend>
+                <button class="btn btn-primary" onclick="newClient();">New Client</button>
+
+                <div class="col-2" style="display: none;">
+                    <input type="text" id="protocolSearch" class="form-control" placeholder="Search clients...">
+                </div>
+                
+                <table id="clientTable" class="table-striped " style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user, status: ${userList}">
+                            <td th:text="${user.firstName + ' ' + user.lastName}">Name</td>
+                            <td>
+                                <a th:href="@{'/changeClientInfo/' + ${user.id}}">
+                                    <button class="btn btn-sm btn-secondary">View Profile</button>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+    <div th:insert="~{footer :: main}">...</div>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        function newClient() {
+            window.location = '/newClient/';
+        }
+
+        $(document).ready(function() {
+            $('#clientTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "lengthChange": true,
+                "pageLength": 25,
+			    "lengthMenu": [
+			      [10, 25, 100, -1],
+			      [10, 25, 100, "All"],
+			    ],                
+                "dom": '<"top"f>rt<"bottom"lp><"clear">',
+                "createdRow": function(row, data, dataIndex) {
+                    if (dataIndex % 2 === 0) {
+                        $(row).addClass('even');
+                    } else {
+                        $(row).addClass('odd');
+                    }
+                    }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -698,11 +698,18 @@ public class MainController {
 		User usr = userDAO.getUser();
 		User client = userHelper.getUser(usr, id);
 		int clientId = client.getId();
+		String roles = "";
+		for (String role: client.getRoles()) {
+			roles = roles + role;
+		}
+		System.out.println(roles);
+		model.addAttribute("roles",roles);
 		model.addAttribute("user", client);
 		model.addAttribute("id",clientId);
+
 		return "changeUserInfo";
 	}
-	
+
 	@GetMapping("reports")
 	public String reports(Model model) {
 		User usr = userDAO.getUser();
@@ -722,6 +729,19 @@ public class MainController {
 
 		return "displayClients";
 	}
+	
+    @GetMapping("userAdminList")
+    public String userAdminList( Model model) {
+    	User currentUser = userDAO.getUser();
+    	ArrayList<User> userList = userHelper.getUserList(currentUser);
+    	model.addAttribute("userList",userList);
+    	return "userAdminList";
+    	
+    }
+    
+
+    
+    
 	@GetMapping("createDependant/{clientId}")
 	public String createDependant(@PathVariable int clientId, Model model) {
 		model.addAttribute("clientId",clientId);
@@ -937,15 +957,15 @@ public class MainController {
 	    }
 	}
 
-	@PatchMapping("/updateUserDetails/{id}/{firstName}/{lastName}/{email}/")
+	@PatchMapping("/updateUserDetails/{id}/{firstName}/{lastName}/{email}/{role}")
 	public ResponseEntity<Object> updateUserDetails(@PathVariable int id, @PathVariable String firstName, @PathVariable String lastName,
-			@PathVariable String email, Model model) {
+			@PathVariable String email, @PathVariable int role,Model model) {
 		User currentUser = userDAO.getUser();
 
 		System.out.println("Calling updateUserDetails");
 
 		try {
-			userHelper.updateUserDetails(currentUser, id, firstName, lastName, email);
+			userHelper.updateUserDetails(currentUser, id, firstName, lastName, email,role); // if we don't want to change role, send role = 0
 
 		} catch (Exception e) {
 			System.out.println("Error in updateUserDetails:");
@@ -1551,11 +1571,9 @@ public class MainController {
         }
     }
     
-    
 
     
-    
-    
+
 }
     
     
