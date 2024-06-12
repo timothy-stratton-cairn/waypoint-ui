@@ -14,6 +14,7 @@
         <fieldset>
             <legend>New Protocol Template Details</legend>
             <button onclick="history.back()" class="btn btn-primary">Back</button>
+            <div id="errorBanner" class="alert alert-danger d-none" role="alert"></div>
             <form id="protocolForm">
 				
                 <div class="row">
@@ -266,7 +267,11 @@
 		    })
 		    .catch(error => alert('Error creating protocol template: ' + error));
 		}
-
+		function showErrorBanner(message) {
+	        var errorBanner = document.getElementById('errorBanner');
+	        errorBanner.textContent = message;
+	        errorBanner.classList.remove('d-none');
+	    }
 
 
 		function addStep() {

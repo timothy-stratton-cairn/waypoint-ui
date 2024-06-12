@@ -26,6 +26,8 @@
                 <legend>Edit Step</legend>
                 <form th:action="@{/saveStep}" method="post">
                     <input type="hidden" name="stepId" th:value="${step.id}">
+                    
+                    
                     <div class="form-row">
                         <div class="form-group col-md-9">
                             <label for="stepName">Name:</label>
@@ -42,6 +44,8 @@
                             </select>
                         </div>
                     </div>
+                    
+                    
                     <div class="form-group">
                         <label for="stepDetails">Description:</label>
                         <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.description}"></textarea>

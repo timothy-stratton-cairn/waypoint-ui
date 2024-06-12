@@ -345,12 +345,10 @@ public class UserHelper {
 
 	
 	
-	public int updateUserDetails(User usr, int id ,String firstName, String lastName, String email) {
+	public int updateUserDetails(User usr, int id ,String firstName, String lastName, String email, int role) {
 		int result = 0;
 		System.out.println("Calling userhelper updateUserDetails. FirstName: "+ firstName + " LastName: "+lastName+" Email: "+email );
-		
-	    String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\"}";
-
+		String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\", \"roleIds\":[" + role + "]}";	
 	    String apiUrl = Constants.auth_server + Constants.api_userlist_get +"/"+ id ;
 	    System.out.println(apiUrl);
 	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
@@ -373,6 +371,7 @@ public class UserHelper {
 		}
 		return result;
 	}
+	
 	
 	
 	public String changeUserPassword(User usr,int id, String oldPassword, String newPassword) {
