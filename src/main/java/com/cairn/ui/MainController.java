@@ -168,10 +168,10 @@ public class MainController {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/viewProtocol/{pcolId}/{userId}")
-	public String viewProtocol(Model model, @PathVariable int pcolId, @PathVariable int userId) {
+	@GetMapping("/viewProtocol/{pcolId}")
+	public String viewProtocol(Model model, @PathVariable int pcolId) {
 		User currentUser = userDAO.getUser();
-
+		int userId = userHelper.getHouseholdId(currentUser);
 		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
 		HomeworkHelper homeworkHelper = new HomeworkHelper();
 		System.out.println("Calling getHomeworkByProtocol");

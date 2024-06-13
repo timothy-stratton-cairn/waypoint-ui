@@ -118,7 +118,8 @@
                     
                     <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
                     <div class="col-md-3" th:text="${step.description}">[Description]</div>
-                    <div class="col-md-3" th:text="${step.status}">[Status]</div>
+                    <div class="col-md-3" th:text="${step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}">[Status]</div>
+
                     <div class="col-md-3">
                         <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
                         <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
@@ -222,6 +223,7 @@
 	                                    <option value="TODO">To Do</option>
 	                                    <option value="IN_PROGRESS">In Progress</option>
 	                                    <option value="DONE">Done</option>
+	                                    <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
 	                                </select>
 	                                <button onclick="confirmStatus(${stepId})">ConfirmStatus</button>`;
 	    }

@@ -8,6 +8,9 @@
 	function getProtocols(id){
 		window.location = '/protocolsByTemplate/'+ id + '/'
 	}
+	function viewProtocol(pcolId) {
+		window.location = '/viewProtocol/' + pcolId;
+	}
 </script>
 
 <body>
@@ -56,7 +59,7 @@
 			<div class="row ">&nbsp;</div>
 		</div>
 		
-		        <div class="row">
+		<div class="row">
             <fieldset>
                 <legend>Upcoming Protocols</legend>
                 <div class="row rowheader">
@@ -76,11 +79,11 @@
                         Due Date
                     </div>
                 </div>
-                <div th:each="pcol, status : ${upcomingProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
+                <div th:each="pcol, status : ${upcomingProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:onclick="'viewProtocol(' + ${pcol.id} + ')'">
                     <div class="col-md-2" th:text="${pcol.name}"></div>
                     <div class="col-md-3" th:text="${pcol.description}"></div>
                     <div class="col-md-2" th:text="|${pcol.completionPercent}%|"></div>
-                    <div class="col-md-2" th:text="${pcol.status}"></div>
+                    <div class="col-md-2" th:text="${pcol.status == 'IN_PROGRESS' ? 'In Progress' : (pcol.status == 'COMPLETED' ? 'Completed' : 'Archived')}"></div>
                     <div class="col-md-3" th:text="${pcol.dueDate}"></div>
                 </div>
                 <div class="row ">&nbsp;</div>

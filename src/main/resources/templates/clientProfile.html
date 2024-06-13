@@ -123,7 +123,7 @@
                 <div class="row" id="protocolContent">
                     <!-- Display Assigned Protocols -->
                     <div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|" class="note_card col-md-5" th:data-type="${pcol.status}">
-                        <a th:href="@{/viewProtocol/{id}/{userId}(id=${pcol.id}, userId=${userId})}">
+                        <a th:href="@{/viewProtocol/{id}(id=${pcol.id})}">
                             <div class="flip-card ">
                                 <div class="flip-card-inner">
                                     <div class="flip-card-front">
@@ -141,12 +141,13 @@
                                             <div class='row' th:text="|Description: ${pcol.description}"></div>
                                             <hr />
                                             <!-- Actionable Items Section -->
-                                            <li th:each="step : ${pcol.steps}" th:if="${step.status != 'Done'}" th:text="${step.name + ' - ' + step.status}"></li>
+                                            <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}" th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}"></li>
+
                                         </div>
                                     </div>
                                     <div class="flip-card-back">
                                         <p>Actionable Items:</p>
-                                        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'Done'}" th:text="${step.name + ' - ' + step.status}"></li>
+                                        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}" th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}"></li>
                                     </div>
                                 </div>
                             </div>
