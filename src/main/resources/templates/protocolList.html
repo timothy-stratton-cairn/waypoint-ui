@@ -10,6 +10,7 @@
         <div class="row note_card">
             <fieldset>
                 <legend>Protocols</legend>
+                <button onclick="history.back()" class="btn btn-primary">Back</button>
                 <div class="row rowheader">
                     <div class="col-md-2">
                         Name
@@ -30,11 +31,12 @@
                         <a class="btn btn-secondary" th:href="${'javascript:selectProtocol(' + pcol.id + ', ' + userIds[pcol.id] + ');'}">Details</a>
                     </div>
                 </div>
+                 
             </fieldset>
         </div>
     </div>
     <div class="container mt-3">
-        <button onclick="history.back()" class="btn btn-primary">Back</button>
+       
     </div>
     <br />
     <br />

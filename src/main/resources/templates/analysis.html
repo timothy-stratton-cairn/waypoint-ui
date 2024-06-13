@@ -14,7 +14,7 @@
     <div class="row note_card">
         <fieldset>
             <legend>Analysis</legend>
-            <button onclick="history.back()" class="btn btn-primary">Back</button>
+
 
             <!-- Error Banner -->
             <div id="errorBanner" class="alert alert-danger d-none" role="alert"></div>
@@ -38,6 +38,7 @@
                     <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
                 </div>
             </div>
+            <button onclick="history.back()" class="btn btn-primary">Back</button>
         </fieldset>
     </div>
 </div>
