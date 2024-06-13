@@ -138,7 +138,6 @@ public class MainController {
 	    }
 	    for (Protocol pcol : pcolList) {
 	        String dueDateStr = pcol.getDueDate();
-	        System.out.println("Protocol: "+ pcol.getName()+ "Due date:"+pcol.getDueDate());
 	        if (dueDateStr != null) {
 	            try {
 	                Date dueDate = dateFormat.parse(dueDateStr);
@@ -1321,7 +1320,9 @@ public class MainController {
         ArrayList<ProtocolReport> userStepReports = new ArrayList<>();
         for (ProtocolTemplate template : templates) {
             ArrayList<Protocol> tempPcolList = protocolHelper.getListbyTemplateId(currentUser, template.getId());
-
+            for(Protocol pcol:tempPcolList) {
+            	System.out.println("Protocol: "+ pcol.getId() +" HouseholdId: " + pcol.getUserId());
+            	}
             if (tempPcolList.isEmpty()) continue;  // Skip empty lists
 
             // Filter out protocols with daysToComplete < 0
@@ -1329,9 +1330,10 @@ public class MainController {
                 .filter(p -> p.getDaysToComplete() >= 0)
                 .collect(Collectors.toList());
             for(Protocol protocol: completedProtocols) {
-            	System.out.println("Protocol in User List:"+protocol.getName() + "Protocol Users: "+ protocol.getUsers());
+            	System.out.println("Protocol in User List:"+protocol.getName() + "Protocol Users: "+ protocol.getUserId());
             }
             for (Protocol protocol : completedProtocols) {  // for each protocol 
+            
                 for (int userId : protocol.getUsers()) {
                 	System.out.println("UserID: "+ userId);    // for each userid 
                     if (!userMap.containsKey(userId)) {     // set check to see if user is in the UserMap already if it is just add the protocol to the map 

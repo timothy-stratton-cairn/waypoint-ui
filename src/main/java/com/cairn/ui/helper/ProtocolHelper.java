@@ -131,7 +131,11 @@ public class ProtocolHelper {
 	                    entry.setCompletionPercent(element.has("completionPercentage") ? element.get("completionPercentage").asText() : "0.0");
 	                    entry.setStatus(element.get("status").asText());
 	                    entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
-
+	                    if (element.has("associatedHouseholdId" ) && !element.get("associatedHouseholdId").isNull()) {
+	                    	entry.setUserId(element.get("associatedHouseholdId").asInt());
+	                    }else {
+	                    	entry.setUserId(0);
+	                    }
 	                    if (element.has("completedOn") && !element.get("completedOn").isNull()) {
 	                        entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
 	                    } else {
@@ -172,7 +176,7 @@ public class ProtocolHelper {
 	                    
 
 	                    // Parse associated users
-	                    JsonNode associatedUsers = element.get("associatedHouseholdId").get("householdIdS");
+	                    JsonNode associatedUsers = element.get("associatedHouseholdId").get("householdIdS"); //there's only one household id now change this tonight. 
 	                    ArrayList<Integer> userIds = new ArrayList<>();
 	                    if (associatedUsers != null && associatedUsers.isArray()) {
 	                        for (JsonNode user : associatedUsers) {

@@ -42,7 +42,8 @@
 						<br>
 	                </form>
                 </div>
-	 			<button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
+                <button onclick="history.back()" class="btn btn-primary">Back</button>
+	 			<button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save Protocol</button>
             </fieldset>
         </div>
     </div>
@@ -52,7 +53,6 @@
 	    <div class="row note_card">
 	        <fieldset>
 	            <legend>Protocol Template Details</legend>
-	            <button onclick="history.back()" class="btn btn-primary">Back</button>
 	            <div>
 	                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
 	                    <div class ="row" >
@@ -74,7 +74,8 @@
                     	</div>
 	                </form>
 	            </div>
-	            <button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save</button>
+	            <button onclick="history.back()" class="btn btn-primary">Back</button>
+	 			<button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save Protocol</button>
 	        </fieldset>
 	    </div>
 	</div>

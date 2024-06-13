@@ -16,8 +16,9 @@
 
 <!-- Step Form -->
 <div class="container">
-    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+    
     <div class="row note_card">
+		
         <fieldset>
             <legend>New Step</legend>	
             <div class="form-group">
@@ -42,6 +43,8 @@
                 <label for="stepDetails">Description:</label>
                 <textarea id="stepDetails" class="form-control" rows="3"></textarea>
             </div>
+            <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+            <button type="button" class="btn btn-primary" onclick="saveStep();">Save Step</button>
         </fieldset>
     </div>
 </div>
@@ -81,9 +84,7 @@
     <button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate();">Confirm</button>
 </div>
 
-<div class="container">
-	<button type="button" class="btn btn-secondary" onclick="saveStep();">Save Step</button>
-</div>
+
 
 <script th:inline="javascript">
 	const maxHomeworkItems = 1; // Limit of homework items that can be added

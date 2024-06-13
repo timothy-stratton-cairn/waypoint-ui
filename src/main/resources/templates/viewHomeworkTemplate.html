@@ -13,7 +13,7 @@
 	<div class="row note_card">
 		<fieldset>
 			<legend>Edit Homework</legend>
-			<button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+			
 			<div class="form-group">
 	                    <label for="templateName">Name:</label>
 	                    <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
@@ -22,6 +22,7 @@
 	                    <label for="templateDetails">Description:</label>
 	                    <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
 	        </div>
+	        <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
 		</fieldset>
 	</div>
 </div>
