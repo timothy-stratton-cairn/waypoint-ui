@@ -52,6 +52,7 @@ label {
 	font-size: 110%;
 	transition: background 0.1s, color 0.1s;
  	display:inline;
+ 	vertical-align: middle;
  }
 
 .nav-link {
@@ -476,6 +477,10 @@ img {
 	margin-bottom: 5px;
 }
 
+.btn {
+	margin-top: 5px;
+	padding: .20rem 0.75rem;
+}
 .btn-default {
 	color: #DDD;
 	background-color: #800004;
@@ -503,7 +508,7 @@ img {
 .message {
 	font-style: italic;
 	text-align: center;
-	font-color: #DD0000;
+	color: #DD0000;
 	font-size: 14px;
 }
 
@@ -513,9 +518,10 @@ img {
 .table>tfoot>tr>th,
 .table>thead>tr>td,
 .table>thead>tr>th {
-	padding: 3px;
+	padding: 2px;
+	padding-left: 5px;
 	line-height: 1.42857143;
-	vertical-align: top;
+	vertical-align: middle;
 	border-top: 1px solid #ddd;
 }
 
@@ -523,6 +529,11 @@ img {
 	background-color: #413F3D;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 .navbar {
 	background-color: #413F3D;
 	position: fixed;
@@ -675,7 +686,8 @@ fieldset {
 	padding: .375rem .75rem;
 	font-size: 1rem;
 	font-weight: 400;
-	line-height: 1.5;
+	line-height: 1;
+	height: calc(1em + .75rem + 2px);
 	color: #003366;
 	background-color: #FAFAFF;
 	background-clip: padding-box;
@@ -703,6 +715,19 @@ fieldset {
 	margin-left: 1px;
 	margin-right: 1px;
 }
+.table-bordered>:not(caption)>* {
+	border-width: 0 2px;
+}
+.odd {
+	color: #546473;
+	background-color: #BBB;
+	border-color: #546473;
+	border-width: 2px;
+	border-style: double;
+	margin-top: 3px;
+	margin-left: 1px;
+	margin-right: 1px;
+}
 
 .rowheader {
 	color: #F2EFEA;
@@ -717,16 +742,6 @@ fieldset {
 	font-weight: 600;
 }
 
-.odd {
-	color: #546473;
-	background-color: #BBB;
-	border-color: #546473;
-	border-width: 2px;
-	border-style: double;
-	margin-top: 3px;
-	margin-left: 1px;
-	margin-right: 1px;
-}
 
 legend {
 	padding: 0.2em 0.5em;
@@ -753,9 +768,10 @@ legend {
 
 table.dataTable thead th {
     color: #F2EFEA;
+    padding-left: 5px;
 	background-color: #413F3D;
 	border-color: #546473;
-	border-width: 3px;
+	border-width: 2px;
 	border-style: outset;
 	margin-top: 3px;
 	margin-left: 1px;
