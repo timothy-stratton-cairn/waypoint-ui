@@ -905,6 +905,10 @@ public class MainController {
 	public String newClient(Model model) {
 		return "newClient";
 	}
+	@GetMapping("/newUser/")
+	public String newUser(Model model) {
+		return "newUser";
+	}
 	
 	@PostMapping("/addClient/")
 	public ResponseEntity<Object> addClient(@RequestBody User requestBody) {

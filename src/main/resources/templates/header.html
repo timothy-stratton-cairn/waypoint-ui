@@ -38,7 +38,7 @@
         <li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/protocolStepTemplates">Step Templates</a></li>
 		<li class="nav-item"><a class="nav-link" href="/completionReport">Reports</a></li>
 		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/clients">Households</a></li>
-		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/userAdminList">Account Management</a></li>
+		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/userAdminList">Users</a></li>
 		<li class="nav-item"><a class="nav-link" href="/profile">My Admin</a></li>
 		<li class="divider"></li>
 		<li class="nav-item"><form th:action="@{/logout}" method="post">

@@ -13,8 +13,8 @@
     <div class="container">
         <div class="row note_card">
             <fieldset>
-                <legend>Clients</legend>
-                <button class="btn btn-primary" onclick="newClient();">New Client</button>
+                <legend>Users</legend>
+                <button class="btn btn-primary" onclick="newClient();">New User</button>
 
                 <div class="col-2" style="display: none;">
                     <input type="text" id="protocolSearch" class="form-control" placeholder="Search clients...">
@@ -47,7 +47,7 @@
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
     <script>
         function newClient() {
-            window.location = '/newClient/';
+            window.location = '/newUser/';
         }
 
         $(document).ready(function() {
