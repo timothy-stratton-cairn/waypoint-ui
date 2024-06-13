@@ -8,9 +8,7 @@
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
-<div class="container">
-    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
-</div>
+
 <div class="container">
     <div class ="container">
         <div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
@@ -60,8 +58,9 @@
                         <option value="4">Admin</option>
                     </select>
                 </div>
-
-                <button type="submit" class="btn btn-secondary" onclick="saveClient(); return false;">Save</button>
+                
+				<button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+                <button type="submit" class="btn btn-primary" onclick="saveClient(); return false;">Save</button>
 
             </form>
         </fieldset>
