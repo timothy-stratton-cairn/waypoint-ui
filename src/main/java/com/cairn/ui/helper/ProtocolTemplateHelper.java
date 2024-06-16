@@ -43,6 +43,69 @@ public class ProtocolTemplateHelper {
         }
         return this.restTemplate;
     }
+	public String callAPI(String apiUrl, User usr) {
+		String jsonResponse = "";
+		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		// Make the GET request and retrieve the response
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				jsonResponse = response.getBody();
+			} else {
+				System.out.println("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+			System.out.println("No records returned for " + apiUrl);
+		}
+		return jsonResponse;
+	}
+
+	public int postAPI(String apiUrl, String requestBody, User usr) {
+		int result = 0;
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
+		headers.add("Content-Type", "application/json");
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+				result = 1;
+			} else {
+				result = -1;
+				System.out.println(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+
+		} catch (Exception e) {
+			System.out.println("Error in updating note");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	public int patchAPI(String apiUrl, String requestBody, User usr) {
+		int result = 0;
+		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity,
+					String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+
+				result = 1;
+			} else {
+				result = -1;
+				System.out.println(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+				// Update result to indicate a specific type of failure
+			}
+
+		} catch (Exception e) {
+			System.out.println("Error in updating progress");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+
 	/**
 	 * Get a list of step templates not assigned to the protocol template.
 	 * 
@@ -108,9 +171,7 @@ public class ProtocolTemplateHelper {
 		
 		StringBuilder associatedStepTemplateIds = new StringBuilder("\"associatedStepTemplateIds\":[");
 		ArrayList<ProtocolStepTemplate>stepList = template.getSteps();
-	    LocalDate today = LocalDate.now();
 	    int dueDateDays = Integer.parseInt(template.getDueDate()); // Assuming dueDate is stored as total days
-	    LocalDate actualDueDate = today.plusDays(dueDateDays);
 	    
 		for (int i = 0; i < stepList.size(); i++) {
 			ProtocolStepTemplate step = stepList.get(i);
@@ -126,15 +187,7 @@ public class ProtocolTemplateHelper {
 				+ "\"dueDate\": \"" + dueDateDays + "\","
 				+ associatedStepTemplateIds.toString()+
 				"}";
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl,requestBody);
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-			System.out.println("Preview Request: "+requestBody);
-			result = 1;
-			
-		}catch(Exception e) {
-			System.out.println("No protocols returned");
-		}
+		result = postAPI(apiUrl, requestBody, usr);
 		return result;
 	}
 	
@@ -223,31 +276,8 @@ public class ProtocolTemplateHelper {
 	public int saveProtocolTemplate(User usr, int tempId, String requestBody) {
 
 		int result = -1;
-
-	    // Prepare the request body
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate + "/" + tempId;
-	    HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
-	    
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	            System.out.println("Assigned Step... " + response.getStatusCode());
-	            // Update result to indicate success
-	            result = 1;
-	        } else {
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	            result = 0;
-	        }
-	    } catch (Exception e) {
-	        System.out.println("Step not found or error in assigning step");
-	        e.printStackTrace();
-	        // Keep result as -1 or set to another specific value indicating error
-	    }
-		
-		
+	    result = patchAPI(apiUrl, requestBody, usr);
 		
 		return result;
 	}
@@ -255,32 +285,11 @@ public class ProtocolTemplateHelper {
 	
 	public int updateProtocolTemplateName(User usr, int tempId, String name) {
 		int result = -1;
-		
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-
-		headers.add("Content-Type", "application/json");
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + tempId;
 		String requestBody = "{\"name\": \""+name+"\"}";
 		
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			System.out.println("Error in updating Comment");
-	        e.printStackTrace();
-		}
-		
+	    result = patchAPI(apiUrl, requestBody, usr);
+	
 		return result;
 		
 	}
@@ -288,66 +297,18 @@ public class ProtocolTemplateHelper {
 	public int updateProtocolTemplateDescription(User usr, int tempId, String description) {
 		int result = -1;
 		
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-
-		headers.add("Content-Type", "application/json");
 		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
 		String requestBody = "{\"description\": \""+description+"\"}";
-		System.out.println(requestBody);
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
-		System.out.println(apiUrl);
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        System.out.println(response);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			System.out.println("Error in updating Comment");
-	        e.printStackTrace();
-		}
-		System.out.println(result);
+	    result = patchAPI(apiUrl, requestBody, usr);
 		return result;
 		
 	}
 	public int updateProtocolTemplateDueDate(User usr, int tempId, String date) {
 		int result = -1;
 		
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-
-		headers.add("Content-Type", "application/json");
 		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
 		String requestBody = "{\"dueDate\": \""+date+"\"}";
-		System.out.println(requestBody);
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
-		System.out.println(apiUrl);
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        System.out.println(response);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			System.out.println("Error in updating Comment");
-	        e.printStackTrace();
-		}
-		System.out.println(result);
+	    result = patchAPI(apiUrl, requestBody, usr);
 		return result;
 		
 	}
@@ -363,28 +324,8 @@ public class ProtocolTemplateHelper {
 		int result = -1;
 
 	    // Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get;
-	    HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl ,requestBody);
-	    
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	            System.out.println("Assigned Step... " + response.getStatusCode());
-	            // Update result to indicate success
-	            result = 1;
-	        } else {
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	            result = 0;
-	        }
-	    } catch (Exception e) {
-	        System.out.println("Step not found or error in assigning step");
-	        e.printStackTrace();
-	        // Keep result as -1 or set to another specific value indicating error
-	    }
-		
+	    result = patchAPI(apiUrl, requestBody, usr);
 	    
 		return result;
 	}
@@ -444,8 +385,6 @@ public class ProtocolTemplateHelper {
 	
 	public int removeTemplateStep(User usr, int tempId, ArrayList<ProtocolStepTemplate >steps) {
 		int result = 0;
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    
 		String requestBody = "{\"associatedSteps\":[" + "{";
 		for (ProtocolStepTemplate step : steps) {
@@ -463,26 +402,8 @@ public class ProtocolTemplateHelper {
 		}
 
 		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
+	    result = patchAPI(apiUrl, requestBody, usr);
 		
-		
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr,apiUrl,requestBody);
-		
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	            System.out.println("Assigned Step... " + response.getStatusCode());
-	            // Update result to indicate success
-	            result = 1;
-	        } else {
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	            result = 0;
-	        }
-	    } catch (Exception e) {
-	        System.out.println("Step not found or error in assigning step");
-	        e.printStackTrace();
-	    }
-	        // Keep result as -1 or set to another specific value indicating error
 		return result;
 	}
 
