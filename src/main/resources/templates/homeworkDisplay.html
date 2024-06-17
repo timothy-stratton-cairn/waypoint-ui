@@ -10,10 +10,12 @@
 <div th:insert="~{header :: main}">...</div>
 
 <div class="container">
+    <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
+
     <div class="row note_card">
         <fieldset>
             <legend>Edit Homework</legend>
-            <button type="button" class="btn btn-secondary" onclick="window.history.back();">Back</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
             <div class="form-group">
                 <label for="homeworkName"><strong>Name:</strong></label>
                 <span id="homeworkName" th:text="${homework.name}">Homework Name</span>
@@ -29,14 +31,13 @@
                         <thead>
                             <tr>
                                 <th>Question</th>
-                                <th>Type</th>
                                 <th>Response</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="question : ${homework.questions}" th:id="${question.questionId}">
                                 <td th:text="${question.question}"></td>
-                                <td th:text="${question.questionType}"></td>
+
                                 <td>
                                     <input type="hidden" name="questionIds" th:value="${question.questionId}"/>
                                     <span th:switch="${question.questionType}">
@@ -84,7 +85,9 @@
                             </tr>
                         </tbody>
                     </table>
+                    <button type="button" class="btn btn-primary" th:attr="onclick='deleteHomework(' + ${homework.id} + ');'">Delete</button>                   
                     <button type="button" class="btn btn-primary" onclick="submitForm()">Submit Responses</button>
+                    
                     <br>
                 </span>
             </form>
@@ -95,12 +98,19 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
+    function showMessageBanner(message, type) {
+        const banner = document.getElementById('messageBanner');
+        banner.className = 'alert alert-' + type;
+        banner.textContent = message;
+        banner.style.display = 'block';
+    }
+
     function validateForm() {
         let isValid = true;
         $("input[required]").each(function() {
             if (!this.value) {
                 isValid = false;
-                alert('Please fill out all required fields.');
+                showMessageBanner('Please fill out all required fields.', 'warning');
                 return false; // break out of the loop
             }
         });
@@ -116,11 +126,11 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    alert('Form submitted successfully!');
+                    showMessageBanner('Form submitted successfully!', 'success');
                     location.reload();
                 },
                 error: function(error) {
-                    alert('An error occurred during submission.');
+                    showMessageBanner('An error occurred during submission.', 'danger');
                 }
             });
         }
@@ -182,9 +192,38 @@
             })
             .catch(error => {
                 console.error('There has been a problem with your fetch operation:', error);
-                alert('An error occurred while downloading the file.');
+                showMessageBanner('An error occurred while downloading the file.', 'danger');
             });
     }
+    
+            function deleteHomework(Id) {
+            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+            fetch('/deleteTemplate/Homework/' + Id, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    showBannerMessage('Homework deleted successfully.', 'success');
+                    setTimeout(() => window.location.href = '/protocolStepTemplates', 2000);
+                } else {
+                    showBannerMessage('Failed to delete Homework.', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showBannerMessage('Error deleting Homework.', 'danger');
+            });
+        }
 </script>
 </body>
 </html>

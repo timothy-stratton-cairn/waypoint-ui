@@ -10,7 +10,7 @@
 <div th:insert="~{header :: main}">...</div>
 
    
-
+<div id="banner" class="alert" role="alert" style="display: none;"></div>
 <div class="container">
 
     <!-- Protocol Details Form for New Protocol (ID = 0) -->
@@ -43,7 +43,8 @@
 	                </form>
                 </div>
                 <button onclick="history.back()" class="btn btn-primary">Back</button>
-	 			<button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save Protocol</button>
+                <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>  
+	 			<button type="button" class="btn btn-success" th:onclick="'saveProtocol('+${protocol.id}+')'">Save Protocol</button>
             </fieldset>
         </div>
     </div>
@@ -75,7 +76,8 @@
 	                </form>
 	            </div>
 	            <button onclick="history.back()" class="btn btn-primary">Back</button>
-	 			<button type="button" class="btn btn-primary" th:onclick="'saveProtocol('+${protocol.id}+')'">Save Protocol</button>
+	            <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>  
+	 			<button type="button" class="btn btn-success" th:onclick="'saveProtocol('+${protocol.id}+')'">Save Protocol</button>
 	        </fieldset>
 	    </div>
 	</div>
@@ -232,19 +234,67 @@
     </div>
 </div>
     <script>
-        var protocolId = [[${protocolId}]]; 
+		
+		var protocolId = [[${protocolId}]]; 
         var dueByDays = [[${dueBy}]];
-        
+
         function editProtocol(id) {
+
             window.location = '/editStep/'+ id;
-        }
-        function newStep(){
-			 window.location = '/newStep/';
 		}
+        function showBannerMessage(message, type) {
+            var banner = document.getElementById('banner');
+            banner.className = 'alert alert-' + type;
+            banner.textContent = message;
+            banner.style.display = 'block';
+        }
+
+        function saveProtocol(id) {
+            var name = document.getElementById('name').value;
+            var description = document.getElementById('description').value;
+
+            var years = parseInt(document.getElementById('dueDateYear').value) || 0;
+            var months = parseInt(document.getElementById('dueDateMonth').value) || 0;
+            var days = parseInt(document.getElementById('dueDateDay').value) || 0;
+
+            var totalDays = (years * 365) + (months * 31) + days;
+
+            var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            var data = {
+                name: name,
+                description: description,
+                dueDate: totalDays
+            };
+
+            fetch(`/updateProtocol/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    showBannerMessage("Protocol updated successfully.", "success");
+                    return response.json();
+                } else {
+                    response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .then(data => console.log(data))
+            .catch(error => {
+                console.error('Error:', error);
+                showBannerMessage('Failed to update the protocol. Error: ' + error.message, "danger");
+            });
+        }
+
         function deleteStep(id) {
             var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-        
+
             fetch(`/removeStepFromTemplate/${protocolId}/${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -255,7 +305,7 @@
             })
             .then(response => {
                 if(response.ok) {
-                    alert("Step deleted successfully.");
+                    showBannerMessage("Step deleted successfully.", "success");
                     window.location.reload(); // if successful, reload page.
                 } else {
                     response.text().then(text => { throw new Error(text); });
@@ -263,136 +313,67 @@
             })
             .catch(error => {
                 console.error('Error deleting step:', error);
-                alert('Failed to delete the step. Error: ' + error.message);
+                showBannerMessage('Failed to delete the step. Error: ' + error.message, "danger");
             });
         }
 
+        function confirmStep(buttonElement) {
+            var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-    function setDueDateFields(dueByDays) {
-        var years = Math.floor(dueByDays / 365);
-        var months = Math.floor((dueByDays % 365) / 31);
-        var days = (dueByDays % 365) % 31;
+            var selectElement = buttonElement.previousElementSibling;
+            var stepId = selectElement.value;
 
-        document.getElementById('dueDateYear').value = years;
-        document.getElementById('dueDateMonth').value = months;
-        document.getElementById('dueDateDay').value = days;
-    }
-
-    function saveProtocol(id) {
-        var name = document.getElementById('name').value;
-        var description = document.getElementById('description').value;
-
-        var years = parseInt(document.getElementById('dueDateYear').value) || 0;
-        var months = parseInt(document.getElementById('dueDateMonth').value) || 0;
-        var days = parseInt(document.getElementById('dueDateDay').value) || 0;
-
-        var totalDays = (years * 365) + (months * 31) + days;
-
-        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-        var data = {
-            name: name,
-            description: description,
-            dueDate: totalDays
-        };
-
-        fetch(`/updateProtocol/${id}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (response.ok) {
-                alert("Protocol updated successfully.");
-                return response.json();
-            } else {
-                throw new Error('Failed to update protocol.');
-            }
-        })
-        .then(data => console.log(data))
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to update the protocol. Error: ' + error.message);
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        setDueDateFields(dueByDays);
-    });
-
-
-        function addStep() {
-            const container = document.querySelector("#stepsContainer");
-            const template = document.querySelector("#stepTemplate").content.cloneNode(true);
-            container.appendChild(template);
+            fetch(`/addStepToProtocol/${protocolId}/${stepId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => {
+                if(response.ok) {
+                    showBannerMessage("Step added successfully.", "success");
+                    window.location.reload(); // if successful, reload page.
+                } else {
+                    response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .catch(error => {
+                console.error('Error adding step:', error);
+                showBannerMessage('Failed to add the step. Error: ' + error.message, "danger");
+            });
         }
+        
+        function deleteProtocolTemplate(Id) {
+            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
 
-		function confirmStep(buttonElement) {
-		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-		
-		    var selectElement = buttonElement.previousElementSibling;
-		    var stepId = selectElement.value; // This assumes your dropdown directly gives you the stepId as its value
-		
-		    fetch(`/addStepToProtocol/${protocolId}/${stepId}`, {
-		        method: 'PATCH', // Use uppercase for HTTP methods
-		        headers: {
-		            'Accept': 'application/json',
-		            'Content-Type': 'application/json',
-		            [csrfHeader]: csrfToken
-		        }
-		        // No body needed since stepId is in the URL
-		    })
-		    .then(response => {
-		        if(response.ok) {
-		            alert("Step added successfully.");
-		            window.location.reload(); // if successful, reload page.
-		        } else {
-		            response.text().then(text => { throw new Error(text); });
-		        }
-		    })
-		    .catch(error => {
-		        console.error('Error adding step:', error);
-		        alert('Failed to add the step. Error: ' + error.message);
-		    });
-		}
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabs = document.querySelectorAll('.nav-tabs .nav-link');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const type = this.getAttribute('data-type');
-                    filterStepsByType(type);
+            fetch('/deleteTemplate/ProtocolTemplate/' + Id, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/protocolTemplates';
                     
-                    // Update active tab styling
-                    tabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                });
+                } else {
+                    showBannerMessage('Failed to delete Protocol Template.', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showBannerMessage('Error deleting Protocol Template.', 'danger');
             });
-        });
-
-		function filterStepsByType(type) {
-		    const steps = document.querySelectorAll('#stepsContent > div');
-		    steps.forEach(step => {
-		        if (type === 'all' || step.getAttribute('data-type') === type) {
-		            step.style.display = ''; // Show
-		        } else {
-		            step.style.display = 'none'; // Hide
-		        }
-		    });
-		}
-		
-	    function viewHomeworkDetails(homeworkId) {
-		    var url = '/viewHomeworkTemplate/' + homeworkId + '/';
-		    window.location.href = url;
-		}
-
+        }
     </script>
 </body>
 </html>

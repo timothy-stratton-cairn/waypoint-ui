@@ -9,87 +9,84 @@
 <body>
 <div th:insert="~{header :: main}">...</div>
 <div class="container">
+    <div id="messageBanner" class="alert d-none" role="alert"></div>
+    
     <div class="row note_card">
         <fieldset>
             <legend>Protocol Details</legend>
-		   
             <div>
-                    <div class="row"> <!-- Adjusted layout starts here -->
-                        <div class="col-md-3">
-                            <label>Name:</label> <span th:text="${protocol.name}"></span>
-                        </div>
-                       	<div class="col-md-1">
-							 <label>Due Date:</label>  
-                       	</div>
-                       	<div class = "col-md-2">
-                        	
-                        	<input type="date" id="dueDateInput" th:value="${protocol.dueDate}" class="form-control"/>
-                    	</div>
-                        <div class="col-md-2">
-                            <label>Needs Attention:</label> <span th:text="${protocol.needsAttention} ? 'Yes': 'No'"></span>
-                        </div>
-                        <div class="col-md-1">
-                        <label>Status:</label>
-                        </div>
-                        <div class="col-md-3">
-	                        <select id="statusDropdown" class="form-control">
-	                            <option value="IN_PROGRESS" th:selected="${protocol.status} == 'IN_PROGRESS'">In Progress</option>
-	                            <option value="COMPLETED" th:selected="${protocol.status} == 'COMPLETED'">Completed</option>
-	                            <option value="ARCHIVED" th:selected="${protocol.status} == 'ARCHIVED'">Archived</option>
-	                        </select>
-	                    </div>
-                        <div class="col-md-4">
-                            <label>Last Status Update:</label> <span th:text="${protocol.lastStatus}"></span>
-                        </div>
-                    </div>              	
-                    <div class ="row">
-						<div class="col-md-2">
-                            <label>Completion:</label> <span th:text="|${protocol.completionPercent}%|"></span>
-                        </div>
-                        <div class="col-md-2">
-                            <label>Number of Steps:</label> <span th:text="${protocol.stepCount}"></span>
-                        </div>
-                         <div class = "col-md-1">
-							 <label>Progress: </label>
-                         </div>
-                         	<div class = "col-md-3">
-							<input type="text" id="progressInput" th:value="${protocol.progress}" class="form-control">
-						</div>
-                        
-					</div>
-					<div class ="row">
-						<div class="col-md-12">
-                            <label>Description:</label> <span th:text="${protocol.description}"></span>
-                        </div>
-					</div>
-					<div class ="row">
-						<div class="col-md-1">
-							<label>Goal:</label>
-						</div>
-						<div class = "col-md-11">
-							<input type="text" id="goalInput" th:value="${protocol.goal}" class="form-control">
-						</div>
-                     
-					</div>
-                    <div class="row">
-				        <div class="col-md-1">
-				            <label>Comments:</label>
-				        </div>
-				        <div class="col-md-11">
-				            <input type="text" id="commentInput" th:value="${mostRecentComment}" class="form-control">
-				        </div>
-				    </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Name:</label> <span th:text="${protocol.name}"></span>
                     </div>
-                    <div class="row">&nbsp;</div>
-	                    <div class="row">
-						    <div class="col-md-12">
-								<button onclick="history.back()" class="btn btn-primary">Back</button>
-						        <button type="button" class = "btn btn-primary" th:onclick="goToHomeworkTemplates()">Homework</button>
-						        <button type="button" class = "btn btn-primary" th:onclick="'goToClient(' + ${userId} + ');'">Client View</button>
-						        <button th:attr="onclick='saveProtocolCommentsAndGoal(' + ${protocol.id} + ');'"class="btn btn-primary">Save</button>
-						    </div>
-						</div>
-                </form>
+                    <div class="col-md-1">
+                        <label>Due Date:</label>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" id="dueDateInput" th:value="${protocol.dueDate}" class="form-control"/>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Needs Attention:</label> <span th:text="${protocol.needsAttention} ? 'Yes': 'No'"></span>
+                    </div>
+                    <div class="col-md-1">
+                        <label>Status:</label>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="statusDropdown" class="form-control">
+                            <option value="IN_PROGRESS" th:selected="${protocol.status} == 'IN_PROGRESS'">In Progress</option>
+                            <option value="COMPLETED" th:selected="${protocol.status} == 'COMPLETED'">Completed</option>
+                            <option value="ARCHIVED" th:selected="${protocol.status} == 'ARCHIVED'">Archived</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Last Status Update:</label> <span th:text="${protocol.lastStatus}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>Completion:</label> <span th:text="|${protocol.completionPercent}%|"></span>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Number of Steps:</label> <span th:text="${protocol.stepCount}"></span>
+                    </div>
+                    <div class="col-md-1">
+                        <label>Progress:</label>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" id="progressInput" th:value="${protocol.progress}" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Description:</label> <span th:text="${protocol.description}"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-1">
+                        <label>Goal:</label>
+                    </div>
+                    <div class="col-md-11">
+                        <input type="text" id="goalInput" th:value="${protocol.goal}" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-1">
+                        <label>Comments:</label>
+                    </div>
+                    <div class="col-md-11">
+                        <input type="text" id="commentInput" th:value="${mostRecentComment}" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="row">&nbsp;</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button onclick="history.back()" class="btn btn-primary">Back</button>
+                    <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocol(' + ${userId} + ');'">Delete</button>  
+                    <button type="button" class="btn btn-primary" th:onclick="goToHomework()">Homework</button>
+                    <button type="button" class="btn btn-primary" th:onclick="'goToClient(' + ${userId} + ');'">Client View</button>
+                    <button th:attr="onclick='saveProtocolCommentsAndGoal(' + ${protocol.id} + ');'" class="btn btn-success">Save</button>
+                </div>
             </div>
         </fieldset>
     </div>
@@ -103,12 +100,12 @@
             
             <!-- Tabs for filtering steps -->
             <ul class="nav nav-tabs">
-			    <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterStepsByCategory('all'); return false;">All</a></li>
-			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data'); return false;">Gather Data</a></li>
-			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis'); return false;">Run Analysis</a></li>
-			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations'); return false;">Craft Recommendations</a></li>
-			    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Share Education'); return false;">Share Education</a></li>
-			</ul>
+                <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterStepsByCategory('all'); return false;">All</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data'); return false;">Gather Data</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis'); return false;">Run Analysis</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations'); return false;">Craft Recommendations</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Share Education'); return false;">Share Education</a></li>
+            </ul>
 
             <div id="stepsContent">
                 <div th:each="step, iterStat : ${steps}" 
@@ -134,7 +131,6 @@
     </div>
 </div>
 
-
 <div class="container">
     <div class="row note_card">
         <fieldset>
@@ -151,180 +147,216 @@
                 <div class="col" th:text="${homework.description}">Default Description</div>
                 <div class="col">
                     <button type="button" class="btn btn-sm btn-secondary" th:onclick="'viewHomeworkDetails('+${homework.id}+');'">Details</button>
-
                 </div>
             </div>
         </fieldset>
     </div>
 </div>
-   <script>
-	  	var protocolId = [[${protocolId}]]; 
-	  	
-        function editProtocol(id) {
-            window.location = '/editStep/' + id;
-        }
-        function disableProtocol(id) {
-            alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
-        }
-        function saveprotocol(){
-            window.location = '/saveProtocol/'+id;
-        }
-        function goToClient(id) {
-			window.location.href = '/clientProfile/' + id;
-		}
-        function goToHomeworkTemplates() {
-			window.location.href = '/homeworkTemplates/';
-		}
+
+<script>
+    var protocolId = [[${protocolId}]]; 
+
+    function editProtocol(id) {
+        window.location = '/editStep/' + id;
+    }
+    function disableProtocol(id) {
+        showMessageBanner('Disable feature for protocol ID ' + id + ' is not implemented yet.', 'warning');
+    }
+    function saveprotocol(){
+        window.location = '/saveProtocol/'+id;
+    }
+    function goToClient(id) {
+        window.location.href = '/clientProfile/' + id;
+    }
+    function goToHomework(id) {
+        window.location.href = '/homeworkTemplates/';
+    }
+
+    function filterStepsByCategory(categoryId) {
+        const steps = document.querySelectorAll('#stepsContent > div');
+        let visibleStepsCount = 0;
         
-		function filterStepsByCategory(categoryId) {
-		    const steps = document.querySelectorAll('#stepsContent > div');
-		    let visibleStepsCount = 0;
-		    
-		    console.log(`Filtering steps by category: ${categoryId}`); // Log the category being filtered on
-		
-		    steps.forEach(step => {
-		        console.log(`Step category: ${step.getAttribute('data-type')}`); // Log each step's category before comparison
-		        if (categoryId === 'all' || step.getAttribute('data-type') === categoryId) {
-		            step.style.display = ''; // Show
-		            visibleStepsCount++;
-		        } else {
-		            step.style.display = 'none'; // Hide
-		        }
-		    });
-		
-		    console.log(`Total visible steps: ${visibleStepsCount}`); // Log the count of visible steps after filtering
-		
-		    // Check if there are no visible steps and display a message
-		    const noStepsMessage = document.getElementById('noStepsMessage');
-		    if (visibleStepsCount === 0) {
-		        if (!noStepsMessage) {
-		            const message = document.createElement('div');
-		            message.id = 'noStepsMessage';
-		            message.className = 'alert alert-warning';
-		            message.textContent = 'No steps found for this category';
-		            document.getElementById('stepsContent').appendChild(message);
-		        } else {
-		            noStepsMessage.style.display = ''; // Show existing message
-		        }
-		    } else if (noStepsMessage) {
-		        noStepsMessage.style.display = 'none'; // Hide message
-		    }
-		}
+        console.log(`Filtering steps by category: ${categoryId}`); // Log the category being filtered on
 
+        steps.forEach(step => {
+            console.log(`Step category: ${step.getAttribute('data-type')}`); // Log each step's category before comparison
+            if (categoryId === 'all' || step.getAttribute('data-type') === categoryId) {
+                step.style.display = ''; // Show
+                visibleStepsCount++;
+            } else {
+                step.style.display = 'none'; // Hide
+            }
+        });
 
-	    function updateProgress(stepId) {
-			console.log(`Attempting to select: #stepContainer_${stepId}`); // Debugging
-	        const container = document.querySelector(`#stepContainer_${stepId}`);
-	            if (!container) {
-			        console.error(`Container not found for step ID: ${stepId}`);
-			        return; // Exit the function if the container is not found
-			    }
-	        container.innerHTML = `<select id="statusDropdown_${stepId}">
-	                                    <option value="TODO">To Do</option>
-	                                    <option value="IN_PROGRESS">In Progress</option>
-	                                    <option value="DONE">Done</option>
-	                                    <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
-	                                </select>
-	                                <button onclick="confirmStatus(${stepId})">ConfirmStatus</button>`;
-	    }
+        console.log(`Total visible steps: ${visibleStepsCount}`); // Log the count of visible steps after filtering
 
-	    function addNote(stepId) {
-	        const container = document.querySelector(`#noteContainer_${stepId}`);
-	        container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
-	                               <button onclick="confirmNote(${stepId})">ConfirmNote</button>`;
-	    }
+        // Check if there are no visible steps and display a message
+        const noStepsMessage = document.getElementById('noStepsMessage');
+        if (visibleStepsCount === 0) {
+            if (!noStepsMessage) {
+                const message = document.createElement('div');
+                message.id = 'noStepsMessage';
+                message.className = 'alert alert-warning';
+                message.textContent = 'No steps found for this category';
+                document.getElementById('stepsContent').appendChild(message);
+            } else {
+                noStepsMessage.style.display = ''; // Show existing message
+            }
+        } else if (noStepsMessage) {
+            noStepsMessage.style.display = 'none'; // Hide message
+        }
+    }
 
-	    function confirmStatus(stepId) {
-	        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	        var status = document.querySelector(`#statusDropdown_${stepId}`).value;
-	
-	        fetch(`/updateStepStatus/${protocolId}/${stepId}/${status}`, {
-	            method: 'PATCH',
-	            headers: {
-	                'Accept': 'application/json',
-	                'Content-Type': 'application/json',
-	                [csrfHeader]: csrfToken
-	            }
-	        })
-	        .then(response => {
-	            if(response.ok) {
-	                window.location.reload();
-	            } else {
-	                response.text().then(text => { throw new Error(text); });
-	            }
-	        })
-	        .catch(error => {
-	            console.error('Error updating status:', error);
-	            alert('Failed to update the status. Error: ' + error.message);
-	        });
-	    }
+    function showMessageBanner(message, type) {
+        const banner = document.getElementById('messageBanner');
+        banner.className = 'alert alert-' + type;
+        banner.textContent = message;
+        banner.classList.remove('d-none');
+    }
 
-	    function confirmNote(stepId) {
-	        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	        var note = document.querySelector(`#noteInput_${stepId}`).value;
-	
-	        fetch(`/updateStepNote/${protocolId}/${stepId}/${note}`, {
-	            method: 'POST',
-	            headers: {
-	                'Accept': 'application/json',
-	                'Content-Type': 'application/json',
-	                [csrfHeader]: csrfToken
-	            }
-	        })
-	        .then(response => {
-	            if(response.ok) {
-	                window.location.reload();
-	            } else {
-	                response.text().then(text => { throw new Error(text); });
-	            }
-	        })
-	        .catch(error => {
-	            console.error('Error adding note:', error);
-	            alert('Failed to add the note. Error: ' + error.message);
-	        });
-	    }
-	    
-	    function saveProtocolCommentsAndGoal(id) {
-		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-		    
-		    var goal = document.getElementById('goalInput').value;
-		    var comment = document.getElementById('commentInput').value;
-		    var progress = document.getElementById('progressInput').value;
-		    var status = document.getElementById('statusDropdown').value;
-		    var dueDate = document.getElementById('dueDateInput').value;
-			console.log('Status:', status);
-		    var url = `/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`;
-		    console.log('URL:', url);
-		    fetch(`/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`, {
-		        method: 'PATCH',
-		        headers: {
-		            'Accept': 'application/json',
-		            'Content-Type': 'application/json',
-		            [csrfHeader]: csrfToken
-		        }
-		    })
-		    .then(response => {
-		        if(response.ok) {
-		            alert("Protocol updated successfully.");
-		            window.location.reload(); // Reload page to reflect the changes
-		        } else {
-		            response.text().then(text => { throw new Error(text); });
-		        }
-		    })
-		    .catch(error => {
-		        console.error('Error updating protocol:', error);
-		        alert('Failed to update the protocol. Error: ' + error.message);
-		    });
-		}
-	 function viewHomeworkDetails(homeworkId) {
-		    var url = '/homeworkDisplay/' + homeworkId ;
-		    window.location.href = url;
-		}
+    function updateProgress(stepId) {
+        console.log(`Attempting to select: #stepContainer_${stepId}`); // Debugging
+        const container = document.querySelector(`#stepContainer_${stepId}`);
+        if (!container) {
+            console.error(`Container not found for step ID: ${stepId}`);
+            return; // Exit the function if the container is not found
+        }
+        container.innerHTML = `<select id="statusDropdown_${stepId}">
+                                    <option value="TODO">To Do</option>
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="DONE">Done</option>
+                                    <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
+                                </select>
+                                <button onclick="confirmStatus(${stepId})">ConfirmStatus</button>`;
+    }
 
-    </script>
+    function addNote(stepId) {
+        const container = document.querySelector(`#noteContainer_${stepId}`);
+        container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
+                               <button onclick="confirmNote(${stepId})">ConfirmNote</button>`;
+    }
+
+    function confirmStatus(stepId) {
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        var status = document.querySelector(`#statusDropdown_${stepId}`).value;
+
+        fetch(`/updateStepStatus/${protocolId}/${stepId}/${status}`, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+        .then(response => {
+            if(response.ok) {
+                window.location.reload();
+            } else {
+                response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating status:', error);
+            showMessageBanner('Failed to update the status. Error: ' + error.message, 'danger');
+        });
+    }
+
+    function confirmNote(stepId) {
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        var note = document.querySelector(`#noteInput_${stepId}`).value;
+
+        fetch(`/updateStepNote/${protocolId}/${stepId}/${note}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+        .then(response => {
+            if(response.ok) {
+                window.location.reload();
+            } else {
+                response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .catch(error => {
+            console.error('Error adding note:', error);
+            showMessageBanner('Failed to add the note. Error: ' + error.message, 'danger');
+        });
+    }
+    
+    function saveProtocolCommentsAndGoal(id) {
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        
+        var goal = document.getElementById('goalInput').value;
+        var comment = document.getElementById('commentInput').value;
+        var progress = document.getElementById('progressInput').value;
+        var status = document.getElementById('statusDropdown').value;
+        var dueDate = document.getElementById('dueDateInput').value;
+        console.log('Status:', status);
+        var url = `/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`;
+        console.log('URL:', url);
+        fetch(`/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+        .then(response => {
+            if(response.ok) {
+                showMessageBanner("Protocol updated successfully.", 'success');
+                window.location.reload(); // Reload page to reflect the changes
+            } else {
+                response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating protocol:', error);
+            showMessageBanner('Failed to update the protocol. Error: ' + error.message, 'danger');
+        });
+    }
+
+    function viewHomeworkDetails(homeworkId) {
+        var url = '/homeworkDisplay/' + homeworkId;
+        window.location.href = url;
+    }
+    
+    function deleteProtocol(id) {
+			var Id = protocolId;
+            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+            fetch('/deleteTemplate/Protocol/' + Id, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/clientProfile/' + id;
+    
+                } else {
+                    showBannerMessage('Failed to delete Protocol.', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showBannerMessage('Error deleting Protocol.', 'danger');
+            });
+        }
+</script>
 
 </body>
 </html>

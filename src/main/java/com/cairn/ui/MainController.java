@@ -121,7 +121,8 @@ public class MainController {
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", helper.getDashboard(usr));
-		System.out.println("Me " + usr.getUsername());
+		
+		
 	    ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, userHelper.getHouseholdId(usr));
 	    ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -457,7 +458,7 @@ public class MainController {
 	}
 	
 	@PostMapping("/saveStep/")
-	public ResponseEntity<?> saveStep(@RequestBody ProtocolStepTemplate newStep) {
+	public ResponseEntity<String> saveStep(@RequestBody ProtocolStepTemplate newStep) {
 		User usr = (User) userDAO.getUser();	  
 		
 	    try {
@@ -470,7 +471,7 @@ public class MainController {
 	}
 	
 	@PatchMapping("/updateStep/{id}")
-	public ResponseEntity<?>updateStep(@PathVariable int id, @RequestBody ProtocolStepTemplate step){
+	public ResponseEntity<String>updateStep(@PathVariable int id, @RequestBody ProtocolStepTemplate step){
 		User usr = (User) userDAO.getUser();	 
 		System.out.println(id);
 		
@@ -495,34 +496,30 @@ public class MainController {
 	}
 	
     @PostMapping("/createNewProtocolTemplate/")
-    public ResponseEntity<?> createNewProtocolTemplate(@RequestBody ProtocolTemplate requestBody){
+    public ResponseEntity<String> createNewProtocolTemplate(@RequestBody ProtocolTemplate requestBody) {
         System.out.println("Calling createNewProtocolTemplate");
 
         try {
             User usr = (User) userDAO.getUser();
-            System.out.println("Due Date: "+requestBody.getDueDate());
-            
+            System.out.println("Due Date: " + requestBody.getDueDate());
+
             int call = protocolTemplateHelper.newProtocolTemplate(usr, requestBody);
             if (call == 1) {
                 System.out.println("Success!");
-                Map<String, String> success = new HashMap<>();
-                success.put("message", "Template processed successfully");
-                return ResponseEntity.ok(success);
+                return ResponseEntity.ok("Template processed successfully");
             } else {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("error", "An error occurred while creating the protocol.");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("An error occurred while creating the protocol.");
             }
         } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "An error occurred while creating the protocol: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while creating the protocol: " + e.getMessage());
         }
     }
 	
 	
 	@PatchMapping("/saveProtocol/{id}")
-	public ResponseEntity<?> saveProtocol(@PathVariable int id, @RequestBody String requestBody) {
+	public ResponseEntity<String> saveProtocol(@PathVariable int id, @RequestBody String requestBody) {
 		System.out.println("Save Protocol called");
 	    try {
 	        User usr = (User) userDAO.getUser();
@@ -536,14 +533,13 @@ public class MainController {
 	}
 
     @PatchMapping("/updateProtocol/{id}")
-    public ResponseEntity<?> updateProtocol(@PathVariable int id, @RequestBody ProtocolTemplate updateRequest) {
+    public ResponseEntity<String> updateProtocol(@PathVariable int id, @RequestBody ProtocolTemplate updateRequest) {
         User usr = (User) userDAO.getUser();
         if (usr == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
         }
 
         String description = updateRequest.getDescription();
-
         String name = updateRequest.getName();
         String dueDate = updateRequest.getDueDate();
 
@@ -551,19 +547,19 @@ public class MainController {
             protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
             protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
             protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, dueDate);
-            return ResponseEntity.ok(Collections.singletonMap("message", "Protocol updated successfully"));
+            return ResponseEntity.ok("Protocol updated successfully");
         } catch (Exception e) {
             System.out.println("Error in updateProtocol:");
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Error updating protocol: " + e.getMessage()));
+                    .body("Error updating protocol: " + e.getMessage());
         }
     }
 	
 	
 	
 	@PatchMapping("/saveStep/{stepId}")
-	public ResponseEntity<?> saveStep(@PathVariable int stepId, @PathVariable String requestBody ) {
+	public ResponseEntity<String> saveStep(@PathVariable int stepId, @PathVariable String requestBody ) {
 		try {
 			User usr = (User) userDAO.getUser();
 
@@ -622,7 +618,7 @@ public class MainController {
 	}
 
 	@PatchMapping("/addStepToProtocol/{protocolId}/{stepId}")
-	public ResponseEntity<?> addStepToProtocol(@PathVariable Integer protocolId, @PathVariable Integer stepId) {
+	public ResponseEntity<String> addStepToProtocol(@PathVariable Integer protocolId, @PathVariable Integer stepId) {
 		try {
 			User usr = (User) userDAO.getUser();
 			ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, protocolId);
@@ -787,7 +783,7 @@ public class MainController {
 	}
     
     @PatchMapping("addCoClient/{clientId}/{coClientId}")
-    public ResponseEntity<?>addCoClient(@PathVariable int clientId, @PathVariable int coClientId){
+    public ResponseEntity<String>addCoClient(@PathVariable int clientId, @PathVariable int coClientId){
     	System.out.println("Calling Add CoClient for Household: " + clientId + " and CoClient ID: "+ coClientId);
     	User currentUser = userDAO.getUser();
     	Household household = userHelper.getHouseholdById(currentUser, clientId);
@@ -1082,7 +1078,7 @@ public class MainController {
     }
 
     @PatchMapping("/removeHomeworkQuestionFromTemplate/{tempId}/{questionId}")
-    public ResponseEntity<?>removeHomeworkQuestionFromTemplate(@PathVariable int tempId, @PathVariable int questionID){
+    public ResponseEntity<String>removeHomeworkQuestionFromTemplate(@PathVariable int tempId, @PathVariable int questionID){
     	User currentUser = userDAO.getUser();
     	HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser,tempId);
     	List<HomeworkQuestionsTemplate> questions = template.getQuestions();
@@ -1105,7 +1101,7 @@ public class MainController {
     }
     
     @DeleteMapping("/removeStepFromTemplate/{tempId}/{stepId}")
-    public ResponseEntity<?>removeStepFromTemplate(@PathVariable int tempId, @PathVariable int stepId){
+    public ResponseEntity<String>removeStepFromTemplate(@PathVariable int tempId, @PathVariable int stepId){
     	User currentUser = userDAO.getUser();
 
     	try{
@@ -1121,7 +1117,7 @@ public class MainController {
     }
     
     @DeleteMapping("/removeHomeworkFromStepTemplate/{stepId}/{homeworkId}")
-    public ResponseEntity<?>removeHomeworkFromStepTemplate(@PathVariable int stepId, @PathVariable int homeworkId){
+    public ResponseEntity<String>removeHomeworkFromStepTemplate(@PathVariable int stepId, @PathVariable int homeworkId){
     	
     	User currentUser = userDAO.getUser();
 
@@ -1162,7 +1158,7 @@ public class MainController {
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @PostMapping("/assignUserResponseToHomework/{homeworkId}")
-    public ResponseEntity<?> assignUserResponseToHomework(@PathVariable int homeworkId,
+    public ResponseEntity<String> assignUserResponseToHomework(@PathVariable int homeworkId,
 				@RequestParam("questionIds") Long[] questionIds, //assumes questionIds and userResponses are the same length
 				@RequestParam("userResponses") String[] userResponses,
 				@RequestParam("files") Optional<List<MultipartFile>> files){
@@ -1221,7 +1217,7 @@ public class MainController {
     	
     }
     @PatchMapping("/uploadFileToHomework/")
-    public ResponseEntity<?> uploadFileToHomework(@RequestParam("file") MultipartFile file, String userResponse, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
+    public ResponseEntity<String> uploadFileToHomework(@RequestParam("file") MultipartFile file, String userResponse, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
     	 User currentUser = userDAO.getUser();
          HomeworkHelper helper= new HomeworkHelper();
          System.out.println("Calling upoloadFileToHomework");
@@ -1542,7 +1538,7 @@ public class MainController {
 
     
     @PostMapping("/postRecommendations/{id}")
-    public ResponseEntity<?> postRecommendation(@PathVariable int id,@RequestBody String recommendation){
+    public ResponseEntity<String> postRecommendation(@PathVariable int id,@RequestBody String recommendation){
     	User currentUser = userDAO.getUser();
     	System.out.println("Calling postRecommendation");
         if (recommendation.startsWith("\"") && recommendation.endsWith("\"")) {
@@ -1576,6 +1572,64 @@ public class MainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
+    
+    @DeleteMapping("deleteTemplate/{type}/{id}")
+    public ResponseEntity<String> deleteTemplate(@PathVariable String type, @PathVariable int id) {
+        User currentUser = userDAO.getUser();
+        HomeworkHelper helper = new HomeworkHelper();
+        int call = 0;
+
+        switch (type) {
+            case "Protocol":
+                call = protocolHelper.deleteProtocol(currentUser, id);
+                if (call != 1) {
+                    return new ResponseEntity<>("Error deleting Protocol", HttpStatus.BAD_REQUEST);
+                }
+                break;
+
+            case "ProtocolTemplate":
+                call = protocolTemplateHelper.deleteProtocolTemplate(currentUser, id);
+                if (call != 1) {
+                    return new ResponseEntity<>("Error deleting Protocol Template", HttpStatus.BAD_REQUEST);
+                }
+                break;
+
+            case "StepTemplate":
+                call = protocolStepTemplateHelper.deleteStepTemplate(currentUser, id);
+                if (call != 1) {
+                    return new ResponseEntity<>("Error deleting Step Template", HttpStatus.BAD_REQUEST);
+                }
+                break;
+
+            case "Homework":
+                call = helper.deleteHomework(currentUser, id);
+                if (call != 1) {
+                    return new ResponseEntity<>("Error deleting Homework", HttpStatus.BAD_REQUEST);
+                }
+                break;
+
+            case "HomeworkTemplate":
+                call = homeworkTemplateHelper.deleteHomeworkTemplate(currentUser, id);
+                if (call != 1) {
+                    return new ResponseEntity<>("Error deleting Homework Template", HttpStatus.BAD_REQUEST);
+                }
+                break;
+
+            case "HomeworkQuestion":
+                call = helper.deleteHomeworkQuestion(currentUser, id);
+                if (call != 1) {
+                    return new ResponseEntity<>("Error deleting Homework Question", HttpStatus.BAD_REQUEST);
+                }
+                break;
+
+            default:
+                return new ResponseEntity<>("Invalid type", HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
+    }
+
     
 
     

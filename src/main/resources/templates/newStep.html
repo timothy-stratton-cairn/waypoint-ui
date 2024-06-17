@@ -44,7 +44,7 @@
                 <textarea id="stepDetails" class="form-control" rows="3"></textarea>
             </div>
             <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
-            <button type="button" class="btn btn-primary" onclick="saveStep();">Save Step</button>
+            <button type="button" class="btn btn-success" onclick="saveStep();">Save Step</button>
         </fieldset>
     </div>
 </div>
@@ -96,10 +96,6 @@
         banner.style.display = 'block';
     }
 
-    function hideBannerMessage() {
-        var banner = document.getElementById('messageBanner');
-        banner.style.display = 'none';
-    }
 
     function addHomeworkTemplate() {
         var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];

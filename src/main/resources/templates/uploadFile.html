@@ -9,6 +9,7 @@
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">Upload a File</h2>
+        <div id="messageBanner" class="alert d-none" role="alert"></div>
         <form id="fileUploadForm">
             <input type="hidden" name="homeworkId" th:value="${homeworkId}" />
             <input type="hidden" name="questionId" th:value="${questionId}" />
@@ -20,10 +21,17 @@
         </form>
     </div>
 
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        function showMessageBanner(message, type) {
+            const banner = document.getElementById('messageBanner');
+            banner.className = 'alert alert-' + type;
+            banner.textContent = message;
+            banner.classList.remove('d-none');
+        }
+
         function uploadFile() {
             var form = document.getElementById('fileUploadForm');
             var formData = new FormData(form);
@@ -40,12 +48,12 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
-                alert('File uploaded successfully!');
-                window.close();
+                showMessageBanner('File uploaded successfully!', 'success');
+                setTimeout(() => window.close(), 2000); // Close the window after 2 seconds
             })
             .catch((error) => {
                 console.error('Error:', error);
-                alert('Error uploading file');
+                showMessageBanner('Error uploading file', 'danger');
             });
         }
     </script>

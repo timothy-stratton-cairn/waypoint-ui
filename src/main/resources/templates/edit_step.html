@@ -48,8 +48,9 @@
                         <label for="stepDetails">Description:</label>
                         <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.description}"></textarea>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
-                    <button type="button" class="btn btn-primary" th:attr="onclick='saveStep(' + ${stepId} + ');'">Save Step</button>
+                    <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button> 
+                    <button type="button" class="btn btn-primary" th:attr="onclick='deleteStepTemplate(' + ${stepId} + ');'">Delete</button>  
+                    <button type="button" class="btn btn-success" th:attr="onclick='saveStep(' + ${stepId} + ');'">Save Step</button>
                 </form>
                  
             </fieldset>
@@ -100,10 +101,7 @@
             banner.style.display = 'block';
         }
 
-        function hideBannerMessage() {
-            var banner = document.getElementById('messageBanner');
-            banner.style.display = 'none';
-        }
+
 
         function saveStep(id) {
             var stepData = {
@@ -196,6 +194,34 @@
             .catch(error => {
                 console.error('Error:', error);
                 showBannerMessage('Error removing Homework.', 'danger');
+            });
+        }
+        
+        function deleteStepTemplate(stepId) {
+            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+            fetch('/deleteTemplate/StepTemplate/' + stepId, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/protocolStepTemplates';
+                } else {
+                    showBannerMessage('Failed to delete Step Template.', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showBannerMessage('Error deleting Step Template.', 'danger');
             });
         }
     </script>

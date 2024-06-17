@@ -288,6 +288,25 @@ public class ProtocolStepTemplateHelper{
     	
     }
     
+    public int deleteStepTemplate(User usr, int stepTemplateId) {
+    	int result = 0;
+    	String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get + stepTemplateId;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+			result = 1;
+			}
+        }
+	    catch (Exception e) {
+	    	System.out.println("Error in deleteStepTemplate");
+	        e.printStackTrace();
+	    }
+        
+    	
+    	return result;
+    }
+    
     
     public int deleteHomeworkTemplate(User usr, int stepId, int homeworkId) {
     	int result = -1;

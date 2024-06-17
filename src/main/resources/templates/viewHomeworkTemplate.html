@@ -9,46 +9,84 @@
 <body>
 <div th:insert="~{header :: main}">...</div>
 
-<div class = "container">
-	<div class="row note_card">
-		<fieldset>
-			<legend>Edit Homework</legend>
-			
-			<div class="form-group">
-	                    <label for="templateName">Name:</label>
-	                    <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
-	        </div>
-	        <div class ="form-group">
-	                    <label for="templateDetails">Description:</label>
-	                    <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
-	        </div>
-	        <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
-		</fieldset>
-	</div>
+<!-- Message banner -->
+<div class="container">
+    <div id="messageBanner" class="alert d-none" role="alert"></div>
 </div>
 
 <div class="container">
     <div class="row note_card">
-		<fieldset>
-	        <legend>Homework Questions</legend>
-	        <div class="rowheader row">
-	            <div class="col">Question</div>
-	            <div class="col">Type</div>
-	            <div class="col">Required</div>
-	        </div>
-	        <div th:each="question, stat : ${template.questions}" th:id="|row_${stat.index}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
-	            <div class="col" th:text="${question.question}"></div>
-	            <div class="col" th:text="${question.questionType}"></div>
-	            <div class="col" th:text="${question.isRequired ? 'Yes' : 'No'}"></div>
-	        </div>
-	        <br>
-        </fieldset>   
+        <fieldset>
+            <legend>Edit Homework</legend>
+
+            <div class="form-group">
+                <label for="templateName">Name:</label>
+                <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
+            </div>
+            <div class="form-group">
+                <label for="templateDetails">Description:</label>
+                <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+            <button type="button" class="btn btn-primary" th:attr="onclick='deleteHomeworkTemplate(' + ${template.id} + ');'">Delete</button>
+        </fieldset>
     </div>
 </div>
 
-	
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Homework Questions</legend>
+            <div class="rowheader row">
+                <div class="col">Question</div>
+                <div class="col">Type</div>
+                <div class="col">Required</div>
+            </div>
+            <div th:each="question, stat : ${template.questions}" th:id="|row_${stat.index}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
+                <div class="col" th:text="${question.question}"></div>
+                <div class="col" th:text="${question.questionType}"></div>
+                <div class="col" th:text="${question.isRequired ? 'Yes' : 'No'}"></div>
+            </div>
+            <br>
+        </fieldset>
+    </div>
+</div>
+
 <script>
-	
+    function showBannerMessage(message, type) {
+        const banner = document.getElementById('messageBanner');
+        banner.className = 'alert alert-' + type;
+        banner.textContent = message;
+        banner.classList.remove('d-none');
+    }
+
+    function deleteHomeworkTemplate(Id) {
+        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+        fetch('/deleteTemplate/HomeworkTemplate/' + Id, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            credentials: 'include'
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = '/homeworkTemplates/';
+            } else {
+                showBannerMessage('Failed to delete Homework Template.', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showBannerMessage('Error deleting Homework Template.', 'danger');
+        });
+    }
 </script>
 </body>
 </html>

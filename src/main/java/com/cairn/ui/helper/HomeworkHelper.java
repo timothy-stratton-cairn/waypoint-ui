@@ -461,4 +461,39 @@ public class HomeworkHelper {
         }
     }
 
+    public int deleteHomeworkQuestion(User usr, int homeworkQuestionId) {
+    	int result = -1;
+    	String apiUrl = Constants.api_server + Constants.api_homework_question + homeworkQuestionId;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+			result = 1;
+			}
+        }
+	    catch (Exception e) {
+	        System.out.println("Error in deleteHomeworkQuestion");
+	    }
+        
+    	
+    	return result;
+    }
+    public int deleteHomework(User usr, int homeworkId) {
+    	int result = -1;
+    	String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+			result = 1;
+			}
+        }
+	    catch (Exception e) {
+	    	System.out.println("Error in deleteHomework");
+	        e.printStackTrace();
+	    }
+        
+    	
+    	return result;
+    }
 }

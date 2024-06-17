@@ -8,6 +8,8 @@
 </head>
 <body>
     <div class="container mt-5">
+        <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
+        
         <legend>More Information Required</legend>
         <form id="detailsForm">
             <input type="hidden" name="userId" th:value="${userId}" />
@@ -61,7 +63,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script>
-
         document.addEventListener("DOMContentLoaded", function() {
             var pcolDueDate = /*[[${pcol.dueDate}]]*/ '0'; // Replace with Thymeleaf variable
             var pcolSchedule = /*[[${pcol.schedule}]]*/ '0'; // Replace with Thymeleaf variable
@@ -93,7 +94,14 @@
             }
         }
 
-		function submitDetails() {
+        function showMessageBanner(message, type) {
+            const banner = document.getElementById('messageBanner');
+            banner.className = 'alert alert-' + type;
+            banner.textContent = message;
+            banner.style.display = 'block';
+        }
+
+        function submitDetails() {
             var form = document.getElementById('detailsForm');
             var formData = new FormData(form);
             var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -127,11 +135,9 @@
             })
             .catch(error => {
                 console.error('Error adding protocol:', error);
-                alert('Failed to add the Protocol. Error: ' + error.message);
+                showMessageBanner('Failed to add the Protocol. Error: ' + error.message, 'danger');
             });
         }
     </script>
 </body>
 </html>
-
-

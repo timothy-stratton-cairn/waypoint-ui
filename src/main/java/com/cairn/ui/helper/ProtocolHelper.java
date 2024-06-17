@@ -734,4 +734,23 @@ public class ProtocolHelper {
 		return result;
 		}
 	
+    public int deleteProtocol(User usr, int protocolId) {
+    	int result = 0;
+    	String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/' + protocolId;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+			result = 1;
+			}
+        }
+	    catch (Exception e) {
+	        System.out.println("Error in deleting protocol");
+	        e.printStackTrace();
+	    }
+        
+    	
+    	return result;
+    }
+	
 }

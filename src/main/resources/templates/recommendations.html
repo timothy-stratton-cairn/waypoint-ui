@@ -6,37 +6,38 @@
     <title>Protocol Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<div>
+<body>
 <div th:insert="~{header :: main}">...</div>
-	<div class="container">
+<div class="container">
+    <div id="messageBanner" class="alert d-none" role="alert"></div>
+    
     <!-- Steps Section with Tabs -->
     <div class="row note_card">
         <fieldset>
             <legend>Recommendations</legend>
-			<button onclick="history.back()" class="btn btn-primary">Back</button>
-			<div class="container">
-            <div id="stepsContent">
-                <div th:each="step, iterStat : ${steps}" 
-                     th:id ="'row_' + ${step.id}" 
-                     th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" 
-                     th:data-type="${step.categoryName}">
-                    
-                    <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
-                    <div class="col-md-3" th:text="${step.description}">[Description]</div>
-                    <div class="col-md-3" th:text="${step.status}">[Status]</div>
-                    <div class="col-md-3">
-                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
-                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
+            <button onclick="history.back()" class="btn btn-primary">Back</button>
+            <div class="container">
+                <div id="stepsContent">
+                    <div th:each="step, iterStat : ${steps}" 
+                         th:id ="'row_' + ${step.id}" 
+                         th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" 
+                         th:data-type="${step.categoryName}">
+                        
+                        <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
+                        <div class="col-md-3" th:text="${step.description}">[Description]</div>
+                        <div class="col-md-3" th:text="${step.status}">[Status]</div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
+                            <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
+                        </div>
+                        
+                        <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
+                        <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
                     </div>
-                    
-                    <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
-
-                    <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
                 </div>
             </div>
         </fieldset>
     </div>
-</div>
 </div>
 <div class="container">
     <div class="row note_card">
@@ -54,7 +55,6 @@
                 <div class="col" th:text="${homework.description}">Default Description</div>
                 <div class="col">
                     <button type="button" class="btn btn-sm btn-secondary" th:onclick="'viewHomeworkDetails('+${homework.id}+');'">Details</button>
-
                 </div>
             </div>
         </fieldset>
@@ -62,84 +62,91 @@
 </div>
 
 <script>
-		    function updateProgress(stepId) {
-			console.log(`Attempting to select: #stepContainer_${stepId}`); // Debugging
-	        const container = document.querySelector(`#stepContainer_${stepId}`);
-	            if (!container) {
-			        console.error(`Container not found for step ID: ${stepId}`);
-			        return; // Exit the function if the container is not found
-			    }
-	        container.innerHTML = `<select id="statusDropdown_${stepId}">
-	                                    <option value="TODO">To Do</option>
-	                                    <option value="IN_PROGRESS">In Progress</option>
-	                                    <option value="DONE">Done</option>
-	                                </select>
-	                                <button onclick="confirmStatus(${stepId})">ConfirmStatus</button>`;
-	    }
+    function showMessageBanner(message, type) {
+        const banner = document.getElementById('messageBanner');
+        banner.className = 'alert alert-' + type;
+        banner.textContent = message;
+        banner.classList.remove('d-none');
+    }
 
-	    function addNote(stepId) {
-	        const container = document.querySelector(`#noteContainer_${stepId}`);
-	        container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
-	                               <button onclick="confirmNote(${stepId})">ConfirmNote</button>`;
-	    }
+    function updateProgress(stepId) {
+        console.log(`Attempting to select: #stepContainer_${stepId}`); // Debugging
+        const container = document.querySelector(`#stepContainer_${stepId}`);
+        if (!container) {
+            console.error(`Container not found for step ID: ${stepId}`);
+            return; // Exit the function if the container is not found
+        }
+        container.innerHTML = `<select id="statusDropdown_${stepId}">
+                                    <option value="TODO">To Do</option>
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="DONE">Done</option>
+                                </select>
+                                <button onclick="confirmStatus(${stepId})">ConfirmStatus</button>`;
+    }
 
-	    function confirmStatus(stepId) {
-	        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	        var status = document.querySelector(`#statusDropdown_${stepId}`).value;
-	
-	        fetch(`/updateStepStatus/${protocolId}/${stepId}/${status}`, {
-	            method: 'PATCH',
-	            headers: {
-	                'Accept': 'application/json',
-	                'Content-Type': 'application/json',
-	                [csrfHeader]: csrfToken
-	            }
-	        })
-	        .then(response => {
-	            if(response.ok) {
-	                window.location.reload();
-	            } else {
-	                response.text().then(text => { throw new Error(text); });
-	            }
-	        })
-	        .catch(error => {
-	            console.error('Error updating status:', error);
-	            alert('Failed to update the status. Error: ' + error.message);
-	        });
-	    }
+    function addNote(stepId) {
+        const container = document.querySelector(`#noteContainer_${stepId}`);
+        container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
+                               <button onclick="confirmNote(${stepId})">ConfirmNote</button>`;
+    }
 
-	    function confirmNote(stepId) {
-	        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	        var note = document.querySelector(`#noteInput_${stepId}`).value;
-	
-	        fetch(`/updateStepNote/${protocolId}/${stepId}/${note}`, {
-	            method: 'POST',
-	            headers: {
-	                'Accept': 'application/json',
-	                'Content-Type': 'application/json',
-	                [csrfHeader]: csrfToken
-	            }
-	        })
-	        .then(response => {
-	            if(response.ok) {
-	                window.location.reload();
-	            } else {
-	                response.text().then(text => { throw new Error(text); });
-	            }
-	        })
-	        .catch(error => {
-	            console.error('Error adding note:', error);
-	            alert('Failed to add the note. Error: ' + error.message);
-	        });
-	    }
-	    
-	   function viewHomeworkDetails(homeworkId) {
-		    var url = '/homeworkDisplay/' + homeworkId ;
-		    window.location.href = url;
-		}
-	
+    function confirmStatus(stepId) {
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        var status = document.querySelector(`#statusDropdown_${stepId}`).value;
+
+        fetch(`/updateStepStatus/${protocolId}/${stepId}/${status}`, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+        .then(response => {
+            if(response.ok) {
+                window.location.reload();
+            } else {
+                response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating status:', error);
+            showMessageBanner('Failed to update the status. Error: ' + error.message, 'danger');
+        });
+    }
+
+    function confirmNote(stepId) {
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        var note = document.querySelector(`#noteInput_${stepId}`).value;
+
+        fetch(`/updateStepNote/${protocolId}/${stepId}/${note}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+        .then(response => {
+            if(response.ok) {
+                window.location.reload();
+            } else {
+                response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .catch(error => {
+            console.error('Error adding note:', error);
+            showMessageBanner('Failed to add the note. Error: ' + error.message, 'danger');
+        });
+    }
+
+    function viewHomeworkDetails(homeworkId) {
+        var url = '/homeworkDisplay/' + homeworkId;
+        window.location.href = url;
+    }
 </script>
 
 </body>
+</html>

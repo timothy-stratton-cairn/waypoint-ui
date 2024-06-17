@@ -8,7 +8,10 @@
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
+
 <div class="container">
+    <div id="messageBanner" class="alert d-none" role="alert"></div>
+
     <!-- Steps Section with Tabs -->
     <div class="row note_card">
         <fieldset>
@@ -53,6 +56,13 @@
     var protocolId = [[${protocolId}]];
     var clientId = [[${clientId}]];
 
+    function showMessageBanner(message, type) {
+        const banner = document.getElementById('messageBanner');
+        banner.className = 'alert alert-' + type;
+        banner.textContent = message;
+        banner.classList.remove('d-none');
+    }
+
     function postRecommendation() {
         const recommendation = document.getElementById('newRecommendation').value;
         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
@@ -67,12 +77,12 @@
                 xhr.setRequestHeader(csrfHeader, csrfToken);
             },
             success: function(response) {
-                alert(response.message || 'Success: Recommendation Posted!');
+                showMessageBanner(response.message || 'Success: Recommendation Posted!', 'success');
                 location.reload(); 
             },
             error: function(xhr) {
                 const errorMessage = xhr.responseJSON?.error || 'Error Posting Recommendation!';
-                alert(errorMessage);
+                showMessageBanner(errorMessage, 'danger');
             }
         });
     }
@@ -97,11 +107,11 @@
                 xhr.setRequestHeader(csrfHeader, csrfToken);
             },
             success: function(response) {
-                alert(response);
+                showMessageBanner(response, 'success');
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
-                alert('An error occurred while sending the email.');
+                showMessageBanner('An error occurred while sending the email.', 'danger');
             }
         });
     }
@@ -109,4 +119,5 @@
 
 </body>
 </html>
+
 

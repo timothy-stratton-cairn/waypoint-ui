@@ -13,112 +13,95 @@
     <div class="row note_card">
         <fieldset>
             <legend>New Protocol Template Details</legend>
-           
-            <div id="errorBanner" class="alert alert-danger d-none" role="alert"></div>
-            <form id="protocolForm">
-				
-                <div class="row">
-					<div class="col-md-1">
-                    	<label for="protocolName" class="mr-md-3"><strong>Name:</strong></label>
-					</div>
-					<div class="col-md-10">
-                    	<input type="text" class="form-control" id="protocolName" name="name"/>
-					</div>
-                </div>
-                <br>
-                <div class="row">
-					<div class="col-md-1">
-                    <label for="protocolDescription"><strong>Description:</strong></label>
-                    </div>
-                    <div class ="col-md-10">
-                    <input type="text" class="form-control" id="protocolDescription" name="description"/>
-                    </div>
-                </div>
-                <br>
 
-				<div class="row">
-					<div class="col-md-1">
-						<label for="protocolType" class="d-inline"><strong>Type:</strong></label>
-					</div>
-					<div class="col-md-2">
-						<select class="form-control" id="protocolType" name="type">
-							<option value="Life Cycle">Life Cycle</option>
-							<option value="Event">Event</option>
-						</select>
-					</div>
-				</div>
-				<br>
+            <div id="messageBanner" class="alert d-none" role="alert"></div>
+
+            <form id="protocolForm">
+                <div class="row">
+                    <div class="col-md-1">
+                        <label for="protocolName" class="mr-md-3"><strong>Name:</strong></label>
+                    </div>
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="protocolName" name="name"/>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-1">
+                        <label for="protocolDescription"><strong>Description:</strong></label>
+                    </div>
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="protocolDescription" name="description"/>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-1">
+                        <label for="protocolType" class="d-inline"><strong>Type:</strong></label>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control" id="protocolType" name="type">
+                            <option value="Life Cycle">Life Cycle</option>
+                            <option value="Event">Event</option>
+                        </select>
+                    </div>
+                </div>
+                <br>
             </form>
             <button onclick="history.back()" class="btn btn-primary">Back</button>
-            <button type="button" class="btn btn-primary" onclick="saveProtocolTemplate()">Save Template</button>
+            <button type="button" class="btn btn-success" onclick="saveProtocolTemplate()">Save Template</button>
         </fieldset>
     </div>
 </div>
 <div class="container">
-	    <div class="row note_card">
+    <div class="row note_card">
         <fieldset>
             <legend>Scheduling</legend>
             <form>
-				
-			    <div class="row">
-					<div class="col-md-2">
-						
-                    	<label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
-                   		<input type="checkbox" id="reoccurring" name="reoccurring"/>
-					</div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
+                        <input type="checkbox" id="reoccurring" name="reoccurring"/>
+                    </div>
                 </div>
-                
                 <div class="row mt-3">
-					<div class="col-md-2">
-				    	<label for="dueDate" class="mr-md-1"><strong>Default Due Date</strong></label>
-				    </div>
-				    <div class="col-md-2">
-				        <label for="year" class="d-inline"><strong>Year</strong></label>
-				        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="0-10" min="0" max="10" style="width: 40%;">
-				    </div>
-				    
-				
-				    <div class="col-md-2">
-				        <label for="month" class="d-inline"><strong>Month</strong></label>
-				        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="0-12" min="0" max="12" style="width: 40%;">
-				    </div>
-				
-				    <div class="col-md-2">
-				        <label for="day" class="d-inline"><strong>Day</strong></label>
-				        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="0-31" min="0" max="31" style="width: 40%;">
-				    </div>
-				</div>
-				
-                
-				<div class="row mt-3">
-					<div class="col-md-2">
-				    	<label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
-				    </div>
-				    <div class="col-md-2">
-				        <label for="year" class="d-inline"><strong>Year</strong></label>
-				        <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
-				    </div>
-				    
-				
-				    <div class="col-md-2">
-				        <label for="month" class="d-inline"><strong>Month</strong></label>
-				        <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
-				    </div>
-				
-				    <div class="col-md-2">
-				        <label for="day" class="d-inline"><strong>Day</strong></label>
-				        <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
-				    </div>
-				</div>
-
-				
-			</form>
+                    <div class="col-md-2">
+                        <label for="dueDate" class="mr-md-1"><strong>Default Due Date</strong></label>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="year" class="d-inline"><strong>Year</strong></label>
+                        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="0-10" min="0" max="10" style="width: 40%;">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="month" class="d-inline"><strong>Month</strong></label>
+                        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="0-12" min="0" max="12" style="width: 40%;">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="day" class="d-inline"><strong>Day</strong></label>
+                        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="0-31" min="0" max="31" style="width: 40%;">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-2">
+                        <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="year" class="d-inline"><strong>Year</strong></label>
+                        <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="month" class="d-inline"><strong>Month</strong></label>
+                        <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="day" class="d-inline"><strong>Day</strong></label>
+                        <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
+                    </div>
+                </div>
+            </form>
         </fieldset>
-	    </div>
-	
+    </div>
 </div>
-
-
 <div class="container">
     <div class="row note_card">
         <fieldset>
@@ -145,157 +128,165 @@
                 </select>
                 <button type="button" class="btn btn-primary" onclick="addStep()">Add Step</button>
             </div>
-
-            
         </fieldset>
     </div>
 </div>
-<div class = "container">
-	<button type="button" class="btn btn-primary" onclick="saveProtocolTemplate()">Save Template</button>
-</div>
+
 <script>
-	    function editProtocol(id) {
-            window.location = '/editStep/' + id;
-        }
-        function disableProtocol(id) {
-            alert('Disable feature for protocol ID ' + id + ' is not implemented yet.');
-        }
-        function saveprotocol(){
-            window.location = '/newProtocol/';
-        }
-        function goToClient(id) {
-			window.location.href = '/clientProfile/' + id;
-		}
-        function goToHomeworkTemplates() {
-			window.location.href = '/homeworkTemplates/';
-		}
 	
-			function filterStepsByCategory(categoryId) {
-		    const steps = document.querySelectorAll('#stepsContent > div');
-		    let visibleStepsCount = 0;
-		    
-		    console.log(`Filtering steps by category: ${categoryId}`); // Log the category being filtered on
-		
-		    steps.forEach(step => {
-		        console.log(`Step category: ${step.getAttribute('data-type')}`); // Log each step's category before comparison
-		        if (categoryId === 'all' || step.getAttribute('data-type') === categoryId) {
-		            step.style.display = ''; // Show
-		            visibleStepsCount++;
-		        } else {
-		            step.style.display = 'none'; // Hide
-		        }
-		    });
-		
-		    console.log(`Total visible steps: ${visibleStepsCount}`); // Log the count of visible steps after filtering
-		
-		    // Check if there are no visible steps and display a message
-		    const noStepsMessage = document.getElementById('noStepsMessage');
-		    if (visibleStepsCount === 0) {
-		        if (!noStepsMessage) {
-		            const message = document.createElement('div');
-		            message.id = 'noStepsMessage';
-		            message.className = 'alert alert-warning';
-		            message.textContent = 'No steps found for this category';
-		            document.getElementById('stepsContent').appendChild(message);
-		        } else {
-		            noStepsMessage.style.display = ''; // Show existing message
-		        }
-		    } else if (noStepsMessage) {
-		        noStepsMessage.style.display = 'none'; // Hide message
-		    }
-		}
-		
-		 function viewHomeworkDetails(homeworkId) {
-		    var url = '/homeworkDisplay/' + homeworkId ;
-		    window.location.href = url;
-		}
-		
-		function calculateTotalDays(years, months, days) {
-		    const totalDays = years * 365 + months * 31 + days;
-		    return totalDays.toString(); // Convert the total days to a string
-		}
-		
-		function saveProtocolTemplate() {
-		    const name = document.getElementById('protocolName').value;
-		    const description = document.getElementById('protocolDescription').value;
-		    //const reoccurring = document.getElementById('reoccurring').checked;
-		    const yearDue = parseInt(document.getElementById('dueDateYear').value);
-		    const monthDue = parseInt(document.getElementById('dueDateMonth').value);
-		    const dayDue = parseInt(document.getElementById('dueDateDay').value);
-		
-		    const yearSchedule = parseInt(document.getElementById('year').value);
-		    const monthSchedule = parseInt(document.getElementById('month').value);
-		    const daySchedule = parseInt(document.getElementById('day').value);
-		
-		    const dueDate = calculateTotalDays(yearDue, monthDue, dayDue);
-		    const schedule = calculateTotalDays(yearSchedule, monthSchedule, daySchedule);
-		
-		    const steps = Array.from(document.querySelectorAll('#stepsContent > .row')).map(row => ({
-		        id: parseInt(row.getAttribute('data-step-id')),
-		        name: row.querySelector('.col-md-9').textContent.trim()
-		    }));
-		
-		    const protocolData = {
-		        name: name,
-		        description: description,
-		        //reoccurring: reoccurring,
-		        dueDate: dueDate,
-		        //schedule: schedule,
-		        steps: steps
-		    };
-		
-		    fetch('/createNewProtocolTemplate/', {
-		        method: 'POST',
-		        headers: {
-		            'Content-Type': 'application/json',
-		            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
-		        },
-		        body: JSON.stringify(protocolData)
-		    })
-		    .then(response => {
-		        if (!response.ok) {
-		            throw new Error('Network response was not ok');
-		        }
-		        return response.json(); // Expecting JSON response
-		    })
-		    .then(data => {
-		        if (data.message) {
-		            alert(data.message);
-		            window.location.href = '/protocolTemplates'; // Redirect to protocol templates page
-		        } else if (data.error) {
-		            alert(data.error);
-		        }
-		    })
-		    .catch(error => alert('Error creating protocol template: ' + error));
-		}
-		function showErrorBanner(message) {
-	        var errorBanner = document.getElementById('errorBanner');
-	        errorBanner.textContent = message;
-	        errorBanner.classList.remove('d-none');
-	    }
+	function editProtocol(id) {
 
+            window.location = '/editStep/' + id;
 
-		function addStep() {
-		    const select = document.getElementById('stepSelector');
-		    const selectedOption = select.options[select.selectedIndex];
-		    const stepsContainer = document.getElementById('stepsContent');
-		
-		    // Create a new row for the step
-		    const newRow = document.createElement('div');
-		    newRow.className = 'row';
-		    newRow.innerHTML = `<div class="col-md-9">${selectedOption.text}</div>
-		                        <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
-		    newRow.setAttribute('data-step-id', selectedOption.value);
-		
-		    stepsContainer.prepend(newRow); // Use prepend to add the new step to the top
-		}
-		
-		function removeStep(button) {
-		    const row = button.parentNode.parentNode;
-		    row.parentNode.removeChild(row);
-		}
+        }
 
+    function disableProtocol(id) {}//not implimented yet
+    
+    function editProtocol(id) {
+        window.location = '/editStep/' + id;
+    }
+    function disableProtocol(id) {
+        showMessageBanner('Disable feature for protocol ID ' + id + ' is not implemented yet.', 'warning');
+    }
+    function saveprotocol(){
+        window.location = '/newProtocol/';
+    }
+    function goToClient(id) {
+        window.location.href = '/clientProfile/' + id;
+    }
+    function goToHomeworkTemplates() {
+        window.location.href = '/homeworkTemplates/';
+    }
 
+    function filterStepsByCategory(categoryId) {
+        const steps = document.querySelectorAll('#stepsContent > div');
+        let visibleStepsCount = 0;
+        
+        console.log(`Filtering steps by category: ${categoryId}`); // Log the category being filtered on
+
+        steps.forEach(step => {
+            console.log(`Step category: ${step.getAttribute('data-type')}`); // Log each step's category before comparison
+            if (categoryId === 'all' || step.getAttribute('data-type') === categoryId) {
+                step.style.display = ''; // Show
+                visibleStepsCount++;
+            } else {
+                step.style.display = 'none'; // Hide
+            }
+        });
+
+        console.log(`Total visible steps: ${visibleStepsCount}`); // Log the count of visible steps after filtering
+
+        // Check if there are no visible steps and display a message
+        const noStepsMessage = document.getElementById('noStepsMessage');
+        if (visibleStepsCount === 0) {
+            if (!noStepsMessage) {
+                const message = document.createElement('div');
+                message.id = 'noStepsMessage';
+                message.className = 'alert alert-warning';
+                message.textContent = 'No steps found for this category';
+                document.getElementById('stepsContent').appendChild(message);
+            } else {
+                noStepsMessage.style.display = ''; // Show existing message
+            }
+        } else if (noStepsMessage) {
+            noStepsMessage.style.display = 'none'; // Hide message
+        }
+    }
+
+    function viewHomeworkDetails(homeworkId) {
+        var url = '/homeworkDisplay/' + homeworkId;
+        window.location.href = url;
+    }
+
+    function calculateTotalDays(years, months, days) {
+        const totalDays = years * 365 + months * 31 + days;
+        return totalDays.toString(); // Convert the total days to a string
+    }
+
+    function showMessageBanner(message, type) {
+        const banner = document.getElementById('messageBanner');
+        banner.className = 'alert alert-' + type;
+        banner.textContent = message;
+        banner.classList.remove('d-none');
+    }
+
+    function saveProtocolTemplate() {
+        const name = document.getElementById('protocolName').value;
+        const description = document.getElementById('protocolDescription').value;
+        const yearDue = parseInt(document.getElementById('dueDateYear').value);
+        const monthDue = parseInt(document.getElementById('dueDateMonth').value);
+        const dayDue = parseInt(document.getElementById('dueDateDay').value);
+
+        const yearSchedule = parseInt(document.getElementById('year').value);
+        const monthSchedule = parseInt(document.getElementById('month').value);
+        const daySchedule = parseInt(document.getElementById('day').value);
+
+        if (!name || !description) {
+            showMessageBanner('Please fill out all required fields.', 'danger');
+            return;
+        }
+
+        const dueDate = calculateTotalDays(yearDue, monthDue, dayDue);
+        const schedule = calculateTotalDays(yearSchedule, monthSchedule, daySchedule);
+
+        const steps = Array.from(document.querySelectorAll('#stepsContent > .row')).map(row => ({
+            id: parseInt(row.getAttribute('data-step-id')),
+            name: row.querySelector('.col-md-9').textContent.trim()
+        }));
+
+        const protocolData = {
+            name: name,
+            description: description,
+            dueDate: dueDate,
+            schedule: schedule,
+            steps: steps
+        };
+
+        fetch('/createNewProtocolTemplate/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+            },
+            body: JSON.stringify(protocolData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Expecting JSON response
+        })
+        .then(data => {
+            if (data.message) {
+                showMessageBanner(data.message, 'success');
+                window.location.href = '/protocolTemplates'; // Redirect to protocol templates page
+            } else if (data.error) {
+                showMessageBanner(data.error, 'danger');
+            }
+        })
+        .catch(error => showMessageBanner('Error creating protocol template: ' + error, 'danger'));
+    }
+
+    function addStep() {
+        const select = document.getElementById('stepSelector');
+        const selectedOption = select.options[select.selectedIndex];
+        const stepsContainer = document.getElementById('stepsContent');
+
+        // Create a new row for the step
+        const newRow = document.createElement('div');
+        newRow.className = 'row';
+        newRow.innerHTML = `<div class="col-md-9">${selectedOption.text}</div>
+                            <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
+        newRow.setAttribute('data-step-id', selectedOption.value);
+
+        stepsContainer.prepend(newRow); // Use prepend to add the new step to the top
+    }
+
+    function removeStep(button) {
+        const row = button.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+    }
 </script>
 </body>
 </html>
+
