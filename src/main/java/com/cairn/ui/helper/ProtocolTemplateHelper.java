@@ -83,6 +83,23 @@ public class ProtocolTemplateHelper {
 		return result;
 	}
 
+	public int deleteAPI(String apiUrl, User usr) {
+		int result = 0;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+			result = 1;
+			}
+        }
+	    catch (Exception e) {
+	        System.out.println("Error in deleting " + apiUrl);
+	        e.printStackTrace();
+	    }
+        
+		return result;
+	}
+
 	public int patchAPI(String apiUrl, String requestBody, User usr) {
 		int result = 0;
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
@@ -343,31 +360,8 @@ public class ProtocolTemplateHelper {
 	    // Initial result indicating failure
 	    int result = -1;
 
-	    // Prepare the request body
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-	    
-	    // Assuming you need to send theStep as part of the request body
-	    HttpEntity<ProtocolStepTemplate> entity = new HttpEntity<>(theStep, headers);
-
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + "/" + theTemplate.getId()+ "/"+ theStep.getId();
-
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	            System.out.println("Assigned Step... " + response.getStatusCode());
-	            // Update result to indicate success
-	            result = 1;
-	        } else {
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	            result = 0;
-	        }
-	    } catch (Exception e) {
-	        System.out.println("Step not found or error in assigning step");
-	        e.printStackTrace();
-	        // Keep result as -1 or set to another specific value indicating error
-	    }
+	    result = patchAPI(apiUrl, null, usr);
 
 	    return result;
 	}
@@ -422,59 +416,50 @@ public class ProtocolTemplateHelper {
 		// Prepare the request body
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + id;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
+		String jsonResponse = this.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					result.setName(jsonNode.get("name").asText());
-					result.setDescription(jsonNode.get("description").asText());
-					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
-				    JsonNode stepTemplateCategoryNode = jsonNode.path("category");
-				    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
-				        result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
-				        result.setCategoryName(stepTemplateCategoryNode.path("name").asText());
-				        result.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
-				    } else {
-				        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
-				    }
-				    JsonNode linkedHomeworkTemplatesNode = jsonNode.get("linkedHomeworkTemplates");
-				    ArrayList<HomeworkTemplate> homeworks = new ArrayList<HomeworkTemplate>();
-				    if (linkedHomeworkTemplatesNode != null) {
-				        JsonNode homeworkTemplatesNode = linkedHomeworkTemplatesNode.get("homeworkTemplates");
-				        if (homeworkTemplatesNode != null && homeworkTemplatesNode.isArray()) {
-				            for (JsonNode element : homeworkTemplatesNode) {
-				                // Check if the current element is not null
-				                if (element != null) {
-				                    HomeworkTemplate curHw = new HomeworkTemplate();
-				                    curHw.setName(element.get("name").asText());
-				                    curHw.setId(Integer.parseInt(element.get("id").asText()));
-				                    homeworks.add(curHw);
-				                }
-				            }
-				        }
-				    }
-				    result.setHomework(homeworks);
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				result.setName(jsonNode.get("name").asText());
+				result.setDescription(jsonNode.get("description").asText());
+				result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+			    JsonNode stepTemplateCategoryNode = jsonNode.path("category");
+			    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
+			        result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
+			        result.setCategoryName(stepTemplateCategoryNode.path("name").asText());
+			        result.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
+			    } else {
+			        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
+			    }
+			    JsonNode linkedHomeworkTemplatesNode = jsonNode.get("linkedHomeworkTemplates");
+			    ArrayList<HomeworkTemplate> homeworks = new ArrayList<HomeworkTemplate>();
+			    if (linkedHomeworkTemplatesNode != null) {
+			        JsonNode homeworkTemplatesNode = linkedHomeworkTemplatesNode.get("homeworkTemplates");
+			        if (homeworkTemplatesNode != null && homeworkTemplatesNode.isArray()) {
+			            for (JsonNode element : homeworkTemplatesNode) {
+			                // Check if the current element is not null
+			                if (element != null) {
+			                    HomeworkTemplate curHw = new HomeworkTemplate();
+			                    curHw.setName(element.get("name").asText());
+			                    curHw.setId(Integer.parseInt(element.get("id").asText()));
+			                    homeworks.add(curHw);
+			                }
+			            }
+			        }
+			    }
+			    result.setHomework(homeworks);
 
 
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-		    e.printStackTrace(); // This will give you more detailed error information
+		} else {
+			System.out.println("Failed to fetch data getStep");
 		}
 
 		return result;
@@ -494,48 +479,40 @@ public class ProtocolTemplateHelper {
 		}
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
+		String jsonResponse = this.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("protocolTemplates");
-					// Iterate through the array elements
-					ProtocolTemplate entry = null;
-					int idx = 1;
-					if (prots.isArray()) {
-						for (JsonNode element : prots) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new ProtocolTemplate();
-								entry.setName(element.get("name").asText());
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								// Test data, fix this later
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode prots = jsonNode.get("protocolTemplates");
+				// Iterate through the array elements
+				ProtocolTemplate entry = null;
+				int idx = 1;
+				if (prots.isArray()) {
+					for (JsonNode element : prots) {
+						// Access and print array elements
+						if (element != null) {
+							entry = new ProtocolTemplate();
+							entry.setName(element.get("name").asText());
+							entry.setId(Integer.valueOf(element.get("id").toString()));
+							// Test data, fix this later
 
-								results.add(entry);
-								if (idx > 4) {
-									idx = 1;
-								}
+							results.add(entry);
+							if (idx > 4) {
+								idx = 1;
 							}
 						}
 					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
 				}
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			System.out.println("No protocols returned");
+		} else {
+			System.out.println("Failed to fetch data for getList(protocol template)");
 		}
 
 		return results;
@@ -554,51 +531,43 @@ public class ProtocolTemplateHelper {
 		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + id;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		String jsonResponse = this.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode temp = jsonNode.get("associatedSteps");
-					JsonNode prots = temp.get("steps");
-					// Iterate through the array elements
-					ProtocolStepTemplate entry = null;
-					if (prots.isArray()) {
-						int idx = 1;
-						for (JsonNode element : prots) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new ProtocolStepTemplate();
-								entry.setDescription(element.get("description").asText());
-								entry.setName(element.get("name").asText());
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								
-								// Test data, fix this later
-								entry.setType(idx++);
-								if (idx > 4) {
-									idx = 1;
-								}
-								results.add(entry);
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode temp = jsonNode.get("associatedSteps");
+				JsonNode prots = temp.get("steps");
+				// Iterate through the array elements
+				ProtocolStepTemplate entry = null;
+				if (prots.isArray()) {
+					int idx = 1;
+					for (JsonNode element : prots) {
+						// Access and print array elements
+						if (element != null) {
+							entry = new ProtocolStepTemplate();
+							entry.setDescription(element.get("description").asText());
+							entry.setName(element.get("name").asText());
+							entry.setId(Integer.valueOf(element.get("id").toString()));
+							
+							// Test data, fix this later
+							entry.setType(idx++);
+							if (idx > 4) {
+								idx = 1;
 							}
+							results.add(entry);
 						}
 					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
 				}
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			System.out.println("No protocols returned");
+		} else {
+			System.out.println("Failed to fetch data for getStepList");
 		}
 
 		return results;
@@ -616,53 +585,43 @@ public class ProtocolTemplateHelper {
 		ProtocolTemplate result = new ProtocolTemplate();
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate + "/" + id;
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-
-
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					result.setName(jsonNode.get("name").asText());
-					result.setDescription(jsonNode.get("description").asText());
-					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+		String jsonResponse = this.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
+	
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				result.setName(jsonNode.get("name").asText());
+				result.setDescription(jsonNode.get("description").asText());
+				result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+				if (jsonNode.get("dueDate") != null) {
 					result.setDueDate(jsonNode.get("dueDate").asText());
-					/* Add in the steps */
-					JsonNode perms = jsonNode.get("associatedSteps");
-					// Iterate through the array elements
-					ArrayList<ProtocolStepTemplate> steps = new ArrayList<ProtocolStepTemplate>();
-					if (perms.isArray()) {
-						for (JsonNode element : perms) {
-							// Access and print array elements
-							if (element != null) {
-								ProtocolStepTemplate curStep = new ProtocolStepTemplate();
-								curStep.setName(element.get("name").asText());
-								curStep.setId(Integer.parseInt(element.get("id").asText()));
-								curStep.setDescription(element.get("description").asText());
-								steps.add(curStep);
-							}
-						}
-						result.setSteps(steps);
-					}
-
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
 				}
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				/* Add in the steps */
+				JsonNode perms = jsonNode.get("associatedSteps");
+				// Iterate through the array elements
+				ArrayList<ProtocolStepTemplate> steps = new ArrayList<ProtocolStepTemplate>();
+				if (perms.isArray()) {
+					for (JsonNode element : perms) {
+						// Access and print array elements
+						if (element != null) {
+							ProtocolStepTemplate curStep = new ProtocolStepTemplate();
+							curStep.setName(element.get("name").asText());
+							curStep.setId(Integer.parseInt(element.get("id").asText()));
+							curStep.setDescription(element.get("description").asText());
+							steps.add(curStep);
+						}
+					}
+					result.setSteps(steps);
+				}
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			System.out.println("No protocols returned");
+		} else {
+			System.out.println("Failed to fetch data for protocol template.");
 		}
 
 		return result;
@@ -671,42 +630,15 @@ public class ProtocolTemplateHelper {
     public int deleteProtocolStepTemplate(User usr, int templateId, int stepId) {
     	int result = -1;
 		String apiUrl = this.dashboardApiBaseUrl + Constants. api_ep_protocoltemplateget +"/"+ templateId + "?stepTemplateId="+stepId ;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
+    	result = deleteAPI(apiUrl,usr);
 
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			result = -1;
-			System.out.println("Error in deleteStepTemplate");
-	        e.printStackTrace();
-		}
     	return result;
     }
     
     public int deleteProtocolTemplate(User usr, int protocolTemplateId) {
     	int result = 0;
     	String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplateget + protocolTemplateId;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-			result = 1;
-			}
-        }
-	    catch (Exception e) {
-	        System.out.println("Error in deleting protocol");
-	        e.printStackTrace();
-	    }
-        
+    	result = deleteAPI(apiUrl,usr);
     	
     	return result;
     }

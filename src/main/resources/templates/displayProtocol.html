@@ -228,7 +228,7 @@
             </div>
             <br>
             
-            <button type="button" class="btn btn-primary" th:onclick="'newStep();'">New Step</button>
+            <button type="button" class="btn btn-primary" onclick="'newStep();'">New Step</button>
             <button type="button" class="btn btn-primary" onclick="addStep();">Add Step</button>
         </fieldset>
     </div>
@@ -237,6 +237,9 @@
 		
 		var protocolId = [[${protocolId}]]; 
         var dueByDays = [[${dueBy}]];
+        function newStep() {
+            window.location = '/newStep/';
+        }
 
         function editProtocol(id) {
 
