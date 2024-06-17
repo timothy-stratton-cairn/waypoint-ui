@@ -35,57 +35,68 @@ public class DashboardHelper {
 	 * 
 	 * @return
 	 */
-	public ArrayList<ProtocolStats> getDashboard(User usr) {
-		ArrayList<ProtocolStats> results = new ArrayList<ProtocolStats>();
+    public ArrayList<ProtocolStats> getDashboard(User usr) {
+        ArrayList<ProtocolStats> results = new ArrayList<>();
 
-		// Prepare the request body
+        // Prepare the request body
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_dashboard_get;
+        System.out.println(apiUrl);
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_dashboard_get;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
+        // Make the GET request and retrieve the response
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+            // Process the response
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String jsonResponse = response.getBody();
+                ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("protocols");
-					// Iterate through the array elements
-					ProtocolStats entry = null;
-					if (prots.isArray()) {
-						for (JsonNode element : prots) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new ProtocolStats();
-								entry.setTemplateId(Integer.valueOf(element.get("protocolTemplateId").toString()));
-								entry.setAssignedUsers(mapper.readValue(element.get("assignedUsers").toString(), AssignedUsers.class));
-								entry.setNumSteps(Integer.valueOf(element.get("numStepsTodo").toString()));
-								entry.setProgress(Integer.valueOf(element.get("numStepsInProgress").toString()));
-								entry.setDone(Integer.valueOf(element.get("numStepsDone").toString()));
-								entry.setCompletion(String.valueOf(Float.parseFloat(element.get("completionPercentage").asText()) * 100));
-								entry.setTemplateName(element.get("protocolTemplateName").asText());
+                JsonNode jsonNode;
+                try {
+                    jsonNode = objectMapper.readTree(jsonResponse);
+                    JsonNode prots = jsonNode.get("protocols");
+                    // Iterate through the array elements
+                    if (prots != null && prots.isArray()) {
+                        for (JsonNode element : prots) {
+                            ProtocolStats entry = new ProtocolStats();
+                            
+                            JsonNode protocolTemplateIdNode = element.get("protocolTemplateId");
+                            entry.setTemplateId(protocolTemplateIdNode != null ? protocolTemplateIdNode.asInt() : null);
 
-								results.add(entry);
-							}
-						}
-					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-			}
-		} catch (Exception e) {
-			System.out.println("No dashboard data returned");
-		}
+                            JsonNode assignedUsersNode = element.get("assignedUsers");
+                            entry.setAssignedUsers(assignedUsersNode != null ? mapper.readValue(assignedUsersNode.asText(), AssignedUsers.class) : null);
 
-		return results;
+                            JsonNode numStepsTodoNode = element.get("numStepsTodo");
+                            entry.setNumSteps(numStepsTodoNode != null ? numStepsTodoNode.asInt() : null);
 
-	}
+                            JsonNode numStepsInProgressNode = element.get("numStepsInProgress");
+                            entry.setProgress(numStepsInProgressNode != null ? numStepsInProgressNode.asInt() : null);
+
+                            JsonNode numStepsDoneNode = element.get("numStepsDone");
+                            entry.setDone(numStepsDoneNode != null ? numStepsDoneNode.asInt() : null);
+
+                            JsonNode completionPercentageNode = element.get("completionPercentage");
+                            entry.setCompletion(completionPercentageNode != null ? String.valueOf(Float.parseFloat(completionPercentageNode.asText()) * 100) : null);
+
+                            JsonNode protocolTemplateNameNode = element.get("protocolTemplateName");
+                            entry.setTemplateName(protocolTemplateNameNode != null ? protocolTemplateNameNode.asText() : null);
+
+                            results.add(entry);
+                        }
+                    }
+                } catch (JsonMappingException e) {
+                    e.printStackTrace();
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            System.out.println("No dashboard data returned");
+        }
+
+        return results;
+    }
 }

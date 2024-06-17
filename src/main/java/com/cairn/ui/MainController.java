@@ -63,6 +63,7 @@ import com.cairn.ui.model.Household;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolComments;
 import com.cairn.ui.model.ProtocolReport;
+import com.cairn.ui.model.ProtocolStats;
 import com.cairn.ui.model.ProtocolStep;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
@@ -115,13 +116,6 @@ public class MainController {
 		if (usr == null) {
 			return "home";
 		}
-
-
-		session.setAttribute("me", usr);
-		model.addAttribute("msg", msg);
-		model.addAttribute("user", usr);
-		model.addAttribute("stats", helper.getDashboard(usr));
-		
 		
 	    ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, userHelper.getHouseholdId(usr));
 	    ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
@@ -150,11 +144,16 @@ public class MainController {
 	            }
 	        }
 	    }
-	
-	    
+	    ArrayList<ProtocolStats> stats = helper.getDashboard(usr);
+	    for (ProtocolStats stat: stats) {
+	    	System.out.println("Temp ID: " + stat.getTemplateId() + " Number Of Steps: "+ stat.getNumSteps() + " Progress: " + stat.getProgress());
+	    }
+		session.setAttribute("me", usr);
+		model.addAttribute("msg", msg);
+		model.addAttribute("user", usr);
+		model.addAttribute("stats", stats);
 	    model.addAttribute("upcomingProtocols", upcomingPcol);
-		// User currentUser = userDAO.getUser();
-		// UserHelper helper = new UserHelper();
+
 		return "UserDashboard";
 	}
 
