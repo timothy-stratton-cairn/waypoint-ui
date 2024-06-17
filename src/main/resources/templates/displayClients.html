@@ -14,7 +14,7 @@
         <div class="row note_card">
             <fieldset>
                 <legend>Clients</legend>
-                <button class="btn btn-primary" onclick="newClient();">New Client</button>
+                <button class="btn btn-sm btn-primary" onclick="newClient();">New Client</button>
 
                 <div class="col-2" style="display: none;">
                     <input type="text" id="protocolSearch" class="form-control" placeholder="Search clients...">
@@ -64,13 +64,6 @@
 			      [10, 25, 100, "All"],
 			    ],                
                 "dom": '<"top"f>rt<"bottom"lp><"clear">',
-                "createdRow": function(row, data, dataIndex) {
-                    if (dataIndex % 2 === 0) {
-                        $(row).addClass('even');
-                    } else {
-                        $(row).addClass('odd');
-                    }
-                    }
             });
         });
     </script>

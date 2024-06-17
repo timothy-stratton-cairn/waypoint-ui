@@ -24,7 +24,7 @@
         <div class="row note_card">
             <fieldset>
                 <legend>Homework Templates</legend>
-                <button class="btn btn-primary" onclick="newTemplate()">New Template</button>
+                <button class="btn btn-sm btn-primary" onclick="newTemplate()">New Template</button>
                 <table id="templateTable" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
@@ -71,15 +71,7 @@
 			      [10, 25, 100, -1],
 			      [10, 25, 100, "All"],
 			    ],                
-
                 "dom": '<"top"f>rt<"bottom"lp><"clear">',
-                "createdRow": function(row, data, dataIndex) {
-                    if (dataIndex % 2 === 0) {
-                        $(row).addClass('even');
-                    } else {
-                        $(row).addClass('odd');
-                    }
-                    }
             });
         });
     </script>
