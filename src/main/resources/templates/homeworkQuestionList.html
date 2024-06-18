@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Protocols</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+</head>
+
+<body>
+    <div th:insert="~{header :: main}">...</div>
+    <div class="container">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Protocols</legend>
+                <button class="btn btn-sm btn-primary" onclick="newQuestion()">New Question (not yet working)</button>
+                <table id="questionTable" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="question, status: ${questionList}">
+                            <td th:text="${question.question}"></td>
+                            <td th:text="${question.status}"></td>
+                            <td>
+                                <a class="btn btn-sm btn-secondary" th:href="@{'//' + ${question.questionId}}">Edit Question (not working)</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+
+    <div th:insert="~{footer :: main}">...</div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        function newQuestion() {
+            window.location = '';
+        }
+
+        $(document).ready(function() {
+            $('#questionTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "lengthChange": true,
+                "pageLength": 25,
+                "lengthMenu": [
+                    [10, 25, 100, -1],
+                    [10, 25, 100, "All"]
+                ],
+                "dom": '<"top"f>rt<"bottom"lp><"clear">',
+            });
+        });
+    </script>
+</body>
+
+</html>

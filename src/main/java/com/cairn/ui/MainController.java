@@ -57,6 +57,7 @@ import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.AssignedHomeworkResponse;
 import com.cairn.ui.model.Homework;
+import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Household;
@@ -1629,6 +1630,17 @@ public class MainController {
         return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
     }
 
+    
+    @GetMapping ("/homeworkQuestionList/")
+    public String homeworkQuestionList(Model model) {
+    	User currentUser = userDAO.getUser();
+    	HomeworkHelper helper = new HomeworkHelper();
+    	ArrayList<HomeworkQuestion> questionList = helper.getHomeworkQuestions(currentUser);
+    	model.addAttribute("questionList",questionList);
+    
+    	return "homeworkQuestionList";
+    }
+    
 
 }
     

@@ -463,7 +463,7 @@ public class HomeworkHelper {
 
     public int deleteHomeworkQuestion(User usr, int homeworkQuestionId) {
     	int result = -1;
-    	String apiUrl = Constants.api_server + Constants.api_homework_question + homeworkQuestionId;
+    	String apiUrl = Constants.api_server + Constants.api_homework_question_get + homeworkQuestionId;
         HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
         try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
@@ -502,9 +502,11 @@ public class HomeworkHelper {
     	ArrayList<HomeworkQuestion> results = new ArrayList<HomeworkQuestion>();
     	String apiUrl = Constants.api_server + Constants.api_homework_question ;
         HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        System.out.println(apiUrl);
         
         try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			System.out.println(response);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();

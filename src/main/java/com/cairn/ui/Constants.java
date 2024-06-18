@@ -21,7 +21,8 @@ public class Constants {
 	static public final String api_homeworktemplate = "/api/homework-template";	
 	static public final String api_homeworktemplate_get = "/api/homework-template/";	
 	static public final String api_homework_response_file = "/api/file/homework-response/";
-	static public final String api_homework_question = "/api/homework-question/";
+	static public final String api_homework_question = "/api/homework-question";
+	static public final String api_homework_question_get = "/api/homework-question/";
 	static public final String api_homework = "/api/homework/";
 	
 }
