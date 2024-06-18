@@ -1629,9 +1629,6 @@ public class MainController {
         return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
     }
 
-    
-
-    
 
 }
     

@@ -10,6 +10,7 @@ public class HomeworkQuestion {
     private String question;
     private String questionType;
     private boolean isRequired;
+    private String status;
     private String userResponse;
     private MultipartFile file;
     private ExpectedHomeworkResponses expectedHomeworkResponses;
@@ -76,6 +77,12 @@ public class HomeworkQuestion {
         ExpectedHomeworkResponses expectedHomeworkResponses) {
         this.expectedHomeworkResponses = expectedHomeworkResponses;
     }
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 }
 
 

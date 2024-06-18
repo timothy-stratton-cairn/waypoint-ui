@@ -5,6 +5,7 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Protocol Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
@@ -47,58 +48,55 @@
                     </div>
                 </div>
                 <br>
-            </form>
-            <button onclick="history.back()" class="btn btn-primary">Back</button>
-            <button type="button" class="btn btn-success" onclick="saveProtocolTemplate()">Save Template</button>
-        </fieldset>
-    </div>
-</div>
-<div class="container">
-    <div class="row note_card">
-        <fieldset>
-            <legend>Scheduling</legend>
-            <form>
+                <div class="row mt-3">
+                    <div class="col-md-2">
+                        <label for="dueDate" class="mr-md-1"><strong>Default Due Date: </strong></label>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="dueDateYear" class="d-inline"><strong>Year</strong></label>
+                        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="0-10" min="0" max="10" style="width: 40%;">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="dueDateMonth" class="d-inline"><strong>Month</strong></label>
+                        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="0-12" min="0" max="12" style="width: 40%;">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="dueDateDay" class="d-inline"><strong>Day</strong></label>
+                        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="0-31" min="0" max="31" style="width: 40%;">
+                    </div>
+                </div>
+                <br>
                 <div class="row">
                     <div class="col-md-2">
                         <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
                         <input type="checkbox" id="reoccurring" name="reoccurring"/>
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col-md-2">
-                        <label for="dueDate" class="mr-md-1"><strong>Default Due Date</strong></label>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="year" class="d-inline"><strong>Year</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="0-10" min="0" max="10" style="width: 40%;">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="month" class="d-inline"><strong>Month</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="0-12" min="0" max="12" style="width: 40%;">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="day" class="d-inline"><strong>Day</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="0-31" min="0" max="31" style="width: 40%;">
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-2">
-                        <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="year" class="d-inline"><strong>Year</strong></label>
-                        <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="month" class="d-inline"><strong>Month</strong></label>
-                        <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="day" class="d-inline"><strong>Day</strong></label>
-                        <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
+
+                <div id="schedule-fields">
+                    <div class="row mt-3">
+                        <div class="col-md-2">
+                            <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="year" class="d-inline"><strong>Year</strong></label>
+                            <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="month" class="d-inline"><strong>Month</strong></label>
+                            <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="day" class="d-inline"><strong>Day</strong></label>
+                            <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
+                        </div>
                     </div>
                 </div>
+                <br>
             </form>
+            
+            <button onclick="history.back()" class="btn btn-primary">Back</button>
+            <button type="button" class="btn btn-success" onclick="saveProtocolTemplate()">Save Template</button>
         </fieldset>
     </div>
 </div>
@@ -133,27 +131,20 @@
 </div>
 
 <script>
-	
-	function editProtocol(id) {
-
-            window.location = '/editStep/' + id;
-
-        }
-
-    function disableProtocol(id) {}//not implimented yet
-    
     function editProtocol(id) {
         window.location = '/editStep/' + id;
     }
-    function disableProtocol(id) {
-        showMessageBanner('Disable feature for protocol ID ' + id + ' is not implemented yet.', 'warning');
-    }
-    function saveprotocol(){
+
+    function disableProtocol(id) {} // not implemented yet
+    
+    function saveprotocol() {
         window.location = '/newProtocol/';
     }
+    
     function goToClient(id) {
         window.location.href = '/clientProfile/' + id;
     }
+    
     function goToHomeworkTemplates() {
         window.location.href = '/homeworkTemplates/';
     }
@@ -161,11 +152,8 @@
     function filterStepsByCategory(categoryId) {
         const steps = document.querySelectorAll('#stepsContent > div');
         let visibleStepsCount = 0;
-        
-        console.log(`Filtering steps by category: ${categoryId}`); // Log the category being filtered on
 
         steps.forEach(step => {
-            console.log(`Step category: ${step.getAttribute('data-type')}`); // Log each step's category before comparison
             if (categoryId === 'all' || step.getAttribute('data-type') === categoryId) {
                 step.style.display = ''; // Show
                 visibleStepsCount++;
@@ -174,9 +162,6 @@
             }
         });
 
-        console.log(`Total visible steps: ${visibleStepsCount}`); // Log the count of visible steps after filtering
-
-        // Check if there are no visible steps and display a message
         const noStepsMessage = document.getElementById('noStepsMessage');
         if (visibleStepsCount === 0) {
             if (!noStepsMessage) {
@@ -286,7 +271,17 @@
         const row = button.parentNode.parentNode;
         row.parentNode.removeChild(row);
     }
+
+    $(document).ready(function() {
+        $('#schedule-fields').hide(); // Hide by default
+        $('#reoccurring').change(function() {
+            if ($(this).is(':checked')) {
+                $('#schedule-fields').show();
+            } else {
+                $('#schedule-fields').hide();
+            }
+        });
+    });
 </script>
 </body>
 </html>
-
