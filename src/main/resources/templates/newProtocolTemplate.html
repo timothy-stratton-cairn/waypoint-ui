@@ -54,45 +54,44 @@
                     </div>
                     <div class="col-md-2">
                         <label for="dueDateYear" class="d-inline"><strong>Year</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="0-10" min="0" max="10" style="width: 40%;">
+                        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="0-10" min="0" max="10" value="0" style="width: 40%;">
                     </div>
                     <div class="col-md-2">
                         <label for="dueDateMonth" class="d-inline"><strong>Month</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="0-12" min="0" max="12" style="width: 40%;">
+                        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="0-12" min="0" max="12" value="0" style="width: 40%;">
                     </div>
                     <div class="col-md-2">
                         <label for="dueDateDay" class="d-inline"><strong>Day</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="0-31" min="0" max="31" style="width: 40%;">
+                        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="0-31" min="0" max="31" value="0" style="width: 40%;">
                     </div>
                 </div>
                 <br>
-                 <div class="border border-dark p-3 mb-3">
-	                <div class="row">
-	                    <div class="col-md-2">
-	                        <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
-	                        <input type="checkbox" id="reoccurring" name="reoccurring"/>
-	                    </div>
-	                </div>
-
-	                <div id="schedule-fields">
-	                    <div class="row mt-3">
-	                        <div class="col-md-2">
-	                            <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
-	                        </div>
-	                        <div class="col-md-2">
-	                            <label for="year" class="d-inline"><strong>Year</strong></label>
-	                            <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
-	                        </div>
-	                        <div class="col-md-2">
-	                            <label for="month" class="d-inline"><strong>Month</strong></label>
-	                            <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
-	                        </div>
-	                        <div class="col-md-2">
-	                            <label for="day" class="d-inline"><strong>Day</strong></label>
-	                            <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
-	                        </div>
-	                    </div>
-	                </div>
+                <div class="border border-dark p-3 mb-3">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
+                            <input type="checkbox" id="reoccurring" name="reoccurring"/>
+                        </div>
+                    </div>
+                    <div id="schedule-fields">
+                        <div class="row mt-3">
+                            <div class="col-md-2">
+                                <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="year" class="d-inline"><strong>Year</strong></label>
+                                <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="month" class="d-inline"><strong>Month</strong></label>
+                                <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="day" class="d-inline"><strong>Day</strong></label>
+                                <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="1" max="31" style="width: 40%;">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <br>
             </form>
@@ -200,13 +199,13 @@
     function saveProtocolTemplate() {
         const name = document.getElementById('protocolName').value;
         const description = document.getElementById('protocolDescription').value;
-        const yearDue = parseInt(document.getElementById('dueDateYear').value);
-        const monthDue = parseInt(document.getElementById('dueDateMonth').value);
-        const dayDue = parseInt(document.getElementById('dueDateDay').value);
+        const yearDue = parseInt(document.getElementById('dueDateYear').value) || 0;
+        const monthDue = parseInt(document.getElementById('dueDateMonth').value) || 0;
+        const dayDue = parseInt(document.getElementById('dueDateDay').value) || 0;
 
-        const yearSchedule = parseInt(document.getElementById('year').value);
-        const monthSchedule = parseInt(document.getElementById('month').value);
-        const daySchedule = parseInt(document.getElementById('day').value);
+        const yearSchedule = parseInt(document.getElementById('year').value) || 0;
+        const monthSchedule = parseInt(document.getElementById('month').value) || 0;
+        const daySchedule = parseInt(document.getElementById('day').value) || 0;
 
         if (!name || !description) {
             showMessageBanner('Please fill out all required fields.', 'danger');
@@ -238,10 +237,12 @@
             body: JSON.stringify(protocolData)
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                return response.json();
+            } else {
+                return response.text().then(text => ({ message: text }));
             }
-            return response.json(); // Expecting JSON response
         })
         .then(data => {
             if (data.message) {
@@ -251,13 +252,24 @@
                 showMessageBanner(data.error, 'danger');
             }
         })
-        .catch(error => showMessageBanner('Error creating protocol template: ' + error, 'danger'));
+        .catch(error => {
+            console.error('Fetch error:', error);
+            showMessageBanner('Error creating protocol template: ' + error.message, 'danger');
+        });
     }
 
     function addStep() {
         const select = document.getElementById('stepSelector');
         const selectedOption = select.options[select.selectedIndex];
         const stepsContainer = document.getElementById('stepsContent');
+
+        // Check if the step is already added
+        const stepExists = Array.from(stepsContainer.children).some(child => child.getAttribute('data-step-id') === selectedOption.value);
+
+        if (stepExists) {
+            showMessageBanner('Step has already been assigned to template.', 'danger');
+            return;
+        }
 
         // Create a new row for the step
         const newRow = document.createElement('div');
@@ -266,7 +278,7 @@
                             <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
         newRow.setAttribute('data-step-id', selectedOption.value);
 
-        stepsContainer.prepend(newRow); // Use prepend to add the new step to the top
+        stepsContainer.appendChild(newRow); // Append the new step
     }
 
     function removeStep(button) {
@@ -287,3 +299,4 @@
 </script>
 </body>
 </html>
+
