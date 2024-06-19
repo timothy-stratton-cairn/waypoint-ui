@@ -289,7 +289,7 @@
         var selectElement = buttonElement.previousElementSibling;
         var stepId = selectElement.value;
 
-        fetch(`/addStepToProtocol/${protocolId}/${stepId}`, {
+        fetch(`/addStepToProtocol/[[${protocolId}]]/` + stepId, {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/json',

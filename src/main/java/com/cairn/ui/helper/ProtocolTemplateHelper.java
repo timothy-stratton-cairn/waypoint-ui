@@ -188,8 +188,12 @@ public class ProtocolTemplateHelper {
 		
 		StringBuilder associatedStepTemplateIds = new StringBuilder("\"associatedStepTemplateIds\":[");
 		ArrayList<ProtocolStepTemplate>stepList = template.getSteps();
-	    int dueDateDays = Integer.parseInt(template.getDueDate()); // Assuming dueDate is stored as total days
-	    
+	    int dueDateDays = 0;
+		try {
+			Integer.parseInt(template.getDueDate()); // Assuming dueDate is stored as total days
+		} catch (Exception e) {
+			e.printStackTrace();			
+		}
 		for (int i = 0; i < stepList.size(); i++) {
 			ProtocolStepTemplate step = stepList.get(i);
 			associatedStepTemplateIds.append(step.getId());
