@@ -84,8 +84,6 @@
     <button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate();">Confirm</button>
 </div>
 
-
-
 <script th:inline="javascript">
     var pcolId = [[${pcolId}]]; // this can be null 
 
@@ -100,13 +98,22 @@
 
     function addHomeworkTemplate() {
         var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
+        
+        // Check if the homework is already added
+        var homeworkSelect = document.getElementById("homeworkTemplateDropdown");
+        var selectedOption = homeworkSelect.options[homeworkSelect.selectedIndex];
+        var homeworkExists = Array.from(tableBody.rows).some(row => row.dataset.homeworkId === selectedOption.value);
+        
+        if (homeworkExists) {
+            showBannerMessage("This homework template is already added.", "warning");
+            return; // Stop the function if the homework already exists
+        }
+
         if (tableBody.rows.length >= maxHomeworkItems) {
             showBannerMessage("The maximum number of homework items allowed has been reached, please remove a homework item before trying to add another.", "warning");
             return; // Stop the function if the max limit is reached
         }
 
-        var homeworkSelect = document.getElementById("homeworkTemplateDropdown");
-        var selectedOption = homeworkSelect.options[homeworkSelect.selectedIndex];
         if (selectedOption.value !== "") {
             var newRow = tableBody.insertRow();
             var cell1 = newRow.insertCell(0);
@@ -187,4 +194,5 @@
 
 </body>
 </html>
+
 

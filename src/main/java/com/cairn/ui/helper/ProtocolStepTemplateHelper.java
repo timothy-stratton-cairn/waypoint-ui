@@ -173,9 +173,10 @@ public class ProtocolStepTemplateHelper{
     	int result = 0;
     	
 	    String requestBody = "{\"linkedHomeworkTemplateIds\": [" + homeworkId + "]}";
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get +"/"+ stepTemplateId ;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + stepTemplateId ;
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-		
+		System.out.println(apiUrl);
+		System.out.println(requestBody);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
