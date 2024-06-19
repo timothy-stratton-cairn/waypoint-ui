@@ -10,7 +10,7 @@ public class ProtocolTemplate {
 	private String dueDate;
 	private String schedule;
 	private int type;
-	private boolean active;
+	private String status ;
 	private ArrayList<ProtocolStepTemplate> steps = new ArrayList<ProtocolStepTemplate>();
 
 	public int getId() {
@@ -31,12 +31,6 @@ public class ProtocolTemplate {
 		  1: Life Events
 		  2: Life Cycle */
 		return type;
-	}
-	public boolean isActive() {
-		return active;
-	}
-	public void setActive(boolean active) {
-		this.active = active;
 	}
 	public ArrayList<ProtocolStepTemplate> getSteps() {
 		return steps;
@@ -64,5 +58,11 @@ public class ProtocolTemplate {
 	}
 	public void setType(int type) {
 		this.type = type;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }

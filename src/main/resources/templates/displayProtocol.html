@@ -27,6 +27,8 @@
                             <div class="col-md-11">
                                 <input type="text" id="name" name="name" th:value="${protocol.name}" class="form-control" />
                             </div>
+
+                            
                         </div>
                         <br>
                         <div class="row">
@@ -184,6 +186,7 @@
     var protocolId = [[${protocolId}]]; 
     var dueByDays = [[${dueBy}]];
 
+
     function newStep() {
         window.location = '/newStep/' + protocolId;
     }
@@ -282,14 +285,24 @@
         });
     }
 
-    function confirmStep(buttonElement) {
+     function confirmStep(buttonElement) {
         var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
         var selectElement = buttonElement.previousElementSibling;
         var stepId = selectElement.value;
 
-        fetch(`/addStepToProtocol/[[${protocolId}]]/` + stepId, {
+        // Check if the step already exists in the stepsContent table
+        var stepExists = Array.from(document.querySelectorAll('#stepsContent > div')).some(function(stepElement) {
+            return stepElement.id === 'row_' + stepId;
+        });
+
+        if (stepExists) {
+            showBannerMessage('Step has already been assigned to template.', 'danger');
+            return;
+        }
+
+        fetch(`/addStepToProtocol/` + protocolId + `/` + stepId, {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
