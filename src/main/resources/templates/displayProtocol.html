@@ -89,7 +89,9 @@
 	                </div>
 				</div>
                 <button onclick="history.back()" class="btn btn-primary">Back</button>
-                <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
+                <button type="button" class="btn btn-primary" th:attr="data-id=${protocol.id},data-name='[[${protocol.name}]]'"
+        				onclick="deleteProtocolTemplate(this)">Delete</button>
+
                 <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
             </fieldset>
         </div>
@@ -324,33 +326,42 @@
         });
     }
 
-    function deleteProtocolTemplate(Id) {
-        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-
-        fetch('/deleteTemplate/ProtocolTemplate/' + Id, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            credentials: 'include'
-        })
-        .then(response => {
-            if (response.ok) {
-                window.location.href = '/protocolTemplates';
-            } else {
-                showBannerMessage('Failed to delete Protocol Template.', 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showBannerMessage('Error deleting Protocol Template.', 'danger');
-        });
-    }
+	function deleteProtocolTemplate(id) {
+	    // Show a confirmation dialog to the user
+	    var protocolName = document.getElementById('name').value;
+	    var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
+	
+	    // If the user clicks "Cancel", exit the function
+	    if (!isConfirmed) {
+	        return;
+	    }
+	
+	    var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+	    var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+	    var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+	    var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+	
+	    fetch('/deleteTemplate/ProtocolTemplate/' + id, {
+	        method: 'DELETE',
+	        headers: {
+	            'Accept': 'application/json',
+	            'Content-Type': 'application/json',
+	            [csrfHeader]: csrfToken
+	        },
+	        credentials: 'include'
+	    })
+	    .then(response => {
+	        if (response.ok) {
+	            window.location.href = '/protocolTemplates';
+	        } else {
+	            showBannerMessage('Failed to delete Protocol Template.', 'danger');
+	        }
+	    })
+	    .catch(error => {
+	        console.error('Error:', error);
+	        showBannerMessage('Error deleting Protocol Template.', 'danger');
+	    });
+	}
 
     $(document).ready(function() {
         $('#schedule-fields').hide(); 

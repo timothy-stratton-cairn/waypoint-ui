@@ -16,10 +16,13 @@
         <fieldset>
             <legend>Edit Homework</legend>
             <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+            <br>
             <div class="form-group">
                 <label for="homeworkName"><strong>Name:</strong></label>
                 <span id="homeworkName" th:text="${homework.name}">Homework Name</span>
+                
             </div>
+            <input type="hidden" id="hwName" th:value="${homework.name}" />
             <div class="form-group">
                 <label for="homeworkDetails"><strong>Description:</strong></label>
                 <span id="homeworkDetails" th:text="${homework.description}">Homework Description</span>
@@ -197,6 +200,13 @@
     }
     
             function deleteHomework(Id) {
+			var hwName = document.getElementById('hwName').value;
+		    var isConfirmed = confirm(`Are you sure you want to delete ${hwName}?`);
+		
+		    // If the user clicks "Cancel", exit the function
+		    if (!isConfirmed) {
+		        return;
+		    }
             var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
             var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
             var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';

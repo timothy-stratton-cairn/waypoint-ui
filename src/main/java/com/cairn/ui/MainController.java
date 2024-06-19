@@ -1593,6 +1593,14 @@ public class MainController {
     }
     
     
+    @GetMapping("deleteTemplatePopUp/{type}/{id}")
+    public String deleteTemplatePopUp(@PathVariable String type, @PathVariable int id, Model model) {
+    	model.addAttribute("id",id);
+    	model.addAttribute("type",type);
+    	return "deleteTemplatePopUp";
+    	
+    }
+    
     @DeleteMapping("deleteTemplate/{type}/{id}")
     public ResponseEntity<String> deleteTemplate(@PathVariable String type, @PathVariable int id) {
         User currentUser = userDAO.getUser();

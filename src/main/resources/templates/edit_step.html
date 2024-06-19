@@ -193,6 +193,13 @@
         }
         
         function deleteStepTemplate(stepId) {
+			var stepName = document.getElementById('stepName').value;
+		    var isConfirmed = confirm(`Are you sure you want to delete ${stepName}?`);
+		
+		    // If the user clicks "Cancel", exit the function
+		    if (!isConfirmed) {
+		        return;
+		    }
             var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
             var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
             var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
