@@ -3,13 +3,13 @@ package com.cairn.ui.helper;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -21,17 +21,15 @@ import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkResponse;
 import com.cairn.ui.model.HomeworkTemplate;
-import com.cairn.ui.model.ProtocolStepTemplate;
-import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.oauth2.sdk.Response;
 
 @Service
 public class HomeworkTemplateHelper{
+    Logger logger = LoggerFactory.getLogger(HomeworkTemplateHelper.class); 
 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
@@ -99,10 +97,10 @@ public class HomeworkTemplateHelper{
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("testing");
+			logger.info("testing");
 		}
 
 		return results;
@@ -153,7 +151,7 @@ public class HomeworkTemplateHelper{
 
         String apiUrl = Constants.api_server + Constants.api_homeworktemplate + "/" + id;
         HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        System.out.println(apiUrl);
+        logger.info(apiUrl);
         
         try {
             ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -164,10 +162,10 @@ public class HomeworkTemplateHelper{
                 JsonNode rootNode = objectMapper.readTree(jsonResponse);
                 populateTemplateFromJson(rootNode, result);
             } else {
-                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
             }
         } catch (Exception e) {
-            System.out.println("Error retrieving homework template: " + e.getMessage());
+            logger.info("Error retrieving homework template: " + e.getMessage());
         }
 
         return result;
@@ -177,7 +175,7 @@ public class HomeworkTemplateHelper{
     	String result = "Process not yet set ";
     	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
     	HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, templateBody);
-    	System.out.println("Template Body: " + templateBody);
+    	logger.info("Template Body: " + templateBody);
     	
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
@@ -186,7 +184,7 @@ public class HomeworkTemplateHelper{
 	            result = "Success";
 	        } else {
 	        	result = "Failed to fetch data. Status code: " + response.getStatusCode();
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
@@ -197,7 +195,7 @@ public class HomeworkTemplateHelper{
             result = "Error"+ errorResponse;
 		}
 		catch(Exception e) {
-			System.out.println("Error in updating Comment");
+			logger.info("Error in updating Comment");
 	        e.printStackTrace();
 	        result = "Error in creating new Template: " + e;
 		}
@@ -235,13 +233,13 @@ public class HomeworkTemplateHelper{
 	            result = 1;
 	        } else {
 	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
-			System.out.println("Error in updating Comment");
+			logger.info("Error in updating Comment");
 	        e.printStackTrace();
 		}
     	
@@ -259,7 +257,7 @@ public class HomeworkTemplateHelper{
 			}
         }
 	    catch (Exception e) {
-	        System.out.println("Error in deleteHomeworkTemplate");
+	        logger.info("Error in deleteHomeworkTemplate");
 	        e.printStackTrace();
 	    }
         
@@ -303,11 +301,11 @@ public class HomeworkTemplateHelper{
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
 
-			System.out.println("No Homeworks Returned");
+			logger.info("No Homeworks Returned");
 
 		}
     	
@@ -349,7 +347,7 @@ public class HomeworkTemplateHelper{
             "\"triggeredProtocolId\": " + question.getTriggerProtocolId() +
             "}";
 
-        System.out.println(requestBody);
+        logger.info(requestBody);
         HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
         
 		try {
@@ -359,13 +357,13 @@ public class HomeworkTemplateHelper{
 	            result = 1;
 	        } else {
 	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
-			System.out.println("Error in Posting Question");
+			logger.info("Error in Posting Question");
 	        e.printStackTrace();
 		}
         

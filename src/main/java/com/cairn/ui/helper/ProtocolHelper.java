@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ProtocolHelper {
+    Logger logger = LoggerFactory.getLogger(ProtocolHelper.class); 
 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
@@ -52,10 +55,10 @@ public class ProtocolHelper {
 			if (response.getStatusCode().is2xxSuccessful()) {
 				jsonResponse = response.getBody();
 			} else {
-				System.out.println("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("No records returned for " + apiUrl);
+			logger.info("No records returned for " + apiUrl);
 		}
 		return jsonResponse;
 	}
@@ -72,11 +75,11 @@ public class ProtocolHelper {
 				result = 1;
 			} else {
 				result = -1;
-				System.out.println(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 
 		} catch (Exception e) {
-			System.out.println("Error in updating note");
+			logger.info("Error in updating note");
 			e.printStackTrace();
 		}
 		return result;
@@ -93,12 +96,12 @@ public class ProtocolHelper {
 				result = 1;
 			} else {
 				result = -1;
-				System.out.println(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
 				// Update result to indicate a specific type of failure
 			}
 
 		} catch (Exception e) {
-			System.out.println("Error in updating progress");
+			logger.info("Error in updating progress");
 			e.printStackTrace();
 		}
 		return result;
@@ -232,7 +235,7 @@ public class ProtocolHelper {
 	            }
 		    } catch (Exception e) {
 		        e.printStackTrace();
-		        System.out.println("Error fetching protocols: " + e.getMessage());
+		        logger.info("Error fetching protocols: " + e.getMessage());
 		    }
 		}
 	    return results;
@@ -340,7 +343,7 @@ public class ProtocolHelper {
 						result.setSteps(steps);
 					}
 					result.setStepCount();
-					System.out.println(result.getStepCount());
+					logger.info("Retrieved " + result.getStepCount() + " steps.");
 
 				} catch (JsonMappingException e) {
 					e.printStackTrace();
@@ -348,11 +351,11 @@ public class ProtocolHelper {
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("No protocols returned");
+			logger.info("No protocols returned");
 		}
 
 		return result;
@@ -393,7 +396,7 @@ public class ProtocolHelper {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("Failed to fetch data. getStepList");
+			logger.info("Failed to fetch data. getStepList");
 		}
 
 		return results;
@@ -495,7 +498,7 @@ public class ProtocolHelper {
 							entry.setSteps(steps);
 							entry.setStepCount();
 							entry.setCompletedSteps();
-							System.out.println("Step Count" + entry.getStepCount() + " Completed Steps"
+							logger.info("Step Count" + entry.getStepCount() + " Completed Steps"
 									+ entry.getCompletedSteps());
 						}
 						results.add(entry);
@@ -512,7 +515,7 @@ public class ProtocolHelper {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("Failed to fetch data. getAssignedProtocols");
+			logger.info("Failed to fetch data. getAssignedProtocols");
 		}
 
 		return results;
@@ -628,7 +631,7 @@ public class ProtocolHelper {
 			}
         }
 	    catch (Exception e) {
-	        System.out.println("Error in deleting protocol");
+	        logger.info("Error in deleting protocol");
 	        e.printStackTrace();
 	    }
         

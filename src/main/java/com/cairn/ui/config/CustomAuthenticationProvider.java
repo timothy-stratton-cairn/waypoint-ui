@@ -70,7 +70,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 					if (perms.isArray()) {
 						for (JsonNode element : perms) {
 							if (element != null) {
-								System.out.println();
 								usr.addPermission(element.toString());
 							}
 						}

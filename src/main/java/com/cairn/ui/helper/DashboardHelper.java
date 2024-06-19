@@ -1,20 +1,19 @@
 package com.cairn.ui.helper;
 
-import com.cairn.ui.model.AssignedUsers;
-import com.cairn.ui.model.Entity;
-
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
+import com.cairn.ui.model.AssignedUsers;
+import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.ProtocolStats;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class DashboardHelper {
+    Logger logger = LoggerFactory.getLogger(DashboardHelper.class); 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
 
@@ -40,7 +40,7 @@ public class DashboardHelper {
 
         // Prepare the request body
         String apiUrl = this.dashboardApiBaseUrl + Constants.api_dashboard_get;
-        System.out.println(apiUrl);
+        logger.info(apiUrl);
         HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 
         // Make the GET request and retrieve the response
@@ -90,11 +90,11 @@ public class DashboardHelper {
                     e.printStackTrace();
                 }
             } else {
-                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
             }
         } catch (Exception e) {
-            System.out.println(e);
-            System.out.println("No dashboard data returned");
+            logger.error(e.getMessage());
+            logger.error("No dashboard data returned");
         }
 
         return results;

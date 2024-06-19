@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Household;
-import com.cairn.ui.model.ProtocolStats;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class UserHelper {
+    Logger logger = LoggerFactory.getLogger(UserHelper.class); 
 
 	@Value("${waypoint.authorization-api.base-url}")
 	private String authorizationApiBaseUrl;
@@ -86,10 +88,10 @@ public class UserHelper {
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("No user data returned");
+			logger.info("No user data returned");
 			e.printStackTrace();
 		}
 
@@ -159,10 +161,10 @@ public class UserHelper {
 	                e.printStackTrace();
 	            }
 	        } else {
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	        }
 	    } catch (Exception e) {
-	        System.out.println("No Household data returned");
+	        logger.info("No Household data returned");
 	        e.printStackTrace();
 	    }
 	    return null; // Return null if the household with the given ID is not found
@@ -217,10 +219,10 @@ public class UserHelper {
                     e.printStackTrace();
                 }
             } else {
-                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
             }
         } catch (Exception e) {
-            System.out.println("No Household data returned");
+            logger.info("No Household data returned");
             e.printStackTrace();
         }
         return results;
@@ -303,10 +305,10 @@ public class UserHelper {
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("No user data returned");
+			logger.info("No user data returned");
 			e.printStackTrace();
 		}
 
@@ -325,8 +327,8 @@ public class UserHelper {
 	        );
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
 	    HttpEntity<String> entity = Entity.getEntityWithBody(loggedInUser, apiUrl,requestBody);
-		System.out.println(apiUrl);
-		System.out.println(entity);
+		logger.info("addUser URL: " + apiUrl.toString());
+		logger.info("addUser entity: " + entity.toString());
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -348,26 +350,26 @@ public class UserHelper {
 	
 	public int updateUserDetails(User usr, int id ,String firstName, String lastName, String email, int role) {
 		int result = 0;
-		System.out.println("Calling userhelper updateUserDetails. FirstName: "+ firstName + " LastName: "+lastName+" Email: "+email );
+		logger.info("Calling userhelper updateUserDetails. FirstName: "+ firstName + " LastName: "+lastName+" Email: "+email );
 		String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\", \"roleIds\":[" + role + "]}";	
 	    String apiUrl = Constants.auth_server + Constants.api_userlist_get +"/"+ id ;
-	    System.out.println(apiUrl);
+	    logger.info(apiUrl);
 	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-	        	System.out.println("Success!");
+	        	logger.info("Success!");
 	            result = 1;
 	        } else {
 	        	
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
-			System.out.println("Error in updating User Details");
+			logger.info("Error in updating User Details");
 	        e.printStackTrace();
 		}
 		return result;
@@ -414,10 +416,10 @@ public class UserHelper {
                 int accountId = root.path("accountId").asInt(); // Extract accountId
                 result = accountId;
             } else {
-                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
             }
         } catch (Exception e) {
-            System.out.println("Error in getting User ID");
+            logger.info("Error in getting User ID");
             e.printStackTrace();
             result = -1;
         }
@@ -439,10 +441,10 @@ public class UserHelper {
                 int accountId = root.path("householdId").asInt(); // Extract accountId
                 result = accountId;
             } else {
-                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
             }
         } catch (Exception e) {
-            System.out.println("Error in getting User ID");
+            logger.info("Error in getting User ID");
             e.printStackTrace();
             result = -1;
         }
@@ -452,7 +454,7 @@ public class UserHelper {
 	
 	public int addDependant(User usr, User client, ArrayList<User> users) {
 	    int result = 0;
-	    System.out.println("Calling addDepenedant from Helper");
+	    logger.info("Calling addDepenedant from Helper");
 	    HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
@@ -471,25 +473,25 @@ public class UserHelper {
 	    tempBody.append("]}");
 	    String requestBody = String.format("{\"firstName\":\"%s\",\"lastName\":\"%s\",\"email\":\"%s\",",client.getFirstName(),client.getLastName(),client.getEmail());
 	    requestBody = requestBody+tempBody.toString();
-	    System.out.println(requestBody);
+	    logger.info(requestBody);
 	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-	    System.out.println("Url: "+ apiUrl);
-	    System.out.println("RequestBody: "+ requestBody);
+	    logger.info("Url: "+ apiUrl);
+	    logger.info("RequestBody: "+ requestBody);
 
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-	        System.out.println("Success!");
+	        logger.info("Success!");
 	            result = 1;
 	        } else {
 	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
-			System.out.println("Error in updating User Details");
+			logger.info("Error in updating User Details");
 	        e.printStackTrace();
 		}
 		return result;
@@ -501,21 +503,21 @@ public class UserHelper {
 		String requestBody = "{\"householdAccountIds\":" + householdIds.toString() + "}";
 	    String apiUrl = Constants.auth_server + Constants.api_household_get +primaryContactId;
 	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-	    System.out.println("requestBody: "+requestBody);
+	    logger.info("requestBody: "+requestBody);
 	    try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-	        System.out.println("Success!");
+	        logger.info("Success!");
 	            result = 1;
 	        } else {
 	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
-			System.out.println("Error in updating User Details");
+			logger.info("Error in updating User Details");
 	        e.printStackTrace();
 		}
 		
@@ -524,7 +526,7 @@ public class UserHelper {
 	
 	
 	public int addCoClient(User usr, User client, User coClient) {
-		System.out.println("Calling addCoClient from User Helper with ClientId: "+ client.getId() + " and CoClientId: " +coClient.getId());
+		logger.info("Calling addCoClient from User Helper with ClientId: "+ client.getId() + " and CoClientId: " +coClient.getId());
 	    int result = -1;
 	    HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
@@ -559,21 +561,21 @@ public class UserHelper {
 
 	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + client.getId();
 	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-	    System.out.println("Url: "+ apiUrl);
-	    System.out.println("RequestBody: "+ requestBody);
+	    logger.info("Url: "+ apiUrl);
+	    logger.info("RequestBody: "+ requestBody);
 	    try {
 	    	ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
-	        System.out.println("Success!");
+	        logger.info("Success!");
 	            result = 1;
 	        } else {
 	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 	    } catch (Exception e) {
-	        System.out.println("Error in updating User Details");
+	        logger.info("Error in updating User Details");
 	        e.printStackTrace();
 	    }
 	    return result;

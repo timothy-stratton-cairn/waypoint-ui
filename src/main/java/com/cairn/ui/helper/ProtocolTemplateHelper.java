@@ -1,10 +1,11 @@
 package com.cairn.ui.helper;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ProtocolTemplateHelper {
+    Logger logger = LoggerFactory.getLogger(ProtocolTemplateHelper.class); 
 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
@@ -53,10 +55,10 @@ public class ProtocolTemplateHelper {
 			if (response.getStatusCode().is2xxSuccessful()) {
 				jsonResponse = response.getBody();
 			} else {
-				System.out.println("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("No records returned for " + apiUrl);
+			logger.info("No records returned for " + apiUrl);
 		}
 		return jsonResponse;
 	}
@@ -73,11 +75,11 @@ public class ProtocolTemplateHelper {
 				result = 1;
 			} else {
 				result = -1;
-				System.out.println(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 
 		} catch (Exception e) {
-			System.out.println("Error in updating note");
+			logger.info("Error in updating note");
 			e.printStackTrace();
 		}
 		return result;
@@ -93,7 +95,7 @@ public class ProtocolTemplateHelper {
 			}
         }
 	    catch (Exception e) {
-	        System.out.println("Error in deleting " + apiUrl);
+	        logger.info("Error in deleting " + apiUrl);
 	        e.printStackTrace();
 	    }
         
@@ -111,12 +113,12 @@ public class ProtocolTemplateHelper {
 				result = 1;
 			} else {
 				result = -1;
-				System.out.println(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
 				// Update result to indicate a specific type of failure
 			}
 
 		} catch (Exception e) {
-			System.out.println("Error in updating progress");
+			logger.info("Error in updating progress");
 			e.printStackTrace();
 		}
 		return result;
@@ -173,10 +175,10 @@ public class ProtocolTemplateHelper {
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("No protocols returned");
+			logger.info("No protocols returned");
 		}
 
 		return results;
@@ -265,10 +267,10 @@ public class ProtocolTemplateHelper {
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("No protocols returned");
+			logger.info("No protocols returned");
 		}
 
 		return results;
@@ -365,7 +367,7 @@ public class ProtocolTemplateHelper {
 	    int result = -1;
 
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + theTemplate.getId()+ "/"+ theStep.getId();
-	    System.out.println(apiUrl);
+	    logger.info(apiUrl);
 	    result = patchAPI(apiUrl, null, usr);
 
 	    return result;
@@ -464,7 +466,7 @@ public class ProtocolTemplateHelper {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("Failed to fetch data getStep");
+			logger.info("Failed to fetch data getStep");
 		}
 
 		return result;
@@ -517,7 +519,7 @@ public class ProtocolTemplateHelper {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("Failed to fetch data for getList(protocol template)");
+			logger.info("Failed to fetch data for getList(protocol template)");
 		}
 
 		return results;
@@ -572,7 +574,7 @@ public class ProtocolTemplateHelper {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("Failed to fetch data for getStepList");
+			logger.info("Failed to fetch data for getStepList");
 		}
 
 		return results;
@@ -627,7 +629,7 @@ public class ProtocolTemplateHelper {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("Failed to fetch data for protocol template.");
+			logger.info("Failed to fetch data for protocol template.");
 		}
 
 		return result;

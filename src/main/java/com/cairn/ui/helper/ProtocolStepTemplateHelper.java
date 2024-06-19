@@ -1,13 +1,12 @@
 package com.cairn.ui.helper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -18,18 +17,16 @@ import com.cairn.ui.Constants;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
-import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.minidev.json.JSONObject;
-
 
 @Service 
 public class ProtocolStepTemplateHelper{
+    Logger logger = LoggerFactory.getLogger(ProtocolStepTemplateHelper.class); 
 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
@@ -94,11 +91,11 @@ public class ProtocolStepTemplateHelper{
                     }
                 }
             } else {
-                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("No protocols returned");
+            logger.info("No protocols returned");
         }
     	
     	
@@ -136,12 +133,11 @@ public class ProtocolStepTemplateHelper{
                 + "\"stepTemplateCategoryId\": " + newStep.getCategoryId() + "}";
         
         String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
-        System.out.println(apiUrl);
-        System.out.println(requestBody);
+        logger.info(apiUrl);
+        logger.info(requestBody);
         HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
         try {
             ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-            System.out.println(response);
             if (response.getStatusCode().is2xxSuccessful()) {
                 // Parse the response body to get the stepTemplateId
             	String jsonResponse = response.getBody();
@@ -156,14 +152,14 @@ public class ProtocolStepTemplateHelper{
                 }
             } else {
                 result = -1;
-                System.out.println("Failed to Post data. Status code: " + response.getStatusCode());
+                logger.info("Failed to Post data. Status code: " + response.getStatusCode());
             }  
         } catch (Exception e) {
             result = -1;
-            System.out.println("Error in addStepTemplate");
+            logger.info("Error in addStepTemplate");
             e.printStackTrace();
         }
-        System.out.println(result);
+        logger.info("Add template response:" + result);
         return result;
     }
 
@@ -175,8 +171,8 @@ public class ProtocolStepTemplateHelper{
 	    String requestBody = "{\"linkedHomeworkTemplateIds\": [" + homeworkId + "]}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + stepTemplateId ;
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-		System.out.println(apiUrl);
-		System.out.println(requestBody);
+		logger.info(apiUrl);
+		logger.info(requestBody);
 		try {
 	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
 	        if (response.getStatusCode().is2xxSuccessful()) {
@@ -184,14 +180,14 @@ public class ProtocolStepTemplateHelper{
 	            result = 1;
 	        } else {
 	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
 			result = -1;
-			System.out.println("Error in addHomeworkTemplate");
+			logger.info("Error in addHomeworkTemplate");
 	        e.printStackTrace();
 		}
     	return result;
@@ -201,13 +197,13 @@ public class ProtocolStepTemplateHelper{
     public int updateStepTemplate(User usr,int id ,ProtocolStepTemplate step) {
     	int result = -1;
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get +"/"+ id ;
-		System.out.println(apiUrl);
+		logger.info(apiUrl);
 		String requestBody = "{"
 		    + "\"name\": \"" + step.getName() + "\","
 		    + "\"description\": \"" + step.getDescription() + "\","
 		    + "\"stepTemplateCategoryId\": " + step.getCategoryId() + "}";
 		
-		System.out.println(requestBody);
+		logger.info(requestBody);
 		    
 		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
 		try {
@@ -217,14 +213,14 @@ public class ProtocolStepTemplateHelper{
 	            result = 1;
 	        } else {
 	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
 			result = -1;
-			System.out.println("Error in addHomeworkTemplate");
+			logger.info("Error in addHomeworkTemplate");
 	        e.printStackTrace();
 		}
     	return result;
@@ -272,13 +268,12 @@ public class ProtocolStepTemplateHelper{
 								curHw.setId(Integer.parseInt(element.get("id").asText()));
 								curHw.setDescription(element.get("description").asText());
 								homeworks.add(curHw);
-								System.out.println(curHw);
 							}
 							else {
-								System.out.println("No Homework Retrieved");
+								logger.warn("No Homework Retrieved");
 							}
 						}
-						System.out.println(homeworks);
+						logger.info(homeworks.toString());
 						result.setHomework(homeworks);
 					}
 					} catch (JsonMappingException e) {
@@ -287,10 +282,10 @@ public class ProtocolStepTemplateHelper{
 						e.printStackTrace();
 					}
 				} else {
-					System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+					logger.error("Failed to fetch data. Status code: " + response.getStatusCode());
 				}
 			} catch (Exception e) {
-				System.out.println("No protocols returned");
+				logger.error("No protocols returned");
 			}
 
 	    
@@ -309,7 +304,7 @@ public class ProtocolStepTemplateHelper{
 			}
         }
 	    catch (Exception e) {
-	    	System.out.println("Error in deleteStepTemplate");
+	    	logger.info("Error in deleteStepTemplate");
 	        e.printStackTrace();
 	    }
         
@@ -329,14 +324,14 @@ public class ProtocolStepTemplateHelper{
 	            result = 1;
 	        } else {
 	        	result = -1;
-	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 	            // Update result to indicate a specific type of failure
 	        }  
 			
 		}
 		catch(Exception e) {
 			result = -1;
-			System.out.println("Error in deleteHomeworkTemplate");
+			logger.info("Error in deleteHomeworkTemplate");
 	        e.printStackTrace();
 		}
     	return result;

@@ -1,16 +1,15 @@
 package com.cairn.ui.helper;
 
-import com.cairn.ui.model.AssignedHomeworkResponseList;
-import com.cairn.ui.model.ExpectedHomeworkResponses;
-import com.cairn.ui.model.HomeworkResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
@@ -26,9 +25,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cairn.ui.Constants;
 import com.cairn.ui.dto.HomeworkListDto;
+import com.cairn.ui.model.AssignedHomeworkResponseList;
 import com.cairn.ui.model.Entity;
+import com.cairn.ui.model.ExpectedHomeworkResponses;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
+import com.cairn.ui.model.HomeworkResponse;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -36,6 +38,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class HomeworkHelper {
+    Logger logger = LoggerFactory.getLogger(HomeworkHelper.class); 
 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
@@ -56,13 +59,13 @@ public class HomeworkHelper {
 
 		ArrayList<Homework> results = new ArrayList<Homework>();
 		if (usr == null) {
-			System.out.println("No User found");
+			logger.info("No User found");
 			return results;
 		}
 
 		String apiUrl = Constants.api_server + Constants.api_homework + "protocol/" + protocolId;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		System.out.println(apiUrl);
+		logger.info(apiUrl);
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -98,11 +101,11 @@ public class HomeworkHelper {
 					e.printStackTrace();
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
 
-			System.out.println("No Homeworks Returned");
+			logger.info("No Homeworks Returned");
 
 		}
 		return results;
@@ -114,7 +117,7 @@ public class HomeworkHelper {
 
 		String apiUrl = Constants.api_server + Constants.api_homework + "protocol/" + id;
 
-		System.out.println(apiUrl);
+		logger.info(apiUrl);
 
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		try {
@@ -126,10 +129,10 @@ public class HomeworkHelper {
 				result = objectMapper.readValue(jsonResponse, HomeworkListDto.class);
 
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			System.out.println("No Testing");
+			logger.info("No Testing");
 		}
 
 		return result;
@@ -139,13 +142,13 @@ public class HomeworkHelper {
 
 		ArrayList<Homework> results = new ArrayList<Homework>();
 		if (usr == null) {
-			System.out.println("No User found");
+			logger.info("No User found");
 			return results;
 		}
 
 		String apiUrl = Constants.api_server + Constants.api_homework + "household/" + protocolId;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		System.out.println(apiUrl);
+		logger.info(apiUrl);
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
@@ -185,7 +188,7 @@ public class HomeworkHelper {
                                         homeworkQuestions.add(curQuestion);
                                     }
                                 } else {
-                                    System.out.println("No 'homeworkQuestions' array found in the JSON response.");
+                                    logger.info("No 'homeworkQuestions' array found in the JSON response.");
                                 }
                                 entry.setQuestions(homeworkQuestions);
 
@@ -193,7 +196,7 @@ public class HomeworkHelper {
                             }
                         }
                     } else {
-                        System.out.println("No 'homeworks' array found in the JSON response.");
+                        logger.info("No 'homeworks' array found in the JSON response.");
                     }
                 } catch (JsonMappingException e) {
                     e.printStackTrace();
@@ -201,10 +204,10 @@ public class HomeworkHelper {
                     e.printStackTrace();
                 }
             } else {
-                System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
             }
         } catch (Exception e) {
-            System.out.println("No Homeworks Returned");
+            logger.info("No Homeworks Returned");
         }
         return results;
 	}
@@ -212,20 +215,20 @@ public class HomeworkHelper {
 	public Homework getHomeworkByHomeworkId(User usr, int id) {
 		Homework result = new Homework();
 		if (usr == null) {
-			System.out.println("No User found");
+			logger.info("No User found");
 			return null; // Returning null to indicate user not found, handle accordingly
 		}
 
 		String apiUrl = Constants.api_server + Constants.api_homework + id;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		System.out.println(apiUrl);
+		logger.info(apiUrl);
 
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
-				System.out.println("API response: " + jsonResponse);
+				logger.info("API response: " + jsonResponse);
 				ObjectMapper objectMapper = new ObjectMapper();
 
 				JsonNode jsonNode;
@@ -280,21 +283,21 @@ public class HomeworkHelper {
 
 							}
 						} else {
-							System.out.println("No 'questions' array found in the JSON response.");
+							logger.info("No 'questions' array found in the JSON response.");
 						}
 					}
 					result.setQuestions(homeworkQuestion);
 
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println("Error " + e);
+					logger.info("Error " + e);
 				}
 			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error processing the homework fetch request: " + e.getMessage());
+			logger.info("Error processing the homework fetch request: " + e.getMessage());
 		}
 		return result; // Return null to indicate that no homework was fetched
 	}
@@ -372,7 +375,7 @@ public class HomeworkHelper {
 				}
 			};
 
-			System.out.println("File Path: " + filePath + " fileAsResource: " + fileAsResource);
+			logger.info("File Path: " + filePath + " fileAsResource: " + fileAsResource);
 			attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
 
 			multipartRequest.set("files", attachmentPart);
@@ -395,8 +398,8 @@ public class HomeworkHelper {
 	
 	public int assigneFileUpload(User usr, int homeworkId, int questionId, String userResponse, MultipartFile file)
 	        throws IOException {
-		System.out.println("Calling AssignAnswerToHomeworkTest");
-		System.out.println("File Uploaded: " + file.getOriginalFilename() + " User Response: "+ userResponse);
+		logger.info("Calling AssignAnswerToHomeworkTest");
+		logger.info("File Uploaded: " + file.getOriginalFilename() + " User Response: "+ userResponse);
 	    final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
 	    MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
@@ -472,7 +475,7 @@ public class HomeworkHelper {
 			}
         }
 	    catch (Exception e) {
-	        System.out.println("Error in deleteHomeworkQuestion");
+	        logger.info("Error in deleteHomeworkQuestion");
 	    }
         
     	
@@ -489,7 +492,7 @@ public class HomeworkHelper {
 			}
         }
 	    catch (Exception e) {
-	    	System.out.println("Error in deleteHomework");
+	    	logger.info("Error in deleteHomework");
 	        e.printStackTrace();
 	    }
         

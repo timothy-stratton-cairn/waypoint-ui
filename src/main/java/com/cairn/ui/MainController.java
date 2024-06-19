@@ -1,6 +1,5 @@
 package com.cairn.ui;
 
-import com.cairn.ui.model.AssignedHomeworkResponseList;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -24,6 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -56,6 +57,7 @@ import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.AssignedHomeworkResponse;
+import com.cairn.ui.model.AssignedHomeworkResponseList;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
@@ -72,11 +74,13 @@ import com.cairn.ui.model.ReportStat;
 import com.cairn.ui.model.User;
 import com.cairn.ui.model.UserDAO;
 
-import jakarta.servlet.http.HttpSession;
-
+import jakarta.servlet.http.HttpSession; 
+  
 @Controller
 public class MainController {
-	@Autowired
+    Logger logger = LoggerFactory.getLogger(MainController.class); 
+    
+    @Autowired
 	UserDAO userDAO;
 
 	@Autowired
@@ -127,10 +131,12 @@ public class MainController {
 	    calendar.add(Calendar.DAY_OF_YEAR, 7);
 	    Date upcomingWeek = calendar.getTime();
 	    if (pcolList.isEmpty()) {
-	    	System.out.println("No Protocols Returned");
+	    	logger.warn("No Protocols Returned");
+	    	//logger.info("No Protocols Returned");
 	    }
 	    else {
-	    	System.out.println(pcolList.size());
+	    	logger.info("Returned " + pcolList.size() + " protocols.");
+	    	//logger.info(pcolList.size());
 	    }
 	    for (Protocol pcol : pcolList) {
 	        String dueDateStr = pcol.getDueDate();
@@ -147,7 +153,8 @@ public class MainController {
 	    }
 	    ArrayList<ProtocolStats> stats = helper.getDashboard(usr);
 	    for (ProtocolStats stat: stats) {
-	    	System.out.println("Temp ID: " + stat.getTemplateId() + " Number Of Steps: "+ stat.getNumSteps() + " Progress: " + stat.getProgress());
+	    	logger.info("Temp ID: " + stat.getTemplateId() + " Number Of Steps: "+ stat.getNumSteps() + " Progress: " + stat.getProgress());
+	    	//logger.info("Temp ID: " + stat.getTemplateId() + " Number Of Steps: "+ stat.getNumSteps() + " Progress: " + stat.getProgress());
 	    }
 		session.setAttribute("me", usr);
 		model.addAttribute("msg", msg);
@@ -175,14 +182,14 @@ public class MainController {
 		int userId = userHelper.getHouseholdId(currentUser);
 		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
 		HomeworkHelper homeworkHelper = new HomeworkHelper();
-		System.out.println("Calling getHomeworkByProtocol");
+		logger.info("Calling getHomeworkByProtocol");
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, pcolId);
 		if (allHomeworks != null && !allHomeworks.isEmpty()) {
 		    for (Homework homework : allHomeworks) {
-		        System.out.println("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription());
+		        logger.info("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription());
 		    }
 		} else {
-		    System.out.println("No homeworks found or list is empty");
+		    logger.info("No homeworks found or list is empty");
 		}
 		ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser,pcolId);
 		ProtocolComments mostRecentComment = protocol.getComments().stream()
@@ -211,7 +218,7 @@ public class MainController {
 	    ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
 	    
 	    for (ProtocolStep step : stepList) {
-	        System.out.println("Step " + step.getName() + " Category: " + step.getCategoryId());
+	        logger.info("Step " + step.getName() + " Category: " + step.getCategoryId());
 	        if (step.getCategoryId() == 2) {
 	            stepIds.add(step.getId());
 	        }
@@ -221,15 +228,15 @@ public class MainController {
 	    
 	    
 	    for (ProtocolStep step: stepList) {
-	    	System.out.println("Step "+ step.getName() + " Catagory: "+ step.getCategoryId());
+	    	logger.info("Step "+ step.getName() + " Catagory: "+ step.getCategoryId());
 	    }
 
 	    if (allHomeworks != null && !allHomeworks.isEmpty()) {
 	        for (Homework homework : allHomeworks) {
-	            System.out.println("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription() + " Parent Step Id: "+ homework.getParentStepId());
+	            logger.info("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription() + " Parent Step Id: "+ homework.getParentStepId());
 	        }
 	    } else {
-	        System.out.println("No homeworks found or list is empty");
+	        logger.info("No homeworks found or list is empty");
 	    }
 	    if (allHomeworks != null && !allHomeworks.isEmpty()) {
 	        allHomeworks.removeIf(homework -> !stepIds.contains(homework.getParentStepId())); // Remove homeworks whose ParentStepId is not in stepIds
@@ -251,7 +258,7 @@ public class MainController {
 	    ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
 	    
 	    for (ProtocolStep step : stepList) {
-	        System.out.println("Step " + step.getName() + " Category: " + step.getCategoryId());
+	        logger.info("Step " + step.getName() + " Category: " + step.getCategoryId());
 	        if (step.getCategoryId() == 2) {
 	            stepIds.add(step.getId());
 	        }
@@ -259,18 +266,18 @@ public class MainController {
 	    // Using removeIf to directly filter elements
 	    stepList.removeIf(step -> step.getCategoryId() != 3);
 	    for (ProtocolStep step: stepList) {
-	    	System.out.println("Step "+ step.getName() + " Catagory: "+ step.getCategoryId());
+	    	logger.info("Step "+ step.getName() + " Catagory: "+ step.getCategoryId());
 	    }
 	    if (allHomeworks != null && !allHomeworks.isEmpty()) {
 	        for (Homework homework : allHomeworks) {
-	            System.out.println("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription() + " Parent Step Id: "+ homework.getParentStepId());
+	            logger.info("Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: " + homework.getDescription() + " Parent Step Id: "+ homework.getParentStepId());
 	        }
 	    } else {
-	        System.out.println("No homeworks found or list is empty");
+	        logger.info("No homeworks found or list is empty");
 	    }
 	    if (allHomeworks != null && !allHomeworks.isEmpty()) {
 	        allHomeworks.removeIf(homework -> !stepIds.contains(homework.getParentStepId())); // Remove homeworks whose ParentStepId is not in stepIds
-	    } System.out.println("No homeworks found or list is empty");
+	    } logger.info("No homeworks found or list is empty");
 	    
 		model.addAttribute("homeworks",allHomeworks);
     	model.addAttribute("steps",stepList);
@@ -285,7 +292,7 @@ public class MainController {
 		try {
 			protocolHelper.updateProtocolComment(currentUser, protocolId, comment);
 		} catch (Exception e) {
-			System.out.println("Error in addClientToProtocol:");
+			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error updating Protocol Comment: " + e.getMessage());
@@ -302,7 +309,7 @@ public class MainController {
 		try {
 			protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
 		} catch (Exception e) {
-			System.out.println("Error in addClientToProtocol:");
+			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error updating Protocol Comment: " + e.getMessage());
@@ -316,7 +323,7 @@ public class MainController {
 		    Model model) {
 
 		User currentUser = userDAO.getUser();
-		System.out.println("Status: " +status);
+		logger.info("Status: " +status);
 		try {
 			protocolHelper.postProtocolComment(currentUser, protocolId,"COMMENT", comment);
 			protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
@@ -324,7 +331,7 @@ public class MainController {
 			protocolHelper.updateProtocolStatus(currentUser, protocolId, status);
 			protocolHelper.updateProtocolDueDate(currentUser, protocolId, date);
 		} catch (Exception e) {
-			System.out.println("Error in addClientToProtocol:");
+			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error updating Protocol Comment: " + e.getMessage());
@@ -337,11 +344,11 @@ public class MainController {
 			@PathVariable String status, Model model) {
 		User currentUser = userDAO.getUser();
 
-		System.out.println(status);
+		logger.info(status);
 		try {
 			protocolHelper.updateStepStatus(currentUser, protocolId, stepId, status);
 		} catch (Exception e) {
-			System.out.println("Error in addClientToProtocol:");
+			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace(); // Print the stack trace to the console
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error updating Status: " + e.getMessage());
@@ -355,11 +362,11 @@ public class MainController {
 			@PathVariable String note, Model model) {
 		User currentUser = userDAO.getUser();
 
-		System.out.println(note);
+		logger.info(note);
 		try {
 			protocolHelper.updateStepNote(currentUser, protocolId, stepId, note);
 		} catch (Exception e) {
-			System.out.println("Error in addClientToProtocol:");
+			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace(); // Print the stack trace to the console
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error updating Note : " + e.getMessage());
@@ -411,7 +418,7 @@ public class MainController {
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
-		System.out.println("Protocol Template DueDate: "+ pcol.getDueDate());
+		logger.info("Protocol Template DueDate: "+ pcol.getDueDate());
 
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
@@ -430,7 +437,7 @@ public class MainController {
 
 		for (ProtocolStepTemplate step :fullStepList) {
 			
-			System.out.println("Step id "+ step.getCategoryId());
+			logger.info("Step id "+ step.getCategoryId());
 		}
 		model.addAttribute("dueBy", dueByDays);
 		model.addAttribute("protocolId", id);
@@ -448,7 +455,7 @@ public class MainController {
 		User usr = (User) userDAO.getUser();
 		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
 		for (HomeworkTemplate hw: templatelist) {
-			System.out.println("Homework ID: " + hw.getId() + " Homework Name: "+ hw.getName());
+			logger.info("Homework ID: " + hw.getId() + " Homework Name: "+ hw.getName());
 		}
 		model.addAttribute("pcolId", null);
 		model.addAttribute("homework", templatelist);
@@ -462,7 +469,7 @@ public class MainController {
 		User usr = (User) userDAO.getUser();
 		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
 		for (HomeworkTemplate hw: templatelist) {
-			System.out.println("Homework ID: " + hw.getId() + " Homework Name: "+ hw.getName());
+			logger.info("Homework ID: " + hw.getId() + " Homework Name: "+ hw.getName());
 		}
 		model.addAttribute("pcolId", id);
 		model.addAttribute("homework", templatelist);
@@ -492,7 +499,6 @@ public class MainController {
 	@PatchMapping("/updateStep/{id}")
 	public ResponseEntity<String>updateStep(@PathVariable int id, @RequestBody ProtocolStepTemplate step){
 		User usr = (User) userDAO.getUser();	 
-		System.out.println(id);
 		
 	    try {
 			protocolStepTemplateHelper.updateStepTemplate(usr, id,step);
@@ -516,15 +522,15 @@ public class MainController {
 	
     @PostMapping("/createNewProtocolTemplate/")
     public ResponseEntity<String> createNewProtocolTemplate(@RequestBody ProtocolTemplate requestBody) {
-        System.out.println("Calling createNewProtocolTemplate");
+        logger.info("Calling createNewProtocolTemplate");
 
         try {
             User usr = (User) userDAO.getUser();
-            System.out.println("Due Date: " + requestBody.getDueDate());
+            logger.info("Due Date: " + requestBody.getDueDate());
 
             int call = protocolTemplateHelper.newProtocolTemplate(usr, requestBody);
             if (call == 1) {
-                System.out.println("Success!");
+                logger.info("Success!");
                 return ResponseEntity.ok("Template processed successfully");
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -539,7 +545,7 @@ public class MainController {
 	
 	@PatchMapping("/saveProtocol/{id}")
 	public ResponseEntity<String> saveProtocol(@PathVariable int id, @RequestBody String requestBody) {
-		System.out.println("Save Protocol called");
+		logger.info("Save Protocol called");
 	    try {
 	        User usr = (User) userDAO.getUser();
 	        String decodedBody = URLDecoder.decode(requestBody, StandardCharsets.UTF_8.toString());
@@ -568,7 +574,7 @@ public class MainController {
             protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, dueDate);
             return ResponseEntity.ok("Protocol updated successfully");
         } catch (Exception e) {
-            System.out.println("Error in updateProtocol:");
+            logger.info("Error in updateProtocol:");
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error updating protocol: " + e.getMessage());
@@ -599,7 +605,6 @@ public class MainController {
 	@GetMapping("/displayProtocol/{id}")
 	public String displayProtocolPage(@PathVariable int id, Model model) {
 		User usr = (User) userDAO.getUser();
-		List<ProtocolStepTemplate> steps = new ArrayList<>();
 		List<ProtocolStepTemplate> associatedSteps = new ArrayList<>();
 		ProtocolTemplate protocol = new ProtocolTemplate();
 		if (id > 0) {
@@ -608,10 +613,6 @@ public class MainController {
 			associatedSteps = protocolTemplateHelper.getStepList(usr, id);
 		}
 		List<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr); // used for the drop down
-		for (ProtocolStepTemplate step : associatedSteps ) {
-			
-		}
-		// Add attributes to the model
 
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", protocol);
@@ -669,8 +670,6 @@ public class MainController {
 	public String edit_step(@PathVariable int stepId, Model model) {
 		User usr = (User) userDAO.getUser();
 		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
-		HomeworkHelper hwHelper = new HomeworkHelper();
-		//ArrayList<Homework> assignedHomework = hwHelper.getHomeworkByProtocolId(usr, stepId);
 		if (stepId == 0) {
 			// Create a new step with default values
 			ProtocolStepTemplate step = new ProtocolStepTemplate();
@@ -716,7 +715,7 @@ public class MainController {
 		for (String role: client.getRoles()) {
 			roles = roles + role;
 		}
-		System.out.println(roles);
+		logger.info(roles);
 		model.addAttribute("roles",roles);
 		model.addAttribute("user", client);
 		model.addAttribute("id",clientId);
@@ -778,14 +777,14 @@ public class MainController {
 	
     @RequestMapping(value = "addDependant/{clientId}", method = {RequestMethod.POST, RequestMethod.PATCH})
 	public ResponseEntity<Object> addDependant(@PathVariable int clientId,@RequestBody User dependantUser ){
-    	System.out.println("Calling addDependent from controller");
+    	logger.info("Calling addDependent from controller");
 		User currentUser = userDAO.getUser();
 		User client = userHelper.getUser(currentUser, clientId);
 		String userDependant = userHelper.addUser(currentUser, dependantUser);
 		int dependantId = extractIdFromString(userDependant);
 	
 		User newDependant = userHelper.getUser(currentUser, dependantId);
-		System.out.println("Dependant Created: "+ newDependant+ "Dependant ID "+dependantId);
+		logger.info("Dependant Created: "+ newDependant+ "Dependant ID "+dependantId);
 		ArrayList<User> dependants = client.getDependents();
 		dependants.add(newDependant);
 		
@@ -793,7 +792,7 @@ public class MainController {
 			userHelper.addDependant(currentUser, client, dependants);
 			
 		} catch (Exception e) {
-			System.out.println("Error in addClientToProtocol:");
+			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace(); // Print the stack trace to the console
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error adding client to protocol: " + e.getMessage());
@@ -803,7 +802,7 @@ public class MainController {
     
     @PatchMapping("addCoClient/{clientId}/{coClientId}")
     public ResponseEntity<String>addCoClient(@PathVariable int clientId, @PathVariable int coClientId){
-    	System.out.println("Calling Add CoClient for Household: " + clientId + " and CoClient ID: "+ coClientId);
+    	logger.info("Calling Add CoClient for Household: " + clientId + " and CoClient ID: "+ coClientId);
     	User currentUser = userDAO.getUser();
     	Household household = userHelper.getHouseholdById(currentUser, clientId);
     	ArrayList<Integer> householdIds = new ArrayList<Integer>();
@@ -813,7 +812,7 @@ public class MainController {
     		
     	}
     	for (int id: householdIds) {
-    		System.out.println("id: "+id);
+    		logger.info("id: "+id);
     	}
 		
 		try {
@@ -848,7 +847,7 @@ public class MainController {
 	public String clientProfile(@PathVariable int clientId, Model model) {
 		User currentUser = userDAO.getUser();
 		Household household = userHelper.getHouseholdById(currentUser, clientId);
-		System.out.println(household.getName());
+		logger.info(household.getName());
 		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
 		ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId); 
 		ArrayList<User>userList = userHelper.getUserList(currentUser);
@@ -858,7 +857,7 @@ public class MainController {
 		User primaryContactUser = !primaryContact.isEmpty() ? primaryContact.get(0) : null;
 	    
 		for (User client: clientList) {
-		System.out.println("Client Name: "+client.getFirstName()+ client.getLastName());
+		logger.info("Client Name: "+client.getFirstName()+ client.getLastName());
 		}
 		model.addAttribute("primaryContact", primaryContactUser);
 		model.addAttribute("userList",userList);
@@ -869,7 +868,7 @@ public class MainController {
 		model.addAttribute("protocolList", pcolList);
 		model.addAttribute("assignedProtocols", assignedProtocols);
 		for (Protocol pcol: assignedProtocols) {
-			System.out.println("Status: "+pcol.getStatus());
+			logger.info("Status: "+pcol.getStatus());
 		}
 		
 		return "clientProfile";
@@ -877,13 +876,13 @@ public class MainController {
 
     @PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
     public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolTemplateId,@RequestBody Protocol protocolRequest) {
-    	System.out.println("Prptocol Name: " + protocolRequest.getDueDate() + " Protocol Due Date: "+ protocolRequest.getDueDate());
+    	logger.info("Prptocol Name: " + protocolRequest.getDueDate() + " Protocol Due Date: "+ protocolRequest.getDueDate());
         try {
             User currentUser = userDAO.getUser();
             protocolHelper.addClient(currentUser, clientId, protocolTemplateId, protocolRequest); // Perform the operation
 
         } catch (Exception e) {
-            System.out.println("Error in addClientToProtocol:");
+            logger.info("Error in addClientToProtocol:");
             e.printStackTrace(); // Print the stack trace to the console
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error adding client to protocol: " + e.getMessage());
@@ -908,7 +907,7 @@ public class MainController {
 		try {
 			protocolStepTemplateHelper.addHomeworkTemplate(currentUser, stepTemplateId, homeworkTemplateId);
 		} catch (Exception e) {
-			System.out.println("Error in addHomeworkTemplateToStep:");
+			logger.info("Error in addHomeworkTemplateToStep:");
 			e.printStackTrace(); // Print the stack trace to the console
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error Homework Template to Step: " + e.getMessage());
@@ -931,7 +930,7 @@ public class MainController {
 	    String call = userHelper.addUser(currentUser, requestBody);
 
 	    if (call.startsWith("Success")) {
-	    	System.out.println(call);
+	    	logger.info(call);
 	        return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
 	    } else {
 	        Map<String, String> errorResponse = new HashMap<>();
@@ -943,7 +942,7 @@ public class MainController {
 	            String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8, call.indexOf("\",", call.indexOf("\"error\":\"")));
 	            errorResponse.put("error", errorMessage);
 	        }
-	        System.out.println(errorResponse);
+	        logger.warn(errorResponse.toString());
 	        return ResponseEntity.badRequest().body(errorResponse);
 	    }
 	}
@@ -954,9 +953,6 @@ public class MainController {
 	public ResponseEntity<Object> updateUserPassword(@PathVariable int id, @RequestBody User requestBody) {
 		User currentUser = userDAO.getUser();
 
-		System.out.println(userHelper.getUserId(currentUser));
-		
-		
 		String call = userHelper.changeUserPassword(currentUser, id, requestBody.getPassword(), requestBody.getVerifypassword());
 		if (call.startsWith("Success")) {
 	        return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
@@ -970,7 +966,7 @@ public class MainController {
 	            String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8, call.indexOf("\",", call.indexOf("\"error\":\"")));
 	            errorResponse.put("error", errorMessage);
 	        }
-	        System.out.println(errorResponse);
+	        logger.warn(errorResponse.toString());
 	        return ResponseEntity.badRequest().body(errorResponse);
 	    }
 	}
@@ -980,13 +976,13 @@ public class MainController {
 			@PathVariable String email, @PathVariable int role,Model model) {
 		User currentUser = userDAO.getUser();
 
-		System.out.println("Calling updateUserDetails");
+		logger.info("Calling updateUserDetails");
 
 		try {
 			userHelper.updateUserDetails(currentUser, id, firstName, lastName, email,role); // if we don't want to change role, send role = 0
 
 		} catch (Exception e) {
-			System.out.println("Error in updateUserDetails:");
+			logger.info("Error in updateUserDetails:");
 			e.printStackTrace(); // Print the stack trace to the console
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error Update User Details: " + e.getMessage());
@@ -1011,7 +1007,7 @@ public class MainController {
 			}
 
 			String result = assignedUser.getFirstName() + " " + assignedUser.getLastName();
-			System.out.println(result);
+			logger.info(result);
 			return ResponseEntity.ok(result);
 		} catch (Exception e) {
 			System.err.println("Error retrieving user name: " + e.getMessage());
@@ -1035,7 +1031,7 @@ public class MainController {
 		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
 		model.addAttribute("protocols",pcolList);
 		for(ProtocolTemplate pcol: pcolList) {
-			System.out.println("Name: "+ pcol.getName());
+			logger.info("Name: "+ pcol.getName());
 		}
 		return "editHomeworkTemplate";
 	}
@@ -1064,7 +1060,7 @@ public class MainController {
             // Extract the JSON correctly including the first curly brace and trim any leading/trailing whitespace
             String cleanJson = "{\n" + decodedBody.substring(jsonStartIndex).trim();
 
-            System.out.println("Cleaned JSON Data: " + cleanJson);
+            logger.info("Cleaned JSON Data: " + cleanJson);
 
             User currentUser = userDAO.getUser();
 
@@ -1175,7 +1171,6 @@ public class MainController {
     }
     
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @PostMapping("/assignUserResponseToHomework/{homeworkId}")
     public ResponseEntity<String> assignUserResponseToHomework(@PathVariable int homeworkId,
 				@RequestParam("questionIds") Long[] questionIds, //assumes questionIds and userResponses are the same length
@@ -1183,7 +1178,7 @@ public class MainController {
 				@RequestParam("files") Optional<List<MultipartFile>> files){
 			User currentUser = userDAO.getUser();
 			HomeworkHelper helper= new HomeworkHelper();
-			System.out.println("Responses: " + userResponses);
+			logger.info("Responses: " + userResponses);
 
 			Iterator<Long> questionIdList = Arrays.asList(questionIds).iterator();
 			Iterator<String> userResponseList = Arrays.asList(userResponses).iterator();
@@ -1192,7 +1187,9 @@ public class MainController {
               multipartFiles -> (filename) -> multipartFiles.stream()
                   .filter(file -> Objects.equals(file.getOriginalFilename(), filename)).findFirst())
           .orElseGet(() -> (filename) -> Optional.empty());
-
+			if (retrieveFile == null) {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": Unable to retrieve file.\"}");
+			}
 			List<AssignedHomeworkResponse> homeworkResponses = new ArrayList<>();
 			try {
 				for (int i = 0; i < questionIds.length; i++) {
@@ -1239,7 +1236,7 @@ public class MainController {
     public ResponseEntity<String> uploadFileToHomework(@RequestParam("file") MultipartFile file, String userResponse, @RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
     	 User currentUser = userDAO.getUser();
          HomeworkHelper helper= new HomeworkHelper();
-         System.out.println("Calling upoloadFileToHomework");
+         logger.info("Calling upoloadFileToHomework");
         try {
             
             helper.assigneFileUpload(currentUser, homeworkId, questionId, "File Upload", file);
@@ -1281,7 +1278,7 @@ public class MainController {
         for (Homework homework : homeworks) {
             Homework detailedHomework = helper.getHomeworkByHomeworkId(currentUser, homework.getId());
             homeworkDetails.add(detailedHomework);
-            System.out.println("Added homework with ID: " + detailedHomework.getId());
+            logger.info("Added homework with ID: " + detailedHomework.getId());
         }
         model.addAttribute("homeworks", homeworkDetails);
         model.addAttribute("clientId", clientId);
@@ -1340,7 +1337,7 @@ public class MainController {
         for (ProtocolTemplate template : templates) {
             ArrayList<Protocol> tempPcolList = protocolHelper.getListbyTemplateId(currentUser, template.getId());
             for(Protocol pcol:tempPcolList) {
-            	System.out.println("Protocol: "+ pcol.getId() +" HouseholdId: " + pcol.getUserId());
+            	logger.info("Protocol: "+ pcol.getId() +" HouseholdId: " + pcol.getUserId());
             	}
             if (tempPcolList.isEmpty()) continue;  // Skip empty lists
 
@@ -1349,12 +1346,12 @@ public class MainController {
                 .filter(p -> p.getDaysToComplete() >= 0)
                 .collect(Collectors.toList());
             for(Protocol protocol: completedProtocols) {
-            	System.out.println("Protocol in User List:"+protocol.getName() + "Protocol Users: "+ protocol.getUserId());
+            	logger.info("Protocol in User List:"+protocol.getName() + "Protocol Users: "+ protocol.getUserId());
             }
             for (Protocol protocol : completedProtocols) {  // for each protocol 
             
                 for (int userId : protocol.getUsers()) {
-                	System.out.println("UserID: "+ userId);    // for each userid 
+                	logger.info("UserID: "+ userId);    // for each userid 
                     if (!userMap.containsKey(userId)) {     // set check to see if user is in the UserMap already if it is just add the protocol to the map 
                         if (users.contains(userId)) {       // if it's not verify that the userID is real and not a bit of junk data 
                             ArrayList<Protocol> tempList = new ArrayList<Protocol>();  // then add a new entry into the map
@@ -1501,49 +1498,49 @@ public class MainController {
 
         if (!reports.isEmpty()) {
 	        for (ProtocolReport report : reports) {
-	            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+	            logger.info("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
 	                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
 	                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
 	        	}
         }
        else {
-        		System.out.println("No Protocols in Template Report");
+        		logger.info("No Protocols in Template Report");
         	}
 
         if (!userReports.isEmpty()) {
 	        for (ProtocolReport report : userReports) {
 	        	
-	            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+	            logger.info("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
 	                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
 	                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
 	        	}
         }
         else {
-        		System.out.println("No Protocols in User Report");
+        		logger.info("No Protocols in User Report");
         	}
         
     	if (!stepReports.isEmpty()) {
 	        for (ProtocolReport report : stepReports) {
 	        	
-	            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+	            logger.info("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
 	                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
 	                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
 	        	}
     	}
         else {
-        		System.out.println("No Protocols in Step Report");
+        		logger.info("No Protocols in Step Report");
         	}
         if (!userStepReports.isEmpty()) {
 	        for (ProtocolReport report : userStepReports) {
 	        	
-	        	System.out.println("Report not Empty");
-	            System.out.println("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
+	        	logger.info("Report not Empty");
+	            logger.info("Report Id: " + report.getId() + " Report Name: " + report.getName() + 
 	                               " Report AVG: " + report.getMeanDays() + " Report MED: " + report.getMedDays() + 
 	                               " Report Low: " + report.getLow() + " Report High: " + report.getHigh());
 	        	}
         }
     	else {
-    		System.out.println("No Protocols in User Step Report");
+    		logger.info("No Protocols in User Step Report");
     	}
         
         model.addAttribute("userReports", userReports);
@@ -1559,14 +1556,14 @@ public class MainController {
     @PostMapping("/postRecommendations/{id}")
     public ResponseEntity<String> postRecommendation(@PathVariable int id,@RequestBody String recommendation){
     	User currentUser = userDAO.getUser();
-    	System.out.println("Calling postRecommendation");
+    	logger.info("Calling postRecommendation");
         if (recommendation.startsWith("\"") && recommendation.endsWith("\"")) {
             recommendation = recommendation.substring(1, recommendation.length() - 1);
         }
 
     	System.out.print("Reccomendation: "+ recommendation);
     	try {
-    		System.out.println("Success!");
+    		logger.info("Success!");
     		protocolHelper.postProtocolComment(currentUser, id,"RECOMMENDATION" ,recommendation);
             return ResponseEntity.ok().body("{\"message\": \"Success: Recomendation Posted!\"}");
             
@@ -1584,7 +1581,7 @@ public class MainController {
         User currentUser = userDAO.getUser();
         HomeworkHelper helper = new HomeworkHelper();
         try {
-            System.out.println("Initiating file download...");
+            logger.info("Initiating file download...");
             return helper.downloadResponseFile(currentUser, guid);
         } catch (IOException | URISyntaxException e) {
             System.err.println("Error Downloading File: " + e.getMessage());
