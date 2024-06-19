@@ -1,7 +1,5 @@
 package com.cairn.ui.model;
 
-import java.util.List;
-
 import org.springframework.web.multipart.MultipartFile;
 
 public class HomeworkQuestion {

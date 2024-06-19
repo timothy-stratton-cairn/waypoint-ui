@@ -7,16 +7,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.ProtocolTemplate;
@@ -29,101 +22,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class ProtocolTemplateHelper {
     Logger logger = LoggerFactory.getLogger(ProtocolTemplateHelper.class); 
+    private APIHelper apiHelper = new APIHelper();
 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
-
-    private RestTemplate restTemplate;
-
-
-    private RestTemplate getRestTemplate() {
-        if (this.restTemplate == null) {
-            // Using HttpComponentsClientHttpRequestFactory to support PATCH
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-            requestFactory.setConnectTimeout(5000); 
-            this.restTemplate = new RestTemplate(requestFactory);
-        }
-        return this.restTemplate;
-    }
-	public String callAPI(String apiUrl, User usr) {
-		String jsonResponse = "";
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				jsonResponse = response.getBody();
-			} else {
-				logger.info("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
-			}
-		} catch (Exception e) {
-			logger.info("No records returned for " + apiUrl);
-		}
-		return jsonResponse;
-	}
-
-	public int postAPI(String apiUrl, String requestBody, User usr) {
-		int result = 0;
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-		headers.add("Content-Type", "application/json");
-		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-				result = 1;
-			} else {
-				result = -1;
-				logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
-			}
-
-		} catch (Exception e) {
-			logger.info("Error in updating note");
-			e.printStackTrace();
-		}
-		return result;
-	}
-
-	public int deleteAPI(String apiUrl, User usr) {
-		int result = 0;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-			result = 1;
-			}
-        }
-	    catch (Exception e) {
-	        logger.info("Error in deleting " + apiUrl);
-	        e.printStackTrace();
-	    }
-        
-		return result;
-	}
-
-	public int patchAPI(String apiUrl, String requestBody, User usr) {
-		int result = 0;
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity,
-					String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-
-				result = 1;
-			} else {
-				result = -1;
-				logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
-				// Update result to indicate a specific type of failure
-			}
-
-		} catch (Exception e) {
-			logger.info("Error in updating progress");
-			e.printStackTrace();
-		}
-		return result;
-	}
-	
 
 	/**
 	 * Get a list of step templates not assigned to the protocol template.
@@ -142,43 +44,34 @@ public class ProtocolTemplateHelper {
 		}
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("stepTemplates");
-					// Iterate through the array elements
-					ProtocolStepTemplate entry = null;
-					if (prots.isArray()) {
-						for (JsonNode element : prots) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new ProtocolStepTemplate();
-								entry.setName(element.get("name").asText());
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								results.add(entry);
-							}
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode prots = jsonNode.get("stepTemplates");
+				// Iterate through the array elements
+				ProtocolStepTemplate entry = null;
+				if (prots.isArray()) {
+					for (JsonNode element : prots) {
+						// Access and print array elements
+						if (element != null) {
+							entry = new ProtocolStepTemplate();
+							entry.setName(element.get("name").asText());
+							entry.setId(Integer.valueOf(element.get("id").toString()));
+							results.add(entry);
 						}
 					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
 				}
-			} else {
-				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			logger.info("No protocols returned");
+		} else {
+			logger.warn("Failed to fetch available steps data.");
 		}
 
 		return results;
@@ -210,7 +103,7 @@ public class ProtocolTemplateHelper {
 				+ "\"dueDate\": \"" + dueDateDays + "\","
 				+ associatedStepTemplateIds.toString()+
 				"}";
-		result = postAPI(apiUrl, requestBody, usr);
+		result = apiHelper.postAPI(apiUrl, requestBody, usr);
 		return result;
 	}
 	
@@ -226,51 +119,40 @@ public class ProtocolTemplateHelper {
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
 		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-		
-
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("stepTemplates");
-					// Iterate through the array elements
-					ProtocolStepTemplate entry = null;
-					if (prots.isArray()) {
-						int idx = 1;
-						for (JsonNode element : prots) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new ProtocolStepTemplate();
-								entry.setName(element.get("name").asText());
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								// Test data, fix this later
-								entry.setType(idx++);
-								if (idx > 4) {
-									idx = 1;
-								}
-								results.add(entry);
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode prots = jsonNode.get("stepTemplates");
+				// Iterate through the array elements
+				ProtocolStepTemplate entry = null;
+				if (prots.isArray()) {
+					int idx = 1;
+					for (JsonNode element : prots) {
+						// Access and print array elements
+						if (element != null) {
+							entry = new ProtocolStepTemplate();
+							entry.setName(element.get("name").asText());
+							entry.setId(Integer.valueOf(element.get("id").toString()));
+							// Test data, fix this later
+							entry.setType(idx++);
+							if (idx > 4) {
+								idx = 1;
 							}
+							results.add(entry);
 						}
 					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
 				}
-			} else {
-				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			logger.info("No protocols returned");
+		} else {
+			logger.info("Failed to fetch getAllSteps data.");
 		}
 
 		return results;
@@ -300,7 +182,7 @@ public class ProtocolTemplateHelper {
 
 		int result = -1;
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate + "/" + tempId;
-	    result = patchAPI(apiUrl, requestBody, usr);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		
 		return result;
 	}
@@ -311,7 +193,7 @@ public class ProtocolTemplateHelper {
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + tempId;
 		String requestBody = "{\"name\": \""+name+"\"}";
 		
-	    result = patchAPI(apiUrl, requestBody, usr);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 	
 		return result;
 		
@@ -322,7 +204,7 @@ public class ProtocolTemplateHelper {
 		
 		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
 		String requestBody = "{\"description\": \""+description+"\"}";
-	    result = patchAPI(apiUrl, requestBody, usr);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		return result;
 		
 	}
@@ -331,7 +213,7 @@ public class ProtocolTemplateHelper {
 		
 		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
 		String requestBody = "{\"dueDate\": \""+date+"\"}";
-	    result = patchAPI(apiUrl, requestBody, usr);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		return result;
 		
 	}
@@ -348,7 +230,7 @@ public class ProtocolTemplateHelper {
 
 	    // Prepare the request body
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get;
-	    result = patchAPI(apiUrl, requestBody, usr);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 	    
 		return result;
 	}
@@ -368,7 +250,7 @@ public class ProtocolTemplateHelper {
 
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + theTemplate.getId()+ "/"+ theStep.getId();
 	    logger.info(apiUrl);
-	    result = patchAPI(apiUrl, null, usr);
+	    result = apiHelper.patchAPI(apiUrl, null, usr);
 
 	    return result;
 	}
@@ -403,7 +285,7 @@ public class ProtocolTemplateHelper {
 		}
 
 		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
-	    result = patchAPI(apiUrl, requestBody, usr);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		
 		return result;
 	}
@@ -423,7 +305,7 @@ public class ProtocolTemplateHelper {
 		// Prepare the request body
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + id;
-		String jsonResponse = this.callAPI(apiUrl, usr);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
 
@@ -486,7 +368,7 @@ public class ProtocolTemplateHelper {
 		}
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate;
-		String jsonResponse = this.callAPI(apiUrl, usr);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
 
@@ -538,7 +420,7 @@ public class ProtocolTemplateHelper {
 		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + id;
-		String jsonResponse = this.callAPI(apiUrl, usr);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
 
@@ -592,7 +474,7 @@ public class ProtocolTemplateHelper {
 		ProtocolTemplate result = new ProtocolTemplate();
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate + "/" + id;
-		String jsonResponse = this.callAPI(apiUrl, usr);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
 	
@@ -638,7 +520,7 @@ public class ProtocolTemplateHelper {
     public int deleteProtocolStepTemplate(User usr, int templateId, int stepId) {
     	int result = -1;
 		String apiUrl = this.dashboardApiBaseUrl + Constants. api_ep_protocoltemplateget +"/"+ templateId + "?stepTemplateId="+stepId ;
-    	result = deleteAPI(apiUrl,usr);
+    	result = apiHelper.deleteAPI(apiUrl,usr);
 
     	return result;
     }
@@ -646,7 +528,7 @@ public class ProtocolTemplateHelper {
     public int deleteProtocolTemplate(User usr, int protocolTemplateId) {
     	int result = 0;
     	String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplateget + protocolTemplateId;
-    	result = deleteAPI(apiUrl,usr);
+    	result = apiHelper.deleteAPI(apiUrl,usr);
     	
     	return result;
     }

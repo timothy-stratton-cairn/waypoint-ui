@@ -3,9 +3,6 @@ package com.cairn.ui.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class HomeworkTemplate {
 
 	private int id;

@@ -1,7 +1,5 @@
 package com.cairn.ui.model;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class ProtocolComments{

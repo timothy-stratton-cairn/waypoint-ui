@@ -1,5 +1,6 @@
 package com.cairn.ui.helper;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -7,16 +8,9 @@ import java.util.Calendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolComments;
 import com.cairn.ui.model.ProtocolStep;
@@ -28,84 +22,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ProtocolHelper {
-    Logger logger = LoggerFactory.getLogger(ProtocolHelper.class); 
+    Logger logger = LoggerFactory.getLogger(ProtocolHelper.class);
+    private APIHelper apiHelper = new APIHelper();
 
-	@Value("${waypoint.dashboard-api.base-url}")
+    @Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
-
-	private RestTemplate restTemplate;
-
-	private RestTemplate getRestTemplate() {
-		if (this.restTemplate == null) {
-			// Using HttpComponentsClientHttpRequestFactory to support PATCH
-			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setConnectTimeout(5000); // Optional: set connection timeout
-			this.restTemplate = new RestTemplate(requestFactory);
-		}
-		return this.restTemplate;
-	}
-
-	public String callAPI(String apiUrl, User usr) {
-		String jsonResponse = "";
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				jsonResponse = response.getBody();
-			} else {
-				logger.info("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
-			}
-		} catch (Exception e) {
-			logger.info("No records returned for " + apiUrl);
-		}
-		return jsonResponse;
-	}
-
-	public int postAPI(String apiUrl, String requestBody, User usr) {
-		int result = 0;
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-		headers.add("Content-Type", "application/json");
-		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-				result = 1;
-			} else {
-				result = -1;
-				logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
-			}
-
-		} catch (Exception e) {
-			logger.info("Error in updating note");
-			e.printStackTrace();
-		}
-		return result;
-	}
-
-	public int patchAPI(String apiUrl, String requestBody, User usr) {
-		int result = 0;
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity,
-					String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-
-				result = 1;
-			} else {
-				result = -1;
-				logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
-				// Update result to indicate a specific type of failure
-			}
-
-		} catch (Exception e) {
-			logger.info("Error in updating progress");
-			e.printStackTrace();
-		}
-		return result;
-	}
 	
 	/**
 	 * Get a list of available protocols
@@ -114,7 +35,7 @@ public class ProtocolHelper {
 	 */
 	public ArrayList<Protocol> getList(User usr) {
 		ArrayList<Protocol> results = new ArrayList<Protocol>();
-		String jsonResponse = this.callAPI(this.dashboardApiBaseUrl + Constants.api_ep_protocol, usr);
+		String jsonResponse = apiHelper.callAPI(this.dashboardApiBaseUrl + Constants.api_ep_protocol, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
 
@@ -157,7 +78,7 @@ public class ProtocolHelper {
 	    ArrayList<Protocol> results = new ArrayList<>();
 
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/protocol-template/" + tempId;
-		String jsonResponse = this.callAPI(apiUrl,usr);
+		String jsonResponse = apiHelper.callAPI(apiUrl,usr);
 		if (!jsonResponse.isEmpty()) {
             ObjectMapper objectMapper = new ObjectMapper();
             
@@ -251,111 +172,104 @@ public class ProtocolHelper {
 	 */
 	public Protocol getProtocol(User usr, int id) {
 		Protocol result = new Protocol();
-		// Prepare the request body
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + usr.getToken());
-
-		// Create a HttpEntity with the headers
-		HttpEntity<String> entity = new HttpEntity<>(headers);
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/" + id;
+		String jsonResponse = apiHelper.callAPI(apiUrl,usr);
+		if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				result.setName(jsonNode.get("name").asText());
+				result.setDescription(jsonNode.get("description").asText());
+				result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
+				if (jsonNode.has("dueBy") && !jsonNode.get("dueBy").isNull()) {
+					result.setDueDate(jsonNode.get("dueBy").asText());
+				} else {
+					result.setDueDate("No Due Date"); // Fallback if goal is not set
+				}
 
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					result.setName(jsonNode.get("name").asText());
-					result.setDescription(jsonNode.get("description").asText());
-					result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
-					if (jsonNode.has("dueBy") && !jsonNode.get("dueBy").isNull()) {
-						result.setDueDate(jsonNode.get("dueBy").asText());
-					} else {
-						result.setDueDate("No Due Date"); // Fallback if goal is not set
-					}
-
-					JsonNode commentsNode = jsonNode.path("protocolComments").path("comments");
-					ArrayList<ProtocolComments> comments = new ArrayList<>();
-					if (commentsNode.isArray()) {
-						for (JsonNode commentElement : commentsNode) {
-							ProtocolComments comment = new ProtocolComments();
-							comment.setComment(commentElement.has("comment") && !commentElement.get("comment").isNull()
-									? commentElement.get("comment").asText()
-									: "No Comment");
+				JsonNode commentsNode = jsonNode.path("protocolComments").path("comments");
+				ArrayList<ProtocolComments> comments = new ArrayList<>();
+				if (commentsNode.isArray()) {
+					for (JsonNode commentElement : commentsNode) {
+						ProtocolComments comment = new ProtocolComments();
+						comment.setComment(commentElement.has("comment") && !commentElement.get("comment").isNull()
+								? commentElement.get("comment").asText()
+								: "No Comment");
+						try {
 							comment.setTakenAt(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
 									.parse(commentElement.get("takenAt").asText()));
-							comment.setTakenBy(commentElement.get("takenBy").asText());
-							comment.setCommentType(commentElement.get("commentType").asText());
-							comments.add(comment);
+						} catch (ParseException e) {
+							e.printStackTrace();
 						}
+						comment.setTakenBy(commentElement.get("takenBy").asText());
+						comment.setCommentType(commentElement.get("commentType").asText());
+						comments.add(comment);
 					}
-					result.setComments(comments);
+				}
+				result.setComments(comments);
 
-					result.setStatus(jsonNode.path("status").asText());
-					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
-					result.setNeedsAttention(Boolean.valueOf(jsonNode.get("needsAttention").toString()));
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-					Calendar calendar = Calendar.getInstance();
+				result.setStatus(jsonNode.path("status").asText());
+				result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+				result.setNeedsAttention(Boolean.valueOf(jsonNode.get("needsAttention").toString()));
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				Calendar calendar = Calendar.getInstance();
+				try {
 					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
 					result.setLastStatus(calendar.getTime());
-
-					if (jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
-						result.setGoal(jsonNode.get("goal").asText());
-					} else {
-						result.setGoal("No Goal Set"); // Fallback if goal is not set
-					}
-
-					if (jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
-						result.setProgress(jsonNode.get("goalProgress").asText());
-					} else {
-						result.setProgress("None"); // Fallback if goalProgress is not present or is null
-					}
-
-					/* Add in the steps */
-					JsonNode assoc = jsonNode.get("associatedSteps");
-					JsonNode asteps = assoc.get("steps");
-					// Iterate through the array elements
-					ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
-					if (asteps.isArray()) {
-						for (JsonNode element : asteps) {
-							// Access and print array elements
-							if (element != null) {
-								ProtocolStep curStep = new ProtocolStep();
-								curStep.setId(Integer.parseInt(element.get("id").asText()));
-								curStep.setName(element.get("name").asText());
-								curStep.setDescription(element.get("description").asText());
-								curStep.setNotes(element.get("stepNotes").get("notes").asText());
-
-								JsonNode stepCategoryNode = jsonNode.path("category");
-								if (!stepCategoryNode.isMissingNode() && !stepCategoryNode.path("id").isMissingNode()) {
-									curStep.setCategoryId(element.get("category").asInt());
-								}
-								curStep.setStatus(element.get("status").asText());
-								steps.add(curStep);
-							}
-						}
-						result.setSteps(steps);
-					}
-					result.setStepCount();
-					logger.info("Retrieved " + result.getStepCount() + " steps.");
-
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			} else {
-				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
+
+				if (jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
+					result.setGoal(jsonNode.get("goal").asText());
+				} else {
+					result.setGoal("No Goal Set"); // Fallback if goal is not set
+				}
+
+				if (jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
+					result.setProgress(jsonNode.get("goalProgress").asText());
+				} else {
+					result.setProgress("None"); // Fallback if goalProgress is not present or is null
+				}
+
+				/* Add in the steps */
+				JsonNode assoc = jsonNode.get("associatedSteps");
+				JsonNode asteps = assoc.get("steps");
+				// Iterate through the array elements
+				ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
+				if (asteps.isArray()) {
+					for (JsonNode element : asteps) {
+						// Access and print array elements
+						if (element != null) {
+							ProtocolStep curStep = new ProtocolStep();
+							curStep.setId(Integer.parseInt(element.get("id").asText()));
+							curStep.setName(element.get("name").asText());
+							curStep.setDescription(element.get("description").asText());
+							curStep.setNotes(element.get("stepNotes").get("notes").asText());
+
+							JsonNode stepCategoryNode = jsonNode.path("category");
+							if (!stepCategoryNode.isMissingNode() && !stepCategoryNode.path("id").isMissingNode()) {
+								curStep.setCategoryId(element.get("category").asInt());
+							}
+							curStep.setStatus(element.get("status").asText());
+							steps.add(curStep);
+						}
+					}
+					result.setSteps(steps);
+				}
+				result.setStepCount();
+				logger.info("Retrieved " + result.getStepCount() + " steps.");
+
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.info("No protocols returned");
+		} else {
+			logger.warn("Failed to fetch protocol data for user");
 		}
 
 		return result;
@@ -365,7 +279,7 @@ public class ProtocolHelper {
 		ArrayList<ProtocolStep> results = new ArrayList<ProtocolStep>();
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + id;
-		String jsonResponse = this.callAPI(apiUrl, usr);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
 
@@ -413,7 +327,7 @@ public class ProtocolHelper {
 	public ArrayList<Protocol> getAssignedProtocols(User usr, int clientId) {
 		ArrayList<Protocol> results = new ArrayList<Protocol>();
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolaccount + clientId;
-		String jsonResponse = this.callAPI(apiUrl, usr);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
 
@@ -536,7 +450,7 @@ public class ProtocolHelper {
 				protocolTemplateId, clientid, protocolRequest.getName(), protocolRequest.getDueDate());
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;// retrieves all protocols assigned to
 																				// clientId
-		result = postAPI(apiUrl, requestBody, usr);
+		result = apiHelper.postAPI(apiUrl, requestBody, usr);
 
 		return result;
 	}
@@ -546,7 +460,7 @@ public class ProtocolHelper {
 		String requestBody = "{\"status\": \"" + status + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId + "/protocol-step/"
 				+ stepId + "/status";
-		result = patchAPI(apiUrl, requestBody, usr);
+		result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 
 		return result;
 
@@ -557,7 +471,7 @@ public class ProtocolHelper {
 		String requestBody = "{\"note\": \"" + note + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId + "/protocol-step/"
 				+ stepId + "/note";
-		result = postAPI(apiUrl, requestBody, usr);
+		result = apiHelper.postAPI(apiUrl, requestBody, usr);
 
 		return result;
 
@@ -567,7 +481,7 @@ public class ProtocolHelper {
 		int result = 0;
 		String requestBody = "{\"goal\": \"" + goal + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId;
-		result = patchAPI(apiUrl, requestBody, usr);
+		result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 
 		return result;
 
@@ -577,7 +491,7 @@ public class ProtocolHelper {
 		int result = 0;
 		String requestBody = "{\"comment\": \"" + comment + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId;
-		result = patchAPI(apiUrl, requestBody, usr);
+		result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 
 		return result;
 
@@ -588,7 +502,7 @@ public class ProtocolHelper {
 
 		String requestBody = "{\"goalProgress\": \"" + progress + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId;
-		result = patchAPI(apiUrl, requestBody,usr);
+		result = apiHelper.patchAPI(apiUrl, requestBody,usr);
 
 		return result;
 
@@ -598,7 +512,7 @@ public class ProtocolHelper {
 		int result = 0;
 		String requestBody = String.format("{\"comment\": \"%s\", \"commentType\": \"%s\"}", comment, commentType);
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId + '/' + "comment";
-		result = postAPI(apiUrl, requestBody, usr);
+		result = apiHelper.postAPI(apiUrl, requestBody, usr);
 
 		return result;
 	}
@@ -607,7 +521,7 @@ public class ProtocolHelper {
 		int result = -1;
 		String requestBody = "{\"dueDate\": \"" + dueDate + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId;
-		result = patchAPI(apiUrl, requestBody, usr);
+		result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 
 		return result;
 	}
@@ -616,25 +530,14 @@ public class ProtocolHelper {
 		int result = -1;
 		String requestBody = "{\"newProtocolStatus\": \"" + status + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId + '/' + "status";
-		result = patchAPI(apiUrl, requestBody, usr);
+		result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		return result;
 		}
 	
     public int deleteProtocol(User usr, int protocolId) {
     	int result = 0;
     	String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/' + protocolId;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-			result = 1;
-			}
-        }
-	    catch (Exception e) {
-	        logger.info("Error in deleting protocol");
-	        e.printStackTrace();
-	    }
-        
+    	apiHelper.deleteAPI(apiUrl,usr);
     	
     	return result;
     }

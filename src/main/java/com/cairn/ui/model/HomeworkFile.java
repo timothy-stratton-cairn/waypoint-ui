@@ -1,11 +1,6 @@
 package com.cairn.ui.model;
 
-import java.util.ArrayList;
-
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class HomeworkFile{
 	

@@ -1,8 +1,5 @@
 package com.cairn.ui.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class HomeworkQuestionsTemplate {
 	private int questionId;
     private String questionAbbreviation;

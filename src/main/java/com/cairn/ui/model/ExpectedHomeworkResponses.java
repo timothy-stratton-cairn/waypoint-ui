@@ -2,8 +2,6 @@ package com.cairn.ui.model;
 
 import java.util.List;
 
-import com.nimbusds.oauth2.sdk.Response;
-
 public class ExpectedHomeworkResponses {
     private List<HomeworkResponse> responses;
     private int numOfResponses;

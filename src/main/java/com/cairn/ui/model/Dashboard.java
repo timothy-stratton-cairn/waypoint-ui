@@ -1,7 +1,6 @@
 package com.cairn.ui.model;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Dashboard {
 	private ArrayList<ProtocolStats> protocols = new ArrayList<ProtocolStats>();

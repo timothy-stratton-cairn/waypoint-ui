@@ -7,18 +7,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.Household;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,18 +25,7 @@ public class UserHelper {
 
 	@Value("${waypoint.authorization-api.base-url}")
 	private String authorizationApiBaseUrl;
-    private RestTemplate restTemplate;
-
-
-    private RestTemplate getRestTemplate() {
-        if (this.restTemplate == null) {
-            // Using HttpComponentsClientHttpRequestFactory to support PATCH
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-            requestFactory.setConnectTimeout(5000); 
-            this.restTemplate = new RestTemplate(requestFactory);
-        }
-        return this.restTemplate;
-    }
+    private APIHelper apiHelper = new APIHelper();
 
 	/**
 	 * Get the dashboard stats
@@ -54,45 +36,36 @@ public class UserHelper {
 		ArrayList<User> results = new ArrayList<User>();
 
 		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode prots = jsonNode.get("accounts");
-					// Iterate through the array elements
-					User entry = null;
-					if (prots.isArray()) {
-						for (JsonNode element : prots) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new User();
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								entry.setFirstName(element.get("firstName").asText());
-								entry.setLastName(element.get("lastName").asText());
-								//entry.setEmail(element.get("email").asText());
-								results.add(entry);
-							}
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode prots = jsonNode.get("accounts");
+				// Iterate through the array elements
+				User entry = null;
+				if (prots.isArray()) {
+					for (JsonNode element : prots) {
+						// Access and print array elements
+						if (element != null) {
+							entry = new User();
+							entry.setId(Integer.valueOf(element.get("id").toString()));
+							entry.setFirstName(element.get("firstName").asText());
+							entry.setLastName(element.get("lastName").asText());
+							//entry.setEmail(element.get("email").asText());
+							results.add(entry);
 						}
 					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
 				}
-			} else {
-				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			logger.info("No user data returned");
-			e.printStackTrace();
+		} else {
+			logger.info("Failed to fetch getUserList data.");
 		}
 
 		return results;
@@ -100,73 +73,66 @@ public class UserHelper {
 	}
 	public Household getHouseholdById(User usr, int id) {
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get + id;
-	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	            String jsonResponse = response.getBody();
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            JsonNode jsonNode;
-	            try {
-	                jsonNode = objectMapper.readTree(jsonResponse);
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode;
+            try {
+                jsonNode = objectMapper.readTree(jsonResponse);
 
-	                // Access relevant nodes directly
-	                JsonNode primaryContacts = jsonNode.get("primaryContacts");
-	                JsonNode householdAccounts = jsonNode.get("householdAccounts");
+                // Access relevant nodes directly
+                JsonNode primaryContacts = jsonNode.get("primaryContacts");
+                JsonNode householdAccounts = jsonNode.get("householdAccounts");
 
-	                // Construct Household object
-	                Household household = new Household();
-	                household.setId(jsonNode.get("id").asInt());
-	                household.setName(jsonNode.get("name").asText());
+                // Construct Household object
+                Household household = new Household();
+                household.setId(jsonNode.get("id").asInt());
+                household.setName(jsonNode.get("name").asText());
 
-	                // Populate primary contact details
-	                if (primaryContacts != null && primaryContacts.has("accounts")) {
-	                    JsonNode primaryAccounts = primaryContacts.get("accounts");
-	                    if (primaryAccounts.isArray() && primaryAccounts.size() > 0) {
-	                        ArrayList<User> primaryContactsList = new ArrayList<>();
-	                        for (JsonNode account : primaryAccounts) {
-	                            User user = new User();
-	                            user.setId(account.get("accountId").asInt()); // Assuming "accountId" is the correct field name
-	                            user.setFirstName(account.get("firstName").asText());
-	                            user.setLastName(account.get("lastName").asText());
-	                            user.setEmail(account.get("email").asText());
-	                            user.setRole("PRIMARY_CONTACT");
-	                            user.setPhoneNumber(account.get("phoneNumber").asText());
-	                            // Add more properties as needed
-	                            primaryContactsList.add(user);
-	                        }
-	                        household.setPrimaryContacts(primaryContactsList);
-	                    }
-	                }
+                // Populate primary contact details
+                if (primaryContacts != null && primaryContacts.has("accounts")) {
+                    JsonNode primaryAccounts = primaryContacts.get("accounts");
+                    if (primaryAccounts.isArray() && primaryAccounts.size() > 0) {
+                        ArrayList<User> primaryContactsList = new ArrayList<>();
+                        for (JsonNode account : primaryAccounts) {
+                            User user = new User();
+                            user.setId(account.get("accountId").asInt()); // Assuming "accountId" is the correct field name
+                            user.setFirstName(account.get("firstName").asText());
+                            user.setLastName(account.get("lastName").asText());
+                            user.setEmail(account.get("email").asText());
+                            user.setRole("PRIMARY_CONTACT");
+                            user.setPhoneNumber(account.get("phoneNumber").asText());
+                            // Add more properties as needed
+                            primaryContactsList.add(user);
+                        }
+                        household.setPrimaryContacts(primaryContactsList);
+                    }
+                }
 
-	                // Populate household accounts
-	                if (householdAccounts != null && householdAccounts.has("accounts")) {
-	                    JsonNode accounts = householdAccounts.get("accounts");
-	                    if (accounts.isArray()) {
-	                        ArrayList<User> householdAccountsList = new ArrayList<>();
-	                        for (JsonNode account : accounts) {
-	                            User user = new User();
-	                            user.setId(account.get("clientAccountId").asInt()); // Assuming "clientAccountId" is the correct field name
-	                            user.setFirstName(account.get("firstName").asText());
-	                            user.setLastName(account.get("lastName").asText());
-	                            // Add more properties as needed
-	                            householdAccountsList.add(user);
-	                        }
-	                        household.setHouseholdAccounts(householdAccountsList);
-	                    }
-	                }
+                // Populate household accounts
+                if (householdAccounts != null && householdAccounts.has("accounts")) {
+                    JsonNode accounts = householdAccounts.get("accounts");
+                    if (accounts.isArray()) {
+                        ArrayList<User> householdAccountsList = new ArrayList<>();
+                        for (JsonNode account : accounts) {
+                            User user = new User();
+                            user.setId(account.get("clientAccountId").asInt()); // Assuming "clientAccountId" is the correct field name
+                            user.setFirstName(account.get("firstName").asText());
+                            user.setLastName(account.get("lastName").asText());
+                            // Add more properties as needed
+                            householdAccountsList.add(user);
+                        }
+                        household.setHouseholdAccounts(householdAccountsList);
+                    }
+                }
 
-	                return household; // Return the constructed household
-	            } catch (Exception e) {
-	                e.printStackTrace();
-	            }
-	        } else {
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	        }
-	    } catch (Exception e) {
-	        logger.info("No Household data returned");
-	        e.printStackTrace();
-	    }
+                return household; // Return the constructed household
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            logger.info("Failed to fetch household data.");
+        }
 	    return null; // Return null if the household with the given ID is not found
 	}
 
@@ -175,35 +141,32 @@ public class UserHelper {
     public ArrayList<Household> getHouseholdList(User usr) {
         ArrayList<Household> results = new ArrayList<Household>();
         String apiUrl = this.authorizationApiBaseUrl + Constants.api_household;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        try {
-            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String jsonResponse = response.getBody();
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode jsonNode;
-                try {
-                    jsonNode = objectMapper.readTree(jsonResponse);
-                    JsonNode households = jsonNode.get("households");
-                    if (households.isArray()) {
-                        for (JsonNode element : households) {
-                            Household household = new Household();
-                            household.setId(Integer.valueOf(element.get("id").asText()));
-                            household.setName(element.get("name").asText());
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode;
+            try {
+                jsonNode = objectMapper.readTree(jsonResponse);
+                JsonNode households = jsonNode.get("households");
+                if (households.isArray()) {
+                    for (JsonNode element : households) {
+                        Household household = new Household();
+                        household.setId(Integer.valueOf(element.get("id").asText()));
+                        household.setName(element.get("name").asText());
 
-                            // Parse household accounts
-                            JsonNode householdAccounts = element.get("householdAccounts");
-                            if (householdAccounts != null) {
-                                JsonNode accounts = householdAccounts.get("accounts");
-                                if (accounts.isArray()) {
-                                    ArrayList<User> householdUsers = new ArrayList<>();
-                                    for (JsonNode account : accounts) {
-                                        User user = new User();
-                                        user.setId(Integer.valueOf(account.get("id").asText()));
-                                        user.setFirstName(account.get("firstName").asText());
-                                        user.setLastName(account.get("lastName").asText());
+                        // Parse household accounts
+                        JsonNode householdAccounts = element.get("householdAccounts");
+                        if (householdAccounts != null) {
+                            JsonNode accounts = householdAccounts.get("accounts");
+                            if (accounts.isArray()) {
+                                ArrayList<User> householdUsers = new ArrayList<>();
+                                for (JsonNode account : accounts) {
+                                    User user = new User();
+                                    user.setId(Integer.valueOf(account.get("id").asText()));
+                                    user.setFirstName(account.get("firstName").asText());
+                                    user.setLastName(account.get("lastName").asText());
 
-                                        user.setRole(account.get("role").asText());
+                                    user.setRole(account.get("role").asText());
   
                                         householdUsers.add(user);
                                     }
@@ -212,18 +175,14 @@ public class UserHelper {
                             }
 
                             // Add household to results list
-                            results.add(household);
-                        }
+                        results.add(household);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            } else {
-                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            logger.info("No Household data returned");
-            e.printStackTrace();
+        } else {
+            logger.info("Failed to fetch getHouseholdList data.");
         }
         return results;
     }
@@ -241,75 +200,64 @@ public class UserHelper {
 		
 		
 		String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + uid;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		//String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					result = new User();
-					result.setId(uid);
-					result.setFirstName(jsonNode.get("firstName").asText());
-					result.setLastName(jsonNode.get("lastName").asText());
-					result.setUsername(jsonNode.get("username").asText());
-					result.setEmail(jsonNode.get("email").asText());
-					JsonNode roles = jsonNode.get("roles");
-					JsonNode deps = jsonNode.get("dependents");
-					JsonNode coclient = jsonNode.get("coClient");
-					User temp = new User();
-					if (!coclient.toString().equals("null")) {
-						temp = new User();
-						temp.setId(Integer.valueOf(coclient.get("id").toString()));
-						temp.setFirstName(coclient.get("firstName").asText());
-						temp.setLastName(coclient.get("lastName").asText());
-						temp.setUsername(coclient.get("username").asText());
-						result.setCoclient(temp);
-					}
-					// Iterate through the array elements
-					ArrayList<String> userRoles = new ArrayList<String>(); 
-					if (roles.isArray()) {
-						for (JsonNode element : roles) {
-							// Access and print array elements
-							if (element != null) {
-								userRoles.add(element.asText());
-							}
-						}
-					}
-					result.setRoles(userRoles);
-					ArrayList<User> userDeps = new ArrayList<User>(); 
-					if (deps.isArray()) {
-						for (JsonNode element : deps) {
-							// Access and print array elements
-							if (element != null) {
-								temp = new User();
-								temp.setId(Integer.valueOf(element.get("id").toString()));
-								temp.setFirstName(element.get("firstName").asText());
-								temp.setLastName(element.get("lastName").asText());
-								temp.setUsername(element.get("username").asText());
-								userDeps.add(temp);
-							}
-						}
-					}
-					result.setDependents(userDeps);
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				result = new User();
+				result.setId(uid);
+				result.setFirstName(jsonNode.get("firstName").asText());
+				result.setLastName(jsonNode.get("lastName").asText());
+				result.setUsername(jsonNode.get("username").asText());
+				result.setEmail(jsonNode.get("email").asText());
+				JsonNode roles = jsonNode.get("roles");
+				JsonNode deps = jsonNode.get("dependents");
+				JsonNode coclient = jsonNode.get("coClient");
+				User temp = new User();
+				if (!coclient.toString().equals("null")) {
+					temp = new User();
+					temp.setId(Integer.valueOf(coclient.get("id").toString()));
+					temp.setFirstName(coclient.get("firstName").asText());
+					temp.setLastName(coclient.get("lastName").asText());
+					temp.setUsername(coclient.get("username").asText());
+					result.setCoclient(temp);
 				}
-			} else {
-				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
+				// Iterate through the array elements
+				ArrayList<String> userRoles = new ArrayList<String>(); 
+				if (roles.isArray()) {
+					for (JsonNode element : roles) {
+						// Access and print array elements
+						if (element != null) {
+							userRoles.add(element.asText());
+						}
+					}
+				}
+				result.setRoles(userRoles);
+				ArrayList<User> userDeps = new ArrayList<User>(); 
+				if (deps.isArray()) {
+					for (JsonNode element : deps) {
+						// Access and print array elements
+						if (element != null) {
+							temp = new User();
+							temp.setId(Integer.valueOf(element.get("id").toString()));
+							temp.setFirstName(element.get("firstName").asText());
+							temp.setLastName(element.get("lastName").asText());
+							temp.setUsername(element.get("username").asText());
+							userDeps.add(temp);
+						}
+					}
+				}
+				result.setDependents(userDeps);
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			logger.info("No user data returned");
-			e.printStackTrace();
+		} else {
+			logger.info("Failed to fetch getUser data.");
 		}
 
 		return result;
@@ -318,7 +266,6 @@ public class UserHelper {
 	
 	
 	public String addUser(User loggedInUser, User newUser) {
-
 		ArrayList<String> roles = newUser.getRoles();
 		int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers
 	    String requestBody = String.format(
@@ -326,24 +273,11 @@ public class UserHelper {
 	            newUser.getUsername(), newUser.getFirstName(), newUser.getLastName(),role,newUser.getEmail() , newUser.getPassword()
 	        );
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
-	    HttpEntity<String> entity = Entity.getEntityWithBody(loggedInUser, apiUrl,requestBody);
-		logger.info("addUser URL: " + apiUrl.toString());
-		logger.info("addUser entity: " + entity.toString());
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	            return "Success " + response.getBody();
-	        } else {
-	            return "Error: " + response.getStatusCode() + " - " + response.getBody();
-	        }
-	    } catch (HttpClientErrorException e) {
-	        return "Error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return "Error: An internal error occurred";
-	    }
-	
-
+		int result = apiHelper.postAPI(apiUrl, requestBody, loggedInUser);
+		if (result != 0) {
+			return "error ";
+		}
+		return "success";
 	}
 
 	
@@ -354,51 +288,24 @@ public class UserHelper {
 		String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\", \"roleIds\":[" + role + "]}";	
 	    String apiUrl = Constants.auth_server + Constants.api_userlist_get +"/"+ id ;
 	    logger.info(apiUrl);
-	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	        	logger.info("Success!");
-	            result = 1;
-	        } else {
-	        	
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			logger.info("Error in updating User Details");
-	        e.printStackTrace();
-		}
+		result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		return result;
 	}
 	
 	
 	
 	public String changeUserPassword(User usr,int id, String oldPassword, String newPassword) {
-		
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 	    String requestBody = "{\"oldPassword\":\"" + oldPassword + "\", \"newPassword\":\"" + newPassword + "\"}";
 	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + id + "/reset-password";
-	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	            return "Success";
-	        } else {
-	            return "Error: " + response.getStatusCode() + " - " + response.getBody();
-	        }
-		    } catch (HttpClientErrorException e) {
-		        return "Error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
-		    } catch (Exception e) {
-		        e.printStackTrace();
-		        return "Error: An internal error occurred";
-		    }
-	    }
+		int result = apiHelper.postAPI(apiUrl, requestBody, usr);
+		if (result != 0) {
+			return "error ";
+		}
+		return "success";
+	}
 
 	public int getUserId(User usr) {
 		int result = 0;
@@ -406,22 +313,24 @@ public class UserHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 	    String apiUrl = Constants.auth_server + Constants.api_me;
-	    HttpEntity<String> entity = new HttpEntity<>(headers);
-        try {
-            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                ObjectMapper mapper = new ObjectMapper();
-                String json = response.getBody();
-                JsonNode root = mapper.readTree(json);
-                int accountId = root.path("accountId").asInt(); // Extract accountId
-                result = accountId;
-            } else {
-                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-            }
-        } catch (Exception e) {
-            logger.info("Error in getting User ID");
-            e.printStackTrace();
-            result = -1;
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		int accountId = 0;
+		if (!jsonResponse.isEmpty()) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root;
+			try {
+				root = mapper.readTree(jsonResponse);
+	            accountId = root.path("accountId").asInt(); // Extract accountId
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            result = accountId;
+        } else {
+            logger.info("Failed to fetch userId data.");
         }
         return result; 
     }
@@ -431,22 +340,24 @@ public class UserHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 	    String apiUrl = Constants.auth_server + Constants.api_me;
-	    HttpEntity<String> entity = new HttpEntity<>(headers);
-        try {
-            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                ObjectMapper mapper = new ObjectMapper();
-                String json = response.getBody();
-                JsonNode root = mapper.readTree(json);
-                int accountId = root.path("householdId").asInt(); // Extract accountId
-                result = accountId;
-            } else {
-                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-            }
-        } catch (Exception e) {
-            logger.info("Error in getting User ID");
-            e.printStackTrace();
-            result = -1;
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+        int accountId = 0;
+		if (!jsonResponse.isEmpty()) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root;
+			try {
+				root = mapper.readTree(jsonResponse);
+	            accountId = root.path("householdId").asInt(); // Extract accountId
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            result = accountId;
+        } else {
+            logger.info("Failed to fetch householdId data.");
         }
         return result; 
     }
@@ -473,27 +384,7 @@ public class UserHelper {
 	    tempBody.append("]}");
 	    String requestBody = String.format("{\"firstName\":\"%s\",\"lastName\":\"%s\",\"email\":\"%s\",",client.getFirstName(),client.getLastName(),client.getEmail());
 	    requestBody = requestBody+tempBody.toString();
-	    logger.info(requestBody);
-	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-	    logger.info("Url: "+ apiUrl);
-	    logger.info("RequestBody: "+ requestBody);
-
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	        logger.info("Success!");
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			logger.info("Error in updating User Details");
-	        e.printStackTrace();
-		}
+	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
 		return result;
 	}
 
@@ -502,25 +393,7 @@ public class UserHelper {
 
 		String requestBody = "{\"householdAccountIds\":" + householdIds.toString() + "}";
 	    String apiUrl = Constants.auth_server + Constants.api_household_get +primaryContactId;
-	    HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-	    logger.info("requestBody: "+requestBody);
-	    try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	        logger.info("Success!");
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			logger.info("Error in updating User Details");
-	        e.printStackTrace();
-		}
-		
+	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
 		return result;
 	}
 	
@@ -560,25 +433,8 @@ public class UserHelper {
 	    }
 
 	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + client.getId();
-	    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-	    logger.info("Url: "+ apiUrl);
-	    logger.info("RequestBody: "+ requestBody);
-	    try {
-	    	ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-	        logger.info("Success!");
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-	    } catch (Exception e) {
-	        logger.info("Error in updating User Details");
-	        e.printStackTrace();
-	    }
-	    return result;
+	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
+		return result;
 	}
 	
 	
