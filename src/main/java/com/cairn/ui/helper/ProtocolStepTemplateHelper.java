@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.minidev.json.JSONObject;
+
 
 @Service 
 public class ProtocolStepTemplateHelper{
@@ -104,60 +106,67 @@ public class ProtocolStepTemplateHelper{
     }
     
     
-    
+   
+
     public int addStepTemplate(User usr, ProtocolStepTemplate newStep) {
-    	int result = -1;
-    	List<HomeworkTemplate> homeworkList = newStep.getHomework();
-	    StringBuilder homeworkIds = new StringBuilder("\"linkedHomeworkTemplateIds\":");
-	    
-	    if (homeworkList == null || homeworkList.isEmpty()) {
-	        homeworkIds.append("null"); 
-	    } else {
-	        homeworkIds.append("[");
-	        for (int i = 0; i < homeworkList.size(); i++) {
-	            HomeworkTemplate hw = homeworkList.get(i);
-	            homeworkIds.append(hw.getId());
-	            if (i < homeworkList.size() - 1) {
-	                homeworkIds.append(", ");  // Append a comma and a space if not the last element
-	            }
-	        }
-	        homeworkIds.append("]");  // Close the array outside the loop
-	    }
-	    
-	    // Construct the final JSON string
-	    String requestBody = "{"
-	            + "\"name\": \"" + newStep.getName() + "\","
-	            + "\"description\": \"" + newStep.getDescription() + "\","
-	            + "\"linkedStepTaskId\": null,"  
-	            + homeworkIds.toString() + ","
-	            + "\"stepTemplateCategoryId\": " + newStep.getCategoryId() + "}";
-	    
-	    
-	    
+        int result = -1;
+        List<HomeworkTemplate> homeworkList = newStep.getHomework();
+        StringBuilder homeworkIds = new StringBuilder("\"linkedHomeworkTemplateIds\":");
+        
+        if (homeworkList == null || homeworkList.isEmpty()) {
+            homeworkIds.append("null"); 
+        } else {
+            homeworkIds.append("[");
+            for (int i = 0; i < homeworkList.size(); i++) {
+                HomeworkTemplate hw = homeworkList.get(i);
+                homeworkIds.append(hw.getId());
+                if (i < homeworkList.size() - 1) {
+                    homeworkIds.append(", ");  // Append a comma and a space if not the last element
+                }
+            }
+            homeworkIds.append("]");  // Close the array outside the loop
+        }
+        
+        // Construct the final JSON string
+        String requestBody = "{"
+                + "\"name\": \"" + newStep.getName() + "\","
+                + "\"description\": \"" + newStep.getDescription() + "\","
+                + "\"linkedStepTaskId\": null,"  
+                + homeworkIds.toString() + ","
+                + "\"stepTemplateCategoryId\": " + newStep.getCategoryId() + "}";
+        
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
+        System.out.println(apiUrl);
+        System.out.println(requestBody);
+        HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
+        try {
+            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+            System.out.println(response);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                // Parse the response body to get the stepTemplateId
+            	String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate ;
-		System.out.println(apiUrl);
-		System.out.println(requestBody);
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            System.out.println("Failed to Post data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			result = -1;
-			System.out.println("Error in addStepTemplate");
-	        e.printStackTrace();
-		}
-    	return result;
+				JsonNode jsonNode;
+				jsonNode = objectMapper.readTree(jsonResponse);
+                if (jsonNode.has("stepTemplateId")) {
+                    result = jsonNode.get("stepTemplateId").asInt();
+                } else {
+                    result = -1; // Set to -1 if stepTemplateId is not present in the response
+                }
+            } else {
+                result = -1;
+                System.out.println("Failed to Post data. Status code: " + response.getStatusCode());
+            }  
+        } catch (Exception e) {
+            result = -1;
+            System.out.println("Error in addStepTemplate");
+            e.printStackTrace();
+        }
+        System.out.println(result);
+        return result;
     }
+
     
     
     public int addHomeworkTemplate(User usr, int stepTemplateId, int homeworkId) {

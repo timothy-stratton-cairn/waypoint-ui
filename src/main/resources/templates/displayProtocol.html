@@ -14,33 +14,33 @@
 <div class="container">
 
     <!-- Protocol Details Display for Existing Protocol -->
-	<div>
-	    <div class="row note_card">
-	        <fieldset>
-	            <legend>Protocol Template Details</legend>
-	            <div>
-	                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
-	                    <div class="row">
-							<div class="col-md-1">
-	                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
-							</div>
-							<div class="col-md-11">
-	                            <input type="text" id="name" name="name" th:value="${protocol.name}" class="form-control" />
-	                        </div>
-	                    </div>
-	                    <br>
-	                    <div class="row">
-	                        <div class="col-md-1">
-	                            <label for="description"><strong>Description:</strong></label>
-	                        </div>
-	                        <div class="col-md-11">
-	                            <input type="text" id="description" name="description" th:value="${protocol.description}" class="form-control"/>
-	                        </div>
-                    	</div>
-	                </form>
-	            </div>
+    <div>
+        <div class="row note_card">
+            <fieldset>
+                <legend>Protocol Template Details</legend>
+                <div>
+                    <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <label for="name" class="mr-md-3"><strong>Name:</strong></label>
+                            </div>
+                            <div class="col-md-11">
+                                <input type="text" id="name" name="name" th:value="${protocol.name}" class="form-control" />
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <label for="description"><strong>Description:</strong></label>
+                            </div>
+                            <div class="col-md-11">
+                                <input type="text" id="description" name="description" th:value="${protocol.description}" class="form-control"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
-				<div class="row mt-3">
+                <div class="row mt-3">
                     <div class="col-md-2">
                         <label for="dueDate" class="mr-md-1"><strong>Default Due Date: </strong></label>
                     </div>
@@ -57,80 +57,81 @@
                         <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
                     </div>
                 </div>
-				
-				<div class="row">
-					<div class="col-md-2">
-                    	<label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
-                   		<input type="checkbox" id="reoccurring" name="reoccurring"/>
-					</div>
-                </div>
-                
-				<div id="schedule-fields" style="display: none;">
-					<div class="row mt-3">
-						<div class="col-md-2">
-							<label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
-						</div>
-						<div class="col-md-2">
-							<label for="year" class="d-inline"><strong>Year</strong></label>
-							<input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
-						</div>
-						<div class="col-md-2">
-							<label for="month" class="d-inline"><strong>Month</strong></label>
-							<input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
-						</div>
-						<div class="col-md-2">
-							<label for="day" class="d-inline"><strong>Day</strong></label>
-							<input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
-						</div>
-					</div>
+                <br>
+				 <div class="border border-dark p-3 mb-3">
+	                <div class="row">
+	                    <div class="col-md-2">
+	                        <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
+	                        <input type="checkbox" id="reoccurring" name="reoccurring"/>
+	                    </div>
+	                </div>
+	
+	                <div id="schedule-fields" style="display: none;">
+	                    <div class="row mt-3">
+	                        <div class="col-md-2">
+	                            <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
+	                        </div>
+	                        <div class="col-md-2">
+	                            <label for="year" class="d-inline"><strong>Year</strong></label>
+	                            <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
+	                        </div>
+	                        <div class="col-md-2">
+	                            <label for="month" class="d-inline"><strong>Month</strong></label>
+	                            <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
+	                        </div>
+	                        <div class="col-md-2">
+	                            <label for="day" class="d-inline"><strong>Day</strong></label>
+	                            <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
+	                        </div>
+	                    </div>
+	                </div>
 				</div>
+                <button onclick="history.back()" class="btn btn-primary">Back</button>
+                <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
+                <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
+            </fieldset>
+        </div>
+    </div>
 
-	            <button onclick="history.back()" class="btn btn-primary">Back</button>
-	            <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>  
-	 			<button type="button" class="btn btn-success" th:onclick="'saveProtocol('+${protocol.id}+')'">Save Protocol</button>
-	        </fieldset>
-	    </div>
-	</div>
+    <div class="row note_card">
+        <fieldset>
+            <legend>Assigned Homework</legend>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Homework Name</th>
+                            <th>Step Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Initialize a variable to track if any homework is displayed -->
+                        <th:block th:with="hasHomework=false">
+                            <!-- Loop through each step -->
+                            <th:block th:each="step : ${steps}">
+                                <!-- Loop through each homework of the step and only display if homework exists -->
+                                <th:block th:each="homework : ${step.homework}">
+                                    <!-- Check if the step has homework -->
+                                    <th:block th:if="${not #lists.isEmpty(step.homework)}" th:with="hasHomework=true">
+                                        <tr>
+                                            <td th:text="${homework.name}">[Homework Name]</td>
+                                            <td th:text="${step.name}">[Step Name]</td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary" th:attr="onclick='viewHomeworkDetails('+${homework.id}+');'">Details</button>
+                                            </td>
+                                        </tr>
+                                    </th:block>
+                                </th:block>
+                            </th:block>
+                        </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+    </div>
 
-	<div class="row note_card">
-	    <fieldset>
-	        <legend>Assigned Homework</legend>
-	        <div class="table-responsive">
-	            <table class="table">
-	                <thead>
-	                    <tr>
-	                        <th>Homework Name</th>
-	                        <th>Step Name</th>
-	                        <th>Action</th>
-	                    </tr>
-	                </thead>
-	                <tbody>
-	                    <!-- Initialize a variable to track if any homework is displayed -->
-	                    <th:block th:with="hasHomework=false">
-	                        <!-- Loop through each step -->
-	                        <th:block th:each="step : ${steps}">
-	                            <!-- Loop through each homework of the step and only display if homework exists -->
-	                            <th:block th:each="homework : ${step.homework}">
-	                                <!-- Check if the step has homework -->
-	                                <th:block th:if="${not #lists.isEmpty(step.homework)}" th:with="hasHomework=true">
-	                                    <tr>
-	                                        <td th:text="${homework.name}">[Homework Name]</td>
-	                                        <td th:text="${step.name}">[Step Name]</td>
-	                                        <td>
-	                                            <button type="button" class="btn btn-primary" th:onclick="'viewHomeworkDetails('+${homework.id}+');'">Details</button>
-	                                        </td>
-	                                    </tr>
-	                                </th:block>
-	                            </th:block>
-	                        </th:block>
-	                    </th:block>
-	                </tbody>
-	            </table>
-	        </div>
-	    </fieldset>
-	</div>
-
-	<!-- Steps Section with Tabs -->
+    <!-- Steps Section with Tabs -->
     <div class="row note_card">
         <fieldset>
             <legend>Steps</legend>
@@ -149,14 +150,15 @@
                      th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.categoryId}">
                     <div class="col" th:text="${step.name}">[Step Name]</div>
                     <div class="col">
-                        <button type="button" class="btn btn-secondary" th:onclick="'editProtocol('+${step.id}+');'">Details</button>
-                        <button type="button" class="btn btn-secondary" th:onclick="'deleteStep('+${step.id}+');'">Delete</button>
+                        <button type="button" class="btn btn-secondary" th:attr="onclick='editProtocol('+${step.id}+');'">Details</button>
+                        <button type="button" class="btn btn-secondary" th:attr="onclick='deleteStep('+${step.id}+');'">Delete</button>
                     </div>
                 </div>
                 <div th:if="${steps.empty}">
                     <p>No steps available.</p>
                 </div>
             </div>
+            <br>
 
             <!-- Template for adding new step -->
             <template id="stepTemplate">
@@ -172,7 +174,7 @@
             </div>
             <br>
             
-            <button type="button" class="btn btn-primary" onclick="'newStep();'">New Step</button>
+            <button type="button" class="btn btn-primary" onclick="newStep();">New Step</button>
             <button type="button" class="btn btn-primary" onclick="addStep();">Add Step</button>
         </fieldset>
     </div>
@@ -183,7 +185,22 @@
     var dueByDays = [[${dueBy}]];
 
     function newStep() {
-        window.location = '/newStep/';
+        window.location = '/newStep/' + protocolId;
+    }
+
+    function addStep() {
+        var stepsContainer = document.getElementById('stepsContainer');
+        var stepTemplate = document.getElementById('stepTemplate').content.cloneNode(true);
+
+        if (stepsContainer.children.length > 0) {
+            stepsContainer.innerHTML = ''; // Clear the container if already populated
+        } else {
+            stepsContainer.appendChild(stepTemplate);
+        }
+    }
+
+    function viewHomeworkDetails(homeworkId) {
+        window.location = '/viewHomeworkDetails/' + homeworkId;
     }
 
     function editProtocol(id) {
@@ -293,7 +310,7 @@
             showBannerMessage('Failed to add the step. Error: ' + error.message, "danger");
         });
     }
-    
+
     function deleteProtocolTemplate(Id) {
         var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
         var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');

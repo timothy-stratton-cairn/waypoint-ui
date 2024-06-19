@@ -266,6 +266,114 @@ public class HomeworkTemplateHelper{
     	
     	return result;
     }
+    public ArrayList<HomeworkQuestion> getHomeworkQuestions(User usr){
+    	ArrayList<HomeworkQuestion> results = new ArrayList<HomeworkQuestion>();
+    	String apiUrl = Constants.api_server + Constants.api_homework_question ;
+        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+        
+        try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+
+			// Process the response
+			if (response.getStatusCode().is2xxSuccessful()) {
+				String jsonResponse = response.getBody();
+				ObjectMapper objectMapper = new ObjectMapper();
+				JsonNode jsonNode;
+				try {
+					jsonNode = objectMapper.readTree(jsonResponse);
+					JsonNode hwork = jsonNode.get("questions");
+					// Iterate through the array elements
+					HomeworkQuestion entry = null;
+					if (hwork.isArray()) {
+						for (JsonNode element : hwork) {
+							// Access and print array elements
+							if (element != null) {
+								entry = new HomeworkQuestion();
+								entry.setQuestionId(element.get("questionId").asInt());
+								entry.setQuestionAbbreviation(element.get("questionAbbr").asText());
+								entry.setQuestion(element.get("question").asText());
+								entry.setStatus(element.get("status").asText());
+								results.add(entry);
+							}
+						}
+					}
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+		} catch (Exception e) {
+
+			System.out.println("No Homeworks Returned");
+
+		}
+    	
+    	return results;
+    	
+    }
+    
+    public int newHomeworkQuestion(User usr, HomeworkQuestion question) {
+        int result = 0;
+        
+        String apiUrl = Constants.api_server + Constants.api_homework_question;
+        String requestBody = "{" +
+            "\"questionAbbr\": \"" + question.getQuestionAbbreviation() + "\"," +
+            "\"question\": \"" + question.getQuestion() + "\"," +
+            "\"questionType\": \"" + question.getQuestionType() + "\"," +
+            "\"isRequired\": " + question.isRequired() + "," +
+            "\"responseOptions\": [";
+
+        if (question.getExpectedHomeworkResponses() != null && question.getExpectedHomeworkResponses().getResponses() != null) {
+            List<HomeworkResponse> responses = question.getExpectedHomeworkResponses().getResponses();
+            for (int i = 0; i < responses.size(); i++) {
+                HomeworkResponse response = responses.get(i);
+                requestBody += "{" +
+                    "\"response\": \"" + response.getResponse() + "\"," +
+                    "\"tooltip\": \"" + response.getTooltip() + "\"" +
+                    "}";
+                if (i < responses.size() - 1) {
+                    requestBody += ",";
+                }
+            }
+        }
+
+        requestBody += "]," +
+            "\"triggerProtocolCreation\": " + question.getIsTriggeringReponse() + "," +
+            "\"triggeringResponse\": {" +
+            "\"response\": \"" + (question.getTriggerResponse() != null ? question.getTriggerResponse().getResponse() : "") + "\"," +
+            "\"tooltip\": \"" + (question.getTriggerResponse() != null ? question.getTriggerResponse().getTooltip() : "") + "\"" +
+            "}," +
+            "\"triggeredProtocolId\": " + question.getTriggerProtocolId() +
+            "}";
+
+        System.out.println(requestBody);
+        HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
+        
+		try {
+	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+	        if (response.getStatusCode().is2xxSuccessful()) {
+
+	            result = 1;
+	        } else {
+	        	result = -1;
+	            System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
+	            // Update result to indicate a specific type of failure
+	        }  
+			
+		}
+		catch(Exception e) {
+			System.out.println("Error in Posting Question");
+	        e.printStackTrace();
+		}
+        
+
+        return result;
+    }
+
+
     
     
     

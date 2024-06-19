@@ -360,7 +360,8 @@ public class ProtocolTemplateHelper {
 	    // Initial result indicating failure
 	    int result = -1;
 
-	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + "/" + theTemplate.getId()+ "/"+ theStep.getId();
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + theTemplate.getId()+ "/"+ theStep.getId();
+	    System.out.println(apiUrl);
 	    result = patchAPI(apiUrl, null, usr);
 
 	    return result;

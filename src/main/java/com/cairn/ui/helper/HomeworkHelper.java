@@ -498,53 +498,5 @@ public class HomeworkHelper {
     }
     
     
-    public ArrayList<HomeworkQuestion> getHomeworkQuestions(User usr){
-    	ArrayList<HomeworkQuestion> results = new ArrayList<HomeworkQuestion>();
-    	String apiUrl = Constants.api_server + Constants.api_homework_question ;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        System.out.println(apiUrl);
-        
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			System.out.println(response);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode hwork = jsonNode.get("questions");
-					// Iterate through the array elements
-					HomeworkQuestion entry = null;
-					if (hwork.isArray()) {
-						for (JsonNode element : hwork) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new HomeworkQuestion();
-								entry.setQuestionId(element.get("questionId").asInt());
-								entry.setQuestionAbbreviation(element.get("questionAbbr").asText());
-								entry.setQuestion(element.get("question").asText());
-								entry.setStatus(element.get("status").asText());
-								results.add(entry);
-							}
-						}
-					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
-			} else {
-				System.out.println("Failed to fetch data. Status code: " + response.getStatusCode());
-			}
-		} catch (Exception e) {
 
-			System.out.println("No Homeworks Returned");
-
-		}
-    	
-    	return results;
-    	
-    }
 }

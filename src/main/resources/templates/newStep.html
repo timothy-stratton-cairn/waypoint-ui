@@ -87,7 +87,9 @@
 
 
 <script th:inline="javascript">
-	const maxHomeworkItems = 1; // Limit of homework items that can be added
+    var pcolId = [[${pcolId}]]; // this can be null 
+
+    const maxHomeworkItems = 1; // Limit of homework items that can be added
 
     function showBannerMessage(message, type) {
         var banner = document.getElementById('messageBanner');
@@ -95,7 +97,6 @@
         banner.className = 'alert alert-' + type;
         banner.style.display = 'block';
     }
-
 
     function addHomeworkTemplate() {
         var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
@@ -150,10 +151,37 @@
         })
         .then(response => response.json())
         .then(data => {
-            showBannerMessage('Step saved successfully!', 'success');
-            setTimeout(() => window.location.href = '/protocolStepTemplates', 2000);
+            if (data.stepId) {
+                if (pcolId == null) {
+                    showBannerMessage('Step saved successfully!', 'success');
+                    setTimeout(() => window.location.href = '/protocolStepTemplates', 2000);
+                } else {
+                    addStepToProtocol(pcolId, data.stepId);
+                }
+            } else {
+                showBannerMessage('Error saving step: ' + data.message, 'danger');
+            }
         })
         .catch(error => showBannerMessage('Error saving step: ' + error, 'danger'));
+    }
+
+    function addStepToProtocol(protocolId, stepId) {
+        fetch('/addStepToProtocol/' + protocolId + '/' + stepId, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                showBannerMessage('Step added to protocol successfully!', 'success');
+                setTimeout(() => window.location.href = '/editProtocol/' + protocolId, 2000);
+            } else {
+                showBannerMessage('Error adding step to protocol', 'danger');
+            }
+        })
+        .catch(error => showBannerMessage('Error adding step to protocol: ' + error, 'danger'));
     }
 </script>
 

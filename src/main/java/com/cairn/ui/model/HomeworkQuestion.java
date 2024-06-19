@@ -10,6 +10,9 @@ public class HomeworkQuestion {
     private String question;
     private String questionType;
     private boolean isRequired;
+    private boolean isTriggeringReponse;
+    private HomeworkResponse triggerResponse;
+    private int triggerProtocolId;
     private String status;
     private String userResponse;
     private MultipartFile file;
@@ -82,6 +85,24 @@ public class HomeworkQuestion {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public boolean getIsTriggeringReponse() {
+		return isTriggeringReponse;
+	}
+	public void setTriggeringReponse(boolean isTriggeringReponse) {
+		this.isTriggeringReponse = isTriggeringReponse;
+	}
+	public HomeworkResponse getTriggerResponse() {
+		return triggerResponse;
+	}
+	public void setTriggerResponse(HomeworkResponse triggerResponse) {
+		this.triggerResponse = triggerResponse;
+	}
+	public int getTriggerProtocolId() {
+		return triggerProtocolId;
+	}
+	public void setTriggerProtocolId(int triggerProtocolId) {
+		this.triggerProtocolId = triggerProtocolId;
 	}
 }
 

@@ -450,7 +450,21 @@ public class MainController {
 		for (HomeworkTemplate hw: templatelist) {
 			System.out.println("Homework ID: " + hw.getId() + " Homework Name: "+ hw.getName());
 		}
-		
+		model.addAttribute("pcolId", null);
+		model.addAttribute("homework", templatelist);
+		model.addAttribute("step", step);
+
+		return "newStep";
+	}
+	@GetMapping("/newStep/{id}")
+	public String newStep(@PathVariable int id, Model model) {
+		ProtocolStepTemplate step = new ProtocolStepTemplate();
+		User usr = (User) userDAO.getUser();
+		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
+		for (HomeworkTemplate hw: templatelist) {
+			System.out.println("Homework ID: " + hw.getId() + " Homework Name: "+ hw.getName());
+		}
+		model.addAttribute("pcolId", id);
 		model.addAttribute("homework", templatelist);
 		model.addAttribute("step", step);
 
@@ -459,14 +473,19 @@ public class MainController {
 	
 	@PostMapping("/saveStep/")
 	public ResponseEntity<String> saveStep(@RequestBody ProtocolStepTemplate newStep) {
-		User usr = (User) userDAO.getUser();	  
-		
+	    User usr = (User) userDAO.getUser();  
+	    
 	    try {
-			protocolStepTemplateHelper.addStepTemplate(usr, newStep);
-	        return ResponseEntity.ok("{\"message\": \"Template Successfully Created!\"}");
+	        int stepId = protocolStepTemplateHelper.addStepTemplate(usr, newStep);
+	        if (stepId > 0) {
+	            return ResponseEntity.ok("{\"message\": \"Template Successfully Created!\", \"stepId\": " + stepId + "}");
+	        } else {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                    .body("{\"message\": \"Failed to create Step Template.\"}");
+	        }
 	    } catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body("An error occurred while saving the Step Template: " + e.getMessage());
+	                .body("{\"message\": \"An error occurred while saving the Step Template: " + e.getMessage() + "\"}");
 	    }
 	}
 	
@@ -1634,15 +1653,22 @@ public class MainController {
     @GetMapping ("/homeworkQuestionList/")
     public String homeworkQuestionList(Model model) {
     	User currentUser = userDAO.getUser();
-    	HomeworkHelper helper = new HomeworkHelper();
-    	ArrayList<HomeworkQuestion> questionList = helper.getHomeworkQuestions(currentUser);
+
+    	ArrayList<HomeworkQuestion> questionList = homeworkTemplateHelper.getHomeworkQuestions(currentUser);
     	model.addAttribute("questionList",questionList);
     
     	return "homeworkQuestionList";
     }
     
-
-}
+    
+    @PostMapping ("/saveQuestion/{question}")
+    public ResponseEntity<String> saveQuestion(@RequestBody HomeworkQuestion question, Model model){
+    	ResponseEntity<String> result = new ResponseEntity<String>(null);
+    	User currentUser = userDAO.getUser();
+    	
+    	return result;
+    }
+    }
     
     
     
