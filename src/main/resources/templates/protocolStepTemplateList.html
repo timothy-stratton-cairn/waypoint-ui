@@ -20,12 +20,14 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Category</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="step, status: ${listSteps}">
                                 <td th:text="${step.name}"></td>
+                                <td th:text="${step.categoryName}"></td>
                                 <td>
                                     <a class="btn btn-sm btn-secondary" th:href="@{'/editStep/' + ${step.id}}">Details</a>
                                 </td>

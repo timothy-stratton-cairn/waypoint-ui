@@ -649,14 +649,9 @@ public class MainController {
 	public ResponseEntity<String> addStepToProtocol(@PathVariable Integer protocolId, @PathVariable Integer stepId) {
 		try {
 			User usr = (User) userDAO.getUser();
-			ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, protocolId);
-			ProtocolStepTemplate step = protocolTemplateHelper.getStep(usr, stepId);
 
-			if (pcol == null || step == null) {
-				return ResponseEntity.notFound().build();
-			}
 
-			int result = protocolTemplateHelper.addTemplateStep(usr, pcol, step);
+			int result = protocolTemplateHelper.addTemplateStep(usr, protocolId, stepId);
 			if (result == 1) {
 				// Success
 				return ResponseEntity.ok().build();

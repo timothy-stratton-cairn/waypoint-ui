@@ -89,8 +89,7 @@
 	                </div>
 				</div>
                 <button onclick="history.back()" class="btn btn-primary">Back</button>
-                <button type="button" class="btn btn-primary" th:attr="data-id=${protocol.id},data-name='[[${protocol.name}]]'"
-        				onclick="deleteProtocolTemplate(this)">Delete</button>
+                <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
 
                 <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
             </fieldset>

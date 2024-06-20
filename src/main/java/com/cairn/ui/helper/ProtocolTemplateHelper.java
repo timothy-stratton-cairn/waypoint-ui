@@ -103,6 +103,7 @@ public class ProtocolTemplateHelper {
 				+ "\"dueDate\": \"" + dueDateDays + "\","
 				+ associatedStepTemplateIds.toString()+
 				"}";
+
 		result = apiHelper.postAPI(apiUrl, requestBody, usr);
 		return result;
 	}
@@ -110,53 +111,62 @@ public class ProtocolTemplateHelper {
 	
 	
 	//same as above but instead grabbing all types 
-	public ArrayList<ProtocolStepTemplate> getAllSteps(User usr) {
-		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
-		
-		if (usr == null) {
-			return results;
-		}
+    public ArrayList<ProtocolStepTemplate> getAllSteps(User usr) {
+        ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
-		// Create a HttpEntity with the headers
-		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
-		if (!jsonResponse.isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
+        if (usr == null) {
+            return results;
+        }
 
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				JsonNode prots = jsonNode.get("stepTemplates");
-				// Iterate through the array elements
-				ProtocolStepTemplate entry = null;
-				if (prots.isArray()) {
-					int idx = 1;
-					for (JsonNode element : prots) {
-						// Access and print array elements
-						if (element != null) {
-							entry = new ProtocolStepTemplate();
-							entry.setName(element.get("name").asText());
-							entry.setId(Integer.valueOf(element.get("id").toString()));
-							// Test data, fix this later
-							entry.setType(idx++);
-							if (idx > 4) {
-								idx = 1;
-							}
-							results.add(entry);
-						}
-					}
-				}
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-		} else {
-			logger.info("Failed to fetch getAllSteps data.");
-		}
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
+        // Create a HttpEntity with the headers
+        String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+        if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
 
-		return results;
-	}
+            JsonNode jsonNode;
+            try {
+                jsonNode = objectMapper.readTree(jsonResponse);
+                JsonNode prots = jsonNode.get("stepTemplates");
+                // Iterate through the array elements
+                if (prots.isArray()) {
+                    int idx = 1;
+                    for (JsonNode element : prots) {
+                        // Access and print array elements
+                        if (element != null) {
+                            ProtocolStepTemplate entry = new ProtocolStepTemplate();
+                            entry.setName(element.get("name").asText());
+                            entry.setId(element.get("id").asInt());
+                            entry.setDescription(element.get("description").asText());
+
+                            // Set category information
+                            JsonNode category = element.get("category");
+                            if (category != null) {
+                                entry.setCategoryId(category.get("id").asInt());
+                                entry.setCategoryName(category.get("name").asText());
+                                entry.setCategoryDescription(category.get("description").asText());
+                            }
+
+                            // Test data, fix this later
+                            entry.setType(idx++);
+                            if (idx > 4) {
+                                idx = 1;
+                            }
+                            results.add(entry);
+                        }
+                    }
+                }
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        } else {
+            logger.info("Failed to fetch getAllSteps data.");
+        }
+
+        return results;
+    }
 
 
 	public Map<String,String> getStepTypes() {
@@ -244,11 +254,11 @@ public class ProtocolTemplateHelper {
 	 * @param theStep A protocol template step instance we want to add to the template.
 	 * @return int. Return code is 1 on successful addition or less than 1 for an error. 0 if the step is already assigned to the template.
 	 */
-	public int addTemplateStep(User usr, ProtocolTemplate theTemplate, ProtocolStepTemplate theStep) {
+	public int addTemplateStep(User usr, int theTemplate, int theStep) {
 	    // Initial result indicating failure
 	    int result = -1;
 
-	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + theTemplate.getId()+ "/"+ theStep.getId();
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_assign + theTemplate + "/"+ theStep;
 	    logger.info(apiUrl);
 	    result = apiHelper.patchAPI(apiUrl, null, usr);
 
@@ -519,16 +529,20 @@ public class ProtocolTemplateHelper {
 	
     public int deleteProtocolStepTemplate(User usr, int templateId, int stepId) {
     	int result = -1;
-		String apiUrl = this.dashboardApiBaseUrl + Constants. api_ep_protocoltemplateget +"/"+ templateId + "?stepTemplateId="+stepId ;
+    	logger.info("Calling deleteProtocolStepTemplate");
+		String apiUrl = this.dashboardApiBaseUrl + Constants. api_ep_protocoltemplateget +templateId + "/step-template?stepTemplateId="+stepId ;
     	result = apiHelper.deleteAPI(apiUrl,usr);
-
+    	logger.info( "Url: " + apiUrl);
     	return result;
     }
     
     public int deleteProtocolTemplate(User usr, int protocolTemplateId) {
     	int result = 0;
+    	logger.info("Calling deleteProtocolTemplate");
     	String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplateget + protocolTemplateId;
+    	logger.info("Api Url: "+apiUrl);
     	result = apiHelper.deleteAPI(apiUrl,usr);
+    	logger.info("Result: " + result);
     	
     	return result;
     }
