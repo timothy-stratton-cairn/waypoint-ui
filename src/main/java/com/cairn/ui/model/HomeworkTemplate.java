@@ -8,6 +8,7 @@ public class HomeworkTemplate {
 	private int id;
 	private String name;
 	private String description;
+	private String status;
 	private List<HomeworkQuestionsTemplate> questions;
 	private int numClients;
 	
@@ -48,5 +49,13 @@ public class HomeworkTemplate {
     public void setQuestions(List<HomeworkQuestionsTemplate> questions) {
         this.questions = questions;
     }
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
     
 }

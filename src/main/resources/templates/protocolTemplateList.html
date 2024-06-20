@@ -19,12 +19,14 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
+								<th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="pcol, status: ${listProtocols}">
                                 <td th:text="${pcol.name}"></td>
+                                <td th:text="${pcol.status}"></td>
                                 <td>
                                     <a class="btn btn-sm btn-secondary" th:href="@{'/editProtocol/' + ${pcol.id}}">Details</a>
                                 </td>

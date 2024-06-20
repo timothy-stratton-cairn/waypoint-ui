@@ -396,6 +396,7 @@ public class ProtocolTemplateHelper {
 							entry = new ProtocolTemplate();
 							entry.setName(element.get("name").asText());
 							entry.setId(Integer.valueOf(element.get("id").toString()));
+							entry.setStatus(element.get("status").asText());
 							// Test data, fix this later
 
 							results.add(entry);
@@ -451,6 +452,7 @@ public class ProtocolTemplateHelper {
 							entry.setName(element.get("name").asText());
 							entry.setId(Integer.valueOf(element.get("id").toString()));
 							
+							
 							// Test data, fix this later
 							entry.setType(idx++);
 							if (idx > 4) {
@@ -493,8 +495,8 @@ public class ProtocolTemplateHelper {
 				jsonNode = objectMapper.readTree(jsonResponse);
 				result.setName(jsonNode.get("name").asText());
 				result.setDescription(jsonNode.get("description").asText());
-				result.setId(Integer.valueOf(jsonNode.get("id").toString()));
-				result.setStatus(jsonNode.get("status").asText());
+				result.setId(Integer.valueOf(jsonNode.get("id").asText()));
+				//result.setStatus(jsonNode.get("status").asText());
 				if (jsonNode.get("dueDate") != null) {
 					result.setDueDate(jsonNode.get("dueDate").asText());
 				}

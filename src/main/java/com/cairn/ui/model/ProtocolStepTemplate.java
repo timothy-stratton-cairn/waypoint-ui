@@ -10,6 +10,7 @@ public class ProtocolStepTemplate {
 	private String description;
 	private int type;
 	private ArrayList<HomeworkTemplate> homework;
+	private String status;
 	private int categoryId;
 	private String categoryName;
 	private String categoryDescription;
@@ -90,6 +91,12 @@ public class ProtocolStepTemplate {
 	}
 	public void setCategoryDescription(String categoryDescription) {
 		this.categoryDescription = categoryDescription;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 

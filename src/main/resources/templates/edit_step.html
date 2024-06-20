@@ -21,10 +21,18 @@
                 <form th:action="@{/saveStep}" method="post">
                     <input type="hidden" name="stepId" th:value="${step.id}">
                     <div class="form-row">
-                        <div class="form-group col-md-9">
+                        <div class="form-group col-md-6">
                             <label for="stepName">Name:</label>
                             <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.name}">
                         </div>
+                        <div class="form-group col-md-3">
+								<label for="status" class="mr-md-3"><strong>Status:</strong></label>
+							    <select id="status" name="status" class="form-control">
+							        <option value="LIVE" th:selected="${step.status == 'LIVE'}">Live</option>
+							        <option value="INACTIVE" th:selected="${step.status == 'INACTIVE'}">Inactive</option>
+							        <option value="ARCHIVED" th:selected="${step.status == 'ARCHIVED'}">Archived</option>
+							    </select>
+							</div>
                         <div class="form-group col-md-3">
                             <label for="stepCategory">Category:</label>
                             <select class="form-control" id="stepCategory" name="stepCategory">
@@ -96,6 +104,8 @@
                 "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
                 "name": document.getElementById("stepName").value,
                 "description": document.getElementById("stepDetails").value,
+                
+	    		"status":document.getElementById('status').value; // Get the status value
                 "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
                     return {
                         "id": parseInt(row.dataset.homeworkId),

@@ -80,6 +80,7 @@ public class HomeworkTemplateHelper{
 								entry = new HomeworkTemplate();
 								entry.setName(element.get("name").asText());
 								entry.setId(Integer.valueOf(element.get("id").toString()));
+								entry.setStatus(element.get("status").asText());
 								if (element.has("description") && !element.get("description").isNull()) {
 	                                entry.setDescription(element.get("description").asText());
 	                            } else {
@@ -113,6 +114,7 @@ public class HomeworkTemplateHelper{
         template.setId(rootNode.path("id").asInt());
         template.setName(rootNode.path("name").asText());
         template.setDescription(rootNode.path("description").asText());
+        template.setStatus(rootNode.path("status").asText());
 
         JsonNode questionsNode = rootNode.path("homeworkQuestions").path("questions");
         if (!questionsNode.isMissingNode()) {
