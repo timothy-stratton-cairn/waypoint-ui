@@ -429,7 +429,7 @@ public class MainController {
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
 		logger.info("Protocol Template DueDate: " + pcol.getDueDate());
-
+		logger.info("Protocol TEmplate Status: "+ pcol.getStatus());
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
 

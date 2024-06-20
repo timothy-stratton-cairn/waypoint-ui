@@ -496,7 +496,7 @@ public class ProtocolTemplateHelper {
 				result.setName(jsonNode.get("name").asText());
 				result.setDescription(jsonNode.get("description").asText());
 				result.setId(Integer.valueOf(jsonNode.get("id").asText()));
-				//result.setStatus(jsonNode.get("status").asText());
+				result.setStatus(jsonNode.get("status").asText());
 				if (jsonNode.get("dueDate") != null) {
 					result.setDueDate(jsonNode.get("dueDate").asText());
 				}
