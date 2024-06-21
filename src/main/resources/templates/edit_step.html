@@ -105,7 +105,7 @@
                 "name": document.getElementById("stepName").value,
                 "description": document.getElementById("stepDetails").value,
                 
-	    		"status":document.getElementById('status').value; // Get the status value
+	    		"status":document.getElementById('status').value,
                 "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
                     return {
                         "id": parseInt(row.dataset.homeworkId),
