@@ -28,18 +28,15 @@
                                 <input type="text" id="name" name="name" th:value="${protocol.name}" class="form-control" />
                             </div>
                             <div class="col-md-1">
-								<label for="status" class="mr-md-3"><strong>Status:</strong></label>
-							</div>
-							<div class="col-md-2">
-							    <select id="status" name="status" class="form-control">
-							        <option value="LIVE" th:selected="${protocol.status == 'LIVE'}">Live</option>
-							        <option value="INACTIVE" th:selected="${protocol.status == 'INACTIVE'}">Inactive</option>
-							        <option value="ARCHIVED" th:selected="${protocol.status == 'ARCHIVED'}">Archived</option>
-							    </select>
-							</div>
-
-
-                            
+                                <label for="status" class="mr-md-3"><strong>Status:</strong></label>
+                            </div>
+                            <div class="col-md-2">
+                                <select id="status" name="status" class="form-control">
+                                    <option value="LIVE" th:selected="${protocol.status == 'LIVE'}">Live</option>
+                                    <option value="INACTIVE" th:selected="${protocol.status == 'INACTIVE'}">Inactive</option>
+                                    <option value="ARCHIVED" th:selected="${protocol.status == 'ARCHIVED'}">Archived</option>
+                                </select>
+                            </div>
                         </div>
                         <br>
                         <div class="row">
@@ -59,46 +56,46 @@
                     </div>
                     <div class="col-md-2">
                         <label for="dueDateYear" class="d-inline"><strong>Year</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
+                        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" th:value="${protocol.dueByYear}" min="0" max="10" style="width: 40%;">
                     </div>
                     <div class="col-md-2">
                         <label for="dueDateMonth" class="d-inline"><strong>Month</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
+                        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" th:value="${protocol.dueByMonth}" min="0" max="12" style="width: 40%;">
                     </div>
                     <div class="col-md-2">
                         <label for="dueDateDay" class="d-inline"><strong>Day</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
+                        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" th:value="${protocol.dueByDay}" min="0" max="31" style="width: 40%;">
                     </div>
                 </div>
                 <br>
-				 <div class="border border-dark p-3 mb-3">
-	                <div class="row">
-	                    <div class="col-md-2">
-	                        <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
-	                        <input type="checkbox" id="reoccurring" name="reoccurring"/>
-	                    </div>
-	                </div>
-	
-	                <div id="schedule-fields" style="display: none;">
-	                    <div class="row mt-3">
-	                        <div class="col-md-2">
-	                            <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
-	                        </div>
-	                        <div class="col-md-2">
-	                            <label for="year" class="d-inline"><strong>Year</strong></label>
-	                            <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
-	                        </div>
-	                        <div class="col-md-2">
-	                            <label for="month" class="d-inline"><strong>Month</strong></label>
-	                            <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
-	                        </div>
-	                        <div class="col-md-2">
-	                            <label for="day" class="d-inline"><strong>Day</strong></label>
-	                            <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
-	                        </div>
-	                    </div>
-	                </div>
-				</div>
+                <div class="border border-dark p-3 mb-3">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
+                            <input type="checkbox" id="reoccurring" name="reoccurring"/>
+                        </div>
+                    </div>
+
+                    <div id="schedule-fields" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-md-2">
+                                <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="year" class="d-inline"><strong>Year</strong></label>
+                                <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="month" class="d-inline"><strong>Month</strong></label>
+                                <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="day" class="d-inline"><strong>Day</strong></label>
+                                <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button onclick="history.back()" class="btn btn-primary">Back</button>
                 <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
 
@@ -188,8 +185,8 @@
             </div>
             <br>
             
-            <button type="button" class="btn btn-primary" onclick="newStep();">New Step</button>
-            <button type="button" class="btn btn-primary" onclick="addStep();">Add Step</button>
+            <button type="button" class="btn btn-primary" onclick="newStep();">Create New Step</button>
+            <button type="button" class="btn btn-primary" onclick="addStep();">Add Existing Step</button>
         </fieldset>
     </div>
 </div>
@@ -197,7 +194,6 @@
 <script>
     var protocolId = [[${protocolId}]]; 
     var dueByDays = [[${dueBy}]];
-
 
     function newStep() {
         window.location = '/newStep/' + protocolId;
@@ -229,51 +225,50 @@
         banner.style.display = 'block';
     }
 
-	function saveProtocol(id) {
-	    var name = document.getElementById('name').value;
-	    var description = document.getElementById('description').value;
-	
-	    var years = parseInt(document.getElementById('dueDateYear').value) || 0;
-	    var months = parseInt(document.getElementById('dueDateMonth').value) || 0;
-	    var days = parseInt(document.getElementById('dueDateDay').value) || 0;
-	
-	    var totalDays = (years * 365) + (months * 31) + days;
-	
-	    var status = document.getElementById('status').value; // Get the status value
-	
-	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	
-	    var data = {
-	        name: name,
-	        description: description,
-	        dueDate: totalDays,
-	        status: status // Add the status to the data object
-	    };
-	
-	    fetch(`/updateProtocol/${id}`, {
-	        method: 'PATCH',
-	        headers: {
-	            'Content-Type': 'application/json',
-	            [csrfHeader]: csrfToken
-	        },
-	        body: JSON.stringify(data)
-	    })
-	    .then(response => {
-	        if (response.ok) {
-	            showBannerMessage("Protocol updated successfully.", "success");
-	            return response.json();
-	        } else {
-	            response.text().then(text => { throw new Error(text); });
-	        }
-	    })
-	    .then(data => console.log(data))
-	    .catch(error => {
-	        console.error('Error:', error);
-	        showBannerMessage('Failed to update the protocol. Error: ' + error.message, "danger");
-	    });
-	}
+    function saveProtocol(id) {
+        var name = document.getElementById('name').value;
+        var description = document.getElementById('description').value;
 
+        var years = parseInt(document.getElementById('dueDateYear').value) || 0;
+        var months = parseInt(document.getElementById('dueDateMonth').value) || 0;
+        var days = parseInt(document.getElementById('dueDateDay').value) || 0;
+
+        var totalDays = (years * 365) + (months * 31) + days;
+
+        var status = document.getElementById('status').value; // Get the status value
+
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        var data = {
+            name: name,
+            description: description,
+            dueDate: totalDays,
+            status: status // Add the status to the data object
+        };
+
+        fetch(`/updateProtocol/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                showBannerMessage("Protocol updated successfully.", "success");
+                return response.json();
+            } else {
+                response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .then(data => console.log(data))
+        .catch(error => {
+            console.error('Error:', error);
+            showBannerMessage('Failed to update the protocol. Error: ' + error.message, "danger");
+        });
+    }
 
     function deleteStep(id) {
         var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -301,7 +296,7 @@
         });
     }
 
-     function confirmStep(buttonElement) {
+    function confirmStep(buttonElement) {
         var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
@@ -340,42 +335,42 @@
         });
     }
 
-	function deleteProtocolTemplate(id) {
-	    // Show a confirmation dialog to the user
-	    var protocolName = document.getElementById('name').value;
-	    var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
-	
-	    // If the user clicks "Cancel", exit the function
-	    if (!isConfirmed) {
-	        return;
-	    }
-	
-	    var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-	    var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-	    var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-	    var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-	
-	    fetch('/deleteTemplate/ProtocolTemplate/' + id, {
-	        method: 'DELETE',
-	        headers: {
-	            'Accept': 'application/json',
-	            'Content-Type': 'application/json',
-	            [csrfHeader]: csrfToken
-	        },
-	        credentials: 'include'
-	    })
-	    .then(response => {
-	        if (response.ok) {
-	            window.location.href = '/protocolTemplates';
-	        } else {
-	            showBannerMessage('Failed to delete Protocol Template.', 'danger');
-	        }
-	    })
-	    .catch(error => {
-	        console.error('Error:', error);
-	        showBannerMessage('Error deleting Protocol Template.', 'danger');
-	    });
-	}
+    function deleteProtocolTemplate(id) {
+        // Show a confirmation dialog to the user
+        var protocolName = document.getElementById('name').value;
+        var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
+
+        // If the user clicks "Cancel", exit the function
+        if (!isConfirmed) {
+            return;
+        }
+
+        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+        fetch('/deleteTemplate/ProtocolTemplate/' + id, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            credentials: 'include'
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = '/protocolTemplates';
+            } else {
+                showBannerMessage('Failed to delete Protocol Template.', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showBannerMessage('Error deleting Protocol Template.', 'danger');
+        });
+    }
 
     $(document).ready(function() {
         $('#schedule-fields').hide(); 
@@ -386,7 +381,32 @@
                 $('#schedule-fields').hide();
             }
         });
+
+        // Add event listeners to tab links
+        $('.nav-link').on('click', function() {
+            var type = $(this).data('type');
+            filterSteps(type);
+
+            // Remove active class from all tabs and add to the clicked tab
+            $('.nav-link').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        // Initial call to show all steps
+        filterSteps('all');
     });
+
+    function filterSteps(type) {
+        $('#stepsContent > div').each(function() {
+            var stepType = $(this).data('type');
+            if (type === 'all' || stepType === type) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
 </script>
 </body>
 </html>
+

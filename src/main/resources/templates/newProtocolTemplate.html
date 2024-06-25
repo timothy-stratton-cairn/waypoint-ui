@@ -42,8 +42,8 @@
                     </div>
                     <div class="col-md-2">
                         <select class="form-control" id="protocolType" name="type">
-                            <option value="Life Cycle">Life Cycle</option>
-                            <option value="Event">Event</option>
+                            <option value="LIFECYCLE">Life Cycle</option>
+                            <option value="EVENT">Event</option>
                         </select>
                     </div>
                 </div>
@@ -202,7 +202,7 @@
         const yearDue = parseInt(document.getElementById('dueDateYear').value) || 0;
         const monthDue = parseInt(document.getElementById('dueDateMonth').value) || 0;
         const dayDue = parseInt(document.getElementById('dueDateDay').value) || 0;
-
+		const type = document.getElementById('protocolType').value;
         const yearSchedule = parseInt(document.getElementById('year').value) || 0;
         const monthSchedule = parseInt(document.getElementById('month').value) || 0;
         const daySchedule = parseInt(document.getElementById('day').value) || 0;
@@ -223,9 +223,14 @@
         const protocolData = {
             name: name,
             description: description,
-            dueDate: dueDate,
-            schedule: schedule,
-            steps: steps
+            dueByDay:dayDue ,
+            dueByMonth: monthDue,
+            dueByYear: yearDue,
+            daySchedule: daySchedule,
+            monthSchedule: monthSchedule,
+            yearSchedule:yearSchedule,
+            steps: steps,
+            type:type
         };
 
         fetch('/createNewProtocolTemplate/', {

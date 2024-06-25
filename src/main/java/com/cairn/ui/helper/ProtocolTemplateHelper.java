@@ -83,12 +83,7 @@ public class ProtocolTemplateHelper {
 		
 		StringBuilder associatedStepTemplateIds = new StringBuilder("\"associatedStepTemplateIds\":[");
 		ArrayList<ProtocolStepTemplate>stepList = template.getSteps();
-	    int dueDateDays = 0;
-		try {
-			Integer.parseInt(template.getDueDate()); // Assuming dueDate is stored as total days
-		} catch (Exception e) {
-			e.printStackTrace();			
-		}
+
 		for (int i = 0; i < stepList.size(); i++) {
 			ProtocolStepTemplate step = stepList.get(i);
 			associatedStepTemplateIds.append(step.getId());
@@ -97,13 +92,22 @@ public class ProtocolTemplateHelper {
             }
 		}
 		associatedStepTemplateIds.append(']');
-		String requestBody = "{"  
-				+ "\"name\": \"" + template.getName() + "\","
-				+ "\"description\": \"" + template.getDescription() + "\","
-				+ "\"dueDate\": \"" + dueDateDays + "\","
-				+ associatedStepTemplateIds.toString()+
-				"}";
-
+	    String requestBody = "{" +
+	            "\"name\": \"" + template.getName() + "\"," +
+	            "\"description\": \"" + template.getDescription() + "\"," +
+	            "\"defaultDueByInDays\": \"" + template.getDueByDay() + "\"," +
+	            "\"defaultDueByInMonths\": \"" + template.getDueByMonth() + "\"," +
+	            "\"defaultDueByInYears\": \"" + template.getDueByYear() + "\"," +
+	            "\"templateCategory\":\"" + template.getType() + "\"," +
+	            associatedStepTemplateIds.toString() + "," +
+	            "\"recurrenceType\": \"MANUAL\"," +  // hard coding these in for now 
+	            "\"defaultTriggeringStatusValue\": null," +  // hard coding these in for now 
+	            "\"defaultReoccurInYears\": " + template.getYearSchedule() + "," +
+	            "\"defaultReoccurInMonths\": " + template.getMonthSchedule() + "," +
+	            "\"defaultReoccurInDays\": " + template.getDaySchedule() +
+	            "}";
+	    
+	    logger.info(requestBody);
 		result = apiHelper.postAPI(apiUrl, requestBody, usr);
 		return result;
 	}
@@ -223,6 +227,18 @@ public class ProtocolTemplateHelper {
 		
 		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
 		String requestBody = "{\"dueDate\": \""+date+"\"}";
+
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
+		return result;
+		
+	}
+	public int updateProtocolTemplateStatus(User usr, int tempId, String status) {
+		int result = -1;
+		
+		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
+		String requestBody = "{\"status\": \""+status+"\"}";
+		logger.info("URL: "+ apiUrl);
+		logger.info("requestBody:"+ requestBody);
 	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		return result;
 		
@@ -497,9 +513,30 @@ public class ProtocolTemplateHelper {
 				result.setDescription(jsonNode.get("description").asText());
 				result.setId(Integer.valueOf(jsonNode.get("id").asText()));
 				result.setStatus(jsonNode.get("status").asText());
-				if (jsonNode.get("dueDate") != null) {
-					result.setDueDate(jsonNode.get("dueDate").asText());
+				if(jsonNode.has("defaultDueByInYears")&& !jsonNode.get("defaultDueByInYears").isNull()) {
+					result.setDueByYear(jsonNode.get("defaultDueByInYears").asInt());
 				}
+				else
+				{
+					result.setDueByYear(0);
+				}
+				if(jsonNode.has("defaultDueByInMonths")&& !jsonNode.get("defaultDueByInMonths").isNull()) {
+					result.setDueByMonth(jsonNode.get("defaultDueByInMonths").asInt());
+				}
+				else
+				{
+					result.setDueByMonth(0);
+				}
+				if(jsonNode.has("defaultDueByInDays")&& !jsonNode.get("defaultDueByInDays").isNull()) {
+					result.setDueByDay(jsonNode.get("defaultDueByInDays").asInt());
+				}
+				else
+				{
+					result.setDueByDay(0);
+				}
+				//if (jsonNode.get("dueDate") != null) {
+				//	result.setDueDate(jsonNode.get("dueDate").asText());
+				//}
 				/* Add in the steps */
 				JsonNode perms = jsonNode.get("associatedSteps");
 				// Iterate through the array elements

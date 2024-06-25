@@ -448,8 +448,9 @@ public class ProtocolHelper {
 		String requestBody = String.format(
 				"{\"protocolTemplateId\": %d, \"comment\": \"\", \"assignedHouseholdId\": %d, \"name\": \"%s\", \"dueDate\": \"%s\"}",
 				protocolTemplateId, clientid, protocolRequest.getName(), protocolRequest.getDueDate());
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;// retrieves all protocols assigned to
-																				// clientId
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;// retrieves all protocols assigned to clientId
+		logger.info(apiUrl);
+		logger.info(requestBody);
 		result = apiHelper.postAPI(apiUrl, requestBody, usr);
 
 		return result;
@@ -537,7 +538,7 @@ public class ProtocolHelper {
     public int deleteProtocol(User usr, int protocolId) {
     	int result = 0;
     	String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/' + protocolId;
-    	apiHelper.deleteAPI(apiUrl,usr);
+    	result = apiHelper.deleteAPI(apiUrl,usr);
     	
     	return result;
     }
