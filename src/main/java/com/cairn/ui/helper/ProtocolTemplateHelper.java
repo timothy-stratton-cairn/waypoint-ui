@@ -222,12 +222,17 @@ public class ProtocolTemplateHelper {
 		return result;
 		
 	}
-	public int updateProtocolTemplateDueDate(User usr, int tempId, String date) {
+	public int updateProtocolTemplateDueDate(User usr, int tempId, int years, int months, int days) {
 		int result = -1;
 		
 		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
-		String requestBody = "{\"dueDate\": \""+date+"\"}";
-
+		String requestBody = "{" +
+				"\"defaultDueByInYears\": " + years + "," +
+				"\"defaultDueByInMonths\": " + months + "," +
+	            "\"templateCategory\": " + days +
+		"}";
+		logger.info(apiUrl);
+		logger.info(requestBody);
 	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		return result;
 		

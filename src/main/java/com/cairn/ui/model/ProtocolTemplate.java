@@ -10,6 +10,7 @@ public class ProtocolTemplate {
 	private int dueByDay;
 	private int dueByMonth;
 	private int dueByYear;
+	private String dueDate;
 	private String daySchedule;
 	private String monthSchedule;
 	private String yearSchedule;
@@ -99,5 +100,11 @@ public class ProtocolTemplate {
 	}
 	public void setYearSchedule(String yearSchedule) {
 		this.yearSchedule = yearSchedule;
+	}
+	public String getDueDate() {
+		return dueDate;
+	}
+	public void setDueDate(String dueDate) {
+		this.dueDate = dueDate;
 	}
 }
