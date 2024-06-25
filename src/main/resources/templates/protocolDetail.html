@@ -159,6 +159,7 @@
 
 <script>
     var protocolId = [[${protocolId}]]; 
+    var userId = [[${userId}]];
 
     function editProtocol(id) {
         window.location = '/editStep/' + id;
@@ -357,15 +358,15 @@
             })
             .then(response => {
                 if (response.ok) {
-                    window.location.href = '/clientProfile/' + id;
+                    window.location.href = '/clientProfile/' + userId;
     
                 } else {
-                    showBannerMessage('Failed to delete Protocol.', 'danger');
+                    showMessageBanner('Failed to delete Protocol.', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showBannerMessage('Error deleting Protocol.', 'danger');
+                showMessageBanner('Error deleting Protocol.', 'danger');
             });
         }
 </script>

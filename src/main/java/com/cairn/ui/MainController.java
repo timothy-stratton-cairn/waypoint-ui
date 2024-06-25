@@ -50,6 +50,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cairn.ui.helper.DashboardHelper;
 import com.cairn.ui.helper.HomeworkHelper;
+import com.cairn.ui.helper.HomeworkQuestionHelper;
 import com.cairn.ui.helper.HomeworkTemplateHelper;
 import com.cairn.ui.helper.ProtocolHelper;
 import com.cairn.ui.helper.ProtocolStepTemplateHelper;
@@ -177,10 +178,9 @@ public class MainController {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/viewProtocol/{pcolId}")
-	public String viewProtocol(Model model, @PathVariable int pcolId) {
+	@GetMapping("/viewProtocol/{pcolId}/{userId}")
+	public String viewProtocol(Model model, @PathVariable int pcolId, @PathVariable int userId) {
 		User currentUser = userDAO.getUser();
-		int userId = userHelper.getHouseholdId(currentUser);
 		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
 		HomeworkHelper homeworkHelper = new HomeworkHelper();
 		logger.info("Calling getHomeworkByProtocol");
@@ -201,6 +201,7 @@ public class MainController {
 			mostRecentComment = new ProtocolComments();
 			mostRecentComment.setComment("No Comments Have been made");
 		}
+
 		model.addAttribute("mostRecentComment", mostRecentComment.getComment());
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", steps);
@@ -428,7 +429,7 @@ public class MainController {
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 		User usr = (User) userDAO.getUser();
 		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
-		logger.info("Protocol Template DueDate: " + pcol.getDueDate());
+		//logger.info("Protocol Template DueDate: " + pcol.getDueDate());
 		logger.info("Protocol TEmplate Status: "+ pcol.getStatus());
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
@@ -436,11 +437,8 @@ public class MainController {
 		List<ProtocolStepTemplate> fullStepList = new ArrayList<ProtocolStepTemplate>(); // there's a method to this
 																							// madness. getStepList
 																							// doesn't get homeworks
-		String dueBy = pcol.getDueDate();
-		int dueByDays = 0;
-		if (dueBy != null && !dueBy.isEmpty()) {
-			dueByDays = Integer.parseInt(dueBy);
-		}
+		int dueByDays = pcol.getDueByDay();
+
 		for (ProtocolStepTemplate step : listSteps) {
 			int stepId = step.getId();
 			ProtocolStepTemplate fullStep = protocolTemplateHelper.getStep(usr, stepId);
@@ -537,7 +535,7 @@ public class MainController {
 
 		try {
 			User usr = (User) userDAO.getUser();
-			logger.info("Due Date: " + requestBody.getDueDate());
+			//logger.info("Due Date: " + requestBody.getDueDate());
 
 			int call = protocolTemplateHelper.newProtocolTemplate(usr, requestBody);
 			if (call == 1) {
@@ -573,15 +571,17 @@ public class MainController {
 		if (usr == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
 		}
-
+		logger.info("Status: "+updateRequest.getStatus());
 		String description = updateRequest.getDescription();
 		String name = updateRequest.getName();
-		String dueDate = updateRequest.getDueDate();
+		//String dueDate = updateRequest.getDueDate();
+		String status = updateRequest.getStatus();
 
 		try {
 			protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
 			protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
-			protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, dueDate);
+			//protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, dueDate);
+			protocolTemplateHelper.updateProtocolTemplateStatus(usr, id, status);
 			return ResponseEntity.ok("Protocol updated successfully");
 		} catch (Exception e) {
 			logger.info("Error in updateProtocol:");
@@ -879,8 +879,7 @@ public class MainController {
 	@PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
 	public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolTemplateId,
 			@RequestBody Protocol protocolRequest) {
-		logger.info("Prptocol Name: " + protocolRequest.getDueDate() + " Protocol Due Date: "
-				+ protocolRequest.getDueDate());
+		logger.info("Protocol Name: " + protocolRequest.getName() + " Protocol Due Date: " + protocolRequest.getDueDate());
 		try {
 			User currentUser = userDAO.getUser();
 			protocolHelper.addClient(currentUser, clientId, protocolTemplateId, protocolRequest); // Perform the
@@ -1034,7 +1033,15 @@ public class MainController {
 	public String editHomeworkTemplate(Model model) {
 		User currentUser = userDAO.getUser();
 		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
+		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
+		ArrayList<HomeworkQuestion> questions = helper.getHomeworkQuestions(currentUser);
+		ArrayList<HomeworkQuestion> detailedQuestions = new ArrayList<HomeworkQuestion>();
+		for (HomeworkQuestion question: questions) {
+			HomeworkQuestion dQuestion = helper.getQuestion(currentUser, question.getQuestionId());
+			detailedQuestions.add(dQuestion);
+		}
 		model.addAttribute("protocols", pcolList);
+		model.addAttribute("questions",detailedQuestions);
 		for (ProtocolTemplate pcol : pcolList) {
 			logger.info("Name: " + pcol.getName());
 		}
@@ -1140,7 +1147,7 @@ public class MainController {
 			@PathVariable int homeworkId) {
 
 		User currentUser = userDAO.getUser();
-
+		logger.info("Calling removeHomeworkFromStepTemplate with stepId: "+stepId+ " and homeworkId: "+ homeworkId);
 		try {
 			int apiCall = protocolStepTemplateHelper.deleteHomeworkTemplate(currentUser, stepId, homeworkId);
 			if (apiCall == 1) {
@@ -1265,7 +1272,7 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 		ArrayList<Protocol> listProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
 		for (Protocol pcol : listProtocols) {
-			System.out.print("Status: " + pcol.getStatus());
+			logger.info("Status: " + pcol.getStatus());
 		}
 		model.addAttribute("listProtocols", listProtocols);
 		return "allClientProtocols";
@@ -1573,15 +1580,14 @@ public class MainController {
 			recommendation = recommendation.substring(1, recommendation.length() - 1);
 		}
 
-		System.out.print("Reccomendation: " + recommendation);
+		logger.info("Reccomendation: " + recommendation);
 		try {
 			logger.info("Success!");
 			protocolHelper.postProtocolComment(currentUser, id, "RECOMMENDATION", recommendation);
 			return ResponseEntity.ok().body("{\"message\": \"Success: Recomendation Posted!\"}");
 
 		} catch (Exception e) {
-			System.out.print(e);
-			System.err.println("Error uploading file: " + e.getMessage());
+			logger.info("Error uploading file: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("{\"error\": \"Error Posting Recomendation!\"}");
 		}
@@ -1617,13 +1623,16 @@ public class MainController {
 		switch (type) {
 		case "Protocol":
 			call = protocolHelper.deleteProtocol(currentUser, id);
+
 			if (call != 1) {
+				logger.info("Failed to delete");
 				return new ResponseEntity<>("Error deleting Protocol", HttpStatus.BAD_REQUEST);
 			}
 			break;
 
 		case "ProtocolTemplate":
 			call = protocolTemplateHelper.deleteProtocolTemplate(currentUser, id);
+
 			if (call != 1) {
 				return new ResponseEntity<>("Error deleting Protocol Template", HttpStatus.BAD_REQUEST);
 			}
@@ -1660,14 +1669,44 @@ public class MainController {
 		default:
 			return new ResponseEntity<>("Invalid type", HttpStatus.BAD_REQUEST);
 		}
-
+		logger.info("Success "+ call);
+		
 		return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
+	}
+	
+	@PatchMapping("/updateHomeworkQuestion/{id}")
+	public ResponseEntity<String>updateHomeworkTemplate(@PathVariable int id, @RequestBody HomeworkQuestion question){
+		User currentUser = userDAO.getUser();
+		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
+		try {
+			helper.updateHomeowrkQuestion(currentUser, id, question);
+			return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
+		
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Question");
+		}
+	}
+	
+	@GetMapping("/newHomeworkQuestion")
+	public String newHomeworkQuestion(Model model) {
+		User currentUser = userDAO.getUser();
+		ArrayList<ProtocolTemplate> protocolList = protocolTemplateHelper.getList(currentUser);
+		model.addAttribute("protocolList",protocolList);
+		return "newHomeworkQuestion";
+	}
+	
+	@GetMapping("/DisplayHomeworkQustion/{id}")
+	public String displayHomeworkQuestion(@PathVariable int id, Model model) {
+		User currentUser = userDAO.getUser();
+		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
+		HomeworkQuestion question = helper.getQuestion(currentUser, id);
+		model.addAttribute("question",question);
+		return "displayHomeworkQuestion";
 	}
 
 	@GetMapping("/homeworkQuestionList/")
 	public String homeworkQuestionList(Model model) {
 		User currentUser = userDAO.getUser();
-
 		ArrayList<HomeworkQuestion> questionList = homeworkTemplateHelper.getHomeworkQuestions(currentUser);
 		model.addAttribute("questionList", questionList);
 
@@ -1676,9 +1715,14 @@ public class MainController {
 
 	@PostMapping("/saveQuestion/{question}")
 	public ResponseEntity<String> saveQuestion(@RequestBody HomeworkQuestion question, Model model) {
-		ResponseEntity<String> result = new ResponseEntity<String>(null);
 		User currentUser = userDAO.getUser();
-
-		return result;
+		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
+		try {
+			helper.newHomeworkQuestion(currentUser, question);
+			return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
+		
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Question");
+		}
 	}
 }

@@ -1,15 +1,196 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
 <head>
-    <title>Edit Homework</title>
+    <title>Edit Homework Question</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
-<script>
-	
+<div class="container">
+    <div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
+        <!-- Success message will be displayed here -->
+    </div>
+    
+    <!-- Display error message -->
+    <div th:if="${not #strings.isEmpty(error)}" class="alert alert-danger" th:text="${error}">
+        <!-- Error message will be displayed here -->
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <fieldset class="col-12">
+            <legend>New Homework Question</legend>
+            <div class="form-row">
+                <div class="form-group col-md-9">
+                    <label for="questionAbbr">Question Abbreviation:</label>
+                    <input type="text" id="questionAbbr" name="questionAbbr" class="form-control" placeholder="Question Abbreviation">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="question">Question:</label>
+                <input type="text" id="question" name="question" class="form-control" placeholder="Question">
+            </div>
+            <div class="form-group">
+                <label for="questionType">Question Type:</label>
+                <select class="form-control" id="questionType" name="questionType">
+                    <option value="STRING">String</option>
+                    <option value="SELECT_OPTION">Select Option</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="isRequired">Is Required:</label>
+                <select class="form-control" id="isRequired" name="isRequired">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="triggerProtocolCreation">Trigger Protocol Creation:</label>
+                <select class="form-control" onchange="toggleTriggerFields(this)" id="triggerProtocolCreation" name="triggerProtocolCreation">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+            </div>
+            <div id="triggerFields" style="display: none;">
+                <div class="form-group">
+                    <label for="triggeredProtocolId">Trigger Protocol:</label>
+                    <select class="form-control" id="triggeredProtocolId" name="triggeredProtocolId">
+                        <option value="">Select Protocol</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="triggerResponse">Trigger Response:</label>
+                    <select class="form-control" id="triggerResponse" name="triggerResponse"></select>
+                </div>
+            </div>
+            <div id="responseOptions"></div>
+            <button type="button" class="btn btn-secondary" onclick="addResponseOption()">Add Response Option</button>
+        </fieldset>
+        <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+        <button type="submit" class="btn btn-success" onclick="prepareSubmit()">Save Question</button>
+    </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+let protocols = /*[[${protocolList}]]*/ [];
+
+function addResponseOption() {
+    const optionsContainer = document.getElementById('responseOptions');
+    const optionIndex = optionsContainer.children.length;
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'form-group';
+    optionDiv.innerHTML = `
+        <label>Response:</label>
+        <input type="text" class="form-control" id="response_${optionIndex}">
+        <label>Tooltip:</label>
+        <input type="text" class="form-control" id="tooltip_${optionIndex}">
+    `;
+    optionsContainer.appendChild(optionDiv);
+
+    const responseInputs = Array.from(optionsContainer.querySelectorAll('input'));
+
+    // Add event listener to dynamically update trigger response select
+    const triggerResponseSelect = document.getElementById('triggerResponse');
+    optionsContainer.addEventListener('input', function() {
+        triggerResponseSelect.innerHTML = '';
+        responseInputs.forEach(input => {
+            const option = document.createElement('option');
+            option.value = input.value;
+            option.textContent = input.value;
+            triggerResponseSelect.appendChild(option);
+        });
+    });
+}
+
+function toggleTriggerFields(select) {
+    const display = select.value === 'true' ? 'block' : 'none';
+    document.getElementById('triggerFields').style.display = display;
+}
+
+function populateProtocols() {
+    const protocolSelect = document.getElementById('triggeredProtocolId');
+    protocols.forEach(protocol => {
+        const option = document.createElement('option');
+        option.value = protocol.id;
+        option.textContent = protocol.name;
+        protocolSelect.appendChild(option);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    populateProtocols();
+});
+
+function prepareSubmit() {
+    const questionAbbr = document.getElementById('questionAbbr').value;
+    const question = document.getElementById('question').value;
+    const questionType = document.getElementById('questionType').value;
+    const isRequired = document.getElementById('isRequired').value === 'true';
+    const triggerProtocolCreation = document.getElementById('triggerProtocolCreation').value === 'true';
+
+    const responseOptions = Array.from(document.getElementById('responseOptions').children).map((optionDiv, optionIndex) => ({
+        response: document.getElementById(`response_${optionIndex}`).value,
+        tooltip: document.getElementById(`tooltip_${optionIndex}`).value
+    }));
+
+    const triggeringResponse = triggerProtocolCreation ? {
+        response: document.getElementById('triggerResponse').value,
+        tooltip: findTooltipForResponse(responseOptions, document.getElementById('triggerResponse').value)
+    } : { response: "", tooltip: "" };
+
+    const triggeredProtocolId = triggerProtocolCreation ? parseInt(document.getElementById('triggeredProtocolId').value, 10) : null;
+
+    const questionData = {
+        questionAbbr,
+        question,
+        questionType,
+        isRequired,
+        responseOptions,
+        triggerProtocolCreation,
+        triggeringResponse,
+        triggeredProtocolId
+    };
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    fetch(`/saveQuestion/${questionAbbr}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify(questionData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+        } else {
+            alert('Error saving question');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving question');
+    });
+}
+
+function findTooltipForResponse(responseOptions, selectedResponse) {
+    for (const option of responseOptions) {
+        if (option.response === selectedResponse) {
+            return option.tooltip;
+        }
+    }
+    return ""; // Default empty tooltip if not found
+}
+
+/*]]>*/
 </script>
 </body>
 </html>
