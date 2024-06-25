@@ -95,13 +95,13 @@ public class ProtocolTemplateHelper {
 	    String requestBody = "{" +
 	            "\"name\": \"" + template.getName() + "\"," +
 	            "\"description\": \"" + template.getDescription() + "\"," +
-	            "\"defaultDueByInDays\": " + template.getDueByDay() + "," +
-	            "\"defaultDueByInMonths\": " + template.getDueByMonth() + "," +
-	            "\"defaultDueByInYears\": " + template.getDueByYear() + "," +
+	            "\"defaultDueByInDays\": \"" + template.getDueByDay() + "\"," +
+	            "\"defaultDueByInMonths\": \"" + template.getDueByMonth() + "\"," +
+	            "\"defaultDueByInYears\": \"" + template.getDueByYear() + "\"," +
 	            "\"templateCategoryValue\":\"" + template.getType() + "\"," +
 	            associatedStepTemplateIds.toString() + "," +
-	            "\"recurrenceTypeValue\": \"MANUAL\"," +
-	            "\"defaultTriggeringStatusValue\": null," +
+	            "\"recurrenceTypeValue\": \"MANUAL\"," +  // hard coding these in for now 
+	            "\"defaultTriggeringStatusValue\": null," +  // hard coding these in for now 
 	            "\"defaultReoccurInYears\": " + template.getYearSchedule() + "," +
 	            "\"defaultReoccurInMonths\": " + template.getMonthSchedule() + "," +
 	            "\"defaultReoccurInDays\": " + template.getDaySchedule() +
