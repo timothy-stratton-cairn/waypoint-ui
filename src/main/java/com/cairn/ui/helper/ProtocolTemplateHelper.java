@@ -229,8 +229,29 @@ public class ProtocolTemplateHelper {
 		String requestBody = "{" +
 				"\"defaultDueByInYears\": " + years + "," +
 				"\"defaultDueByInMonths\": " + months + "," +
-	            "\"templateCategory\": " + days +
+	            "\"defaultDueByInDays\": " + days +
 		"}";
+		logger.info(apiUrl);
+		logger.info(requestBody);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
+		return result;
+		
+	}
+	public int updateProtocolTemplateScheduleDate(User usr, int tempId, int years, int months, int days) {
+		int result = -1;
+		
+		String apiUrl = this.dashboardApiBaseUrl +  Constants.api_ep_protocoltemplateget + tempId;
+		String requestBody = "{" +
+				  "\"defaultProtocolRecurrence\": {" +
+				    "\"recurrenceType\": \"MANUAL\"," +
+				    "\"defaultTriggeringStatus\": null," +
+				    "\"defaultReoccurInYears\": " + years + "," +
+				    "\"defaultReoccurInMonths\": " + months + "," +
+				    "\"defaultReoccurInDays\": " + days +
+				  "}" +
+				"}";
+
+
 		logger.info(apiUrl);
 		logger.info(requestBody);
 	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
@@ -539,6 +560,26 @@ public class ProtocolTemplateHelper {
 				{
 					result.setDueByDay(0);
 				}
+	            JsonNode defaultProtocolRecurrence = jsonNode.get("defaultProtocolRecurrence");
+	            if (defaultProtocolRecurrence != null) {
+	                if (defaultProtocolRecurrence.has("defaultReoccurInYears") && !defaultProtocolRecurrence.get("defaultReoccurInYears").isNull()) {
+	                    result.setYearSchedule(defaultProtocolRecurrence.get("defaultReoccurInYears").asInt());
+	                } else {
+	                    result.setYearSchedule(0);
+	                }
+	                
+	                if (defaultProtocolRecurrence.has("defaultReoccurInMonths") && !defaultProtocolRecurrence.get("defaultReoccurInMonths").isNull()) {
+	                    result.setMonthSchedule(defaultProtocolRecurrence.get("defaultReoccurInMonths").asInt());
+	                } else {
+	                    result.setMonthSchedule(0);
+	                }
+	                
+	                if (defaultProtocolRecurrence.has("defaultReoccurInDays") && !defaultProtocolRecurrence.get("defaultReoccurInDays").isNull()) {
+	                    result.setDaySchedule(defaultProtocolRecurrence.get("defaultReoccurInDays").asInt());
+	                } else {
+	                    result.setDaySchedule(0);
+	                }
+	            }
 				//if (jsonNode.get("dueDate") != null) {
 				//	result.setDueDate(jsonNode.get("dueDate").asText());
 				//}
@@ -559,6 +600,7 @@ public class ProtocolTemplateHelper {
 					}
 					result.setSteps(steps);
 				}
+				
 			} catch (JsonMappingException e) {
 				e.printStackTrace();
 			} catch (JsonProcessingException e) {

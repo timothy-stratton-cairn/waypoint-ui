@@ -83,15 +83,15 @@
                             </div>
                             <div class="col-md-2">
                                 <label for="year" class="d-inline"><strong>Year</strong></label>
-                                <input type="number" class="form-control d-inline" id="year" name="year" placeholder="1-10" min="0" max="10" style="width: 40%;">
+                                <input type="number" class="form-control d-inline" id="year" name="year" th:value= "${protocol.yearSchedule}" min="0" max="10" style="width: 40%;">
                             </div>
                             <div class="col-md-2">
                                 <label for="month" class="d-inline"><strong>Month</strong></label>
-                                <input type="number" class="form-control d-inline" id="month" name="month" placeholder="1-12" min="0" max="12" style="width: 40%;">
+                                <input type="number" class="form-control d-inline" id="month" name="month" th:value= "${protocol.monthSchedule}" min="0" max="12" style="width: 40%;">
                             </div>
                             <div class="col-md-2">
                                 <label for="day" class="d-inline"><strong>Day</strong></label>
-                                <input type="number" class="form-control d-inline" id="day" name="day" placeholder="1-31" min="0" max="31" style="width: 40%;">
+                                <input type="number" class="form-control d-inline" id="day" name="day" th:value= "${protocol.daySchedule}" min="0" max="31" style="width: 40%;">
                             </div>
                         </div>
                     </div>
@@ -229,9 +229,13 @@
 		    var name = document.getElementById('name').value;
 		    var description = document.getElementById('description').value;
 		
-		    var years = parseInt(document.getElementById('dueDateYear').value) || 0;
-		    var months = parseInt(document.getElementById('dueDateMonth').value) || 0;
-		    var days = parseInt(document.getElementById('dueDateDay').value) || 0;
+		    var dueByYears = parseInt(document.getElementById('dueDateYear').value) || 0;
+		    var dueByMonths = parseInt(document.getElementById('dueDateMonth').value) || 0;
+		    var dueByDays = parseInt(document.getElementById('dueDateDay').value) || 0;
+		
+		    var reoccurYears = parseInt(document.getElementById('year').value) || 0;
+		    var reoccurMonths = parseInt(document.getElementById('month').value) || 0;
+		    var reoccurDays = parseInt(document.getElementById('day').value) || 0;
 		
 		    var status = document.getElementById('status').value; // Get the status value
 		
@@ -241,9 +245,12 @@
 		    var data = {
 		        name: name,
 		        description: description,
-		        dueYears: years,
-		        dueMonths: months,
-		        dueDays: days,
+		        dueByYear: dueByYears,
+		        dueByMonth: dueByMonths,
+		        dueByDay: dueByDays,
+		        yearSchedule: reoccurYears,
+		        monthSchedule: reoccurMonths,
+		        daySchedule: reoccurDays,
 		        status: status // Add the status to the data object
 		    };
 		
@@ -271,6 +278,7 @@
 		        showBannerMessage('Failed to update the protocol. Error: ' + error.message, "danger");
 		    });
 		}
+
 
 
     function deleteStep(id) {

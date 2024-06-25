@@ -567,31 +567,36 @@ public class MainController {
 
 	@PatchMapping("/updateProtocol/{id}")
 	public ResponseEntity<String> updateProtocol(@PathVariable int id, @RequestBody ProtocolTemplate updateRequest) {
-		User usr = (User) userDAO.getUser();
-		if (usr == null) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
-		}
-		logger.info("Status: "+updateRequest.getStatus());
-		String description = updateRequest.getDescription();
-		String name = updateRequest.getName();
-		int years = updateRequest.getDueByYear();
-		int months = updateRequest.getDueByMonth();
-		int days = updateRequest.getDueByDay();
-		String status = updateRequest.getStatus();
-
-		try {
-			protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
-			protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
-			protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, years,months,days);
-			protocolTemplateHelper.updateProtocolTemplateStatus(usr, id, status);
-			return ResponseEntity.ok("Protocol updated successfully");
-		} catch (Exception e) {
-			logger.info("Error in updateProtocol:");
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Error updating protocol: " + e.getMessage());
-		}
+	    User usr = (User) userDAO.getUser();
+	    if (usr == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+	    }
+	    logger.info("Status: " + updateRequest.getStatus());
+	    String description = updateRequest.getDescription();
+	    String name = updateRequest.getName();
+	    int years = updateRequest.getDueByYear();
+	    int months = updateRequest.getDueByMonth();
+	    int days = updateRequest.getDueByDay();
+	    int sYears = updateRequest.getYearSchedule();
+	    int sMonths = updateRequest.getMonthSchedule();
+	    int sDays = updateRequest.getDaySchedule();
+	    String status = updateRequest.getStatus();
+	    logger.info("years: " + years + " months: " + months + " days: " + days);
+	    try {
+	        protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
+	        protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
+	        protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, years, months, days);
+	        protocolTemplateHelper.updateProtocolTemplateStatus(usr, id, status);
+	        protocolTemplateHelper.updateProtocolTemplateScheduleDate(usr, id, sYears, sMonths, sDays);
+	        return ResponseEntity.ok("Protocol updated successfully");
+	    } catch (Exception e) {
+	        logger.info("Error in updateProtocol:");
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Error updating protocol: " + e.getMessage());
+	    }
 	}
+
 
 	@PatchMapping("/saveStep/{stepId}")
 	public ResponseEntity<String> saveStep(@PathVariable int stepId, @PathVariable String requestBody) {

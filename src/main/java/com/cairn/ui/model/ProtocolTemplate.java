@@ -11,9 +11,9 @@ public class ProtocolTemplate {
 	private int dueByMonth;
 	private int dueByYear;
 	private String dueDate;
-	private String daySchedule;
-	private String monthSchedule;
-	private String yearSchedule;
+	private int daySchedule;
+	private int monthSchedule;
+	private int yearSchedule;
 	private String schedule;
 	private String type;
 	private String status ;
@@ -83,22 +83,22 @@ public class ProtocolTemplate {
 	public void setDueByYear(int dueByYear) {
 		this.dueByYear = dueByYear;
 	}
-	public String getDaySchedule() {
+	public int getDaySchedule() {
 		return daySchedule;
 	}
-	public void setDaySchedule(String daySchedule) {
+	public void setDaySchedule(int daySchedule) {
 		this.daySchedule = daySchedule;
 	}
-	public String getMonthSchedule() {
+	public int getMonthSchedule() {
 		return monthSchedule;
 	}
-	public void setMonthSchedule(String monthSchedule) {
+	public void setMonthSchedule(int monthSchedule) {
 		this.monthSchedule = monthSchedule;
 	}
-	public String getYearSchedule() {
+	public int getYearSchedule() {
 		return yearSchedule;
 	}
-	public void setYearSchedule(String yearSchedule) {
+	public void setYearSchedule(int yearSchedule) {
 		this.yearSchedule = yearSchedule;
 	}
 	public String getDueDate() {
