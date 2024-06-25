@@ -574,13 +574,15 @@ public class MainController {
 		logger.info("Status: "+updateRequest.getStatus());
 		String description = updateRequest.getDescription();
 		String name = updateRequest.getName();
-		//String dueDate = updateRequest.getDueDate();
+		int years = updateRequest.getDueByYear();
+		int months = updateRequest.getDueByMonth();
+		int days = updateRequest.getDueByDay();
 		String status = updateRequest.getStatus();
 
 		try {
 			protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
 			protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
-			//protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, dueDate);
+			protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, years,months,days);
 			protocolTemplateHelper.updateProtocolTemplateStatus(usr, id, status);
 			return ResponseEntity.ok("Protocol updated successfully");
 		} catch (Exception e) {

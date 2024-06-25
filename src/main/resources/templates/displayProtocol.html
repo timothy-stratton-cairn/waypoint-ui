@@ -225,50 +225,53 @@
         banner.style.display = 'block';
     }
 
-    function saveProtocol(id) {
-        var name = document.getElementById('name').value;
-        var description = document.getElementById('description').value;
+		 function saveProtocol(id) {
+		    var name = document.getElementById('name').value;
+		    var description = document.getElementById('description').value;
+		
+		    var years = parseInt(document.getElementById('dueDateYear').value) || 0;
+		    var months = parseInt(document.getElementById('dueDateMonth').value) || 0;
+		    var days = parseInt(document.getElementById('dueDateDay').value) || 0;
+		
+		    var status = document.getElementById('status').value; // Get the status value
+		
+		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+		
+		    var data = {
+		        name: name,
+		        description: description,
+		        dueYears: years,
+		        dueMonths: months,
+		        dueDays: days,
+		        status: status // Add the status to the data object
+		    };
+		
+		    fetch(`/updateProtocol/${id}`, {
+		        method: 'PATCH',
+		        headers: {
+		            'Content-Type': 'application/json',
+		            [csrfHeader]: csrfToken
+		        },
+		        body: JSON.stringify(data)
+		    })
+		    .then(response => {
+		        if (response.ok) {
+		            return response.text(); // Parse the response as text
+		        } else {
+		            return response.text().then(text => { throw new Error(text); });
+		        }
+		    })
+		    .then(text => {
+		        showBannerMessage(text, "success");
+		        console.log(text);
+		    })
+		    .catch(error => {
+		        console.error('Error:', error);
+		        showBannerMessage('Failed to update the protocol. Error: ' + error.message, "danger");
+		    });
+		}
 
-        var years = parseInt(document.getElementById('dueDateYear').value) || 0;
-        var months = parseInt(document.getElementById('dueDateMonth').value) || 0;
-        var days = parseInt(document.getElementById('dueDateDay').value) || 0;
-
-        var totalDays = (years * 365) + (months * 31) + days;
-
-        var status = document.getElementById('status').value; // Get the status value
-
-        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-        var data = {
-            name: name,
-            description: description,
-            dueDate: totalDays,
-            status: status // Add the status to the data object
-        };
-
-        fetch(`/updateProtocol/${id}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (response.ok) {
-                showBannerMessage("Protocol updated successfully.", "success");
-                return response.json();
-            } else {
-                response.text().then(text => { throw new Error(text); });
-            }
-        })
-        .then(data => console.log(data))
-        .catch(error => {
-            console.error('Error:', error);
-            showBannerMessage('Failed to update the protocol. Error: ' + error.message, "danger");
-        });
-    }
 
     function deleteStep(id) {
         var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
