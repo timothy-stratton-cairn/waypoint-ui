@@ -95,13 +95,13 @@ public class ProtocolTemplateHelper {
 	    String requestBody = "{" +
 	            "\"name\": \"" + template.getName() + "\"," +
 	            "\"description\": \"" + template.getDescription() + "\"," +
-	            "\"defaultDueByInDays\": \"" + template.getDueByDay() + "\"," +
-	            "\"defaultDueByInMonths\": \"" + template.getDueByMonth() + "\"," +
-	            "\"defaultDueByInYears\": \"" + template.getDueByYear() + "\"," +
-	            "\"templateCategory\":\"" + template.getType() + "\"," +
+	            "\"defaultDueByInDays\": " + template.getDueByDay() + "," +
+	            "\"defaultDueByInMonths\": " + template.getDueByMonth() + "," +
+	            "\"defaultDueByInYears\": " + template.getDueByYear() + "," +
+	            "\"templateCategoryValue\":\"" + template.getType() + "\"," +
 	            associatedStepTemplateIds.toString() + "," +
-	            "\"recurrenceType\": \"MANUAL\"," +  // hard coding these in for now 
-	            "\"defaultTriggeringStatusValue\": null," +  // hard coding these in for now 
+	            "\"recurrenceTypeValue\": \"MANUAL\"," +
+	            "\"defaultTriggeringStatusValue\": null," +
 	            "\"defaultReoccurInYears\": " + template.getYearSchedule() + "," +
 	            "\"defaultReoccurInMonths\": " + template.getMonthSchedule() + "," +
 	            "\"defaultReoccurInDays\": " + template.getDaySchedule() +

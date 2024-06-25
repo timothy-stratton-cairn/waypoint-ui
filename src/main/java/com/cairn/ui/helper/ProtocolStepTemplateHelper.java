@@ -315,7 +315,7 @@ public class ProtocolStepTemplateHelper{
     
     public int deleteHomeworkTemplate(User usr, int stepId, int homeworkId) {
     	int result = -1;
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get +"/"+ stepId + "?homeworkTemplateId="+homeworkId ;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + stepId + "/homework-template?homeworkTemplateId="+homeworkId ;
 		logger.info(apiUrl);
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		try {
