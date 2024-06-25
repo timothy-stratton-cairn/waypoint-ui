@@ -98,9 +98,9 @@ public class ProtocolTemplateHelper {
 	            "\"defaultDueByInDays\": \"" + template.getDueByDay() + "\"," +
 	            "\"defaultDueByInMonths\": \"" + template.getDueByMonth() + "\"," +
 	            "\"defaultDueByInYears\": \"" + template.getDueByYear() + "\"," +
-	            "\"templateCategory\":\"" + template.getType() + "\"," +
+	            "\"templateCategoryValue\":\"" + template.getType() + "\"," +
 	            associatedStepTemplateIds.toString() + "," +
-	            "\"recurrenceType\": \"MANUAL\"," +  // hard coding these in for now 
+	            "\"recurrenceTypeValue\": \"MANUAL\"," +  // hard coding these in for now 
 	            "\"defaultTriggeringStatusValue\": null," +  // hard coding these in for now 
 	            "\"defaultReoccurInYears\": " + template.getYearSchedule() + "," +
 	            "\"defaultReoccurInMonths\": " + template.getMonthSchedule() + "," +
