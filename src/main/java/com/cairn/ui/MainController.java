@@ -1708,7 +1708,7 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
 		try {
-			helper.updateHomeowrkQuestion(currentUser, id, question);
+			helper.updateHomeworkQuestion(currentUser, id, question);
 			return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
 		
 		} catch (Exception e) {

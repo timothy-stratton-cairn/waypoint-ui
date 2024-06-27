@@ -93,7 +93,6 @@ public class APIHelper {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity,
 					String.class);
 			if (response.getStatusCode().is2xxSuccessful()) {
-
 				result = 1;
 			} else {
 				result = -1;
@@ -103,6 +102,28 @@ public class APIHelper {
 
 		} catch (Exception e) {
 			logger.info("Error in updating progress");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	public String postAPIResponse(String apiUrl, String requestBody, User usr) {
+		String result = "";
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + usr.getToken());
+		headers.add("Content-Type", "application/json");
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+				result = response.getBody();
+			} else {
+				result = "";
+				logger.warn(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+	
+		} catch (Exception e) {
+			logger.info("Error in updating note");
 			e.printStackTrace();
 		}
 		return result;

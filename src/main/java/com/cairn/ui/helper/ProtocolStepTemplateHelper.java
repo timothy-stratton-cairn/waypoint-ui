@@ -6,15 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.ProtocolStepTemplate;
 import com.cairn.ui.model.User;
@@ -26,78 +20,66 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service 
 public class ProtocolStepTemplateHelper{
-    Logger logger = LoggerFactory.getLogger(ProtocolStepTemplateHelper.class); 
+    Logger logger = LoggerFactory.getLogger(ProtocolTemplateHelper.class); 
+    private APIHelper apiHelper = new APIHelper();
 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
 
-    private RestTemplate restTemplate;
-
-
-    private RestTemplate getRestTemplate() {
-        if (this.restTemplate == null) {
-            // Using HttpComponentsClientHttpRequestFactory to support PATCH
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-            requestFactory.setConnectTimeout(5000); 
-            this.restTemplate = new RestTemplate(requestFactory);
-        }
-        return this.restTemplate;
-    }
-    
     public ArrayList<ProtocolStepTemplate> getStepList(User usr) {
-	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
-	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
     	ArrayList<ProtocolStepTemplate> stepTemplateList = new ArrayList<ProtocolStepTemplate>();
-    	
-        try {
-            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String jsonResponse = response.getBody();
-                ObjectMapper objectMapper = new ObjectMapper();
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
 
-                JsonNode rootNode = objectMapper.readTree(jsonResponse);
-                if (rootNode.isArray()) {
-                    for (JsonNode jsonNode : rootNode) {
-                        ProtocolStepTemplate template = new ProtocolStepTemplate();
-                        template.setName(jsonNode.get("name").asText());
-                        template.setDescription(jsonNode.get("description").asText());
-                        template.setId(jsonNode.get("id").asInt());
-                        
-                        JsonNode stepTemplateCategoryNode = jsonNode.path("category");
-                        if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
-                            template.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
-                            template.setCategoryName(stepTemplateCategoryNode.path("name").asText());
-                            template.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
-                        } else {
-                            template.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
-                        }
-                        
-                        JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
-                        ArrayList<HomeworkTemplate> homeworks = new ArrayList<>();
-                        if (perms.isArray()) {
-                            for (JsonNode element : perms) {
-                                if (element != null) {
-                                    HomeworkTemplate curHw = new HomeworkTemplate();
-                                    curHw.setName(element.get("name").asText());
-                                    curHw.setId(element.get("id").asInt());
-                                    curHw.setDescription(element.get("description").asText());
-                                    homeworks.add(curHw);
-                                }
-                            }
-                            template.setHomework(homeworks);
-                        }
-                        
-                        stepTemplateList.add(template);
-                    }
-                }
-            } else {
-                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("No protocols returned");
-        }
-    	
+            JsonNode rootNode;
+			try {
+				rootNode = objectMapper.readTree(jsonResponse);
+	            if (rootNode.isArray()) {
+	                for (JsonNode jsonNode : rootNode) {
+	                    ProtocolStepTemplate template = new ProtocolStepTemplate();
+	                    template.setName(jsonNode.get("name").asText());
+	                    template.setDescription(jsonNode.get("description").asText());
+	                    template.setId(jsonNode.get("id").asInt());
+	                    
+	                    JsonNode stepTemplateCategoryNode = jsonNode.path("category");
+	                    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
+	                        template.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
+	                        template.setCategoryName(stepTemplateCategoryNode.path("name").asText());
+	                        template.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
+	                    } else {
+	                        template.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
+	                    }
+	                    
+	                    JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
+	                    ArrayList<HomeworkTemplate> homeworks = new ArrayList<>();
+	                    if (perms.isArray()) {
+	                        for (JsonNode element : perms) {
+	                            if (element != null) {
+	                                HomeworkTemplate curHw = new HomeworkTemplate();
+	                                curHw.setName(element.get("name").asText());
+	                                curHw.setId(element.get("id").asInt());
+	                                curHw.setDescription(element.get("description").asText());
+	                                homeworks.add(curHw);
+	                            }
+	                        }
+	                        template.setHomework(homeworks);
+	                    }
+	                    
+	                    stepTemplateList.add(template);
+	                }
+	            }
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        } else {
+            logger.info("Failed to fetch data. getStepList");
+        }   	
     	
     	return stepTemplateList;
     }
@@ -133,36 +115,29 @@ public class ProtocolStepTemplateHelper{
                 + "\"stepTemplateCategoryId\": " + newStep.getCategoryId() + "}";
         
         String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
-        logger.info(apiUrl);
-        logger.info(requestBody);
-        HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
-        try {
-            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                // Parse the response body to get the stepTemplateId
-            	String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
+		String jsonResponse = apiHelper.postAPIResponse(apiUrl, requestBody, usr);
+		if (!jsonResponse.isEmpty()) {		
+			ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode;
+			JsonNode jsonNode;
+			try {
 				jsonNode = objectMapper.readTree(jsonResponse);
-                if (jsonNode.has("stepTemplateId")) {
-                    result = jsonNode.get("stepTemplateId").asInt();
-                } else {
-                    result = -1; // Set to -1 if stepTemplateId is not present in the response
-                }
-            } else {
-                result = -1;
-                logger.info("Failed to Post data. Status code: " + response.getStatusCode());
-            }  
-        } catch (Exception e) {
+	            if (jsonNode.has("stepTemplateId")) {
+	                result = jsonNode.get("stepTemplateId").asInt();
+	            } else {
+	                result = -1; // Set to -1 if stepTemplateId is not present in the response
+	            }
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        } else {
             result = -1;
-            logger.info("Error in addStepTemplate");
-            e.printStackTrace();
-        }
+            logger.info("Failed to Post data. addStepTemplate");
+        }  
         logger.info("Add template response:" + result);
         return result;
     }
-
     
     
     public int addHomeworkTemplate(User usr, int stepTemplateId, int homeworkId) {
@@ -170,26 +145,7 @@ public class ProtocolStepTemplateHelper{
     	
 	    String requestBody = "{\"linkedHomeworkTemplateIds\": [" + homeworkId + "]}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + stepTemplateId ;
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-		logger.info(apiUrl);
-		logger.info(requestBody);
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			result = -1;
-			logger.info("Error in addHomeworkTemplate");
-	        e.printStackTrace();
-		}
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
     	return result;
     	
     }
@@ -205,24 +161,7 @@ public class ProtocolStepTemplateHelper{
 		
 		logger.info(requestBody);
 		    
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl,requestBody);
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			result = -1;
-			logger.info("Error in addHomeworkTemplate");
-	        e.printStackTrace();
-		}
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
     	return result;
 
     }
@@ -233,61 +172,52 @@ public class ProtocolStepTemplateHelper{
     	
     	ProtocolStepTemplate result = new ProtocolStepTemplate();
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + "/"+id;
-	    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-	    
-	    try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					result.setName(jsonNode.get("name").asText());
-					result.setDescription(jsonNode.get("description").asText());
-					result.setId(Integer.valueOf(jsonNode.get("id").toString()));
-					JsonNode stepTemplateCategoryNode = jsonNode.path("category");
-				    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
-				        result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
-				        result.setCategoryName(stepTemplateCategoryNode.path("name").asText());
-				        result.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
-				    } else {
-				        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
-				    }
-					JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
-					ArrayList <HomeworkTemplate>homeworks = new ArrayList<HomeworkTemplate>();
-					if (perms.isArray()) {
-						for (JsonNode element : perms) {
-							// Access and print array elements
-							if (element != null) {
-								HomeworkTemplate curHw = new HomeworkTemplate();
-								curHw.setName(element.get("name").asText());
-								
-								curHw.setId(Integer.parseInt(element.get("id").asText()));
-								curHw.setDescription(element.get("description").asText());
-								homeworks.add(curHw);
-							}
-							else {
-								logger.warn("No Homework Retrieved");
-							}
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				result.setName(jsonNode.get("name").asText());
+				result.setDescription(jsonNode.get("description").asText());
+				result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+				JsonNode stepTemplateCategoryNode = jsonNode.path("category");
+			    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
+			        result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
+			        result.setCategoryName(stepTemplateCategoryNode.path("name").asText());
+			        result.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
+			    } else {
+			        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
+			    }
+				JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
+				ArrayList <HomeworkTemplate>homeworks = new ArrayList<HomeworkTemplate>();
+				if (perms.isArray()) {
+					for (JsonNode element : perms) {
+						// Access and print array elements
+						if (element != null) {
+							HomeworkTemplate curHw = new HomeworkTemplate();
+							curHw.setName(element.get("name").asText());
+							
+							curHw.setId(Integer.parseInt(element.get("id").asText()));
+							curHw.setDescription(element.get("description").asText());
+							homeworks.add(curHw);
 						}
-						logger.info(homeworks.toString());
-						result.setHomework(homeworks);
+						else {
+							logger.warn("No Homework Retrieved");
+						}
 					}
-					} catch (JsonMappingException e) {
-						e.printStackTrace();
-					} catch (JsonProcessingException e) {
-						e.printStackTrace();
-					}
-				} else {
-					logger.error("Failed to fetch data. Status code: " + response.getStatusCode());
+					logger.info(homeworks.toString());
+					result.setHomework(homeworks);
 				}
-			} catch (Exception e) {
-				logger.error("No protocols returned");
+				} catch (JsonMappingException e) {
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			} else {
+				logger.error("Failed to fetch data. getTemplate");
 			}
-
 	    
     	return result;
     	
@@ -296,18 +226,7 @@ public class ProtocolStepTemplateHelper{
     public int deleteStepTemplate(User usr, int stepTemplateId) {
     	int result = 0;
     	String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get + stepTemplateId;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-			result = 1;
-			}
-        }
-	    catch (Exception e) {
-	    	logger.info("Error in deleteStepTemplate");
-	        e.printStackTrace();
-	    }
-        
+    	result = apiHelper.deleteAPI(apiUrl,usr);
     	
     	return result;
     }
@@ -316,25 +235,7 @@ public class ProtocolStepTemplateHelper{
     public int deleteHomeworkTemplate(User usr, int stepId, int homeworkId) {
     	int result = -1;
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + stepId + "/homework-template?homeworkTemplateId="+homeworkId ;
-		logger.info(apiUrl);
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			result = -1;
-			logger.info("Error in deleteHomeworkTemplate");
-	        e.printStackTrace();
-		}
+    	result = apiHelper.deleteAPI(apiUrl,usr);
     	return result;
     }
     

@@ -6,16 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.ExpectedHomeworkResponses;
 import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
@@ -34,21 +27,6 @@ public class HomeworkTemplateHelper{
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
 
-    private RestTemplate restTemplate;
-
-
-    private RestTemplate getRestTemplate() {
-        if (this.restTemplate == null) {
-            // Using HttpComponentsClientHttpRequestFactory to support PATCH
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-            requestFactory.setConnectTimeout(5000); 
-            this.restTemplate = new RestTemplate(requestFactory);
-        }
-        return this.restTemplate;
-    }
-    
-    
-    
     public ArrayList<HomeworkTemplate> getList(User usr) {
 		ArrayList<HomeworkTemplate> results = new ArrayList<HomeworkTemplate>();
 		
@@ -57,51 +35,42 @@ public class HomeworkTemplateHelper{
 		}
 
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate;
-		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
 
-		// Make the GET request and retrieve the response
-		try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode hwork = jsonNode.get("homeworkTemplates");
-					// Iterate through the array elements
-					HomeworkTemplate entry = null;
-					if (hwork.isArray()) {
-						for (JsonNode element : hwork) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new HomeworkTemplate();
-								entry.setName(element.get("name").asText());
-								entry.setId(Integer.valueOf(element.get("id").toString()));
-								entry.setStatus(element.get("status").asText());
-								if (element.has("description") && !element.get("description").isNull()) {
-	                                entry.setDescription(element.get("description").asText());
-	                            } else {
-	                                entry.setDescription("No Description Given");
-	                            }
-								entry.getNumClients();
-								results.add(entry);
-								
-							}
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode hwork = jsonNode.get("homeworkTemplates");
+				// Iterate through the array elements
+				HomeworkTemplate entry = null;
+				if (hwork.isArray()) {
+					for (JsonNode element : hwork) {
+						// Access and print array elements
+						if (element != null) {
+							entry = new HomeworkTemplate();
+							entry.setName(element.get("name").asText());
+							entry.setId(Integer.valueOf(element.get("id").toString()));
+							entry.setStatus(element.get("status").asText());
+							if (element.has("description") && !element.get("description").isNull()) {
+                                entry.setDescription(element.get("description").asText());
+                            } else {
+                                entry.setDescription("No Description Given");
+                            }
+							entry.getNumClients();
+							results.add(entry);
+							
 						}
 					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
 				}
-			} else {
-				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			logger.info("testing");
+		} else {
+			logger.info("Failed to fetch data. getList");
 		}
 
 		return results;
@@ -152,22 +121,22 @@ public class HomeworkTemplateHelper{
         HomeworkTemplate result = new HomeworkTemplate();
 
         String apiUrl = Constants.api_server + Constants.api_homeworktemplate + "/" + id;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        logger.info(apiUrl);
-        
-        try {
-            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String jsonResponse = response.getBody();
-                ObjectMapper objectMapper = new ObjectMapper();
-
-                JsonNode rootNode = objectMapper.readTree(jsonResponse);
-                populateTemplateFromJson(rootNode, result);
-            } else {
-                logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-            }
-        } catch (Exception e) {
-            logger.info("Error retrieving homework template: " + e.getMessage());
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode;
+			try {
+				rootNode = objectMapper.readTree(jsonResponse);
+	            populateTemplateFromJson(rootNode, result);
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        } else {
+            logger.info("Failed to fetch data. getTemplate(id)");
         }
 
         return result;
@@ -176,35 +145,12 @@ public class HomeworkTemplateHelper{
     public String newTemplate(User usr, String templateBody) {
     	String result = "Process not yet set ";
     	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
-    	HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, templateBody);
-    	logger.info("Template Body: " + templateBody);
-    	
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = "Success";
-	        } else {
-	        	result = "Failed to fetch data. Status code: " + response.getStatusCode();
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		} catch (HttpClientErrorException.Conflict e) {
-            // Specifically handle the conflict exception
-            String errorResponse = e.getResponseBodyAsString();
-            System.err.println("Conflict Error: " + errorResponse);
-            result = "Error"+ errorResponse;
+	    int response = apiHelper.postAPI(apiUrl, templateBody, usr);
+		if (response == 1) {
+			result = "Success";
 		}
-		catch(Exception e) {
-			logger.info("Error in updating Comment");
-	        e.printStackTrace();
-	        result = "Error in creating new Template: " + e;
-		}
-		
 			
 		return result;
-
 	}
     
     
@@ -226,24 +172,7 @@ public class HomeworkTemplateHelper{
     		
     	}
     	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
-    	HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
-    	
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			logger.info("Error in updating Comment");
-	        e.printStackTrace();
-		}
+	    result = apiHelper.postAPI(apiUrl, requestBody, usr);
     	
     	return result;
     }
@@ -266,49 +195,39 @@ public class HomeworkTemplateHelper{
         result = apiHelper.deleteAPI(apiUrl, usr);
         return result;
     }
+    
     public ArrayList<HomeworkQuestion> getHomeworkQuestions(User usr){
     	ArrayList<HomeworkQuestion> results = new ArrayList<HomeworkQuestion>();
     	String apiUrl = Constants.api_server + Constants.api_homework_question ;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
-
-			// Process the response
-			if (response.getStatusCode().is2xxSuccessful()) {
-				String jsonResponse = response.getBody();
-				ObjectMapper objectMapper = new ObjectMapper();
-				JsonNode jsonNode;
-				try {
-					jsonNode = objectMapper.readTree(jsonResponse);
-					JsonNode hwork = jsonNode.get("questions");
-					// Iterate through the array elements
-					HomeworkQuestion entry = null;
-					if (hwork.isArray()) {
-						for (JsonNode element : hwork) {
-							// Access and print array elements
-							if (element != null) {
-								entry = new HomeworkQuestion();
-								entry.setQuestionId(element.get("questionId").asInt());
-								entry.setQuestionAbbreviation(element.get("questionAbbr").asText());
-								entry.setQuestion(element.get("question").asText());
-								entry.setStatus(element.get("status").asText());
-								results.add(entry);
-							}
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode hwork = jsonNode.get("questions");
+				// Iterate through the array elements
+				HomeworkQuestion entry = null;
+				if (hwork.isArray()) {
+					for (JsonNode element : hwork) {
+						// Access and print array elements
+						if (element != null) {
+							entry = new HomeworkQuestion();
+							entry.setQuestionId(element.get("questionId").asInt());
+							entry.setQuestionAbbreviation(element.get("questionAbbr").asText());
+							entry.setQuestion(element.get("question").asText());
+							entry.setStatus(element.get("status").asText());
+							results.add(entry);
 						}
 					}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
 				}
-			} else {
-				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-
-			logger.info("No Homeworks Returned");
-
+		} else {
+			logger.info("Failed to fetch data. getHomeworkQuestions");
 		}
     	
     	return results;
@@ -350,25 +269,7 @@ public class HomeworkTemplateHelper{
             "}";
 
         logger.info(requestBody);
-        HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
-        
-		try {
-	        ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
-	        if (response.getStatusCode().is2xxSuccessful()) {
-
-	            result = 1;
-	        } else {
-	        	result = -1;
-	            logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
-	            // Update result to indicate a specific type of failure
-	        }  
-			
-		}
-		catch(Exception e) {
-			logger.info("Error in Posting Question");
-	        e.printStackTrace();
-		}
-        
+	    result = apiHelper.postAPI(apiUrl, requestBody, usr);     
 
         return result;
     }

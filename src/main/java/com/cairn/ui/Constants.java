@@ -1,6 +1,14 @@
 package com.cairn.ui;
 
 public class Constants {
+	// Dev is at Timothys, Demo is AWS
+	// Demo servers
+	//Authorization API 18.234.242.104
+	//Dashboard API 18.215.187.94
+	//UI 3.236.204.96
+	//static public final String api_server = "http://18.215.187.94:8080";
+	//static public final String auth_server = "http://18.234.242.104:8080";
+	// Dev servers
 	static public final String api_server = "http://96.61.158.12:8083";
 	static public final String auth_server = "http://96.61.158.12:8082";
 	//static public final String api_server = "http://127.0.0.1:8083";
@@ -23,6 +31,5 @@ public class Constants {
 	static public final String api_homework_response_file = "/api/file/homework-response/";
 	static public final String api_homework_question = "/api/homework-question";
 	static public final String api_homework_question_get = "/api/homework-question/";
-	static public final String api_homework = "/api/homework/";
-	
+	static public final String api_homework = "/api/homework/";	
 }
