@@ -54,7 +54,7 @@ public class UserHelper {
 							entry.setId(Integer.valueOf(element.get("id").toString()));
 							entry.setFirstName(element.get("firstName").asText());
 							entry.setLastName(element.get("lastName").asText());
-							//entry.setEmail(element.get("email").asText());
+							entry.setEmail(element.get("email").asText());
 							results.add(entry);
 						}
 					}
