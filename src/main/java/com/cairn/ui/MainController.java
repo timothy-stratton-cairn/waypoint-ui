@@ -219,18 +219,18 @@ public class MainController {
 		ArrayList<Integer> stepIds = new ArrayList<Integer>();
 		HomeworkHelper homeworkHelper = new HomeworkHelper();
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
-
+		
 		for (ProtocolStep step : stepList) {
-			logger.info("Step " + step.getName() + " Category: " + step.getCategoryId());
-			if (step.getCategoryId() == 2) {
+			logger.info("Step " + step.getName() + " Category: " + step.getCategoryName());
+			if (step.getCategoryName() == "Run Analysis") {
 				stepIds.add(step.getId());
 			}
 		}
 		// Using removeIf to directly filter elements
-		stepList.removeIf(step -> step.getCategoryId() != 2);
+		stepList.removeIf(step -> step.getCategoryName() != "Run Analysis");
 
 		for (ProtocolStep step : stepList) {
-			logger.info("Step " + step.getName() + " Catagory: " + step.getCategoryId());
+			logger.info("Step " + step.getName() + " Catagory: " + step.getCategoryName());
 		}
 
 		if (allHomeworks != null && !allHomeworks.isEmpty()) {
@@ -239,8 +239,10 @@ public class MainController {
 						"Homework Name: " + homework.getName() + " Homework ID: " + homework.getId() + ", Description: "
 								+ homework.getDescription() + " Parent Step Id: " + homework.getParentStepId());
 			}
+		} if(allHomeworks == null) {
+			logger.info("allHomeworks is Null");
 		} else {
-			logger.info("No homeworks found or list is empty");
+			logger.info("allHomeworks is Empty");
 		}
 		if (allHomeworks != null && !allHomeworks.isEmpty()) {
 			allHomeworks.removeIf(homework -> !stepIds.contains(homework.getParentStepId())); // Remove homeworks whose
@@ -1044,8 +1046,18 @@ public class MainController {
 		ArrayList<HomeworkQuestion> questions = helper.getHomeworkQuestions(currentUser);
 		ArrayList<HomeworkQuestion> detailedQuestions = new ArrayList<HomeworkQuestion>();
 		for (HomeworkQuestion question: questions) {
+			//logger.info("Question Id: "+ question.getQuestionId());
 			HomeworkQuestion dQuestion = helper.getQuestion(currentUser, question.getQuestionId());
 			detailedQuestions.add(dQuestion);
+			
+		}
+		if (detailedQuestions.isEmpty()) {
+			//logger.info("No Questions returned");
+		}
+		else {
+			for (HomeworkQuestion dQuestion: detailedQuestions) {
+				//logger.info("Question ID : "+ dQuestion.getQuestionId() + " Question: " + dQuestion.getQuestion());
+			}
 		}
 		model.addAttribute("protocols", pcolList);
 		model.addAttribute("questions",detailedQuestions);
@@ -1148,6 +1160,16 @@ public class MainController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
 		}
 	}
+	
+
+
+    @GetMapping("/api/protocols/{protocolId}/steps")
+    public ResponseEntity<List<ProtocolStepTemplate>> getStepsForProtocol(@PathVariable int protocolId) {
+        User currentUser = userDAO.getUser();
+        List<ProtocolStepTemplate> steps = protocolTemplateHelper.getStepList(currentUser, protocolId);
+        return ResponseEntity.ok(steps);
+    }
+	
 
 	@DeleteMapping("/removeHomeworkFromStepTemplate/{stepId}/{homeworkId}")
 	public ResponseEntity<String> removeHomeworkFromStepTemplate(@PathVariable int stepId,

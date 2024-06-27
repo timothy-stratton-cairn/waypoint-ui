@@ -5,6 +5,8 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Protocol Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
 <div>
@@ -14,7 +16,6 @@
     <div class="row note_card">
         <fieldset>
             <legend>Analysis</legend>
-
 
             <!-- Error Banner -->
             <div id="errorBanner" class="alert alert-danger d-none" role="alert"></div>
@@ -92,24 +93,21 @@
         var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
         var status = document.querySelector(`#statusDropdown_${stepId}`).value;
 
-        fetch(`/updateStepStatus/${protocolId}/${stepId}/${status}`, {
-            method: 'PATCH',
+        $.ajax({
+            url: `/updateStepStatus/${protocolId}/${stepId}/${status}`,
+            type: 'PATCH',
             headers: {
-                'Accept': 'application/json',
+                'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
                 'Content-Type': 'application/json',
                 [csrfHeader]: csrfToken
-            }
-        })
-        .then(response => {
-            if(response.ok) {
+            },
+            success: function(response) {
                 window.location.reload();
-            } else {
-                response.text().then(text => { throw new Error(text); });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating status:', error);
+                showErrorBanner('Failed to update the status. Error: ' + xhr.responseText);
             }
-        })
-        .catch(error => {
-            console.error('Error updating status:', error);
-            showErrorBanner('Failed to update the status. Error: ' + error.message);
         });
     }
 
@@ -118,24 +116,21 @@
         var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
         var note = document.querySelector(`#noteInput_${stepId}`).value;
 
-        fetch(`/updateStepNote/${protocolId}/${stepId}/${note}`, {
-            method: 'POST',
+        $.ajax({
+            url: `/updateStepNote/${protocolId}/${stepId}/${note}`,
+            type: 'POST',
             headers: {
-                'Accept': 'application/json',
+                'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
                 'Content-Type': 'application/json',
                 [csrfHeader]: csrfToken
-            }
-        })
-        .then(response => {
-            if(response.ok) {
+            },
+            success: function(response) {
                 window.location.reload();
-            } else {
-                response.text().then(text => { throw new Error(text); });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding note:', error);
+                showErrorBanner('Failed to add the note. Error: ' + xhr.responseText);
             }
-        })
-        .catch(error => {
-            console.error('Error adding note:', error);
-            showErrorBanner('Failed to add the note. Error: ' + error.message);
         });
     }
 

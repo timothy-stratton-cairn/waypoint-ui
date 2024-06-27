@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Protocol Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
@@ -86,7 +88,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <button onclick="history.back()" class="btn btn-primary">Back</button>
-                    <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocol(' + ${userId} + ');'">Delete</button>  
+                    <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocol(' + ${protocol.id} + ');'">Delete</button>  
                     <button type="button" class="btn btn-primary" th:onclick="goToHomework()">Homework</button>
                     <button type="button" class="btn btn-primary" th:onclick="'goToClient(' + ${userId} + ');'">Client View</button>
                     <button th:attr="onclick='saveProtocolCommentsAndGoal(' + ${protocol.id} + ');'" class="btn btn-success">Save</button>
@@ -164,16 +166,20 @@
     function editProtocol(id) {
         window.location = '/editStep/' + id;
     }
+
     function disableProtocol(id) {
         showMessageBanner('Disable feature for protocol ID ' + id + ' is not implemented yet.', 'warning');
     }
-    function saveprotocol(){
+
+    function saveProtocol(){
         window.location = '/saveProtocol/'+id;
     }
+
     function goToClient(id) {
         window.location.href = '/clientProfile/' + id;
     }
-    function goToHomework(id) {
+
+    function goToHomework() {
         window.location.href = '/homeworkTemplates/';
     }
 
@@ -232,13 +238,13 @@
                                     <option value="DONE">Done</option>
                                     <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
                                 </select>
-                                <button onclick="confirmStatus(${stepId})">ConfirmStatus</button>`;
+                                <button onclick="confirmStatus(${stepId})">Confirm Status</button>`;
     }
 
     function addNote(stepId) {
         const container = document.querySelector(`#noteContainer_${stepId}`);
         container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
-                               <button onclick="confirmNote(${stepId})">ConfirmNote</button>`;
+                               <button onclick="confirmNote(${stepId})">Confirm Note</button>`;
     }
 
     function confirmStatus(stepId) {
@@ -246,24 +252,22 @@
         var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
         var status = document.querySelector(`#statusDropdown_${stepId}`).value;
 
-        fetch(`/updateStepStatus/${protocolId}/${stepId}/${status}`, {
-            method: 'PATCH',
+        $.ajax({
+            url: `/updateStepStatus/${protocolId}/${stepId}/${status}`,
+            type: 'PATCH',
             headers: {
-                'Accept': 'application/json',
+                'Accept': 'application/json, text/plain', 
                 'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
+                $(`#row_${stepId} .col-md-3:nth-child(3)`).text(status.replace(/_/g, ' '));
+                showMessageBanner('Status updated successfully.', 'success');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating status:', error);
+                showMessageBanner('Failed to update the status. Error: ' + xhr.responseText, 'danger');
             }
-        })
-        .then(response => {
-            if(response.ok) {
-                window.location.reload();
-            } else {
-                response.text().then(text => { throw new Error(text); });
-            }
-        })
-        .catch(error => {
-            console.error('Error updating status:', error);
-            showMessageBanner('Failed to update the status. Error: ' + error.message, 'danger');
         });
     }
 
@@ -272,24 +276,22 @@
         var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
         var note = document.querySelector(`#noteInput_${stepId}`).value;
 
-        fetch(`/updateStepNote/${protocolId}/${stepId}/${note}`, {
-            method: 'POST',
+        $.ajax({
+            url: `/updateStepNote/${protocolId}/${stepId}/${note}`,
+            type: 'POST',
             headers: {
-                'Accept': 'application/json',
+                'Accept': 'application/json, text/plain', 
                 'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
+                showMessageBanner('Note added successfully.', 'success');
+                document.querySelector(`#noteContainer_${stepId}`).innerHTML = '';
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding note:', error);
+                showMessageBanner('Failed to add the note. Error: ' + xhr.responseText, 'danger');
             }
-        })
-        .then(response => {
-            if(response.ok) {
-                window.location.reload();
-            } else {
-                response.text().then(text => { throw new Error(text); });
-            }
-        })
-        .catch(error => {
-            console.error('Error adding note:', error);
-            showMessageBanner('Failed to add the note. Error: ' + error.message, 'danger');
         });
     }
     
@@ -302,28 +304,27 @@
         var progress = document.getElementById('progressInput').value;
         var status = document.getElementById('statusDropdown').value;
         var dueDate = document.getElementById('dueDateInput').value;
-        console.log('Status:', status);
-        var url = `/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`;
-        console.log('URL:', url);
-        fetch(`/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`, {
-            method: 'PATCH',
+
+        $.ajax({
+            url: `/updateProtocolCommentsGoalsAndProgress/${id}/${encodeURIComponent(comment)}/${encodeURIComponent(goal)}/${encodeURIComponent(progress)}/${status}/${encodeURIComponent(dueDate)}`,
+            type: 'PATCH',
             headers: {
-                'Accept': 'application/json',
+                'Accept': 'application/json, text/plain', 
                 'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            }
-        })
-        .then(response => {
-            if(response.ok) {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
                 showMessageBanner("Protocol updated successfully.", 'success');
-                window.location.reload(); // Reload page to reflect the changes
-            } else {
-                response.text().then(text => { throw new Error(text); });
+                $('span[th\\:text="${protocol.description}"]').text(comment);
+                $('span[th\\:text="|${protocol.goal}|"]').text(goal);
+                $('input[th\\:value="${protocol.progress}"]').val(progress);
+                $('select[th\\:selected="${protocol.status} == \'' + status + '\'"]').prop('selected', true);
+                $('input[th\\:value="${protocol.dueDate}"]').val(dueDate);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating protocol:', error);
+                showMessageBanner('Failed to update the protocol. Error: ' + xhr.responseText, 'danger');
             }
-        })
-        .catch(error => {
-            console.error('Error updating protocol:', error);
-            showMessageBanner('Failed to update the protocol. Error: ' + error.message, 'danger');
         });
     }
 
@@ -333,44 +334,35 @@
     }
     
     function deleteProtocol(id) {
-			var Id = protocolId;
-			var protocolName = document.getElementById('name').value;
-		    var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
-		
-		    // If the user clicks "Cancel", exit the function
-		    if (!isConfirmed) {
-		        return;
-		    }
-			
-            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+        var protocolName = document.getElementById('name').value;
+        var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
 
-            fetch('/deleteTemplate/Protocol/' + Id, {
-                method: 'DELETE',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
-                },
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = '/clientProfile/' + userId;
-    
-                } else {
-                    showMessageBanner('Failed to delete Protocol.', 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showMessageBanner('Error deleting Protocol.', 'danger');
-            });
+        if (!isConfirmed) {
+            return;
         }
+
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        $.ajax({
+            url: '/deleteTemplate/Protocol/' + protocolId,
+            type: 'DELETE',
+            headers: {
+                'Accept': 'application/json, text/plain', 
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
+                window.location.href = '/clientProfile/' + userId;
+            },
+            error: function(xhr, status, error) {
+                showMessageBanner('Failed to delete Protocol. Error: ' + xhr.responseText, 'danger');
+            }
+        });
+    }
 </script>
 
 </body>
 </html>
+
 

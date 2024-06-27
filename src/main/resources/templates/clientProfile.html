@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 
 <body data-client-id="${clientId}">
@@ -198,38 +200,46 @@
             banner.textContent = message;
             banner.style.display = 'block';
         }
+
 	   function viewProtocol(id){
 		    window.location = '/viewProtocol/'+id+ '/'+ clientId;
 	   }
+
 	   function addDependant(id){
 		   window.location = '/createDependant/'+id;
 	   }
+
 	   function viewAnalysis(id){
 		   window.location= '/analysis/'+id;
 	   }
+
 	   function viewHistory(){
 		   window.location='/allClientProtocols/'+clientId;
 	   }
+
 	   function protocolHistory(name){
 		   window.location='/protocolHistory/'+clientId+'/'+name;
 	   }
+
 	   function viewRecommendations(id){
 		   window.location= '/protocolRecommendations/'+id +'/'+clientId;
 	   }
+
 	   	function goToHomeworkTemplates() {
 			window.location.href = '/homeworkList/';
 		}
+
 		function goToHomeworks(id) {
 			window.location.href = '/homeworkList/'+id;
 		}
+
 		function editClient(id){
 			window.location.href= '/changeClientInfo/'+id;
 		}
 
-		// Activate the first tab by default
 		var firstTabEl = document.querySelector('#dependentTabs .nav-link');
 		var firstTab = new bootstrap.Tab(firstTabEl);
-		var apTracker = true; // used to prevent addProtocol from spawning multiple lines 
+		var apTracker = true; 
 
 		if (firstTabEl) {
 			firstTab.show();
@@ -238,7 +248,7 @@
 		function addProtocol() {
 		    if (!apTracker) {
 		        console.log("addProtocol: Prevented from spawning multiple lines.");
-		        return; // Exit the function early if apTracker is false
+		        return; 
 		    }
 		    
 		    console.log("addProtocol: Function called.");
@@ -247,12 +257,12 @@
 		        console.log("addProtocol: Container found.");
 		    } else {
 		        console.error("addProtocol: #protocolContainer not found.");
-		        return; // Also exit early if the container is not found
+		        return; 
 		    }
 		    const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
 		    container.appendChild(template);
 		    console.log("addProtocol: Protocol added to container.");
-		    apTracker = false; // Set apTracker to false to prevent further addition until it's reset
+		    apTracker = false; 
 		}
 
 		function confirmProtocol(buttonElement) {
@@ -282,28 +292,23 @@
 				return;
 			}
 
-			/*fetch(`/addClientToProtocol/[[${clientId}]]/` + protocolId, {
-				method: 'POST',
+			/*$.ajax({
+				url: `/addClientToProtocol/[[${clientId}]]/` + protocolId,
+				type: 'POST',
 				headers: {
-					'Accept': 'application/json',
+					'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
 					'Content-Type': 'application/json',
-					[csrfHeader]: csrfToken
+					'X-CSRF-TOKEN': csrfToken
 				},
-				credentials: 'include'
-			})
-				.then(response => {
-					console.log(`confirmProtocol: Fetch response status is ${response.status}.`);
-					if (response.ok) {
-						apTracker = true;
-						window.location.reload(); // Reload page if successful
-					} else {
-						response.text().then(text => {throw new Error(text);});
-					}
-				})
-				.catch(error => {
+				success: function(response) {
+					apTracker = true;
+					window.location.reload(); // Reload page if successful
+				},
+				error: function(xhr, status, error) {
 					console.error('Error adding step:', error);
-					alert('Failed to add the Protocol. Error: ' + error.message);
-				});*/
+					alert('Failed to add the Protocol. Error: ' + xhr.responseText);
+				}
+			});*/
 		}
 
 		document.addEventListener('DOMContentLoaded', function () {
@@ -385,27 +390,26 @@
         function addCoClient() {
             const selectedCoClientId = document.getElementById('coClientSelect').value;
             if (selectedCoClientId) {
-                fetch(`/addCoClient/${clientId}/${selectedCoClientId}`, {
-                    method: 'PATCH',
+                $.ajax({
+                    url: `/addCoClient/${clientId}/${selectedCoClientId}`,
+                    type: 'PATCH',
                     headers: {
-                        'Accept': 'application/json',
+                        'Accept': 'application/json, text/plain',
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').getAttribute('content')
+                        'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
                     },
-                    credentials: 'include'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        showMessageBanner(data.message, 'success');
-                        window.location.reload();
-                    } else if (data.error) {
-                        showMessageBanner(data.error, 'danger');
+                    success: function(response) {
+                        if (response.message) {
+                            showMessageBanner(response.message, 'success');
+                            window.location.reload();
+                        } else if (response.error) {
+                            showMessageBanner(response.error, 'danger');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error adding CoClient:', error);
+                        showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
                     }
-                })
-                .catch(error => {
-                    console.error('Error adding CoClient:', error);
-                    showMessageBanner('Failed to add the CoClient. Error: ' + error.message, 'danger');
                 });
             } else {
                 showMessageBanner('Please select a CoClient first.', 'warning');
@@ -416,4 +420,5 @@
 <div th:insert="~{footer :: main}">...</div>
 
 </html>
+
 
