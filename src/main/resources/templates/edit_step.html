@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
     <div th:insert="~{header :: main}">...</div>
@@ -26,13 +28,13 @@
                             <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.name}">
                         </div>
                         <div class="form-group col-md-3">
-								<label for="status" class="mr-md-3"><strong>Status:</strong></label>
-							    <select id="status" name="status" class="form-control">
-							        <option value="LIVE" th:selected="${step.status == 'LIVE'}">Live</option>
-							        <option value="INACTIVE" th:selected="${step.status == 'INACTIVE'}">Inactive</option>
-							        <option value="ARCHIVED" th:selected="${step.status == 'ARCHIVED'}">Archived</option>
-							    </select>
-							</div>
+                            <label for="status" class="mr-md-3"><strong>Status:</strong></label>
+                            <select id="status" name="status" class="form-control">
+                                <option value="LIVE" th:selected="${step.status == 'LIVE'}">Live</option>
+                                <option value="INACTIVE" th:selected="${step.status == 'INACTIVE'}">Inactive</option>
+                                <option value="ARCHIVED" th:selected="${step.status == 'ARCHIVED'}">Archived</option>
+                            </select>
+                        </div>
                         <div class="form-group col-md-3">
                             <label for="stepCategory">Category:</label>
                             <select class="form-control" id="stepCategory" name="stepCategory">
@@ -103,8 +105,7 @@
                 "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
                 "name": document.getElementById("stepName").value,
                 "description": document.getElementById("stepDetails").value,
-                
-	    		"status":document.getElementById('status').value,
+                "status": document.getElementById('status').value,
                 "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
                     return {
                         "id": parseInt(row.dataset.homeworkId),
@@ -113,126 +114,107 @@
                 })
             };
 
-            fetch('/updateStep/' + id, {
-                method: 'PATCH',
+            $.ajax({
+                url: '/updateStep/' + id,
+                type: 'PATCH',
+                contentType: 'application/json',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
                 },
-                body: JSON.stringify(stepData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                showBannerMessage('Step saved successfully!', 'success');
-                setTimeout(() => window.location.href = '/protocolStepTemplates', 2000);
-            })
-            .catch(error => showBannerMessage('Error saving step: ' + error, 'danger'));
+                data: JSON.stringify(stepData),
+                success: function(response) {
+                    showBannerMessage('Step saved successfully!', 'success');
+                    window.location.href = '/protocolStepTemplates';
+                },
+                error: function(xhr, status, error) {
+                    showBannerMessage('Error saving step: ' + xhr.responseText, 'danger');
+                }
+            });
         }
 
         function confirmHomeworkTemplate() {
-            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
             var homeworkTemplateId = document.getElementById('homeworkTemplateDropdown').value;
             if (!homeworkTemplateId) {
                 showBannerMessage('Please select a Homework Template.', 'warning');
                 return;
             }
 
-            // Check if the homework is already added
             var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
             var homeworkExists = Array.from(tableBody.rows).some(row => row.getAttribute('data-homework-id') === homeworkTemplateId);
             
             if (homeworkExists) {
                 showBannerMessage("This homework template is already added.", "warning");
-                return; // Stop the function if the homework already exists
+                return;
             }
 
-            fetch('/addHomeworkTemplateToStep/' + stepId + '/' + homeworkTemplateId + '/', {
-                method: 'PATCH',
+            $.ajax({
+                url: '/addHomeworkTemplateToStep/' + stepId + '/' + homeworkTemplateId + '/',
+                type: 'PATCH',
+                contentType: 'application/json',
                 headers: {
-                    'Accept': 'application/json',
+                    'Accept': 'application/json, text/plain', 
                     'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    'X-CSRF-TOKEN': csrfToken
                 },
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
+                success: function(response) {
                     showBannerMessage('Homework Template added successfully.', 'success');
-                    setTimeout(() => window.location.reload(), 2000);
-                } else {
-                    showBannerMessage('Failed to add Homework Template.', 'danger');
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    showBannerMessage('Failed to add Homework Template. Error: ' + xhr.responseText, 'danger');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showBannerMessage('Error adding Homework Template.', 'danger');
             });
         }
 
         function deleteHomework(homeworkId) {
-            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
-            fetch('/removeHomeworkFromStepTemplate/' + stepId + '/' + homeworkId, {
-                method: 'DELETE',
+            $.ajax({
+                url: '/removeHomeworkFromStepTemplate/' + stepId + '/' + homeworkId,
+                type: 'DELETE',
                 headers: {
-                    'Accept': 'application/json',
+                    'Accept': 'application/json, text/plain', 
                     'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    'X-CSRF-TOKEN': csrfToken
                 },
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
+                success: function(response) {
                     showBannerMessage('Homework removed successfully.', 'success');
-                    setTimeout(() => window.location.reload(), 2000);
-                } else {
-                    showBannerMessage('Failed to remove Homework.', 'danger');
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    showBannerMessage('Failed to remove Homework. Error: ' + xhr.responseText, 'danger');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showBannerMessage('Error removing Homework.', 'danger');
             });
         }
-        
-        function deleteStepTemplate(stepId) {
-			var stepName = document.getElementById('stepName').value;
-		    var isConfirmed = confirm(`Are you sure you want to delete ${stepName}?`);
-		
-		    // If the user clicks "Cancel", exit the function
-		    if (!isConfirmed) {
-		        return;
-		    }
-            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
 
-            fetch('/deleteTemplate/StepTemplate/' + stepId, {
-                method: 'DELETE',
+        function deleteStepTemplate(stepId) {
+            var stepName = document.getElementById('stepName').value;
+            var isConfirmed = confirm(`Are you sure you want to delete ${stepName}?`);
+
+            if (!isConfirmed) {
+                return;
+            }
+
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+            $.ajax({
+                url: '/deleteTemplate/StepTemplate/' + stepId,
+                type: 'DELETE',
                 headers: {
-                    'Accept': 'application/json',
+                    'Accept': 'application/json, text/plain', 
                     'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    'X-CSRF-TOKEN': csrfToken
                 },
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
+                success: function(response) {
                     window.location.href = '/protocolStepTemplates';
-                } else {
-                    showBannerMessage('Failed to delete Step Template.', 'danger');
+                },
+                error: function(xhr, status, error) {
+                    showBannerMessage('Failed to delete Step Template. Error: ' + xhr.responseText, 'danger');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showBannerMessage('Error deleting Step Template.', 'danger');
             });
         }
     </script>

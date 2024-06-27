@@ -157,17 +157,7 @@
             </ul>
 
             <div id="stepsContent">
-                <div th:each="step, status : ${steps}" th:id="|row_${step.id}|"
-                     th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:data-type="${step.categoryId}">
-                    <div class="col" th:text="${step.name}">[Step Name]</div>
-                    <div class="col">
-                        <button type="button" class="btn btn-secondary" th:attr="onclick='editProtocol('+${step.id}+');'">Details</button>
-                        <button type="button" class="btn btn-secondary" th:attr="onclick='deleteStep('+${step.id}+');'">Delete</button>
-                    </div>
-                </div>
-                <div th:if="${steps.empty}">
-                    <p>No steps available.</p>
-                </div>
+                <!-- Steps will be dynamically loaded here -->
             </div>
             <br>
 
@@ -192,8 +182,7 @@
 </div>
 
 <script>
-    var protocolId = [[${protocolId}]]; 
-    var dueByDays = [[${dueBy}]];
+    var protocolId = [[${protocolId}]];
 
     function newStep() {
         window.location = '/newStep/' + protocolId;
@@ -219,205 +208,206 @@
     }
 
     function showBannerMessage(message, type) {
-        var banner = document.getElementById('banner');
-        banner.className = 'alert alert-' + type;
-        banner.textContent = message;
-        banner.style.display = 'block';
+        var banner = $('#banner');
+        banner.removeClass().addClass('alert alert-' + type).text(message).show();
     }
 
-		 function saveProtocol(id) {
-		    var name = document.getElementById('name').value;
-		    var description = document.getElementById('description').value;
-		
-		    var dueByYears = parseInt(document.getElementById('dueDateYear').value) || 0;
-		    var dueByMonths = parseInt(document.getElementById('dueDateMonth').value) || 0;
-		    var dueByDays = parseInt(document.getElementById('dueDateDay').value) || 0;
-		
-		    var reoccurYears = parseInt(document.getElementById('year').value) || 0;
-		    var reoccurMonths = parseInt(document.getElementById('month').value) || 0;
-		    var reoccurDays = parseInt(document.getElementById('day').value) || 0;
-		
-		    var status = document.getElementById('status').value; // Get the status value
-		
-		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-		
-		    var data = {
-		        name: name,
-		        description: description,
-		        dueByYear: dueByYears,
-		        dueByMonth: dueByMonths,
-		        dueByDay: dueByDays,
-		        yearSchedule: reoccurYears,
-		        monthSchedule: reoccurMonths,
-		        daySchedule: reoccurDays,
-		        status: status // Add the status to the data object
-		    };
-		
-		    fetch(`/updateProtocol/${id}`, {
-		        method: 'PATCH',
-		        headers: {
-		            'Content-Type': 'application/json',
-		            [csrfHeader]: csrfToken
-		        },
-		        body: JSON.stringify(data)
-		    })
-		    .then(response => {
-		        if (response.ok) {
-		            return response.text(); // Parse the response as text
-		        } else {
-		            return response.text().then(text => { throw new Error(text); });
-		        }
-		    })
-		    .then(text => {
-		        showBannerMessage(text, "success");
-		        console.log(text);
-		    })
-		    .catch(error => {
-		        console.error('Error:', error);
-		        showBannerMessage('Failed to update the protocol. Error: ' + error.message, "danger");
-		    });
-		}
+    function saveProtocol(id) {
+        var name = $('#name').val();
+        var description = $('#description').val();
+        var dueByYears = parseInt($('#dueDateYear').val()) || 0;
+        var dueByMonths = parseInt($('#dueDateMonth').val()) || 0;
+        var dueByDays = parseInt($('#dueDateDay').val()) || 0;
+        var reoccurYears = parseInt($('#year').val()) || 0;
+        var reoccurMonths = parseInt($('#month').val()) || 0;
+        var reoccurDays = parseInt($('#day').val()) || 0;
+        var status = $('#status').val();
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
+        var data = {
+            name: name,
+            description: description,
+            dueByYear: dueByYears,
+            dueByMonth: dueByMonths,
+            dueByDay: dueByDays,
+            yearSchedule: reoccurYears,
+            monthSchedule: reoccurMonths,
+            daySchedule: reoccurDays,
+            status: status
+        };
 
-
-    function deleteStep(id) {
-        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-        fetch(`/removeStepFromTemplate/${protocolId}/${id}`, {
-            method: 'DELETE',
+        $.ajax({
+            url: `/updateProtocol/${id}`,
+            type: 'PATCH',
             headers: {
-                'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 [csrfHeader]: csrfToken
+            },
+            data: JSON.stringify(data),
+            success: function(response) {
+                showBannerMessage(response, "success");
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                showBannerMessage('Failed to update the protocol. Error: ' + xhr.responseText, "danger");
             }
-        })
-        .then(response => {
-            if(response.ok) {
-                showBannerMessage("Step deleted successfully.", "success");
-                window.location.reload(); // if successful, reload page.
-            } else {
-                response.text().then(text => { throw new Error(text); });
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting step:', error);
-            showBannerMessage('Failed to delete the step. Error: ' + error.message, "danger");
         });
     }
 
+	function deleteStep(id) {
+	    var csrfToken = $('meta[name="_csrf"]').attr('content');
+	    var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+	
+	    $.ajax({
+	        url: `/removeStepFromTemplate/${protocolId}/${id}`,
+	        type: 'DELETE',
+	        headers: {
+	            'Accept': 'application/json, text/plain', 
+	            'Content-Type': 'application/json',
+	            [csrfHeader]: csrfToken
+	        },
+	        success: function(response) {
+	            showBannerMessage(response, "success");
+	            updateDisplayedSteps();
+	        },
+	        error: function(xhr, status, error) {
+	            console.error('Error deleting step:', error);
+	            var errorMessage = xhr.responseText || 'Unknown error';
+	            showBannerMessage('Failed to delete the step. Error: ' + errorMessage, "danger");
+	        }
+	    });
+	}
+
+
     function confirmStep(buttonElement) {
-        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
-        var selectElement = buttonElement.previousElementSibling;
-        var stepId = selectElement.value;
+        var selectElement = $(buttonElement).prev();
+        var stepId = selectElement.val();
 
-        // Check if the step already exists in the stepsContent table
-        var stepExists = Array.from(document.querySelectorAll('#stepsContent > div')).some(function(stepElement) {
-            return stepElement.id === 'row_' + stepId;
-        });
+        var stepExists = $(`#stepsContent > div#row_${stepId}`).length > 0;
 
         if (stepExists) {
             showBannerMessage('Step has already been assigned to template.', 'danger');
             return;
         }
 
-        fetch(`/addStepToProtocol/` + protocolId + `/` + stepId, {
-            method: 'PATCH',
+        $.ajax({
+            url: `/addStepToProtocol/` + protocolId + `/` + stepId,
+            type: 'PATCH',
             headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            }
-        })
-        .then(response => {
-            if(response.ok) {
-                showBannerMessage("Step added successfully.", "success");
-                window.location.reload(); // if successful, reload page.
-            } else {
-                response.text().then(text => { throw new Error(text); });
-            }
-        })
-        .catch(error => {
-            console.error('Error adding step:', error);
-            showBannerMessage('Failed to add the step. Error: ' + error.message, "danger");
-        });
-    }
-
-    function deleteProtocolTemplate(id) {
-        // Show a confirmation dialog to the user
-        var protocolName = document.getElementById('name').value;
-        var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
-
-        // If the user clicks "Cancel", exit the function
-        if (!isConfirmed) {
-            return;
-        }
-
-        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-
-        fetch('/deleteTemplate/ProtocolTemplate/' + id, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json',
+                'Accept': 'application/json, text/plain', 
                 'Content-Type': 'application/json',
                 [csrfHeader]: csrfToken
             },
-            credentials: 'include'
-        })
-        .then(response => {
-            if (response.ok) {
-                window.location.href = '/protocolTemplates';
-            } else {
-                showBannerMessage('Failed to delete Protocol Template.', 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showBannerMessage('Error deleting Protocol Template.', 'danger');
-        });
-    }
-
-    $(document).ready(function() {
-        $('#schedule-fields').hide(); 
-        $('#reoccurring').change(function() {
-            if ($(this).is(':checked')) {
-                $('#schedule-fields').show();
-            } else {
-                $('#schedule-fields').hide();
-            }
-        });
-
-        // Add event listeners to tab links
-        $('.nav-link').on('click', function() {
-            var type = $(this).data('type');
-            filterSteps(type);
-
-            // Remove active class from all tabs and add to the clicked tab
-            $('.nav-link').removeClass('active');
-            $(this).addClass('active');
-        });
-
-        // Initial call to show all steps
-        filterSteps('all');
-    });
-
-    function filterSteps(type) {
-        $('#stepsContent > div').each(function() {
-            var stepType = $(this).data('type');
-            if (type === 'all' || stepType === type) {
-                $(this).show();
-            } else {
-                $(this).hide();
+            success: function() {
+                showBannerMessage("Step added successfully.", "success");
+                updateDisplayedSteps();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding step:', error);
+                showBannerMessage('Failed to add the step. Error: ' + xhr.responseText, "danger");
             }
         });
     }
+
+	 function deleteStep(id) {
+	    var csrfToken = $('meta[name="_csrf"]').attr('content');
+	    var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+	
+	    $.ajax({
+	        url: `/removeStepFromTemplate/${protocolId}/${id}`,
+	        type: 'DELETE',
+	        headers: {
+	            'Accept': 'application/json, text/plain', 
+	            'Content-Type': 'application/json',
+	            [csrfHeader]: csrfToken
+	        },
+	        success: function(response) {
+	            showBannerMessage(response, "success");
+	            updateDisplayedSteps();
+	        },
+	        error: function(xhr, status, error) {
+	            console.error('Error deleting step:', error);
+	            var errorMessage = xhr.responseText || 'Unknown error';
+	            showBannerMessage('Failed to delete the step. Error: ' + errorMessage, "danger");
+	        }
+	    });
+	}
+
+	function showBannerMessage(message, type) {
+	    var banner = $('#banner');
+	    banner.removeClass().addClass('alert alert-' + type).text(message).show();
+	}
+	
+	function updateDisplayedSteps() {
+	    $.ajax({
+	        url: `/api/protocols/${protocolId}/steps`,
+	        type: 'GET',
+	        success: function(steps) {
+	            var stepsContent = $('#stepsContent');
+	            stepsContent.empty();
+	            steps.forEach(function(step, index) {
+	                var stepHtml = `
+	                    <div id="row_${step.id}" class="row ${index % 2 == 0 ? 'even' : 'odd'}" data-type="${step.categoryId}">
+	                        <div class="col">${step.name}</div>
+	                        <div class="col">
+	                            <button type="button" class="btn btn-secondary" onclick="editProtocol(${step.id});">Details</button>
+	                            <button type="button" class="btn btn-secondary" onclick="deleteStep(${step.id});">Delete</button>
+	                        </div>
+	                    </div>`;
+	                stepsContent.append(stepHtml);
+	            });
+	            if (steps.length === 0) {
+	                stepsContent.append('<p>No steps available.</p>');
+	            }
+	            filterSteps('all');
+	        },
+	        error: function(xhr, status, error) {
+	            console.error('Error fetching steps:', error);
+	            var errorMessage = xhr.responseJSON?.error || 'Unknown error';
+	            showBannerMessage('Failed to fetch steps. Error: ' + errorMessage, "danger");
+	        }
+	    });
+	}
+	
+	$(document).ready(function() {
+	    $('#schedule-fields').hide(); 
+	    $('#reoccurring').change(function() {
+	        if ($(this).is(':checked')) {
+	            $('#schedule-fields').show();
+	        } else {
+	            $('#schedule-fields').hide();
+	        }
+	    });
+	
+	    $('.nav-link').on('click', function() {
+	        var type = $(this).data('type');
+	        filterSteps(type);
+	
+	        $('.nav-link').removeClass('active');
+	        $(this).addClass('active');
+	    });
+	
+	    updateDisplayedSteps();
+	});
+	
+	function filterSteps(type) {
+	    $('#stepsContent > div').each(function() {
+	        var stepType = $(this).data('type');
+	        if (type === 'all' || stepType == type) {
+	            $(this).show();
+	        } else {
+	            $(this).hide();
+	        }
+	    });
+	}
+
 </script>
 </body>
 </html>
+
 
