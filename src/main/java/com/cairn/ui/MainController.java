@@ -1171,24 +1171,26 @@ public class MainController {
     }
 	
 
-	@DeleteMapping("/removeHomeworkFromStepTemplate/{stepId}/{homeworkId}")
-	public ResponseEntity<String> removeHomeworkFromStepTemplate(@PathVariable int stepId,
-			@PathVariable int homeworkId) {
+    @DeleteMapping("/removeHomeworkFromStepTemplate/{stepId}/{homeworkId}")
+    public ResponseEntity<Map<String, String>> removeHomeworkFromStepTemplate(@PathVariable int stepId, @PathVariable int homeworkId) {
+        Map<String, String> response = new HashMap<>();
+        User currentUser = userDAO.getUser();
+        logger.info("Calling removeHomeworkFromStepTemplate with stepId: " + stepId + " and homeworkId: " + homeworkId);
+        try {
+            int apiCall = protocolStepTemplateHelper.deleteHomeworkTemplate(currentUser, stepId, homeworkId);
+            if (apiCall == 1) {
+                response.put("message", "Template processed successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("message", "Error processing template");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            }
+        } catch (Exception e) {
+            response.put("message", "Error processing template: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
-		User currentUser = userDAO.getUser();
-		logger.info("Calling removeHomeworkFromStepTemplate with stepId: "+stepId+ " and homeworkId: "+ homeworkId);
-		try {
-			int apiCall = protocolStepTemplateHelper.deleteHomeworkTemplate(currentUser, stepId, homeworkId);
-			if (apiCall == 1) {
-				return ResponseEntity.ok("Template processed successfully");
-			} else {
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
-			}
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing template");
-		}
-
-	}
 
 	@GetMapping("/homeworkList/{id}")
 	public String homeworkList(@PathVariable int id, Model model) {
