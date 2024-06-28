@@ -99,35 +99,40 @@
             banner.style.display = 'block';
         }
 
-        function saveStep(id) {
-            var stepData = {
-                "categoryId": document.getElementById("stepCategory").value,
-                "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
-                "name": document.getElementById("stepName").value,
-                "description": document.getElementById("stepDetails").value,
-                "status": document.getElementById('status').value,
-                "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
-                    return {
-                        "id": parseInt(row.dataset.homeworkId),
-                        "name": row.cells[0].textContent.trim()
-                    };
-                })
-            };
+        function deleteHomework(homeworkId) {
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
             $.ajax({
-                url: '/updateStep/' + id,
-                type: 'PATCH',
-                contentType: 'application/json',
+                url: '/removeHomeworkFromStepTemplate/' + stepId + '/' + homeworkId,
+                type: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                    'Accept': 'application/json, text/plain', 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
                 },
-                data: JSON.stringify(stepData),
-                success: function(response) {
-                    showBannerMessage('Step saved successfully!', 'success');
-                    window.location.href = '/protocolStepTemplates';
+                success: function(response, status, xhr) {
+                    var contentType = xhr.getResponseHeader("Content-Type");
+                    var message = '';
+                    if (contentType && contentType.includes("application/json")) {
+                        message = response.message;
+                    } else {
+                        message = response;
+                    }
+                    showBannerMessage(message, 'success');
+                    // Remove the deleted homework row from the table
+                    $('tr[data-homework-id="' + homeworkId + '"]').remove();
                 },
                 error: function(xhr, status, error) {
-                    showBannerMessage('Error saving step: ' + xhr.responseText, 'danger');
+                    var contentType = xhr.getResponseHeader("Content-Type");
+                    var errorMessage = "An error occurred.";
+                    if (contentType && contentType.includes("application/json")) {
+                        var jsonResponse = JSON.parse(xhr.responseText);
+                        errorMessage = jsonResponse.message;
+                    } else {
+                        errorMessage = xhr.responseText;
+                    }
+                    showBannerMessage('Failed to remove Homework. Error: ' + errorMessage, 'danger');
                 }
             });
         }
@@ -160,32 +165,23 @@
                 },
                 success: function(response) {
                     showBannerMessage('Homework Template added successfully.', 'success');
-                    window.location.reload();
+
+                    // Update the DOM to add the new homework template to the table
+                    var homeworkName = $('#homeworkTemplateDropdown option:selected').text();
+                    var newRow = `<tr data-homework-id="${homeworkTemplateId}">
+                                    <td>${homeworkName}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-secondary" onclick="deleteHomework(${homeworkTemplateId});">Delete</button>
+                                    </td>
+                                  </tr>`;
+                    $('#homeworkTable tbody').append(newRow);
+
+                    // Clear the dropdown selection
+                    $('#homeworkTemplateDropdown').val('');
                 },
                 error: function(xhr, status, error) {
-                    showBannerMessage('Failed to add Homework Template. Error: ' + xhr.responseText, 'danger');
-                }
-            });
-        }
-
-        function deleteHomework(homeworkId) {
-            var csrfToken = $('meta[name="_csrf"]').attr('content');
-            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-
-            $.ajax({
-                url: '/removeHomeworkFromStepTemplate/' + stepId + '/' + homeworkId,
-                type: 'DELETE',
-                headers: {
-                    'Accept': 'application/json, text/plain', 
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                success: function(response) {
-                    showBannerMessage('Homework removed successfully.', 'success');
-                    window.location.reload();
-                },
-                error: function(xhr, status, error) {
-                    showBannerMessage('Failed to remove Homework. Error: ' + xhr.responseText, 'danger');
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
+                    showBannerMessage('Failed to add Homework Template. Error: ' + errorMessage, 'danger');
                 }
             });
         }
@@ -213,7 +209,42 @@
                     window.location.href = '/protocolStepTemplates';
                 },
                 error: function(xhr, status, error) {
-                    showBannerMessage('Failed to delete Step Template. Error: ' + xhr.responseText, 'danger');
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
+                    showBannerMessage('Failed to delete Step Template. Error: ' + errorMessage, 'danger');
+                }
+            });
+        }
+
+        function saveStep(id) {
+            var stepData = {
+                "categoryId": document.getElementById("stepCategory").value,
+                "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
+                "name": document.getElementById("stepName").value,
+                "description": document.getElementById("stepDetails").value,
+                "status": document.getElementById('status').value,
+                "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
+                    return {
+                        "id": parseInt(row.dataset.homeworkId),
+                        "name": row.cells[0].textContent.trim()
+                    };
+                })
+            };
+
+            $.ajax({
+                url: '/updateStep/' + id,
+                type: 'PATCH',
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                },
+                data: JSON.stringify(stepData),
+                success: function(response) {
+                    showBannerMessage('Step saved successfully!', 'success');
+                    window.location.href = '/protocolStepTemplates';
+                },
+                error: function(xhr, status, error) {
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
+                    showBannerMessage('Error saving step: ' + errorMessage, 'danger');
                 }
             });
         }

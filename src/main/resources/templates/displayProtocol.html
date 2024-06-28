@@ -104,44 +104,6 @@
         </div>
     </div>
 
-    <div class="row note_card">
-        <fieldset>
-            <legend>Assigned Homework</legend>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Homework Name</th>
-                            <th>Step Name</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Initialize a variable to track if any homework is displayed -->
-                        <th:block th:with="hasHomework=false">
-                            <!-- Loop through each step -->
-                            <th:block th:each="step : ${steps}">
-                                <!-- Loop through each homework of the step and only display if homework exists -->
-                                <th:block th:each="homework : ${step.homework}">
-                                    <!-- Check if the step has homework -->
-                                    <th:block th:if="${not #lists.isEmpty(step.homework)}" th:with="hasHomework=true">
-                                        <tr>
-                                            <td th:text="${homework.name}">[Homework Name]</td>
-                                            <td th:text="${step.name}">[Step Name]</td>
-                                            <td>
-                                                <button type="button" class="btn btn-primary" th:attr="onclick='viewHomeworkDetails('+${homework.id}+');'">Details</button>
-                                            </td>
-                                        </tr>
-                                    </th:block>
-                                </th:block>
-                            </th:block>
-                        </th:block>
-                    </tbody>
-                </table>
-            </div>
-        </fieldset>
-    </div>
-
     <!-- Steps Section with Tabs -->
     <div class="row note_card">
         <fieldset>
@@ -179,7 +141,51 @@
             <button type="button" class="btn btn-primary" onclick="addStep();">Add Existing Step</button>
         </fieldset>
     </div>
+    
+        <div class="row note_card">
+        <fieldset>
+            <legend>Assigned Homework</legend>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Homework Name</th>
+                            <th>Step Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Initialize a variable to track if any homework is displayed -->
+                        <th:block th:with="hasHomework=false">
+                            <!-- Loop through each step -->
+                            <th:block th:each="step : ${steps}">
+                                <!-- Loop through each homework of the step and only display if homework exists -->
+                                <th:block th:each="homework : ${step.homework}">
+                                    <!-- Check if the step has homework -->
+                                    <th:block th:if="${not #lists.isEmpty(step.homework)}" th:with="hasHomework=true">
+                                        <tr>
+                                            <td th:text="${homework.name}">[Homework Name]</td>
+                                            <td th:text="${step.name}">[Step Name]</td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary" th:attr="onclick='viewHomeworkDetails('+${homework.id}+');'">Details</button>
+                                            </td>
+                                        </tr>
+                                    </th:block>
+                                </th:block>
+                            </th:block>
+                        </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+    
+    
+    
+    
 </div>
+
+
 
 <script>
     var protocolId = [[${protocolId}]];
