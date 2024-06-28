@@ -42,6 +42,7 @@ public class ProtocolStepTemplateHelper{
 	                    template.setName(jsonNode.get("name").asText());
 	                    template.setDescription(jsonNode.get("description").asText());
 	                    template.setId(jsonNode.get("id").asInt());
+	                    template.setStatus(jsonNode.get("status").asText());
 	                    
 	                    JsonNode stepTemplateCategoryNode = jsonNode.path("category");
 	                    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {

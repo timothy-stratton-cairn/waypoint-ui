@@ -142,6 +142,7 @@ public class ProtocolTemplateHelper {
                             entry.setName(element.get("name").asText());
                             entry.setId(element.get("id").asInt());
                             entry.setDescription(element.get("description").asText());
+                            entry.setStatus(element.get("status").asText());
 
                             // Set category information
                             JsonNode category = element.get("category");

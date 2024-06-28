@@ -651,7 +651,7 @@ public class MainController {
 		User usr = (User) userDAO.getUser();
 		ArrayList<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getAllSteps(usr);
 		model.addAttribute("listSteps", listSteps);
-		return "ProtocolStepTemplateList";
+		return "protocolStepTemplateList";
 	}
 
 	@PatchMapping("/addStepToProtocol/{protocolId}/{stepId}")
