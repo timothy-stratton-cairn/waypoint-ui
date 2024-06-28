@@ -6,11 +6,11 @@ public class Constants {
 	//Authorization API 18.234.242.104
 	//Dashboard API 18.215.187.94
 	//UI 3.236.204.96
-	//static public final String api_server = "http://18.215.187.94:8080";
-	//static public final String auth_server = "http://18.234.242.104:8080";
+	static public final String api_server = "http://18.215.187.94:8080";
+	static public final String auth_server = "http://18.234.242.104:8080";
 	// Dev servers
-	static public final String api_server = "http://96.61.158.12:8083";
-	static public final String auth_server = "http://96.61.158.12:8082";
+	//static public final String api_server = "http://96.61.158.12:8083";
+	//static public final String auth_server = "http://96.61.158.12:8082";
 	//static public final String api_server = "http://127.0.0.1:8083";
 	//static public final String auth_server = "http://127.0.0.1:8082";
 	static public final String api_ep_protocol = "/api/protocol";
