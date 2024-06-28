@@ -1,26 +1,17 @@
 package com.cairn.ui.helper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.ExpectedHomeworkResponses;
 import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkResponse;
-import com.cairn.ui.model.HomeworkTemplate;
-import com.cairn.ui.model.ProtocolStepTemplate;
-import com.cairn.ui.model.ProtocolTemplate;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -208,7 +199,7 @@ public class HomeworkQuestionHelper{
     }
     
     
-    public int updateHomeowrkQuestion(User usr, int id, HomeworkQuestion question){
+    public int updateHomeworkQuestion(User usr, int id, HomeworkQuestion question){
     	int result = -1;
     	String apiUrl = Constants.api_server + Constants.api_homework_question_get + id;
         String requestBody = "{" +

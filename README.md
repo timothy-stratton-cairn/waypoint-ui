@@ -1,1 +1,1 @@
-# WayPoints-ui
+# Waypoints-ui

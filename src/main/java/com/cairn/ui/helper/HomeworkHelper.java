@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class HomeworkHelper {
     Logger logger = LoggerFactory.getLogger(HomeworkHelper.class); 
+    private APIHelper apiHelper = new APIHelper();
 
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
@@ -467,16 +468,7 @@ public class HomeworkHelper {
     public int deleteHomeworkQuestion(User usr, int homeworkQuestionId) {
     	int result = -1;
     	String apiUrl = Constants.api_server + Constants.api_homework_question_get + homeworkQuestionId;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-			result = 1;
-			}
-        }
-	    catch (Exception e) {
-	        logger.info("Error in deleteHomeworkQuestion");
-	    }
+    	result = apiHelper.deleteAPI(apiUrl,usr);
         
     	
     	return result;
@@ -484,18 +476,7 @@ public class HomeworkHelper {
     public int deleteHomework(User usr, int homeworkId) {
     	int result = -1;
     	String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
-        HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
-        try {
-			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.DELETE, entity, String.class);
-			if (response.getStatusCode().is2xxSuccessful()) {
-			result = 1;
-			}
-        }
-	    catch (Exception e) {
-	    	logger.info("Error in deleteHomework");
-	        e.printStackTrace();
-	    }
-        
+    	result = apiHelper.deleteAPI(apiUrl,usr);    	
     	
     	return result;
     }
