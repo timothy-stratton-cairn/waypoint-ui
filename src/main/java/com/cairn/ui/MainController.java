@@ -1038,34 +1038,25 @@ public class MainController {
 		return "homeworkTemplates";
 	}
 
-	@GetMapping("editHomeworkTemplate/")
-	public String editHomeworkTemplate(Model model) {
-		User currentUser = userDAO.getUser();
-		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
-		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
-		ArrayList<HomeworkQuestion> questions = helper.getHomeworkQuestions(currentUser);
-		ArrayList<HomeworkQuestion> detailedQuestions = new ArrayList<HomeworkQuestion>();
-		for (HomeworkQuestion question: questions) {
-			//logger.info("Question Id: "+ question.getQuestionId());
-			HomeworkQuestion dQuestion = helper.getQuestion(currentUser, question.getQuestionId());
-			detailedQuestions.add(dQuestion);
-			
-		}
-		if (detailedQuestions.isEmpty()) {
-			//logger.info("No Questions returned");
-		}
-		else {
-			for (HomeworkQuestion dQuestion: detailedQuestions) {
-				//logger.info("Question ID : "+ dQuestion.getQuestionId() + " Question: " + dQuestion.getQuestion());
-			}
-		}
-		model.addAttribute("protocols", pcolList);
-		model.addAttribute("questions",detailedQuestions);
-		for (ProtocolTemplate pcol : pcolList) {
-			logger.info("Name: " + pcol.getName());
-		}
-		return "editHomeworkTemplate";
-	}
+    @GetMapping("/editHomeworkTemplate/")
+    public String editHomeworkTemplate(Model model) {
+        User currentUser = userDAO.getUser();
+        ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
+        HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
+        ArrayList<HomeworkQuestion> questions = helper.getHomeworkQuestions(currentUser);
+        ArrayList<HomeworkQuestion> detailedQuestions = new ArrayList<>();
+
+        for (HomeworkQuestion question : questions) {
+            HomeworkQuestion dQuestion = helper.getQuestion(currentUser, question.getQuestionId());
+            detailedQuestions.add(dQuestion);
+        }
+
+        model.addAttribute("protocols", pcolList);
+        model.addAttribute("questions", detailedQuestions);
+
+        return "editHomeworkTemplate";
+    }
+
 
 	@GetMapping("viewHomeworkTemplate/{tempId}/")
 	public String viewHomeworkTemplate(@PathVariable int tempId, Model model) {
@@ -1076,50 +1067,44 @@ public class MainController {
 		return "viewHomeworkTemplate";
 	}
 
-	@PostMapping("/newHomeworkTemplate")
-	public String saveHomeworkTemplate(@RequestBody String templateBody, RedirectAttributes redirectAttributes) {
-		try {
-			// Decode URL-encoded string
-			String decodedBody = URLDecoder.decode(templateBody, StandardCharsets.UTF_8.toString());
 
-			// Log the raw decoded body for debugging
+    @PostMapping("/newHomeworkTemplate")
+    public String saveHomeworkTemplate(@RequestBody String templateBody, RedirectAttributes redirectAttributes) {
+        try {
+            // Decode URL-encoded string
+            String decodedBody = URLDecoder.decode(templateBody, StandardCharsets.UTF_8.toString());
 
-			// Clean up to ensure the JSON starts correctly
-			int jsonStartIndex = decodedBody.indexOf("\"name\"");
+            // Clean up to ensure the JSON starts correctly
+            int jsonStartIndex = decodedBody.indexOf("\"name\"");
+            String cleanJson = "{\n" + decodedBody.substring(jsonStartIndex).trim();
 
-			// Extract the JSON correctly including the first curly brace and trim any
-			// leading/trailing whitespace
-			String cleanJson = "{\n" + decodedBody.substring(jsonStartIndex).trim();
+            logger.info("Cleaned JSON Data: " + cleanJson);
 
-			logger.info("Cleaned JSON Data: " + cleanJson);
+            User currentUser = userDAO.getUser();
+            if (currentUser == null) {
+                redirectAttributes.addFlashAttribute("error", "User not found.");
+                return "redirect:/login";
+            }
 
-			User currentUser = userDAO.getUser();
-
-			String call = homeworkTemplateHelper.newTemplate(currentUser, cleanJson);
-			if (currentUser == null) {
-				redirectAttributes.addFlashAttribute("error", "User not found.");
-				return "redirect:/login";
-			}
-			if (call == "Success") {
-				redirectAttributes.addFlashAttribute("success", "Homework template saved successfully.");
-				return "redirect:/homeworkTemplates/";
-			} else {
-				redirectAttributes.addFlashAttribute("error", "Error processing template: " + call);
-				return "redirect:/editHomeworkTemplate/";
-			}
-		} catch (HttpClientErrorException.Conflict e) {
-			// Specifically handle the conflict exception
-			String errorResponse = e.getResponseBodyAsString();
-			System.err.println("Conflict Error: " + errorResponse);
-			redirectAttributes.addFlashAttribute("error", "Homework Template already exists.");
-			return "redirect:/editHomeworkTemplate/";
-
-		} catch (Exception e) {
-			System.err.println("Error in processing template: " + e.getMessage());
-			redirectAttributes.addFlashAttribute("error", "Error processing template: " + e.getMessage());
-			return "redirect:/newHomeworkTemplate";
-		}
-	}
+            String call = homeworkTemplateHelper.newTemplate(currentUser, cleanJson);
+            if ("Success".equals(call)) {
+                redirectAttributes.addFlashAttribute("success", "Homework template saved successfully.");
+                return "redirect:/homeworkTemplates/";
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Error processing template: " + call);
+                return "redirect:/editHomeworkTemplate/";
+            }
+        } catch (HttpClientErrorException.Conflict e) {
+            String errorResponse = e.getResponseBodyAsString();
+            System.err.println("Conflict Error: " + errorResponse);
+            redirectAttributes.addFlashAttribute("error", "Homework Template already exists.");
+            return "redirect:/editHomeworkTemplate/";
+        } catch (Exception e) {
+            System.err.println("Error in processing template: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error processing template: " + e.getMessage());
+            return "redirect:/newHomeworkTemplate";
+        }
+    }
 
 	@PatchMapping("/removeHomeworkQuestionFromTemplate/{tempId}/{questionId}")
 	public ResponseEntity<String> removeHomeworkQuestionFromTemplate(@PathVariable int tempId,

@@ -12,99 +12,92 @@
 
 <div id="banner" class="alert" role="alert" style="display: none;"></div>
 <div class="container">
-
-    <!-- Protocol Details Display for Existing Protocol -->
-    <div>
-        <div class="row note_card">
-            <fieldset>
-                <legend>Protocol Template Details</legend>
-                <div>
-                    <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
-                        <div class="row">
-                            <div class="col-md-1">
-                                <label for="name" class="mr-md-3"><strong>Name:</strong></label>
-                            </div>
-                            <div class="col-md-5">
-                                <input type="text" id="name" name="name" th:value="${protocol.name}" class="form-control" />
-                            </div>
-                            <div class="col-md-1">
-                                <label for="status" class="mr-md-3"><strong>Status:</strong></label>
-                            </div>
-                            <div class="col-md-2">
-                                <select id="status" name="status" class="form-control">
-                                    <option value="LIVE" th:selected="${protocol.status == 'LIVE'}">Live</option>
-                                    <option value="INACTIVE" th:selected="${protocol.status == 'INACTIVE'}">Inactive</option>
-                                    <option value="ARCHIVED" th:selected="${protocol.status == 'ARCHIVED'}">Archived</option>
-                                </select>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-md-1">
-                                <label for="description"><strong>Description:</strong></label>
-                            </div>
-                            <div class="col-md-11">
-                                <input type="text" id="description" name="description" th:value="${protocol.description}" class="form-control"/>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-2">
-                        <label for="dueDate" class="mr-md-1"><strong>Default Due Date: </strong></label>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="dueDateYear" class="d-inline"><strong>Year</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateYear" name="year" th:value="${protocol.dueByYear}" min="0" max="10" style="width: 40%;">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="dueDateMonth" class="d-inline"><strong>Month</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" th:value="${protocol.dueByMonth}" min="0" max="12" style="width: 40%;">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="dueDateDay" class="d-inline"><strong>Day</strong></label>
-                        <input type="number" class="form-control d-inline" id="dueDateDay" name="day" th:value="${protocol.dueByDay}" min="0" max="31" style="width: 40%;">
-                    </div>
-                </div>
-                <br>
-                <div class="border border-dark p-3 mb-3">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Protocol Template Details</legend>
+            <div>
+                <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
                     <div class="row">
+                        <div class="col-md-1">
+                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" id="name" name="name" th:value="${protocol.name}" class="form-control" />
+                        </div>
+                        <div class="col-md-1">
+                            <label for="status" class="mr-md-3"><strong>Status:</strong></label>
+                        </div>
                         <div class="col-md-2">
-                            <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
-                            <input type="checkbox" id="reoccurring" name="reoccurring"/>
+                            <select id="status" name="status" class="form-control">
+                                <option value="LIVE" th:selected="${protocol.status == 'LIVE'}">Live</option>
+                                <option value="INACTIVE" th:selected="${protocol.status == 'INACTIVE'}">Inactive</option>
+                                <option value="ARCHIVED" th:selected="${protocol.status == 'ARCHIVED'}">Archived</option>
+                            </select>
                         </div>
                     </div>
-
-                    <div id="schedule-fields" style="display: none;">
-                        <div class="row mt-3">
-                            <div class="col-md-2">
-                                <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="year" class="d-inline"><strong>Year</strong></label>
-                                <input type="number" class="form-control d-inline" id="year" name="year" th:value= "${protocol.yearSchedule}" min="0" max="10" style="width: 40%;">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="month" class="d-inline"><strong>Month</strong></label>
-                                <input type="number" class="form-control d-inline" id="month" name="month" th:value= "${protocol.monthSchedule}" min="0" max="12" style="width: 40%;">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="day" class="d-inline"><strong>Day</strong></label>
-                                <input type="number" class="form-control d-inline" id="day" name="day" th:value= "${protocol.daySchedule}" min="0" max="31" style="width: 40%;">
-                            </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label for="description"><strong>Description:</strong></label>
+                        </div>
+                        <div class="col-md-11">
+                            <input type="text" id="description" name="description" th:value="${protocol.description}" class="form-control"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-2">
+                    <label for="dueDate" class="mr-md-1"><strong>Default Due Date: </strong></label>
+                </div>
+                <div class="col-md-2">
+                    <label for="dueDateYear" class="d-inline"><strong>Year</strong></label>
+                    <input type="number" class="form-control d-inline" id="dueDateYear" name="year" th:value="${protocol.dueByYear}" min="0" max="10" style="width: 40%;">
+                </div>
+                <div class="col-md-2">
+                    <label for="dueDateMonth" class="d-inline"><strong>Month</strong></label>
+                    <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" th:value="${protocol.dueByMonth}" min="0" max="12" style="width: 40%;">
+                </div>
+                <div class="col-md-2">
+                    <label for="dueDateDay" class="d-inline"><strong>Day</strong></label>
+                    <input type="number" class="form-control d-inline" id="dueDateDay" name="day" th:value="${protocol.dueByDay}" min="0" max="31" style="width: 40%;">
+                </div>
+            </div>
+            <br>
+            <div class="border border-dark p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
+                        <input type="checkbox" id="reoccurring" name="reoccurring"/>
+                    </div>
+                </div>
+                <div id="schedule-fields" style="display: none;">
+                    <div class="row mt-3">
+                        <div class="col-md-2">
+                            <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="year" class="d-inline"><strong>Year</strong></label>
+                            <input type="number" class="form-control d-inline" id="year" name="year" th:value= "${protocol.yearSchedule}" min="0" max="10" style="width: 40%;">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="month" class="d-inline"><strong>Month</strong></label>
+                            <input type="number" class="form-control d-inline" id="month" name="month" th:value= "${protocol.monthSchedule}" min="0" max="12" style="width: 40%;">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="day" class="d-inline"><strong>Day</strong></label>
+                            <input type="number" class="form-control d-inline" id="day" name="day" th:value= "${protocol.daySchedule}" min="0" max="31" style="width: 40%;">
                         </div>
                     </div>
                 </div>
-                <button onclick="history.back()" class="btn btn-primary">Back</button>
-                <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
-
-                <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
-            </fieldset>
-        </div>
+            </div>
+            <button onclick="history.back()" class="btn btn-primary">Back</button>
+            <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
+            <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
+        </fieldset>
     </div>
-    
-            <div class="row note_card">
+
+    <div class="row note_card">
         <fieldset>
             <legend>Assigned Homework</legend>
             <div class="table-responsive">
@@ -117,13 +110,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Initialize a variable to track if any homework is displayed -->
                         <th:block th:with="hasHomework=false">
-                            <!-- Loop through each step -->
                             <th:block th:each="step : ${steps}">
-                                <!-- Loop through each homework of the step and only display if homework exists -->
                                 <th:block th:each="homework : ${step.homework}">
-                                    <!-- Check if the step has homework -->
                                     <th:block th:if="${not #lists.isEmpty(step.homework)}" th:with="hasHomework=true">
                                         <tr>
                                             <td th:text="${homework.name}">[Homework Name]</td>
@@ -142,278 +131,218 @@
         </fieldset>
     </div>
 
-    <!-- Steps Section with Tabs -->
     <div class="row note_card">
         <fieldset>
             <legend>Steps</legend>
             
             <!-- Tabs for filtering steps -->
             <ul class="nav nav-tabs">
-                <li class="nav-item tab"><a class="nav-link active" href="#" data-type="all">All</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="1">Gather Data</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="2">Run Analysis</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="3">Craft Recommendations</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="4">Share Education</a></li>
+                <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterStepsByCategory('all'); return false;">All</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Gather Data'); return false;">Gather Data</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Run Analysis'); return false;">Run Analysis</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Craft Recommendations'); return false;">Craft Recommendations</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Share Education'); return false;">Share Education</a></li>
             </ul>
 
             <div id="stepsContent">
-                <!-- Steps will be dynamically loaded here -->
-            </div>
-            <br>
+                <div th:each="step, iterStat : ${steps}" 
+                     th:id ="'row_' + ${step.id}" 
+                     th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" 
+                     th:data-type="${step.categoryName}">
+                    
+                    <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
+                    <div class="col-md-3" th:text="${step.description}">[Description]</div>
+                    <div class="col-md-3" th:text="${step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}">[Status]</div>
 
-            <!-- Template for adding new step -->
-            <template id="stepTemplate">
-                <div class="new-step-row">
-                    <select class="form-control" name="newid">
-                        <option th:each="step : ${allSteps}" th:value="${step.id}" th:text="${step.name}"></option>
-                    </select>
-                    <button type="button" class="btn btn-secondary" onclick="confirmStep(this);">Confirm</button>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
+                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
+                    </div>
+                    
+                    <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
+
+                    <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
                 </div>
-            </template>
-            <div id="stepsContainer">
-                <!-- New step rows will be appended here -->
             </div>
-            <br>
-            
-            <button type="button" class="btn btn-primary" onclick="newStep();">Create New Step</button>
-            <button type="button" class="btn btn-primary" onclick="addStep();">Add Existing Step</button>
         </fieldset>
     </div>
-    
-
-    
-    
-    
- 
 </div>
-
-
 
 <script>
     var protocolId = [[${protocolId}]];
 
-    function newStep() {
-        window.location = '/newStep/' + protocolId;
-    }
-
-    function addStep() {
-        var stepsContainer = document.getElementById('stepsContainer');
-        var stepTemplate = document.getElementById('stepTemplate').content.cloneNode(true);
-
-        if (stepsContainer.children.length > 0) {
-            stepsContainer.innerHTML = ''; // Clear the container if already populated
-        } else {
-            stepsContainer.appendChild(stepTemplate);
-        }
-    }
-
-    function viewHomeworkDetails(homeworkId) {
-        window.location = '/viewHomeworkDetails/' + homeworkId;
-    }
 
     function editProtocol(id) {
         window.location = '/editStep/' + id;
     }
 
-    function showBannerMessage(message, type) {
-        var banner = $('#banner');
-        banner.removeClass().addClass('alert alert-' + type).text(message).show();
+    function saveProtocol(){
+        window.location = '/saveProtocol/'+id;
     }
 
-    function saveProtocol(id) {
-        var name = $('#name').val();
-        var description = $('#description').val();
-        var dueByYears = parseInt($('#dueDateYear').val()) || 0;
-        var dueByMonths = parseInt($('#dueDateMonth').val()) || 0;
-        var dueByDays = parseInt($('#dueDateDay').val()) || 0;
-        var reoccurYears = parseInt($('#year').val()) || 0;
-        var reoccurMonths = parseInt($('#month').val()) || 0;
-        var reoccurDays = parseInt($('#day').val()) || 0;
-        var status = $('#status').val();
-        var csrfToken = $('meta[name="_csrf"]').attr('content');
-        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+    function goToClient(id) {
+        window.location.href = '/clientProfile/' + id;
+    }
 
-        var data = {
-            name: name,
-            description: description,
-            dueByYear: dueByYears,
-            dueByMonth: dueByMonths,
-            dueByDay: dueByDays,
-            yearSchedule: reoccurYears,
-            monthSchedule: reoccurMonths,
-            daySchedule: reoccurDays,
-            status: status
-        };
+    function goToHomework() {
+        window.location.href = '/homeworkTemplates/';
+    }
 
-        $.ajax({
-            url: `/updateProtocol/${id}`,
-            type: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            data: JSON.stringify(data),
-            success: function(response) {
-                showBannerMessage(response, "success");
-                console.log(response);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
-                showBannerMessage('Failed to update the protocol. Error: ' + xhr.responseText, "danger");
+    function filterStepsByCategory(categoryId) {
+        const steps = document.querySelectorAll('#stepsContent > div');
+        let visibleStepsCount = 0;
+        
+        console.log(`Filtering steps by category: ${categoryId}`); // Log the category being filtered on
+
+        steps.forEach(step => {
+            console.log(`Step category: ${step.getAttribute('data-type')}`); // Log each step's category before comparison
+            if (categoryId === 'all' || step.getAttribute('data-type') === categoryId) {
+                step.style.display = ''; // Show
+                visibleStepsCount++;
+            } else {
+                step.style.display = 'none'; // Hide
             }
         });
+
+        console.log(`Total visible steps: ${visibleStepsCount}`); // Log the count of visible steps after filtering
+
+        // Check if there are no visible steps and display a message
+        const noStepsMessage = document.getElementById('noStepsMessage');
+        if (visibleStepsCount === 0) {
+            if (!noStepsMessage) {
+                const message = document.createElement('div');
+                message.id = 'noStepsMessage';
+                message.className = 'alert alert-warning';
+                message.textContent = 'No steps found for this category';
+                document.getElementById('stepsContent').appendChild(message);
+            } else {
+                noStepsMessage.style.display = ''; // Show existing message
+            }
+        } else if (noStepsMessage) {
+            noStepsMessage.style.display = 'none'; // Hide message
+        }
     }
 
-	function deleteStep(id) {
-	    var csrfToken = $('meta[name="_csrf"]').attr('content');
-	    var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-	
-	    $.ajax({
-	        url: `/removeStepFromTemplate/${protocolId}/${id}`,
-	        type: 'DELETE',
-	        headers: {
-	            'Accept': 'application/json, text/plain', 
-	            'Content-Type': 'application/json',
-	            [csrfHeader]: csrfToken
-	        },
-	        success: function(response) {
-	            showBannerMessage(response, "success");
-	            updateDisplayedSteps();
-	        },
-	        error: function(xhr, status, error) {
-	            console.error('Error deleting step:', error);
-	            var errorMessage = xhr.responseText || 'Unknown error';
-	            showBannerMessage('Failed to delete the step. Error: ' + errorMessage, "danger");
-	        }
-	    });
-	}
+    function showMessageBanner(message, type) {
+        const banner = document.getElementById('banner');
+        banner.className = 'alert alert-' + type;
+        banner.textContent = message;
+        banner.classList.remove('d-none');
+    }
 
-
-    function confirmStep(buttonElement) {
-        var csrfToken = $('meta[name="_csrf"]').attr('content');
-        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-
-        var selectElement = $(buttonElement).prev();
-        var stepId = selectElement.val();
-
-        var stepExists = $(`#stepsContent > div#row_${stepId}`).length > 0;
-
-        if (stepExists) {
-            showBannerMessage('Step has already been assigned to template.', 'danger');
-            return;
+    function updateProgress(stepId) {
+        console.log(`Attempting to select: #stepContainer_${stepId}`); // Debugging
+        const container = document.querySelector(`#stepContainer_${stepId}`);
+        if (!container) {
+            console.error(`Container not found for step ID: ${stepId}`);
+            return; // Exit the function if the container is not found
         }
+        container.innerHTML = `<select id="statusDropdown_${stepId}">
+                                    <option value="TODO">To Do</option>
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="DONE">Done</option>
+                                    <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
+                                </select>
+                                <button onclick="confirmStatus(${stepId})">Confirm Status</button>`;
+    }
+
+    function addNote(stepId) {
+        const container = document.querySelector(`#noteContainer_${stepId}`);
+        container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
+                               <button onclick="confirmNote(${stepId})">Confirm Note</button>`;
+    }
+
+    function confirmStatus(stepId) {
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        var status = document.querySelector(`#statusDropdown_${stepId}`).value;
 
         $.ajax({
-            url: `/addStepToProtocol/` + protocolId + `/` + stepId,
+            url: `/updateStepStatus/${protocolId}/${stepId}/${status}`,
             type: 'PATCH',
             headers: {
                 'Accept': 'application/json, text/plain', 
                 'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
+                'X-CSRF-TOKEN': csrfToken
             },
-            success: function() {
-                showBannerMessage("Step added successfully.", "success");
-                updateDisplayedSteps();
+            success: function(response) {
+                $(`#row_${stepId} .col-md-3:nth-child(3)`).text(status.replace(/_/g, ' '));
+                showMessageBanner('Status updated successfully.', 'success');
             },
             error: function(xhr, status, error) {
-                console.error('Error adding step:', error);
-                showBannerMessage('Failed to add the step. Error: ' + xhr.responseText, "danger");
+                console.error('Error updating status:', error);
+                showMessageBanner('Failed to update the status. Error: ' + xhr.responseText, 'danger');
             }
         });
     }
 
-	 function deleteStep(id) {
-	    var csrfToken = $('meta[name="_csrf"]').attr('content');
-	    var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-	
-	    $.ajax({
-	        url: `/removeStepFromTemplate/${protocolId}/${id}`,
-	        type: 'DELETE',
-	        headers: {
-	            'Accept': 'application/json, text/plain', 
-	            'Content-Type': 'application/json',
-	            [csrfHeader]: csrfToken
-	        },
-	        success: function(response) {
-	            showBannerMessage(response, "success");
-	            updateDisplayedSteps();
-	        },
-	        error: function(xhr, status, error) {
-	            console.error('Error deleting step:', error);
-	            var errorMessage = xhr.responseText || 'Unknown error';
-	            showBannerMessage('Failed to delete the step. Error: ' + errorMessage, "danger");
-	        }
-	    });
-	}
+    function confirmNote(stepId) {
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        var note = document.querySelector(`#noteInput_${stepId}`).value;
 
-	function showBannerMessage(message, type) {
-	    var banner = $('#banner');
-	    banner.removeClass().addClass('alert alert-' + type).text(message).show();
-	}
-	
-	function updateDisplayedSteps() {
-	    $.ajax({
-	        url: `/api/protocols/${protocolId}/steps`,
-	        type: 'GET',
-	        success: function(steps) {
-	            var stepsContent = $('#stepsContent');
-	            stepsContent.empty();
-	            steps.forEach(function(step, index) {
-	                var stepHtml = `
-	                    <div id="row_${step.id}" class="row ${index % 2 == 0 ? 'even' : 'odd'}" data-type="${step.categoryId}">
-	                        <div class="col">${step.name}</div>
-	                        <div class="col">
-	                            <button type="button" class="btn btn-secondary" onclick="editProtocol(${step.id});">Details</button>
-	                            <button type="button" class="btn btn-secondary" onclick="deleteStep(${step.id});">Delete</button>
-	                        </div>
-	                    </div>`;
-	                stepsContent.append(stepHtml);
-	            });
-	            if (steps.length === 0) {
-	                stepsContent.append('<p>No steps available.</p>');
-	            }
-	            filterSteps('all');
-	        },
-	        error: function(xhr, status, error) {
-	            console.error('Error fetching steps:', error);
-	            var errorMessage = xhr.responseJSON?.error || 'Unknown error';
-	            showBannerMessage('Failed to fetch steps. Error: ' + errorMessage, "danger");
-	        }
-	    });
-	}
-	
-	$(document).ready(function() {
-	    $('#schedule-fields').hide(); 
-	    $('#reoccurring').change(function() {
-	        if ($(this).is(':checked')) {
-	            $('#schedule-fields').show();
-	        } else {
-	            $('#schedule-fields').hide();
-	        }
-	    });
-	
-	    $('.nav-link').on('click', function() {
-	        var type = $(this).data('type');
-	        filterSteps(type);
-	
-	        $('.nav-link').removeClass('active');
-	        $(this).addClass('active');
-	    });
-	
-	    updateDisplayedSteps();
-	});
-	
-	function filterSteps(type) {
-	    $('#stepsContent > div').each(function() {
-	        var stepType = $(this).data('type');
-	        if (type === 'all' || stepType == type) {
-	            $(this).show();
-	        } else {
-	            $(this).hide();
-	        }
-	    });
-	}
+        $.ajax({
+            url: `/updateStepNote/${protocolId}/${stepId}/${note}`,
+            type: 'POST',
+            headers: {
+                'Accept': 'application/json, text/plain', 
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
+                showMessageBanner('Note added successfully.', 'success');
+                document.querySelector(`#noteContainer_${stepId}`).innerHTML = '';
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding note:', error);
+                showMessageBanner('Failed to add the note. Error: ' + xhr.responseText, 'danger');
+            }
+        });
+    }
 
+    function viewHomeworkDetails(homeworkId) {
+        var url = '/homeworkDisplay/' + homeworkId;
+        window.location.href = url;
+    }
+    
+    function deleteProtocol(id) {
+        var protocolName = document.getElementById('name').value;
+        var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        $.ajax({
+            url: '/deleteTemplate/Protocol/' + protocolId,
+            type: 'DELETE',
+            headers: {
+                'Accept': 'application/json, text/plain', 
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
+                window.location.href = '/clientProfile/' + userId;
+            },
+            error: function(xhr, status, error) {
+                showMessageBanner('Failed to delete Protocol. Error: ' + xhr.responseText, 'danger');
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('#schedule-fields').hide();
+        $('#reoccurring').change(function() {
+            if ($(this).is(':checked')) {
+                $('#schedule-fields').show();
+            } else {
+                $('#schedule-fields').hide();
+            }
+        });
+    });
 </script>
 </body>
 </html>
