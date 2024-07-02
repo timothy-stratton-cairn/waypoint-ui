@@ -944,8 +944,8 @@ public class MainController {
 	public ResponseEntity<Object> addClient(@RequestBody User requestBody) {
 		User currentUser = userDAO.getUser();
 		String call = userHelper.addUser(currentUser, requestBody);
-
-		if (call.startsWith("Success")) {
+		logger.info(call);
+		if (call.startsWith("success")) {
 			logger.info(call);
 			return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
 		} else {
@@ -954,9 +954,11 @@ public class MainController {
 
 			// Customize this logic to parse the actual error message
 			if (call.contains("error")) {
+		
 				// Extract the "error" field and remove unnecessary details
-				String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8,
-						call.indexOf("\",", call.indexOf("\"error\":\"")));
+				//String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8,
+					//	call.indexOf("\",", call.indexOf("\"error\":\"")));
+				String errorMessage = "Error in Creating New User";
 				errorResponse.put("error", errorMessage);
 			}
 			logger.warn(errorResponse.toString());

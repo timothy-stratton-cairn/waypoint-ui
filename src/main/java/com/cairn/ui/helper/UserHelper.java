@@ -274,7 +274,7 @@ public class UserHelper {
 	        );
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
 		int result = apiHelper.postAPI(apiUrl, requestBody, loggedInUser);
-		if (result != 0) {
+		if (result != 1) {
 			return "error ";
 		}
 		return "success";
