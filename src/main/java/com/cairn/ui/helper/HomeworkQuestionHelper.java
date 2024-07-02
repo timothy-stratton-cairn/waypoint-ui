@@ -30,43 +30,52 @@ public class HomeworkQuestionHelper{
 	
     public int newHomeworkQuestion(User usr, HomeworkQuestion question) {
         int result = 0;
-        
+
         String apiUrl = Constants.api_server + Constants.api_homework_question;
-        String requestBody = "{" +
-            "\"questionAbbr\": \"" + question.getQuestionAbbreviation() + "\"," +
-            "\"question\": \"" + question.getQuestion() + "\"," +
-            "\"questionType\": \"" + question.getQuestionType() + "\"," +
-            "\"isRequired\": " + question.isRequired() + "," +
-            "\"responseOptions\": [";
+        StringBuilder requestBody = new StringBuilder();
+        requestBody.append("{")
+            .append("\"questionAbbr\": \"").append(question.getQuestionAbbreviation()).append("\",")
+            .append("\"question\": \"").append(question.getQuestion()).append("\",")
+            .append("\"questionType\": \"").append(question.getQuestionType()).append("\",")
+            .append("\"isRequired\": ").append(question.isRequired()).append(",")
+            .append("\"responseOptions\": [");
 
         if (question.getExpectedHomeworkResponses() != null && question.getExpectedHomeworkResponses().getResponses() != null) {
             List<HomeworkResponse> responses = question.getExpectedHomeworkResponses().getResponses();
             for (int i = 0; i < responses.size(); i++) {
                 HomeworkResponse response = responses.get(i);
-                requestBody += "{" +
-                    "\"response\": \"" + response.getResponse() + "\"," +
-                    "\"tooltip\": \"" + response.getTooltip() + "\"" +
-                    "}";
+                requestBody.append("{")
+                    .append("\"response\": \"").append(response.getResponse()).append("\",")
+                    .append("\"tooltip\": \"").append(response.getTooltip()).append("\"")
+                    .append("}");
                 if (i < responses.size() - 1) {
-                    requestBody += ",";
+                    requestBody.append(",");
                 }
             }
         }
 
-        requestBody += "]," +
-            "\"triggerProtocolCreation\": " + question.getIsTriggeringReponse() + "," +
-            "\"triggeringResponse\": {" +
-            "\"response\": \"" + (question.getTriggerResponse() != null ? question.getTriggerResponse().getResponse() : "") + "\"," +
-            "\"tooltip\": \"" + (question.getTriggerResponse() != null ? question.getTriggerResponse().getTooltip() : "") + "\"" +
-            "}," +
-            "\"triggeredProtocolId\": " + question.getTriggerProtocolId() +
-            "}";
+        requestBody.append("],")
+            .append("\"triggerProtocolCreation\": ").append(question.getIsTriggeringReponse()).append(",")
+            .append("\"triggeringResponse\": {")
+            .append("\"response\": \"").append(question.getTriggerResponse() != null ? question.getTriggerResponse().getResponse() : "").append("\",")
+            .append("\"tooltip\": \"").append(question.getTriggerResponse() != null ? question.getTriggerResponse().getTooltip() : "").append("\"")
+            .append("},");
 
-        logger.info(requestBody);
-        result = apiHelper.postAPI(apiUrl, requestBody, usr);
-		return result;
-        
+        // Conditional check for triggeredProtocolId
+        if (question.getTriggerProtocolId() > 0) {
+            requestBody.append("\"triggeredProtocolId\": ").append(question.getTriggerProtocolId());
+        } else {
+            requestBody.append("\"triggeredProtocolId\": null");
+        }
+
+        requestBody.append("}");
+
+        String requestBodyStr = requestBody.toString();
+        logger.info(requestBodyStr);
+        result = apiHelper.postAPI(apiUrl, requestBodyStr, usr);
+        return result;
     }
+    
     public ArrayList<HomeworkQuestion> getHomeworkQuestions(User usr){
     	ArrayList<HomeworkQuestion> results = new ArrayList<HomeworkQuestion>();
     	String apiUrl = Constants.api_server + Constants.api_homework_question ;
@@ -199,41 +208,51 @@ public class HomeworkQuestionHelper{
     }
     
     
-    public int updateHomeworkQuestion(User usr, int id, HomeworkQuestion question){
-    	int result = -1;
-    	String apiUrl = Constants.api_server + Constants.api_homework_question_get + id;
-        String requestBody = "{" +
-                "\"questionAbbr\": \"" + question.getQuestionAbbreviation() + "\"," +
-                "\"question\": \"" + question.getQuestion() + "\"," +
-                "\"questionType\": \"" + question.getQuestionType() + "\"," +
-                "\"isRequired\": " + question.isRequired() + "," +
-                "\"responseOptions\": [";
+    public int updateHomeworkQuestion(User usr, int id, HomeworkQuestion question) {
+        int result = -1;
+        String apiUrl = Constants.api_server + Constants.api_homework_question_get + id;
+        StringBuilder requestBody = new StringBuilder();
+        requestBody.append("{")
+            .append("\"questionAbbr\": \"").append(question.getQuestionAbbreviation()).append("\",")
+            .append("\"question\": \"").append(question.getQuestion()).append("\",")
+            .append("\"questionType\": \"").append(question.getQuestionType()).append("\",")
+            .append("\"isRequired\": ").append(question.isRequired()).append(",")
+            .append("\"responseOptions\": [");
 
-            if (question.getExpectedHomeworkResponses() != null && question.getExpectedHomeworkResponses().getResponses() != null) {
-                List<HomeworkResponse> responses = question.getExpectedHomeworkResponses().getResponses();
-                for (int i = 0; i < responses.size(); i++) {
-                    HomeworkResponse response = responses.get(i);
-                    requestBody += "{" +
-                        "\"response\": \"" + response.getResponse() + "\"," +
-                        "\"tooltip\": \"" + response.getTooltip() + "\"" +
-                        "}";
-                    if (i < responses.size() - 1) {
-                        requestBody += ",";
-                    }
+        if (question.getExpectedHomeworkResponses() != null && question.getExpectedHomeworkResponses().getResponses() != null) {
+            List<HomeworkResponse> responses = question.getExpectedHomeworkResponses().getResponses();
+            for (int i = 0; i < responses.size(); i++) {
+                HomeworkResponse response = responses.get(i);
+                requestBody.append("{")
+                    .append("\"response\": \"").append(response.getResponse()).append("\",")
+                    .append("\"tooltip\": \"").append(response.getTooltip()).append("\"")
+                    .append("}");
+                if (i < responses.size() - 1) {
+                    requestBody.append(",");
                 }
             }
+        }
 
-            requestBody += "]," +
-                "\"triggerProtocolCreation\": " + question.getIsTriggeringReponse() + "," +
-                "\"triggeringResponse\": {" +
-                "\"response\": \"" + (question.getTriggerResponse() != null ? question.getTriggerResponse().getResponse() : "") + "\"," +
-                "\"tooltip\": \"" + (question.getTriggerResponse() != null ? question.getTriggerResponse().getTooltip() : "") + "\"" +
-                "}," +
-                "\"triggeredProtocolId\": " + question.getTriggerProtocolId() +
-                "}";
+        requestBody.append("],")
+            .append("\"triggerProtocolCreation\": ").append(question.getIsTriggeringReponse()).append(",")
+            .append("\"triggeringResponse\": {")
+            .append("\"response\": \"").append(question.getTriggerResponse() != null ? question.getTriggerResponse().getResponse() : "").append("\",")
+            .append("\"tooltip\": \"").append(question.getTriggerResponse() != null ? question.getTriggerResponse().getTooltip() : "").append("\"")
+            .append("},");
 
-    	result = apiHelper.patchAPI(apiUrl, requestBody, usr);
-    	return result;
+        // Conditional check for triggeredProtocolId
+        if (question.getTriggerProtocolId() > 0) {
+            requestBody.append("\"triggeredProtocolId\": ").append(question.getTriggerProtocolId());
+        } else {
+            requestBody.append("\"triggeredProtocolId\": null");
+        }
+
+        requestBody.append("}");
+
+        logger.info(requestBody.toString());
+        result = apiHelper.patchAPI(apiUrl, requestBody.toString(), usr);
+        return result;
     }
+
 
 }

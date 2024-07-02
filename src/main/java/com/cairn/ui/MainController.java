@@ -59,9 +59,11 @@ import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
 import com.cairn.ui.model.AssignedHomeworkResponse;
 import com.cairn.ui.model.AssignedHomeworkResponseList;
+import com.cairn.ui.model.ExpectedHomeworkResponses;
 import com.cairn.ui.model.Homework;
 import com.cairn.ui.model.HomeworkQuestion;
 import com.cairn.ui.model.HomeworkQuestionsTemplate;
+import com.cairn.ui.model.HomeworkResponse;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Household;
 import com.cairn.ui.model.Protocol;
@@ -820,6 +822,7 @@ public class MainController {
 		for (User usr : household.getHouseholdAccounts()) {
 			householdIds.add(usr.getId());
 			householdIds.add(coClientId);
+			
 
 		}
 		for (int id : householdIds) {
@@ -1693,10 +1696,11 @@ public class MainController {
 	@PatchMapping("/updateHomeworkQuestion/{id}")
 	public ResponseEntity<String>updateHomeworkTemplate(@PathVariable int id, @RequestBody HomeworkQuestion question){
 		User currentUser = userDAO.getUser();
+		logger.info("Trigger Response id" + question.getTriggerProtocolId());
 		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
 		try {
 			helper.updateHomeworkQuestion(currentUser, id, question);
-			return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
+			return ResponseEntity.ok().body("{\"message\": \"Homework Successfully Changed\"}");
 		
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Question");
@@ -1711,16 +1715,27 @@ public class MainController {
 		return "newHomeworkQuestion";
 	}
 	
-	@GetMapping("/DisplayHomeworkQustion/{id}")
+	@GetMapping("/displayHomeworkQustion/{id}")
 	public String displayHomeworkQuestion(@PathVariable int id, Model model) {
 		User currentUser = userDAO.getUser();
 		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
 		HomeworkQuestion question = helper.getQuestion(currentUser, id);
+		ArrayList<ProtocolTemplate> protocolList = protocolTemplateHelper.getList(currentUser);
+		ExpectedHomeworkResponses responses = question.getExpectedHomeworkResponses();
+		if (responses.getResponses().isEmpty()) {
+			logger.info("No Homework Responses");
+		}
+		for (HomeworkResponse response: responses.getResponses()) {
+			logger.info("Response: "+response.getResponse());
+			logger.info("ToolTip: "+response.getTooltip());
+		}
+		model.addAttribute("questionId",id);
+		model.addAttribute("protocolList",protocolList);
 		model.addAttribute("question",question);
 		return "displayHomeworkQuestion";
 	}
 
-	@GetMapping("/homeworkQuestionList/")
+	@GetMapping("/homeworkQuestionList")
 	public String homeworkQuestionList(Model model) {
 		User currentUser = userDAO.getUser();
 		ArrayList<HomeworkQuestion> questionList = homeworkTemplateHelper.getHomeworkQuestions(currentUser);
@@ -1729,16 +1744,19 @@ public class MainController {
 		return "homeworkQuestionList";
 	}
 
-	@PostMapping("/saveQuestion/{question}")
-	public ResponseEntity<String> saveQuestion(@RequestBody HomeworkQuestion question, Model model) {
-		User currentUser = userDAO.getUser();
-		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
-		try {
-			helper.newHomeworkQuestion(currentUser, question);
-			return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
-		
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Question");
-		}
-	}
+    @PostMapping("/saveQuestion")
+    public ResponseEntity<String> saveQuestion(@RequestBody HomeworkQuestion question) {
+        User currentUser = userDAO.getUser();
+        String body = ("QuestionID: "+ question.getQuestionId() + "Question Abbr: "+ question.getQuestionAbbreviation() + "Question Type"+ question.getQuestionType() + "Trigger Response: "+ question.getTriggerProtocolId());
+        logger.info(body);
+        HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
+        try {
+            helper.newHomeworkQuestion(currentUser, question);
+            return ResponseEntity.ok("{\"message\": \"Question successfully saved\"}");
+        } catch (Exception e) {
+            logger.error("Error saving question", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("{\"message\": \"Error saving question\"}");
+        }
+    }
 }

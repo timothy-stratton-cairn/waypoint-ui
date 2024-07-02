@@ -392,7 +392,11 @@ public class UserHelper {
 		int result = -1;
 
 		String requestBody = "{\"householdAccountIds\":" + householdIds.toString() + "}";
+		
 	    String apiUrl = Constants.auth_server + Constants.api_household_get +primaryContactId;
+	    
+	    logger.info("URL: "+apiUrl);
+	    logger.info("REQUEST BODY: "+requestBody);
 	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
 		return result;
 	}

@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
 <head>
-    <title>Edit Homework Question</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Homework Question</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
-<div class="container">
-    <div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
+<div th:insert="~{header :: main}">...</div>
+    <div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" id="successBanner" style="display: none;">
         <!-- Success message will be displayed here -->
     </div>
     
     <!-- Display error message -->
-    <div th:if="${not #strings.isEmpty(error)}" class="alert alert-danger" th:text="${error}">
+    <div id="errorBanner" class="alert alert-danger" style="display: none;">
         <!-- Error message will be displayed here -->
     </div>
 </div>
@@ -68,16 +68,16 @@
                 </div>
             </div>
             <div id="responseOptions"></div>
-            <button type="button" class="btn btn-secondary" onclick="addResponseOption()">Add Response Option</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+            <button type="button" class="btn btn-secondary" id="addResponseOptionButton">Add Response Option</button>
+            <button type="submit" class="btn btn-success" onclick="prepareSubmit()">Save Question</button>
         </fieldset>
-        <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
-        <button type="submit" class="btn btn-success" onclick="prepareSubmit()">Save Question</button>
     </div>
 </div>
 
 <script th:inline="javascript">
-/*<![CDATA[*/
-let protocols = /*[[${protocolList}]]*/ [];
+
+let protocols = [[${protocolList}]];
 
 function addResponseOption() {
     const optionsContainer = document.getElementById('responseOptions');
@@ -124,42 +124,51 @@ function populateProtocols() {
 
 document.addEventListener('DOMContentLoaded', function() {
     populateProtocols();
+
+    document.getElementById('addResponseOptionButton').addEventListener('click', addResponseOption);
 });
 
 function prepareSubmit() {
-    const questionAbbr = document.getElementById('questionAbbr').value;
+    const questionAbbreviation = document.getElementById('questionAbbr').value || null;
     const question = document.getElementById('question').value;
     const questionType = document.getElementById('questionType').value;
     const isRequired = document.getElementById('isRequired').value === 'true';
     const triggerProtocolCreation = document.getElementById('triggerProtocolCreation').value === 'true';
 
-    const responseOptions = Array.from(document.getElementById('responseOptions').children).map((optionDiv, optionIndex) => ({
+    const responseOptionsContainer = document.getElementById('responseOptions');
+    const responseOptions = Array.from(responseOptionsContainer.children).map((optionDiv, optionIndex) => ({
         response: document.getElementById(`response_${optionIndex}`).value,
         tooltip: document.getElementById(`tooltip_${optionIndex}`).value
     }));
 
-    const triggeringResponse = triggerProtocolCreation ? {
+    const expectedHomeworkResponses = {
+        responses: responseOptions,
+        numOfResponses: responseOptions.length
+    };
+
+    const triggerResponse = triggerProtocolCreation ? {
         response: document.getElementById('triggerResponse').value,
         tooltip: findTooltipForResponse(responseOptions, document.getElementById('triggerResponse').value)
     } : { response: "", tooltip: "" };
 
-    const triggeredProtocolId = triggerProtocolCreation ? parseInt(document.getElementById('triggeredProtocolId').value, 10) : null;
+    const triggerProtocolIdValue = document.getElementById('triggeredProtocolId').value;
+    const triggerProtocolId = triggerProtocolCreation && triggerProtocolIdValue ? parseInt(triggerProtocolIdValue, 10) : null;
 
     const questionData = {
-        questionAbbr,
+        questionAbbreviation,
         question,
         questionType,
         isRequired,
-        responseOptions,
-        triggerProtocolCreation,
-        triggeringResponse,
-        triggeredProtocolId
+        expectedHomeworkResponses,
+        isTriggeringResponse: triggerProtocolCreation,
+        triggerResponse,
+        triggerProtocolId
     };
 
     const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-    fetch(`/saveQuestion/${questionAbbr}`, {
+    fetch(`/saveQuestion`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -167,17 +176,24 @@ function prepareSubmit() {
         },
         body: JSON.stringify(questionData)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.message) {
-            alert(data.message);
+            window.location.href = '/homeworkQuestionList';
         } else {
-            alert('Error saving question');
+            throw new Error('Error saving question');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving question');
+        const errorBanner = document.getElementById('errorBanner');
+        errorBanner.textContent = error.message;
+        errorBanner.style.display = 'block';
     });
 }
 
@@ -190,7 +206,8 @@ function findTooltipForResponse(responseOptions, selectedResponse) {
     return ""; // Default empty tooltip if not found
 }
 
-/*]]>*/
+
 </script>
 </body>
 </html>
+
