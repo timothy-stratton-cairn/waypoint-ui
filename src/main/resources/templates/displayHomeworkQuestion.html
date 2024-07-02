@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Edit Homework Question</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+<div class="container">
+    <div id="successBanner" class="alert alert-success" style="display: none;">
+        <!-- Success message will be displayed here -->
+    </div>
+    
+    <!-- Display error message -->
+    <div id="errorBanner" class="alert alert-danger" style="display: none;">
+        <!-- Error message will be displayed here -->
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <fieldset class="col-12">
+            <legend>Edit Homework Question</legend>
+            
+            <div class="form-row">
+                <div class="form-group col-md-9">
+                    <label for="questionAbbr">Question Abbreviation:</label>
+                    <input type="text" id="questionAbbr" name="questionAbbr" class="form-control" th:value="${question.questionAbbreviation}" placeholder="Question Abbreviation">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="question">Question:</label>
+                <input type="text" id="question" name="question" class="form-control" th:value="${question.question}" placeholder="Question">
+            </div>
+            <div class="form-group">
+                <label for="questionType">Question Type:</label>
+                <select class="form-control" id="questionType" name="questionType">
+                    <option value="STRING" th:selected="${question.questionType == 'STRING'}">String</option>
+                    <option value="SELECT_OPTION" th:selected="${question.questionType == 'SELECT_OPTION'}">Select Option</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="isRequired">Is Required:</label>
+                <select class="form-control" id="isRequired" name="isRequired">
+                    <option value="true" th:selected="${question.required}">True</option>
+                    <option value="false" th:selected="${!question.required}">False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="triggerProtocolCreation">Trigger Protocol Creation:</label>
+                <select class="form-control" onchange="toggleTriggerFields(this)" id="triggerProtocolCreation" name="triggerProtocolCreation">
+                    <option value="false" th:selected="${!question.isTriggeringReponse}">No</option>
+                    <option value="true" th:selected="${question.isTriggeringReponse}">Yes</option>
+                </select>
+            </div>
+            <div id="triggerFields" th:if="${question.triggerResponse}" style="display: none;">
+                <div class="form-group">
+                    <label for="triggeredProtocolId">Trigger Protocol:</label>
+                    <select class="form-control" id="triggeredProtocolId" name="triggeredProtocolId">
+                        <option value="">Select Protocol</option>
+                        <option th:each="protocol : ${protocolList}" th:value="${protocol.id}" th:text="${protocol.name}" th:selected="${protocol.id == question.triggerProtocolId}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="triggerResponse">Trigger Response:</label>
+                    <select class="form-control" id="triggerResponse" name="triggerResponse">
+                        <option th:value="${question.triggerResponse.response}" th:text="${question.triggerResponse.response}" th:selected="true"></option>
+                    </select>
+                </div>
+            </div>
+            <div id="responseOptions">
+                <div th:each="response, stat : ${question.expectedHomeworkResponses.responses}">
+                    <div class="form-group">
+                        <label>Response:</label>
+                        <input type="text" class="form-control" th:id="'response_' + ${stat.index}" th:value="${response.response}">
+                        <label>Tooltip:</label>
+                        <input type="text" class="form-control" th:id="'tooltip_' + ${stat.index}" th:value="${response.tooltip}">
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+            
+            <button type="button" class="btn btn-secondary" onclick="addResponseOption()">Add Response Option</button>
+        
+            <button type="submit" class="btn btn-success" onclick="prepareSubmit()">Save Question</button>
+        </fieldset>
+    </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+let protocols = [[${protocolList}]];
+var questionId = [[${questionId}]];
+
+function addResponseOption() {
+    const optionsContainer = document.getElementById('responseOptions');
+    const optionIndex = optionsContainer.children.length;
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'form-group';
+    optionDiv.innerHTML = `
+        <label>Response:</label>
+        <input type="text" class="form-control" id="response_${optionIndex}">
+        <label>Tooltip:</label>
+        <input type="text" class="form-control" id="tooltip_${optionIndex}">
+    `;
+    optionsContainer.appendChild(optionDiv);
+
+    const responseInputs = Array.from(optionsContainer.querySelectorAll('input'));
+
+    // Add event listener to dynamically update trigger response select
+    const triggerResponseSelect = document.getElementById('triggerResponse');
+    optionsContainer.addEventListener('input', function() {
+        triggerResponseSelect.innerHTML = '';
+        responseInputs.forEach(input => {
+            const option = document.createElement('option');
+            option.value = input.value;
+            option.textContent = input.value;
+            triggerResponseSelect.appendChild(option);
+        });
+    });
+}
+
+function toggleTriggerFields(select) {
+    const display = select.value === 'true' ? 'block' : 'none';
+    document.getElementById('triggerFields').style.display = display;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    toggleTriggerFields(document.getElementById('triggerProtocolCreation')); // Ensure the fields are shown if needed
+});
+
+function prepareSubmit() {
+    const questionAbbreviation = document.getElementById('questionAbbr').value || null;
+    const question = document.getElementById('question').value;
+    const questionType = document.getElementById('questionType').value;
+    const isRequired = document.getElementById('isRequired').value === 'true';
+    const triggerProtocolCreation = document.getElementById('triggerProtocolCreation').value === 'true';
+
+    const responseOptionsContainer = document.getElementById('responseOptions');
+    const responseOptions = Array.from(responseOptionsContainer.children).map((optionDiv, optionIndex) => ({
+        response: document.getElementById(`response_${optionIndex}`).value,
+        tooltip: document.getElementById(`tooltip_${optionIndex}`).value
+    }));
+
+    const expectedHomeworkResponses = {
+        responses: responseOptions,
+        numOfResponses: responseOptions.length
+    };
+
+    const triggerResponse = triggerProtocolCreation ? {
+        response: document.getElementById('triggerResponse').value,
+        tooltip: findTooltipForResponse(responseOptions, document.getElementById('triggerResponse').value)
+    } : { response: "", tooltip: "" };
+
+    const triggerProtocolIdValue = document.getElementById('triggeredProtocolId').value;
+    const triggerProtocolId = triggerProtocolCreation && triggerProtocolIdValue ? parseInt(triggerProtocolIdValue, 10) : null;
+
+    const questionData = {
+        questionAbbreviation,
+        question,
+        questionType,
+        isRequired,
+        expectedHomeworkResponses,
+        isTriggeringResponse: triggerProtocolCreation,
+        triggerResponse,
+        triggerProtocolId
+    };
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    fetch(`/updateHomeworkQuestion/` + questionId, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify(questionData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            displayBanner('success', data.message);
+        } else {
+            displayBanner('error', 'Error updating question');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        displayBanner('error', 'Error updating question');
+    });
+}
+
+function displayBanner(type, message) {
+    const banner = type === 'success' ? document.getElementById('successBanner') : document.getElementById('errorBanner');
+    banner.textContent = message;
+    banner.style.display = 'block';
+}
+
+function findTooltipForResponse(responseOptions, selectedResponse) {
+    for (const option of responseOptions) {
+        if (option.response === selectedResponse) {
+            return option.tooltip;
+        }
+    }
+    return ""; // Default empty tooltip if not found
+}
+
+</script>
+</body>
+</html>
+
+
+
