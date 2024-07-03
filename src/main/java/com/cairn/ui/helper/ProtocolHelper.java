@@ -535,6 +535,56 @@ public class ProtocolHelper {
 		return result;
 		}
 	
+	public int updateProtocol(User usr, int protocolId, Protocol newProtocol) {
+	    int result = -1;
+
+	    // Build the base URL
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId;
+
+	    // Initialize the request body builder
+	    StringBuilder requestBodyBuilder = new StringBuilder();
+	    requestBodyBuilder.append("{");
+
+	    // Append each non-null and non-zero field to the request body
+	    if (newProtocol.getName() != null) {
+	        requestBodyBuilder.append("\"protocolName\": \"").append(newProtocol.getName()).append("\",");
+	    }
+	    if (newProtocol.getGoal() != null) {
+	        requestBodyBuilder.append("\"goal\": \"").append(newProtocol.getGoal()).append("\",");
+	    }
+	    if (newProtocol.getProgress() != null) {
+	        requestBodyBuilder.append("\"goalProgress\": \"").append(newProtocol.getProgress()).append("\",");
+	    }
+	    if (newProtocol.getComments() != null && !newProtocol.getComments().isEmpty()) {
+	        ProtocolComments comment = newProtocol.getComments().get(0); // Assuming there's at least one comment
+	        requestBodyBuilder.append("\"comment\": \"").append(comment.getComment()).append("\",");
+	        requestBodyBuilder.append("\"commentType\": \"").append(comment.getCommentType()).append("\",");
+	    }
+	    requestBodyBuilder.append("\"markForAttention\": ").append(newProtocol.isNeedsAttention()).append(",");
+	    if (newProtocol.getDueDate() != null) {
+	        requestBodyBuilder.append("\"dueDate\": \"").append(newProtocol.getDueDate()).append("\",");
+	    }
+
+	    // Remove the trailing comma if present
+	    if (requestBodyBuilder.charAt(requestBodyBuilder.length() - 1) == ',') {
+	        requestBodyBuilder.deleteCharAt(requestBodyBuilder.length() - 1);
+	    }
+
+	    requestBodyBuilder.append("}");
+
+	    // Convert the StringBuilder to a String
+	    String requestBody = requestBodyBuilder.toString();
+
+	    // Log the URL and request body
+	    logger.info(apiUrl);
+	    logger.info(requestBody);
+
+	    // Send the PATCH request
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
+	    
+	    return result;
+	}
+	
     public int deleteProtocol(User usr, int protocolId) {
     	int result = 0;
     	String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/' + protocolId;

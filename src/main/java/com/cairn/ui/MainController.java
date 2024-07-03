@@ -332,19 +332,20 @@ public class MainController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PatchMapping("/updateProtocolCommentsGoalsAndProgress/{protocolId}/{comment}/{goal}/{progress}/{status}/{date}")
-	public ResponseEntity<Object> updateProtocolComment(@PathVariable int protocolId, @PathVariable String comment,
-			@PathVariable String goal, @PathVariable String progress, @PathVariable String status,
-			@PathVariable String date, Model model) {
+	@PatchMapping("/updateProtocol/{protocolId}")
+	public ResponseEntity<Object> updateProtocolComment(@PathVariable int protocolId, @RequestBody Protocol pcol, Model model) {
 
 		User currentUser = userDAO.getUser();
-		logger.info("Status: " + status);
+		logger.info("Name: " + pcol.getName());
+		logger.info("Needs Attention: " +pcol.isNeedsAttention());
+		logger.info("Goal: " + pcol.getGoal() );
 		try {
-			protocolHelper.postProtocolComment(currentUser, protocolId, "COMMENT", comment);
-			protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
-			protocolHelper.updateProtocolProgress(currentUser, protocolId, progress);
-			protocolHelper.updateProtocolStatus(currentUser, protocolId, status);
-			protocolHelper.updateProtocolDueDate(currentUser, protocolId, date);
+			protocolHelper.updateProtocol(currentUser, protocolId, pcol);
+			//protocolHelper.postProtocolComment(currentUser, protocolId, "COMMENT", comment);
+			//protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
+			//protocolHelper.updateProtocolProgress(currentUser, protocolId, progress);
+			//protocolHelper.updateProtocolStatus(currentUser, protocolId, status);
+			//protocolHelper.updateProtocolDueDate(currentUser, protocolId, date);
 		} catch (Exception e) {
 			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace();
@@ -568,8 +569,8 @@ public class MainController {
 		}
 	}
 
-	@PatchMapping("/updateProtocol/{id}")
-	public ResponseEntity<String> updateProtocol(@PathVariable int id, @RequestBody ProtocolTemplate updateRequest) {
+	@PatchMapping("/updateProtocolTemplate/{id}")
+	public ResponseEntity<String> updateProtocolTemplate(@PathVariable int id, @RequestBody ProtocolTemplate updateRequest) {
 	    User usr = (User) userDAO.getUser();
 	    if (usr == null) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
