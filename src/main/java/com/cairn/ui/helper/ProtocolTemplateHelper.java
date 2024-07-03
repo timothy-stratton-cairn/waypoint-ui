@@ -270,6 +270,69 @@ public class ProtocolTemplateHelper {
 		return result;
 		
 	}
+	
+
+	public int updateProtocolTemplate(User usr, int tempId, ProtocolTemplate newTemp) {
+	    int result = -1;
+
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + tempId;
+	    
+	    StringBuilder requestBodyBuilder = new StringBuilder();
+	    requestBodyBuilder.append("{");
+	    
+	    if (newTemp.getName() != null) {
+	        requestBodyBuilder.append("\"name\": \"").append(newTemp.getName()).append("\",");
+	    }
+	    if (newTemp.getDescription() != null) {
+	        requestBodyBuilder.append("\"description\": \"").append(newTemp.getDescription()).append("\",");
+	    }
+	    if (newTemp.getStatus() != null) {
+	        requestBodyBuilder.append("\"status\": \"").append(newTemp.getStatus()).append("\",");
+	    }
+		if (newTemp.getType() != null) {
+	        requestBodyBuilder.append("\"templateCategoryValue\": \"").append(newTemp.getType()).append("\",");
+	    }
+	    if (newTemp.getDueByYear() > 0) {
+	        requestBodyBuilder.append("\"defaultDueByInYears\": ").append(newTemp.getDueByYear()).append(",");
+	    }
+	    if (newTemp.getDueByMonth() > 0) {
+	        requestBodyBuilder.append("\"defaultDueByInMonths\": ").append(newTemp.getDueByMonth()).append(",");
+	    }
+	    if (newTemp.getDueByDay() > 0) {
+	        requestBodyBuilder.append("\"defaultDueByInDays\": ").append(newTemp.getDueByDay()).append(",");
+	    }
+	    //if (newTemp.getType() != null) {
+	    //    requestBodyBuilder.append("\"recurrenceTypeValue\": \"").append(newTemp.getType()).append("\",");
+	    //}
+	    if (newTemp.getSchedule() != null) {
+	        requestBodyBuilder.append("\"defaultTriggeringStatusValue\": \"").append(newTemp.getSchedule()).append("\",");
+	    }
+	    if (newTemp.getYearSchedule() > 0) {
+	        requestBodyBuilder.append("\"defaultReoccurInYears\": ").append(newTemp.getYearSchedule()).append(",");
+	    }
+	    if (newTemp.getMonthSchedule() > 0) {
+	        requestBodyBuilder.append("\"defaultReoccurInMonths\": ").append(newTemp.getMonthSchedule()).append(",");
+	    }
+	    if (newTemp.getDaySchedule() > 0) {
+	        requestBodyBuilder.append("\"defaultReoccurInDays\": ").append(newTemp.getDaySchedule()).append(",");
+	    }
+
+	    // Remove the trailing comma if present
+	    if (requestBodyBuilder.charAt(requestBodyBuilder.length() - 1) == ',') {
+	        requestBodyBuilder.deleteCharAt(requestBodyBuilder.length() - 1);
+	    }
+	    
+	    requestBodyBuilder.append("}");
+
+	    String requestBody = requestBodyBuilder.toString();
+	    
+	    logger.info(apiUrl);
+	    logger.info(requestBody);
+	    
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
+	    return result;
+	}
+
 	/**
 	 * Save a protocol template
 	 * 

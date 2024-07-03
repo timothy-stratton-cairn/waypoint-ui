@@ -587,12 +587,14 @@ public class MainController {
 	  
 	    String status = updateRequest.getStatus();
 	    logger.info("years: " + years + " months: " + months + " days: " + days);
+	    logger.info("Type: "+ type);
 	    try {
-	        protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
-	        protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
-	        protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, years, months, days);
-	        protocolTemplateHelper.updateProtocolTemplateStatus(usr, id, status);
-	        protocolTemplateHelper.updateProtocolTemplateScheduleDate(usr, id, sYears, sMonths, sDays);
+	    	protocolTemplateHelper.updateProtocolTemplate(usr, id, updateRequest);
+	        //protocolTemplateHelper.updateProtocolTemplateDescription(usr, id, description);
+	        //protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
+	        //protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, years, months, days);
+	        //protocolTemplateHelper.updateProtocolTemplateStatus(usr, id, status);
+	        //protocolTemplateHelper.updateProtocolTemplateScheduleDate(usr, id, sYears, sMonths, sDays);
 	        return ResponseEntity.ok("Protocol updated successfully");
 	    } catch (Exception e) {
 	        logger.info("Error in updateProtocol:");
