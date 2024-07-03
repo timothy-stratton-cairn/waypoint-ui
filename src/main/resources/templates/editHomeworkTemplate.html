@@ -9,35 +9,30 @@
 </head>
 <body>
 <div class="container">
-    <div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
+    <div id="successMessage" class="alert alert-success" style="display: none;">
         <!-- Success message will be displayed here -->
     </div>
     
     <!-- Display error message -->
-    <div th:if="${not #strings.isEmpty(error)}" class="alert alert-danger" th:text="${error}">
+    <div id="errorMessage" class="alert alert-danger" style="display: none;">
         <!-- Error message will be displayed here -->
     </div>
 </div>
 <div th:insert="~{header :: main}">...</div>
 
 <div class="container">
-
-</div>
-<br>
-
-<form id="homeworkForm" th:action="@{/newHomeworkTemplate}" method="post">
-    <input type="hidden" name="_csrf" value="${_csrf.token}">
-
-    <div class="container">
+    <form id="homeworkForm" th:action="@{/newHomeworkTemplate}" method="post" onsubmit="return prepareSubmit()">
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+        <input type="hidden" name="templateBody" id="templateBody">
         <div class="row note_card">
             <fieldset class="col-12">
                 <legend>Edit Homework</legend>
                 <div class="form-row">
-	                <div class="form-group col-md-9">
-	                    <label for="templateName">Name:</label>
-	                    <input type="text" id="templateName" name="name" class="form-control" placeholder="Homework Name">
-	                     <small class="form-text text-muted">Name must be shorter than 32 characters.</small>
-	                </div>
+                    <div class="form-group col-md-9">
+                        <label for="templateName">Name:</label>
+                        <input type="text" id="templateName" name="name" class="form-control" placeholder="Homework Name">
+                        <small class="form-text text-muted">Name must be shorter than 32 characters.</small>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="templateDetails">Description:</label>
@@ -49,24 +44,126 @@
                         <option value="true">True</option>
                         <option value="false">False</option>
                     </select>
-
                 </div>
+                
                 <div id="questionsContainer"></div>
-                <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
-                <button type="button" class="btn btn-primary" onclick="addQuestion()">Add Homework Question</button>
-                <!-- Hidden input to store JSON data -->
-                <input type="hidden" name="templateBody" id="templateBody">
-                <button type="submit" class="btn btn-success" onclick="prepareSubmit()">Save Template</button>
+                <button type="button" class="btn btn-primary" onclick="toggleExistingQuestion()">Add Existing Question</button>
+                <button type="button" class="btn btn-primary" onclick="addQuestion()">New Question</button>
+                <button type="submit" class="btn btn-success">Save Template</button>
+                
+                <template id="questionTemplate">
+                    <div class="new-question-row">
+                        <select class="form-control" id="existingQuestions">
+                            <option th:each="question : ${questions}" th:value="${question.questionId}" th:text="${question.question}"></option>
+                        </select>
+                        <button type="button" class="btn btn-secondary" onclick="confirmQuestion(this);">Confirm</button>
+                    </div>
+                </template>
+                <div id="questionDropdownContainer" style="display: none;"></div>
+                
             </fieldset>
         </div>
-    </div>
-</form>
-
-
+    </form>
+</div>
 
 <script th:inline="javascript">
-/*<![CDATA[*/
 let protocols = /*[[${protocols}]]*/ [];
+let questions = /*[[${questions}]]*/ [];
+let addExistingQuestionState = 0;
+
+function toggleExistingQuestion() {
+    addExistingQuestionState = addExistingQuestionState === 0 ? 1 : 0;
+    var questionDropdownContainer = document.getElementById('questionDropdownContainer');
+    if (addExistingQuestionState === 1) {
+        var questionTemplate = document.getElementById('questionTemplate').content.cloneNode(true);
+        questionDropdownContainer.innerHTML = ''; // Clear the container
+        questionDropdownContainer.appendChild(questionTemplate);
+        questionDropdownContainer.style.display = 'block';
+    } else {
+        questionDropdownContainer.style.display = 'none';
+    }
+}
+
+function confirmQuestion(button) {
+    var selectElement = button.previousElementSibling;
+    var selectedQuestionId = selectElement.value;
+    var selectedQuestion = questions.find(question => question.questionId == selectedQuestionId);
+
+    if (selectedQuestion) {
+        fillQuestionForm(selectedQuestion);
+    }
+
+    addExistingQuestionState = 0;
+    document.getElementById('questionDropdownContainer').style.display = 'none';
+}
+
+function fillQuestionForm(selectedQuestion) {
+    const container = document.getElementById('questionsContainer');
+    const questionIndex = container.children.length;
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'card mb-3';
+    questionDiv.innerHTML = `
+        <div class="card-body">
+            <div class="form-group">
+                <label>Question Abbreviation:</label>
+                <input type="text" class="form-control" id="questionAbbr_${questionIndex}" value="${selectedQuestion.questionAbbreviation}">
+            </div>
+            <div class="form-group">
+                <label>Question:</label>
+                <input type="text" class="form-control" id="question_${questionIndex}" value="${selectedQuestion.question}">
+            </div>
+            <div class="form-group">
+                <label>Question Type:</label>
+                <select class="form-control" id="questionType_${questionIndex}">
+                    <option value="STRING" ${selectedQuestion.questionType == 'STRING' ? 'selected' : ''}>String</option>
+                    <option value="SELECT_OPTION" ${selectedQuestion.questionType == 'SELECT_OPTION' ? 'selected' : ''}>Select Option</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Is Required:</label>
+                <select class="form-control" id="isRequired_${questionIndex}">
+                    <option value="true" ${selectedQuestion.required ? 'selected' : ''}>True</option>
+                    <option value="false" ${!selectedQuestion.required ? 'selected' : ''}>False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Trigger Protocol Creation:</label>
+                <select class="form-control" onchange="toggleTriggerFields(this, ${questionIndex})" id="triggerProtocolCreation_${questionIndex}">
+                    <option value="false" ${!selectedQuestion.triggeringReponse ? 'selected' : ''}>No</option>
+                    <option value="true" ${selectedQuestion.triggeringReponse ? 'selected' : ''}>Yes</option>
+                </select>
+            </div>
+            <div id="triggerFields_${questionIndex}" style="display: ${selectedQuestion.triggeringReponse ? 'block' : 'none'};">
+                <div class="form-group">
+                    <label>Trigger Protocol:</label>
+                    <select class="form-control" id="triggeredProtocolId_${questionIndex}">
+                        <option value="">Select Protocol</option>
+                        ${protocols.map(protocol => `
+                            <option value="${protocol.id}" ${protocol.id == selectedQuestion.triggerProtocolId ? 'selected' : ''}>${protocol.name}</option>
+                        `).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Trigger Response:</label>
+                    <select class="form-control" id="triggerResponse_${questionIndex}">
+                        <option value="${selectedQuestion.triggerResponse.response}" selected>${selectedQuestion.triggerResponse.response}</option>
+                    </select>
+                </div>
+            </div>
+            <div id="responseOptions_${questionIndex}">
+                ${selectedQuestion.expectedHomeworkResponses.responses.map((response, index) => `
+                    <div class="form-group">
+                        <label>Response:</label>
+                        <input type="text" class="form-control" id="response_${questionIndex}_${index}" value="${response.response}">
+                        <label>Tooltip:</label>
+                        <input type="text" class="form-control" id="tooltip_${questionIndex}_${index}" value="${response.tooltip}">
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    container.appendChild(questionDiv);
+}
 
 function addQuestion() {
     const container = document.getElementById('questionsContainer');
@@ -104,44 +201,29 @@ function addQuestion() {
                     <option value="true">Yes</option>
                 </select>
             </div>
-
-                <div id="triggerFields_${questionIndex}" style="display: none;">
-					
-				<div class="form-group">
+            <div id="triggerFields_${questionIndex}" style="display: none;">
+                <div class="form-group">
                     <label>Trigger Protocol:</label>
                     <select class="form-control" id="triggeredProtocolId_${questionIndex}">
                         <option value="">Select Protocol</option>
+                        ${protocols.map(protocol => `
+                            <option value="${protocol.id}">${protocol.name}</option>
+                        `).join('')}
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Trigger Response:</label>
                     <select class="form-control" id="triggerResponse_${questionIndex}"></select>
                 </div>
-
-                
             </div>
             <div id="responseOptions_${questionIndex}"></div>
             <button type="button" class="btn btn-secondary" onclick="addResponseOption(${questionIndex})">Add Response Option</button>
         </div>
     `;
     container.appendChild(questionDiv);
-
-    // Populate protocols dropdown
-    const protocolSelect = document.getElementById(`triggeredProtocolId_${questionIndex}`);
-    protocols.forEach(protocol => {
-        const option = document.createElement('option');
-        option.value = protocol.id;
-        option.textContent = protocol.name;
-        protocolSelect.appendChild(option);
-    });
-    
 }
 
-let responseInputs = [];
-
 function addResponseOption(questionIndex) {
-    console.log("Adding response option for question", questionIndex);
-
     const optionsContainer = document.getElementById(`responseOptions_${questionIndex}`);
     const optionIndex = optionsContainer.children.length;
     const optionDiv = document.createElement('div');
@@ -154,23 +236,22 @@ function addResponseOption(questionIndex) {
     `;
     optionsContainer.appendChild(optionDiv);
 
-    // Update responseInputs array with newly created input elements
-    responseInputs.push(...optionDiv.querySelectorAll('input'));
+    updateTriggerResponseOptions(questionIndex);
+}
 
-    console.log("Number of response inputs:", responseInputs.length);
-
-    // Add event listener to dynamically update trigger response select
+function updateTriggerResponseOptions(questionIndex) {
+    const optionsContainer = document.getElementById(`responseOptions_${questionIndex}`);
     const triggerResponseSelect = document.getElementById(`triggerResponse_${questionIndex}`);
-    optionsContainer.addEventListener('input', function() {
-        console.log("Event listener triggered for question", questionIndex);
-        triggerResponseSelect.innerHTML = ''; 
-        responseInputs.forEach(input => {
+    triggerResponseSelect.innerHTML = '';
+
+    Array.from(optionsContainer.children).forEach((optionDiv, optionIndex) => {
+        const responseValue = document.getElementById(`response_${questionIndex}_${optionIndex}`).value;
+        if (responseValue) {
             const option = document.createElement('option');
-            option.value = input.value;
-            option.textContent = input.value;
+            option.value = responseValue;
+            option.textContent = responseValue;
             triggerResponseSelect.appendChild(option);
-            console.log("Added option:", option.value);
-        });
+        }
     });
 }
 
@@ -220,13 +301,36 @@ function prepareSubmit() {
         description,
         isMultiResponse,
         homeworkQuestions: questions
-    }, null, 2); // Pretty print JSON for readability
+    });
 
     // Set the hidden input's value to the JSON string
     document.getElementById('templateBody').value = templateData;
-    console.log("Prepared JSON Data:", templateData);
-    
-    return true;
+
+    // Get CSRF token and header
+    const csrfToken = $('meta[name="_csrf"]').attr('content');
+    const csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+    $.ajax({
+        type: 'POST',
+        url: $('#homeworkForm').attr('action'),
+        contentType: 'application/json',
+        data: templateData,
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader(csrfHeader, csrfToken);
+        },
+        success: function(response) {
+            $('#successMessage').text(response.message).show();
+            $('#errorMessage').hide();
+            window.location.href = "/homeworkTemplates/";
+        },
+        error: function(xhr) {
+            var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
+            $('#errorMessage').text(errorMessage).show();
+            $('#successMessage').hide();
+        }
+    });
+
+    return false;
 }
 
 function findTooltipForResponse(responseOptions, selectedResponse) {
@@ -237,14 +341,9 @@ function findTooltipForResponse(responseOptions, selectedResponse) {
     }
     return ""; // Default empty tooltip if not found
 }
-
-
-
-
-
-/*]]>*/
 </script>
 
 </body>
 </html>
+
 
