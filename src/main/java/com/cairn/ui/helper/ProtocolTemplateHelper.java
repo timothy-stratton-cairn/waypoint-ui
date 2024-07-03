@@ -540,6 +540,7 @@ public class ProtocolTemplateHelper {
 				result.setDescription(jsonNode.get("description").asText());
 				result.setId(Integer.valueOf(jsonNode.get("id").asText()));
 				result.setStatus(jsonNode.get("status").asText());
+				result.setType(jsonNode.get("templateCategory").asText());
 				if(jsonNode.has("defaultDueByInYears")&& !jsonNode.get("defaultDueByInYears").isNull()) {
 					result.setDueByYear(jsonNode.get("defaultDueByInYears").asInt());
 				}

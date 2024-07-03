@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
 <head>
-	<meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>New Client</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -18,85 +18,92 @@
             <form th:action="@{/saveStep}" method="post">
                 
                 <div class="form-group">
-                    <label for="stepName">Email:</label>
+                    <label for="email">Email:</label>
                     <input type="text" id="email" name="email" class="form-control">
                 </div>
                 
                 <div class="form-group">
-                    <label for="stepName">First Name:</label>
+                    <label for="firstName">First Name:</label>
                     <input type="text" id="firstName" name="firstName" class="form-control">
                 </div>
                 
                 <div class="form-group">
-                    <label for="stepName">Last Name:</label>
+                    <label for="lastName">Last Name:</label>
                     <input type="text" id="lastName" name="lastName" class="form-control">
                 </div>
                 
                 <div class="form-group">
-                    <label for="stepName">Username:</label>
+                    <label for="username">Username:</label>
                     <input type="text" id="username" name="username" class="form-control">
                 </div>
                 
                 <div class="form-group">
-                    <label for="stepName">Password:</label>
+                    <label for="password">Password:</label>
                     <input type="password" id="password" name="password" class="form-control">
                 </div>
                 
                 <div class="form-group">
-				    <label for="role">Role:</label>
-				    <select id="role" name="role" class="form-control">
-				        <option value="2">Client</option>
-				        <option value="3">User</option>
-				        <option value="4">Admin</option>
-				    </select>
-				</div>
-                
+                    <label for="role">Role:</label>
+                    <select id="role" name="role" class="form-control">
+                        <option value="2">Client</option>
+                        <option value="3">User</option>
+                        <option value="4">Admin</option>
+                    </select>
+                </div>
 
                 <button type="button" class="btn btn-secondary" onclick="saveClient();">Save</button>
             </form>
         </fieldset>
     </div>
     
+    <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
 </div>
-    <script>
-		var clientId = [[${clientId}]];
-		
-		
-         function saveClient() {
-		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-		
-		    var clientData = JSON.stringify({
-		        username: document.getElementById('username').value,
-		        firstName: document.getElementById('firstName').value,
-		        lastName: document.getElementById('lastName').value,
-		        email: document.getElementById('email').value,
-		        password: document.getElementById('password').value,
-		        roles: [document.getElementById('role').value]
-		    });
-		
-		    fetch('/addDependant/'+clientId, {
-		        method: 'POST',
-		        headers: {
-		            'Content-Type': 'application/json',
-		            'Accept': 'application/json',
-		            [csrfHeader]: csrfToken
-		        },
-		        body: clientData
-		    })
-		    .then(response => response.json())
-		    .then(data => {
-		        if (data.message) {
-		            window.location.href = '/clients'; // Redirect on success
-		        } else {
-		            throw new Error(data.error || 'Unknown error occurred.');
-		        }
-		    })
-		    .catch(error => {
-		        console.error('Error adding client:', error);
-		        alert('Error: ' + error.message);
-		    });
-		}
-    </script>
+
+<script>
+    var clientId = [[${clientId}]];
+
+    function saveClient() {
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        var clientData = JSON.stringify({
+            username: document.getElementById('username').value,
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            roles: [document.getElementById('role').value]
+        });
+
+        fetch('/addDependant/' + clientId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: clientData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                window.location.href = '/clients'; // Redirect on success
+            } else {
+                throw new Error(data.error || 'Unknown error occurred.');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding client:', error);
+            showBannerMessage('Error: ' + error.message, 'danger');
+        });
+    }
+
+    function showBannerMessage(message, type) {
+        var banner = document.getElementById('messageBanner');
+        banner.textContent = message;
+        banner.className = 'alert alert-' + type;
+        banner.style.display = 'block';
+    }
+</script>
 </body>
 </html>
