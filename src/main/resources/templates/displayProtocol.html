@@ -211,6 +211,7 @@
         var reoccurMonths = parseInt($('#month').val()) || 0;
         var reoccurDays = parseInt($('#day').val()) || 0;
         var status = $('#status').val();
+        var type = $('#type').val();
         var csrfToken = $('meta[name="_csrf"]').attr('content');
         var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
@@ -220,6 +221,7 @@
             dueByYear: dueByYears,
             dueByMonth: dueByMonths,
             dueByDay: dueByDays,
+            type: type,
             yearSchedule: reoccurYears,
             monthSchedule: reoccurMonths,
             daySchedule: reoccurDays,
@@ -240,7 +242,8 @@
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
-                showBannerMessage('Failed to update the protocol. Error: ' + xhr.responseText, "danger");
+                var errorMessage = parseErrorMessage(xhr);
+                showBannerMessage(errorMessage, "danger");
             }
         });
     }
@@ -263,7 +266,7 @@
             },
             error: function(xhr, status, error) {
                 console.error('Error deleting step:', error);
-                var errorMessage = xhr.responseText || 'Unknown error';
+                var errorMessage = parseErrorMessage(xhr);
                 showBannerMessage('Failed to delete the step. Error: ' + errorMessage, "danger");
             }
         });
@@ -297,7 +300,8 @@
             },
             error: function(xhr, status, error) {
                 console.error('Error adding step:', error);
-                showBannerMessage('Failed to add the step. Error: ' + xhr.responseText, "danger");
+                var errorMessage = parseErrorMessage(xhr);
+                showBannerMessage('Failed to add the step. Error: ' + errorMessage, "danger");
             }
         });
     }
@@ -332,7 +336,7 @@
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching steps:', error);
-                var errorMessage = xhr.responseJSON?.error || 'Unknown error';
+                var errorMessage = parseErrorMessage(xhr);
                 showBannerMessage('Failed to fetch steps. Error: ' + errorMessage, "danger");
             }
         });
@@ -370,7 +374,21 @@
             }
         });
     }
+
+    function parseErrorMessage(xhr) {
+        var errorMessage = "An error occurred.";
+        try {
+            var responseJson = JSON.parse(xhr.responseText);
+            if (responseJson.message) {
+                errorMessage = responseJson.message;
+            }
+        } catch (e) {
+            console.error('Error parsing error response:', e);
+        }
+        return errorMessage;
+    }
 </script>
+
 </body>
 </html>
 
