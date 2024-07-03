@@ -442,6 +442,13 @@ public class UserHelper {
 	}
 	
 	
+	public String newHousehold( User usr, Household household) {
+		String result = "Error: Household not created";
+		
+		return result;
+		
+	}
+	
 	
 	
 }

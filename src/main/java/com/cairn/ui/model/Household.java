@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Household{
 	private int id;
 	private String name;
+	private String description;
 	private ArrayList<User>householdAccounts;
 	private ArrayList<User>primaryContacts;
 	
@@ -36,5 +37,11 @@ public class Household{
 	}
 	public void setPrimaryContacts(ArrayList<User> primaryContacts) {
 		this.primaryContacts = primaryContacts;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }
