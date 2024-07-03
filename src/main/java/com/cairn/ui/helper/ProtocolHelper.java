@@ -446,7 +446,7 @@ public class ProtocolHelper {
 	public int addClient(User usr, int clientid, int protocolTemplateId, Protocol protocolRequest) {
 		int result = 0;
 		String requestBody = String.format(
-				"{\"protocolTemplateId\": %d, \"comment\": \"\", \"assignedHouseholdId\": %d, \"name\": \"%s\", \"dueDate\": \"%s\"}",
+				"{\"protocolTemplateId\": %d, \"comment\": \"\", \"assignedHouseholdId\": %d, \"protocolName\": \"%s\", \"dueDate\": \"%s\"}",
 				protocolTemplateId, clientid, protocolRequest.getName(), protocolRequest.getDueDate());
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;// retrieves all protocols assigned to clientId
 		logger.info(apiUrl);
