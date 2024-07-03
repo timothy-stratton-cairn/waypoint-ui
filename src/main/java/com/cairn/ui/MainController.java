@@ -449,9 +449,8 @@ public class MainController {
 			fullStepList.add(fullStep);
 		}
 
-		for (ProtocolStepTemplate step : fullStepList) {
-
-			logger.info("Step id " + step.getCategoryId());
+		for (ProtocolStepTemplate step: listSteps) {
+			logger.info("Step: "+ step.getName() + " CatagoryID: "+ step.getCategoryName());
 		}
 		model.addAttribute("dueBy", dueByDays);
 		model.addAttribute("protocolId", id);
@@ -578,12 +577,14 @@ public class MainController {
 	    logger.info("Status: " + updateRequest.getStatus());
 	    String description = updateRequest.getDescription();
 	    String name = updateRequest.getName();
+	    String type = updateRequest.getType();
 	    int years = updateRequest.getDueByYear();
 	    int months = updateRequest.getDueByMonth();
 	    int days = updateRequest.getDueByDay();
 	    int sYears = updateRequest.getYearSchedule();
 	    int sMonths = updateRequest.getMonthSchedule();
 	    int sDays = updateRequest.getDaySchedule();
+	  
 	    String status = updateRequest.getStatus();
 	    logger.info("years: " + years + " months: " + months + " days: " + days);
 	    try {
@@ -632,7 +633,9 @@ public class MainController {
 			associatedSteps = protocolTemplateHelper.getStepList(usr, id);
 		}
 		List<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr); // used for the drop down
-
+		for (ProtocolStepTemplate step: associatedSteps) {
+			logger.info("Step: "+ step.getName() + " CatagoryID: "+ step.getCategoryId());
+		}
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", associatedSteps);

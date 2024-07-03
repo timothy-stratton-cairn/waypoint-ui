@@ -440,6 +440,7 @@ public class ProtocolTemplateHelper {
 							entry.setName(element.get("name").asText());
 							entry.setId(Integer.valueOf(element.get("id").toString()));
 							entry.setStatus(element.get("status").asText());
+							
 							// Test data, fix this later
 
 							results.add(entry);
@@ -471,51 +472,59 @@ public class ProtocolTemplateHelper {
 	 * @return ArrayList of ProtocolStepTemplates. Empty list on error.
 	 */
 	public ArrayList<ProtocolStepTemplate> getStepList(User usr, int id) {
-		ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
+	    ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + id;
-		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
-		if (!jsonResponse.isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + id;
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+	    if (!jsonResponse.isEmpty()) {
+	        ObjectMapper objectMapper = new ObjectMapper();
 
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				JsonNode temp = jsonNode.get("associatedSteps");
-				JsonNode prots = temp.get("steps");
-				// Iterate through the array elements
-				ProtocolStepTemplate entry = null;
-				if (prots.isArray()) {
-					int idx = 1;
-					for (JsonNode element : prots) {
-						// Access and print array elements
-						if (element != null) {
-							entry = new ProtocolStepTemplate();
-							entry.setDescription(element.get("description").asText());
-							entry.setName(element.get("name").asText());
-							entry.setId(Integer.valueOf(element.get("id").toString()));
-							
-							
-							// Test data, fix this later
-							entry.setType(idx++);
-							if (idx > 4) {
-								idx = 1;
-							}
-							results.add(entry);
-						}
-					}
-				}
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-		} else {
-			logger.info("Failed to fetch data for getStepList");
-		}
+	        JsonNode jsonNode;
+	        try {
+	            jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode temp = jsonNode.get("associatedSteps");
+	            JsonNode prots = temp.get("steps");
+	            // Iterate through the array elements
+	            ProtocolStepTemplate entry = null;
+	            if (prots.isArray()) {
+	                int idx = 1;
+	                for (JsonNode element : prots) {
+	                    // Access and print array elements
+	                    if (element != null) {
+	                        entry = new ProtocolStepTemplate();
+	                        entry.setDescription(element.get("description").asText());
+	                        entry.setName(element.get("name").asText());
+	                        entry.setId(element.get("id").asInt());
 
-		return results;
+	                        // Retrieve and set category ID and name
+	                        JsonNode categoryNode = element.get("category");
+	                        if (categoryNode != null) {
+	                            entry.setCategoryId(categoryNode.get("id").asInt());
+	                            entry.setCategoryName(categoryNode.get("name").asText());
+	                            entry.setCategoryDescription(categoryNode.get("description").asText());
+	                        }
+	                        
+	                        // Test data, fix this later
+	                        entry.setType(idx++);
+	                        if (idx > 4) {
+	                            idx = 1;
+	                        }
+	                        results.add(entry);
+	                    }
+	                }
+	            }
+	        } catch (JsonMappingException e) {
+	            e.printStackTrace();
+	        } catch (JsonProcessingException e) {
+	            e.printStackTrace();
+	        }
+	    } else {
+	        logger.info("Failed to fetch data for getStepList");
+	    }
+
+	    return results;
 	}
+
 		
 	/**
 	 * Get a specific protocol template.
