@@ -149,9 +149,16 @@
                                         </div>
                                     </div>
                                     <div class="flip-card-back">
-                                        <p>Actionable Items:</p>
-                                        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}" th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}"></li>
-                                    </div>
+									    <p>Education:</p>
+									    <ul>
+									        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
+									            <span th:text="${step.name + ' - ' + 
+									                (step.status == 'TODO' ? 'To Do' : 
+									                (step.status == 'IN_PROGRESS' ? 'In Progress' : 
+									                (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+									        </li>
+									    </ul>
+									</div>
                                 </div>
                             </div>
                         </a>

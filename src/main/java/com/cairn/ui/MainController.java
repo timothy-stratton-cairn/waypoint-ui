@@ -881,6 +881,11 @@ public class MainController {
 		for (User client : clientList) {
 			logger.info("Client Name: " + client.getFirstName() + client.getLastName());
 		}
+		for(Protocol pcol: assignedProtocols) {
+			for (ProtocolStep step: pcol.getSteps()) {
+				logger.info("Step Catagory: "+ step.getCategoryName() + " Catagory Id: "+ step.getCategoryId());
+			}
+		}
 		model.addAttribute("primaryContact", primaryContactUser);
 		model.addAttribute("userList", userList);
 		model.addAttribute("coClientList", clientList);
@@ -1378,34 +1383,26 @@ public class MainController {
 		Map<String, ArrayList<ProtocolStep>> stepMap = new HashMap<>();
 		Map<Integer, ArrayList<Protocol>> userMap = new HashMap<>();
 		Map<Integer, ArrayList<ProtocolStep>> userStepMap = new HashMap<>();
-
+		ArrayList<Protocol> completedProtocols = new ArrayList<Protocol>();
 		ArrayList<ProtocolReport> userReports = new ArrayList<>();
 		ArrayList<ProtocolReport> stepReports = new ArrayList<>();
 		ArrayList<ProtocolReport> userStepReports = new ArrayList<>();
 		for (ProtocolTemplate template : templates) {
 			ArrayList<Protocol> tempPcolList = protocolHelper.getListbyTemplateId(currentUser, template.getId());
 			for (Protocol pcol : tempPcolList) {
-				logger.info("Protocol: " + pcol.getId() + " HouseholdId: " + pcol.getUserId());
+			    logger.info("Protocol: " + pcol.getId() + " HouseholdId: " + pcol.getUserId() + pcol.getId() + " Status: " + pcol.getStatus());
+			    if (pcol.getStatus().equalsIgnoreCase("Completed")) {
+			        completedProtocols.add(pcol);
+			        logger.info("Protocol: " + pcol.getId() + " added to completedProtocol");
+			    }
 			}
-			if (tempPcolList.isEmpty())
-				continue; // Skip empty lists
-
-			// Filter out protocols with daysToComplete < 0
-			ArrayList<Protocol> completedProtocols = new ArrayList<Protocol>();
-			for (Protocol pcol: tempPcolList) {
-				logger.info("Protocol: "+ pcol.getId() +" Status:"+ pcol.getStatus());
-				if (pcol.getStatus() =="COMPLETED") {
-					completedProtocols.add(pcol);
-				}
-			}
-			if(completedProtocols.isEmpty()) {
-				logger.info("No completed Protocols");
-			}
-			else {
+			if(!completedProtocols.isEmpty()) {
 				for (Protocol protocol : completedProtocols) {
 					logger.info("Protocol in User List:" + protocol.getName() + "Protocol Users: " + protocol.getUserId());
 				}
 			} 
+			
+			
 			for (Protocol protocol : completedProtocols) { // for each protocol
 
 				for (int userId : protocol.getUsers()) {
