@@ -312,12 +312,14 @@
         var status = document.getElementById('statusDropdown').value;
         var needsAttention = document.getElementById('needsAttentionCheckbox').checked;
         var dueDate = document.getElementById('dueDateInput').value;
+        var status = document.getElementById('statusDropdown').value;
 
         var requestBody = {
             name: name,
             goal: goal,
             goalProgress: progress,
             comment: comment,
+            status: status,
             commentType: "COMMENT",
             needsAttention: needsAttention,
             dueDate: dueDate

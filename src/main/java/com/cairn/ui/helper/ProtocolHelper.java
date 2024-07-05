@@ -97,6 +97,12 @@ public class ProtocolHelper {
 	                    entry.setCompletionPercent(element.has("completionPercentage") ? element.get("completionPercentage").asText() : "0.0");
 	                    entry.setStatus(element.get("status").asText());
 	                    entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
+	                    if (element.has("completedOn" ) && !element.get("completedOn").isNull()) {
+	                    	entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
+	                    }
+	                    else{
+	                    	entry.setCompletionDate(null);
+	                    }
 	                    if (element.has("associatedHouseholdId" ) && !element.get("associatedHouseholdId").isNull()) {
 	                    	entry.setUserId(element.get("associatedHouseholdId").asInt());
 	                    }else {
