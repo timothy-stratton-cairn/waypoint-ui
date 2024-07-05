@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.security.PermissionCollection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -339,12 +340,13 @@ public class MainController {
 		logger.info("Name: " + pcol.getName());
 		logger.info("Needs Attention: " +pcol.isNeedsAttention());
 		logger.info("Goal: " + pcol.getGoal() );
+		logger.info("Status: "+ pcol.getStatus());
 		try {
 			protocolHelper.updateProtocol(currentUser, protocolId, pcol);
 			//protocolHelper.postProtocolComment(currentUser, protocolId, "COMMENT", comment);
 			//protocolHelper.updateProtocolGoal(currentUser, protocolId, goal);
 			//protocolHelper.updateProtocolProgress(currentUser, protocolId, progress);
-			//protocolHelper.updateProtocolStatus(currentUser, protocolId, status);
+			protocolHelper.updateProtocolStatus(currentUser, protocolId, pcol.getStatus());
 			//protocolHelper.updateProtocolDueDate(currentUser, protocolId, date);
 		} catch (Exception e) {
 			logger.info("Error in addClientToProtocol:");
@@ -1389,11 +1391,21 @@ public class MainController {
 				continue; // Skip empty lists
 
 			// Filter out protocols with daysToComplete < 0
-			List<Protocol> completedProtocols = tempPcolList.stream().filter(p -> p.getDaysToComplete() >= 0)
-					.collect(Collectors.toList());
-			for (Protocol protocol : completedProtocols) {
-				logger.info("Protocol in User List:" + protocol.getName() + "Protocol Users: " + protocol.getUserId());
+			ArrayList<Protocol> completedProtocols = new ArrayList<Protocol>();
+			for (Protocol pcol: tempPcolList) {
+				logger.info("Protocol: "+ pcol.getId() +" Status:"+ pcol.getStatus());
+				if (pcol.getStatus() =="COMPLETED") {
+					completedProtocols.add(pcol);
+				}
 			}
+			if(completedProtocols.isEmpty()) {
+				logger.info("No completed Protocols");
+			}
+			else {
+				for (Protocol protocol : completedProtocols) {
+					logger.info("Protocol in User List:" + protocol.getName() + "Protocol Users: " + protocol.getUserId());
+				}
+			} 
 			for (Protocol protocol : completedProtocols) { // for each protocol
 
 				for (int userId : protocol.getUsers()) {
