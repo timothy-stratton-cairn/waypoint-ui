@@ -3,20 +3,10 @@ package com.cairn.ui;
 import org.springframework.beans.factory.annotation.Value;
 
 public class Constants {
-	// Dev is at Timothys, Demo is AWS
-	// Demo servers
-	//Authorization API 18.234.242.104
-	//Dashboard API 18.215.187.94
-	//UI 3.236.204.96
-	//static public final String api_server = "http://18.215.187.94:8080";
-	//static public final String auth_server = "http://18.234.242.104:8080";
-	// Dev servers
 	@Value("${waypoint.dashboard-api.base-url}")
 	static public String api_server;
 	@Value("${waypoint.authorization-api.base-url}")
 	static public String auth_server;
-	//static public final String api_server = "http://127.0.0.1:8083";
-	//static public final String auth_server = "http://127.0.0.1:8082";
 	static public final String api_ep_protocol = "/api/protocol";
 	static public final String api_me = "/api/oauth/me";
 	static public final String api_ep_protocolaccount= "/api/protocol/account/";

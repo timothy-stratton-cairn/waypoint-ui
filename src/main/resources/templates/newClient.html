@@ -22,8 +22,8 @@
     </div>
     <div class="row note_card">
         <fieldset>
-            <legend>New Client</legend>
-            <form th:action="@{/saveStep}" method="post">
+            <legend>New User</legend>
+            <form th:action="@{/addClient}" method="post">
 
                 <div class="form-group">
                     <label for="email">Email:</label>
@@ -48,9 +48,10 @@
                 <div class="form-group">
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" class="form-control">
+                    <input type="hidden" id="role" name="role" class="form-control" value="2">
+                    <p>Password Rules: Must have a length of 8 or more characters,with at least 
+                    one letter, one number, and one special character</p> 
                 </div>
-
-                
 				<button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
                 <button type="submit" class="btn btn-success" onclick="saveClient(); return false;">Save</button>
 
@@ -69,7 +70,7 @@
             lastName: document.getElementById('lastName').value,
             email: document.getElementById('email').value,
             password: document.getElementById('password').value,
-            roles: 4
+            roles: [document.getElementById('role').value]
         });
 
         fetch('/addClient/', {

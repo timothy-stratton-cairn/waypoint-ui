@@ -421,8 +421,14 @@ public class MainController {
 					userIds.put(protocol.getId(), 0);
 				}
 			} else {
-				userNames.put(protocol.getId(), "User is Empty ");
-				userIds.put(protocol.getId(), 0);
+				User user = userHelper.getUser(usr, protocol.getId());
+				if (user != null) {
+					userNames.put(protocol.getId(), user.getFirstName() + " " + user.getLastName());
+					userIds.put(protocol.getId(), user.getId());
+				} else {
+					userNames.put(protocol.getId(), "user is null");
+					userIds.put(protocol.getId(), 0);
+				}
 			}
 		}
 
@@ -967,10 +973,6 @@ public class MainController {
 
 			// Customize this logic to parse the actual error message
 			if (call.contains("error")) {
-		
-				// Extract the "error" field and remove unnecessary details
-				//String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8,
-					//	call.indexOf("\",", call.indexOf("\"error\":\"")));
 				String errorMessage = "Error in Creating New User";
 				errorResponse.put("error", errorMessage);
 			}

@@ -2,8 +2,6 @@
 <html xmlns="http://www.thymeleaf.org">
 <head>
     <title>Edit Homework</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
@@ -342,6 +340,7 @@ function findTooltipForResponse(responseOptions, selectedResponse) {
     return ""; // Default empty tooltip if not found
 }
 </script>
+<div th:insert="~{footer :: main}">...</div>
 
 </body>
 </html>
