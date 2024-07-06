@@ -25,7 +25,8 @@ public class UserHelper {
 
 	@Value("${waypoint.authorization-api.base-url}")
 	private String authorizationApiBaseUrl;
-    private APIHelper apiHelper = new APIHelper();
+
+	private APIHelper apiHelper = new APIHelper();
 
 	/**
 	 * Get the dashboard stats
@@ -194,12 +195,7 @@ public class UserHelper {
 	public User getUser(User usr, int uid) {
 		User result = new User();
 
-		// Prepare the request body
-
-		// Create a HttpEntity with the headers
-		
-		
-		String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + uid;
+		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
 		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -286,7 +282,7 @@ public class UserHelper {
 		int result = 0;
 		logger.info("Calling userhelper updateUserDetails. FirstName: "+ firstName + " LastName: "+lastName+" Email: "+email );
 		String requestBody = "{\"firstName\":\"" + firstName + "\", \"lastName\":\"" + lastName + "\", \"email\":\"" + email + "\", \"roleIds\":[" + role + "]}";	
-	    String apiUrl = Constants.auth_server + Constants.api_userlist_get +"/"+ id ;
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get +"/"+ id ;
 	    logger.info(apiUrl);
 		result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 		return result;
@@ -299,7 +295,7 @@ public class UserHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 	    String requestBody = "{\"oldPassword\":\"" + oldPassword + "\", \"newPassword\":\"" + newPassword + "\"}";
-	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + id + "/reset-password";
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + id + "/reset-password";
 		int result = apiHelper.postAPI(apiUrl, requestBody, usr);
 		if (result != 0) {
 			return "error ";
@@ -312,7 +308,7 @@ public class UserHelper {
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
-	    String apiUrl = Constants.auth_server + Constants.api_me;
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_me;
 		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		int accountId = 0;
 		if (!jsonResponse.isEmpty()) {
@@ -370,7 +366,7 @@ public class UserHelper {
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
 
-	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/"+ client.getId();
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/"+ client.getId();
 	    
 	    StringBuilder tempBody = new StringBuilder("\"dependants\":[");
 	    for (int i = 0; i < users.size(); i++) {
@@ -393,7 +389,7 @@ public class UserHelper {
 
 		String requestBody = "{\"householdAccountIds\":" + householdIds.toString() + "}";
 		
-	    String apiUrl = Constants.auth_server + Constants.api_household_get +primaryContactId;
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get +primaryContactId;
 	    
 	    logger.info("URL: "+apiUrl);
 	    logger.info("REQUEST BODY: "+requestBody);

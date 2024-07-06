@@ -3,7 +3,7 @@
 <head>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <title>New Client</title>
+    <title>New User</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
@@ -23,7 +23,7 @@
     <div class="row note_card">
         <fieldset>
             <legend>New User</legend>
-            <form th:action="@{/saveStep}" method="post">
+            <form th:action="@{/addClient}" method="post">
 
                 <div class="form-group">
                     <label for="email">Email:</label>
