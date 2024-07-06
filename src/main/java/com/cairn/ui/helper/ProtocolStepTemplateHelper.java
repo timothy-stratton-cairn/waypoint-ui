@@ -226,7 +226,7 @@ public class ProtocolStepTemplateHelper{
     
     public int deleteStepTemplate(User usr, int stepTemplateId) {
     	int result = 0;
-    	String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get + stepTemplateId;
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + stepTemplateId;
     	result = apiHelper.deleteAPI(apiUrl,usr);
     	
     	return result;
