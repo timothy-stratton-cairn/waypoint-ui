@@ -270,10 +270,11 @@ public class UserHelper {
 	        );
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
 		int result = apiHelper.postAPI(apiUrl, requestBody, loggedInUser);
-		if (result != 1) {
+		logger.info(apiUrl);
+		if (result < 0) {
 			return "error ";
 		}
-		return "success";
+		return "success " + "id: "+ result;
 	}
 
 	
@@ -297,7 +298,7 @@ public class UserHelper {
 	    String requestBody = "{\"oldPassword\":\"" + oldPassword + "\", \"newPassword\":\"" + newPassword + "\"}";
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + id + "/reset-password";
 		int result = apiHelper.postAPI(apiUrl, requestBody, usr);
-		if (result != 0) {
+		if (result < 0) {
 			return "error ";
 		}
 		return "success";
@@ -440,11 +441,43 @@ public class UserHelper {
 	
 	public String newHousehold( User usr, Household household) {
 		String result = "Error: Household not created";
-		
-		return result;
-		
-	}
+		String apiUrl = this.authorizationApiBaseUrl + Constants.api_household;
+		String requestBody = "{\"name\":\"" + household.getName() + "\", " +
+                "\"description\":\"" + household.getDescription() + "\", " +
+                "\"householdAccountIds\":[";
+
+		boolean first = true;
+		for (int userId : household.getHouseholdAccountsIds()) {
+			if (!first) {
+			   requestBody += ",";
+				}
+			requestBody += userId;
+			first = false;
+			}
 	
+		requestBody += "], \"primaryContactAccountIds\":[";
+		
+		first = true;
+		for (int pUserId : household.getPrimaryContactsIds()) {
+			if (!first) {
+			   requestBody += ",";
+			}
+		requestBody += pUserId;
+			first = false;
+			}
+		
+		requestBody += "]}";
+		
+		int call = apiHelper.postAPI(apiUrl, requestBody, usr);
+		if (call>0) {
+			result = "Success";
+		}
+		
+				
+		return result;
+				
+	}
+			
 	
 	
 }

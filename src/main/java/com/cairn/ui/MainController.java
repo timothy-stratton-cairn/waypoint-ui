@@ -832,17 +832,19 @@ public class MainController {
 		logger.info("Calling Add CoClient for Household: " + clientId + " and CoClient ID: " + coClientId);
 		User currentUser = userDAO.getUser();
 		Household household = userHelper.getHouseholdById(currentUser, clientId);
+		ArrayList<User> householdMemembers = household.getHouseholdAccounts();
+		
 		ArrayList<Integer> householdIds = new ArrayList<Integer>();
-		for (User usr : household.getHouseholdAccounts()) {
-			householdIds.add(usr.getId());
-			householdIds.add(coClientId);
-			
-
-		}
+		
+		for (User user: householdMemembers) {
+			int uId = user.getId();
+			householdIds.add(uId);
+			}
+		householdIds.add(coClientId);
 		for (int id : householdIds) {
 			logger.info("id: " + id);
 		}
-
+		
 		try {
 			userHelper.addHouseholdAccount(currentUser, clientId, householdIds);
 			return ResponseEntity.ok().body("{\"message\": \"CoClient Successfully Added!\"}");
@@ -942,6 +944,9 @@ public class MainController {
 
 	@GetMapping("/newClient/")
 	public String newClient(Model model) {
+		User currentUser = userDAO.getUser();
+		ArrayList<User> list = userHelper.getUserList(currentUser);
+		model.addAttribute("userList",list);
 		return "newClient";
 	}
 
@@ -956,8 +961,14 @@ public class MainController {
 		String call = userHelper.addUser(currentUser, requestBody);
 		logger.info(call);
 		if (call.startsWith("success")) {
-			logger.info(call);
-			return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
+			String[] parts = call.split(" ");
+	        int clientId = Integer.parseInt(parts[2]);
+	        logger.info("Id: "+ clientId);
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("message", "Client added successfully");
+	        response.put("clientId", clientId);
+
+	        return ResponseEntity.ok(response);
 		} else {
 			Map<String, String> errorResponse = new HashMap<>();
 			errorResponse.put("error", "Error processing the request");
@@ -970,6 +981,37 @@ public class MainController {
 			logger.warn(errorResponse.toString());
 			return ResponseEntity.badRequest().body(errorResponse);
 		}
+	}
+	
+	@PostMapping("/addHousehold/")
+	public ResponseEntity<Object>addHousehold(@RequestBody Household newHousehold){
+		User currentUser = userDAO.getUser();
+		String call = userHelper.newHousehold(currentUser, newHousehold); 
+		if ( call.startsWith("Success")){
+			return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
+		}
+		else {
+			return ResponseEntity.badRequest().body(null);
+		}
+	}
+	@PostMapping("/addHousehold/{id}")
+	public ResponseEntity<Object>addHousehold(@RequestBody Household newHousehold, @PathVariable int id){
+			User currentUser = userDAO.getUser();
+
+			ArrayList<Integer> primaryUser = new ArrayList<Integer>();
+			primaryUser.add(id);
+
+			newHousehold.setPrimaryContactsIds(primaryUser);
+			
+			logger.info(newHousehold.getName() + " "+ newHousehold.getDescription());
+			String call = userHelper.newHousehold(currentUser, newHousehold); 
+			if ( call.startsWith("Success")){
+				return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
+			}
+			else {
+				return ResponseEntity.badRequest().body(null);
+			}
+		
 	}
 
 	@PostMapping("/updateUserPassword/{id}")

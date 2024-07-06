@@ -6,9 +6,16 @@ public class Household{
 	private int id;
 	private String name;
 	private String description;
+	private ArrayList<Integer>householdAccountsIds;
+	private ArrayList<Integer>primaryContactsIds;
 	private ArrayList<User>householdAccounts;
 	private ArrayList<User>primaryContacts;
-	
+    public Household() {
+        this.householdAccounts = new ArrayList<>();
+        this.primaryContacts = new ArrayList<>();
+        this.primaryContactsIds = new ArrayList<>();
+        this.householdAccountsIds = new ArrayList<>();
+    }
 	
 	public int getId() {
 		return id;
@@ -43,5 +50,21 @@ public class Household{
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public ArrayList<Integer> getHouseholdAccountsIds() {
+		return householdAccountsIds;
+	}
+
+	public void setHouseholdAccountsIds(ArrayList<Integer> householdAccountsIds) {
+		this.householdAccountsIds = householdAccountsIds;
+	}
+
+	public ArrayList<Integer> getPrimaryContactsIds() {
+		return primaryContactsIds;
+	}
+
+	public void setPrimaryContactsIds(ArrayList<Integer> primaryContactsIds) {
+		this.primaryContactsIds = primaryContactsIds;
 	}
 }

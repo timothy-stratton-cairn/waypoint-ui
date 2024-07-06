@@ -12,6 +12,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.User;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class APIHelper {
@@ -47,7 +49,7 @@ public class APIHelper {
 		return jsonResponse;
 	}
 
-	public int postAPI(String apiUrl, String requestBody, User usr) {
+	/*public int postAPI(String apiUrl, String requestBody, User usr) {
 		int result = 0;
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Bearer " + usr.getToken());
@@ -56,6 +58,8 @@ public class APIHelper {
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
 			if (response.getStatusCode().is2xxSuccessful()) {
+				String rspd = "Server REsponse"+ response;
+				logger.info(rspd);
 				result = 1;
 			} else {
 				result = -1;
@@ -67,7 +71,40 @@ public class APIHelper {
 			e.printStackTrace();
 		}
 		return result;
-	}
+	}*/
+    public int postAPI(String apiUrl, String requestBody, User usr) {
+        int result = 0;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + usr.getToken());
+        headers.add("Content-Type", "application/json");
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String responseBody = response.getBody();
+                logger.info("Server Response: " + responseBody);
+                if (responseBody != null) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode jsonResponse = objectMapper.readTree(responseBody);
+                    if (jsonResponse.has("id")) {
+                        result = jsonResponse.get("id").asInt();
+                    } else {
+                        result = 1; // Success but no ID in the response
+                    }
+                }
+            } else {
+                result = -1;
+                logger.info(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+            }
+
+        } catch (Exception e) {
+            logger.info("Error in updating note");
+            e.printStackTrace();
+        }
+        String resultMsg = "Result Id: "+result;
+        logger.info(resultMsg);
+        return result;
+    }
 
 	public int deleteAPI(String apiUrl, User usr) {
 		int result = 0;
@@ -118,7 +155,7 @@ public class APIHelper {
 			if (response.getStatusCode().is2xxSuccessful()) {
 				result = response.getBody();
 			} else {
-				result = "";
+				result = "Error";
 				logger.warn(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
 			}
 	

@@ -10,7 +10,7 @@
 <div th:insert="~{header :: main}">...</div>
 
 <div class="container">
-    <div class ="container">
+    <div class="container">
         <div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
             <!-- Success message will be displayed here -->
         </div>
@@ -59,7 +59,24 @@
                     </select>
                 </div>
                 
-				<button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+                <div class="form-group">
+                    <input type="checkbox" id="createHousehold" name="createHousehold" onchange="toggleHouseholdFields()">
+                    <label for="createHousehold">Create a Household?</label>
+                </div>
+                
+                <div id="householdFields" class="d-none">
+                    <div class="form-group">
+                        <label for="householdName">Household Name:</label>
+                        <input type="text" id="householdName" name="householdName" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="householdDescription">Household Description:</label>
+                        <input type="text" id="householdDescription" name="householdDescription" class="form-control">
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
                 <button type="submit" class="btn btn-success" onclick="saveClient(); return false;">Save</button>
 
             </form>
@@ -67,6 +84,16 @@
     </div>
 </div>
 <script>
+    function toggleHouseholdFields() {
+        var householdFields = document.getElementById('householdFields');
+        var createHousehold = document.getElementById('createHousehold');
+        if (createHousehold.checked) {
+            householdFields.classList.remove('d-none');
+        } else {
+            householdFields.classList.add('d-none');
+        }
+    }
+
     function saveClient() {
         var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
@@ -92,7 +119,39 @@
         .then(response => response.json())
         .then(data => {
             if (data.message) {
-                window.location.href = '/clients'; // Redirect on success
+                var createHousehold = document.getElementById('createHousehold');
+                if (createHousehold.checked) {
+                    var householdData = JSON.stringify({
+                        name: document.getElementById('householdName').value,
+                        description: document.getElementById('householdDescription').value
+                    });
+
+                    fetch(`/addHousehold/${data.clientId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            [csrfHeader]: csrfToken
+                        },
+                        body: householdData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            window.location.href = '/clients'; // Redirect on success
+                        } else {
+                            throw new Error(data.error || 'Unknown error occurred.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error adding household:', error);
+                        var errorBanner = document.getElementById('errorBanner');
+                        errorBanner.classList.remove('d-none');
+                        errorBanner.textContent = 'Error: ' + error.message;
+                    });
+                } else {
+                    window.location.href = '/clients'; // Redirect on success
+                }
             } else {
                 throw new Error(data.error || 'Unknown error occurred.');
             }

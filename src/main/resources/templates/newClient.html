@@ -3,14 +3,14 @@
 <head>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <title>New Client</title>
+    <title>New Household</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
 
 <div class="container">
-    <div class ="container">
+    <div class="container">
         <div th:if="${not #strings.isEmpty(success)}" class="alert alert-success" th:text="${success}">
             <!-- Success message will be displayed here -->
         </div>
@@ -22,80 +22,184 @@
     </div>
     <div class="row note_card">
         <fieldset>
-            <legend>New User</legend>
-            <form th:action="@{/addClient}" method="post">
+            <legend>New Household</legend>
+            <form method="post" id="householdForm">
+                <div id="householdInfo">
+                    <div class="form-group">
+                        <label for="name">Household Name:</label>
+                        <input type="text" id="name" name="name" class="form-control">
+                    </div>
 
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="text" id="email" name="email" class="form-control">
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type="text" id="description" name="description" class="form-control">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="firstName">First Name:</label>
-                    <input type="text" id="firstName" name="firstName" class="form-control">
+                <div id="primaryContactSection" class="card my-3">
+                    <fieldset>
+                        <legend>Primary Contacts</legend>
+                        <div class="card-body">
+                            <ul id="primaryContactList" class="list-group mb-3"></ul>
+                            <button type="button" class="btn btn-primary" onclick="togglePrimaryContactFields()">Add Primary Contact</button>
+                            <div id="primaryContactFields" class="d-none mt-3">
+                                <select id="primaryContactSelect" class="form-control">
+                                    <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
+                                </select>
+                                <button type="button" class="btn btn-success mt-2" onclick="addPrimaryContact()">Confirm Primary Contact</button>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
 
-                <div class="form-group">
-                    <label for="lastName">Last Name:</label>
-                    <input type="text" id="lastName" name="lastName" class="form-control">
+                <div id="coClientSection" class="card my-3">
+                    <fieldset>
+                        <legend>CoClients</legend>
+                        <div class="card-body">
+                            <ul id="coClientList" class="list-group mb-3"></ul>
+                            <button type="button" class="btn btn-primary" onclick="toggleCoClientFields()">Add CoClient</button>
+                            <div id="coClientFields" class="d-none mt-3">
+                                <select id="coClientSelect" class="form-control">
+                                    <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
+                                </select>
+                                <button type="button" class="btn btn-success mt-2" onclick="addCoClient()">Confirm CoClient</button>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
-
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" class="form-control">
-                    <input type="hidden" id="role" name="role" class="form-control" value="2">
-                    <p>Password Rules: Must have a length of 8 or more characters,with at least 
-                    one letter, one number, and one special character</p> 
-                </div>
-				<button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
-                <button type="submit" class="btn btn-success" onclick="saveClient(); return false;">Save</button>
-
+                
+                <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+                <button type="submit" class="btn btn-success" onclick="saveHousehold(); return false;">Save</button>
             </form>
         </fieldset>
     </div>
 </div>
-<script>
-    function saveClient() {
-        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-        var clientData = JSON.stringify({
-            username: document.getElementById('username').value,
-            firstName: document.getElementById('firstName').value,
-            lastName: document.getElementById('lastName').value,
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value,
-            roles: [document.getElementById('role').value]
+<script>
+    let primaryContactAdded = false;
+    const primaryContactsIds = [];
+    const coClientsIds = [];
+
+    function togglePrimaryContactFields() {
+        document.getElementById('primaryContactFields').classList.toggle('d-none');
+    }
+
+    function toggleCoClientFields() {
+        document.getElementById('coClientFields').classList.toggle('d-none');
+    }
+
+    function addPrimaryContact() {
+        if (primaryContactAdded) {
+            showError('Primary contact already added.');
+            return;
+        }
+
+        const select = document.getElementById('primaryContactSelect');
+        const userId = select.value;
+        const userName = select.options[select.selectedIndex].text;
+
+        primaryContactsIds.push(parseInt(userId));
+        primaryContactAdded = true;
+
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.textContent = userName;
+
+        const removeButton = document.createElement('button');
+        removeButton.className = 'btn btn-danger btn-sm';
+        removeButton.textContent = 'Remove';
+        removeButton.onclick = () => removePrimaryContact(userId, li);
+        li.appendChild(removeButton);
+
+        document.getElementById('primaryContactList').appendChild(li);
+
+        togglePrimaryContactFields();
+    }
+
+    function addCoClient() {
+        const select = document.getElementById('coClientSelect');
+        const userId = select.value;
+        const userName = select.options[select.selectedIndex].text;
+
+        coClientsIds.push(parseInt(userId));
+
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.textContent = userName;
+
+        const removeButton = document.createElement('button');
+        removeButton.className = 'btn btn-danger btn-sm';
+        removeButton.textContent = 'Remove';
+        removeButton.onclick = () => removeCoClient(userId, li);
+        li.appendChild(removeButton);
+
+        document.getElementById('coClientList').appendChild(li);
+
+        toggleCoClientFields();
+    }
+
+    function removePrimaryContact(userId, listItem) {
+        const index = primaryContactsIds.indexOf(userId);
+        if (index > -1) {
+            primaryContactsIds.splice(index, 1);
+            primaryContactAdded = false;
+            listItem.remove();
+        }
+    }
+
+    function removeCoClient(userId, listItem) {
+        const index = coClientsIds.indexOf(userId);
+        if (index > -1) {
+            coClientsIds.splice(index, 1);
+            listItem.remove();
+        }
+    }
+
+    function saveHousehold() {
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value;
+
+        if (!name || !description) {
+            showError('Both Household Name and Description are required.');
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        const householdData = JSON.stringify({
+            name: name,
+            description: description,
+            primaryContactsIds: primaryContactsIds,
+            householdAccountsIds: coClientsIds
         });
 
-        fetch('/addClient/', {
+        fetch('/addHousehold/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 [csrfHeader]: csrfToken
             },
-            body: clientData
+            body: householdData
         })
         .then(response => response.json())
         .then(data => {
             if (data.message) {
                 window.location.href = '/clients'; // Redirect on success
             } else {
-                throw new Error(data.error || 'Unknown error occurred.');
+                showError(data.error || 'Unknown error occurred.');
             }
         })
         .catch(error => {
-            console.error('Error adding client:', error);
-            var errorBanner = document.getElementById('errorBanner');
-            errorBanner.classList.remove('d-none');
-            errorBanner.textContent = 'Error: ' + error.message;
+            showError('Error adding household: ' + error.message);
         });
+    }
+
+    function showError(message) {
+        const errorBanner = document.getElementById('errorBanner');
+        errorBanner.classList.remove('d-none');
+        errorBanner.textContent = 'Error: ' + message;
     }
 </script>
 </body>
