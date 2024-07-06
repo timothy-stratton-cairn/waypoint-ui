@@ -335,7 +335,7 @@ public class UserHelper {
 		HttpHeaders headers = new HttpHeaders();
 	    headers.add("Authorization", "Bearer " + usr.getToken());
 	    headers.add("Content-Type", "application/json");
-	    String apiUrl = Constants.auth_server + Constants.api_me;
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_me;
 		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
         int accountId = 0;
 		if (!jsonResponse.isEmpty()) {
@@ -432,7 +432,7 @@ public class UserHelper {
 	        return result;
 	    }
 
-	    String apiUrl = Constants.auth_server + Constants.api_userlist_get + "/" + client.getId();
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + client.getId();
 	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
 		return result;
 	}

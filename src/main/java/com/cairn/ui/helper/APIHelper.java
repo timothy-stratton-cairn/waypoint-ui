@@ -42,7 +42,8 @@ public class APIHelper {
 				logger.info("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			logger.info("No records returned for " + apiUrl);
+			logger.info("No records returned for [{}]", apiUrl);
+			logger.warn("No records returned for [{}]", apiUrl, e);
 		}
 		return jsonResponse;
 	}

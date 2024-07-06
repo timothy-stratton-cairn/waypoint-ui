@@ -593,7 +593,7 @@ public class ProtocolHelper {
 	
     public int deleteProtocol(User usr, int protocolId) {
     	int result = 0;
-    	String apiUrl = Constants.api_server + Constants.api_ep_protocol+'/' + protocolId;
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+'/' + protocolId;
     	result = apiHelper.deleteAPI(apiUrl,usr);
     	
     	return result;
