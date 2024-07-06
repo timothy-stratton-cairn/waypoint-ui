@@ -33,9 +33,16 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 		<li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
-		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/protocolTemplates">Protocol Templates</a></li>
-        <li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/homeworkTemplates/">Homework Templates</a></li>
-        <li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/protocolStepTemplates">Step Templates</a></li>
+		<li class="nav-item dropdown" th:if="${session.me.isAdmin()}">
+		  <a class="nav-link dropdown-toggle" href="#" id="templatesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+		    Templates
+		  </a>
+		  <ul class="dropdown-menu" aria-labelledby="templatesDropdown">
+		    <li><a class="dropdown-item" href="/protocolTemplates">Protocol Templates</a></li>
+		    <li><a class="dropdown-item" href="/homeworkTemplates/">Homework Templates</a></li>
+		    <li><a class="dropdown-item" href="/protocolStepTemplates">Step Templates</a></li>
+		  </ul>
+		</li>
         <li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/homeworkQuestionList">Homework Questions</a></li>
 		<li class="nav-item"><a class="nav-link" href="/completionReport">Reports</a></li>
 		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/clients">Households</a></li>

@@ -878,14 +878,7 @@ public class MainController {
 		ArrayList<User> primaryContact = household.getPrimaryContacts();
 		User primaryContactUser = !primaryContact.isEmpty() ? primaryContact.get(0) : null;
 
-		for (User client : clientList) {
-			logger.info("Client Name: " + client.getFirstName() + client.getLastName());
-		}
-		for(Protocol pcol: assignedProtocols) {
-			for (ProtocolStep step: pcol.getSteps()) {
-				logger.info("Step Catagory: "+ step.getCategoryName() + " Catagory Id: "+ step.getCategoryId());
-			}
-		}
+
 		model.addAttribute("primaryContact", primaryContactUser);
 		model.addAttribute("userList", userList);
 		model.addAttribute("coClientList", clientList);
@@ -894,9 +887,7 @@ public class MainController {
 		model.addAttribute("clientId", clientId);
 		model.addAttribute("protocolList", pcolList);
 		model.addAttribute("assignedProtocols", assignedProtocols);
-		for (Protocol pcol : assignedProtocols) {
-			logger.info("Status: " + pcol.getStatus());
-		}
+
 
 		return "clientProfile";
 	}
