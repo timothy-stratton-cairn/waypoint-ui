@@ -120,7 +120,7 @@ public class HomeworkTemplateHelper{
     public HomeworkTemplate getTemplate(User usr, int id) {
         HomeworkTemplate result = new HomeworkTemplate();
 
-        String apiUrl = Constants.api_server + Constants.api_homeworktemplate + "/" + id;
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate + "/" + id;
 	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -144,7 +144,7 @@ public class HomeworkTemplateHelper{
     
     public String newTemplate(User usr, String templateBody) {
     	String result = "Process not yet set ";
-    	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate;
 	    int response = apiHelper.postAPI(apiUrl, templateBody, usr);
 		if (response == 1) {
 			result = "Success";
@@ -171,7 +171,7 @@ public class HomeworkTemplateHelper{
     		requestBody = requestBody+bodyString;
     		
     	}
-    	String apiUrl = Constants.api_server + Constants.api_homeworktemplate;
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate;
 	    result = apiHelper.postAPI(apiUrl, requestBody, usr);
     	
     	return result;
@@ -179,7 +179,7 @@ public class HomeworkTemplateHelper{
     
     public int deleteHomeworkTemplate(User usr, int homeworkTemplateId) {
     	int result = 0;
-    	String apiUrl = Constants.api_server + Constants.api_homeworktemplate_get + homeworkTemplateId;
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate_get + homeworkTemplateId;
     	logger.info(apiUrl);
         result = apiHelper.deleteAPI(apiUrl, usr);
         
@@ -190,7 +190,7 @@ public class HomeworkTemplateHelper{
     public int removeHomeworkTemplateFromStep(User usr, int homeworkTemplateId, int stepId ) {
     	int result = 0;
     	
-    	String apiUrl = Constants.api_server + Constants.api_ep_protocolsteptemplate_get +'/' + homeworkTemplateId;
+    	String apiUrl = this.dashboardApiBaseUrl+ Constants.api_ep_protocolsteptemplate_get +'/' + homeworkTemplateId;
     	logger.info(apiUrl);
         result = apiHelper.deleteAPI(apiUrl, usr);
         return result;
@@ -198,7 +198,7 @@ public class HomeworkTemplateHelper{
     
     public ArrayList<HomeworkQuestion> getHomeworkQuestions(User usr){
     	ArrayList<HomeworkQuestion> results = new ArrayList<HomeworkQuestion>();
-    	String apiUrl = Constants.api_server + Constants.api_homework_question ;
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework_question ;
 	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -237,7 +237,7 @@ public class HomeworkTemplateHelper{
     public int newHomeworkQuestion(User usr, HomeworkQuestion question) {
         int result = 0;
         
-        String apiUrl = Constants.api_server + Constants.api_homework_question;
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework_question;
         String requestBody = "{" +
             "\"questionAbbr\": \"" + question.getQuestionAbbreviation() + "\"," +
             "\"question\": \"" + question.getQuestion() + "\"," +

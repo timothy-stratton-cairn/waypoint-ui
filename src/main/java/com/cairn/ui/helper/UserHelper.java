@@ -360,7 +360,7 @@ public class UserHelper {
     }
 
 	
-	public int addDependant(User usr, User client, ArrayList<User> users) {
+	/*public int addDependant(User usr, User client, ArrayList<User> users) {
 	    int result = 0;
 	    logger.info("Calling addDepenedant from Helper");
 	    HttpHeaders headers = new HttpHeaders();
@@ -383,7 +383,35 @@ public class UserHelper {
 	    requestBody = requestBody+tempBody.toString();
 	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
 		return result;
+	}*/
+	
+	public String addDependant(User usr, int clientId, ArrayList<Integer> dependentList) {
+	    String result = "error";
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + clientId;
+	    
+	    StringBuilder requestBody = new StringBuilder("{ \"dependentIds\": [");
+	    
+	    for (int i = 0; i < dependentList.size(); i++) {
+	        requestBody.append(dependentList.get(i));
+	        if (i < dependentList.size() - 1) {
+	            requestBody.append(", ");
+	        }
+	    }
+	    
+	    requestBody.append("] }");
+	    
+	    logger.info(apiUrl);
+	    logger.info(requestBody.toString());
+	    
+	    int call = apiHelper.patchAPI(apiUrl, requestBody.toString(), usr);  // Assuming requestBody is the second parameter
+	    if (call > 0) {
+	        result = "success: Id: " + call;
+	    }
+
+	    return result;
 	}
+
+
 
 	public int addHouseholdAccount(User usr, int primaryContactId, ArrayList<Integer> householdIds) {
 		int result = -1;

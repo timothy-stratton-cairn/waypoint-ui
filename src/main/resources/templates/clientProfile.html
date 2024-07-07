@@ -83,12 +83,12 @@
             <fieldset>
                 <legend>Dependents</legend>
                 <ul class="nav nav-tabs" id="dependentTabs" role="tablist">
-                    <li class="nav-item" th:each="dependent, iterStat : ${clientList}" th:if="${dependent.roles.contains('DEPENDENT')}" role="presentation">
+                    <li class="nav-item" th:each="dependent, iterStat : ${dependants}" role="presentation">
                         <button class="nav-link" th:id="'dependent-tab' + ${iterStat.index}" data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}" type="button" role="tab" th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></button>
                     </li>
                 </ul>
                 <div class="tab-content" id="dependentTabsContent">
-                    <div th:each="dependent, iterStat : ${clientList}" th:if="${dependent.roles.contains('DEPENDENT')}" class="tab-pane fade" th:id="'dependent' + ${iterStat.index}" role="tabpanel">
+                    <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade" th:id="'dependent' + ${iterStat.index}" role="tabpanel">
                         <div>
                             <label>Id:</label>
                             <span th:text="${dependent.id}"></span>
@@ -425,8 +425,9 @@
         
 
 	</script>
+	<div th:insert="~{footer :: main}">...</div>
 </body>
-<div th:insert="~{footer :: main}">...</div>
+
 
 </html>
 

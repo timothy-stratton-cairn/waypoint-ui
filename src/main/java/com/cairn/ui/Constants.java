@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 public class Constants {
 	@Value("${waypoint.dashboard-api.base-url}")
 	static public String api_server;
+	
 	@Value("${waypoint.authorization-api.base-url}")
 	static public String auth_server;
+	
 	static public final String api_ep_protocol = "/api/protocol";
 	static public final String api_me = "/api/oauth/me";
 	static public final String api_ep_protocolaccount= "/api/protocol/account/";

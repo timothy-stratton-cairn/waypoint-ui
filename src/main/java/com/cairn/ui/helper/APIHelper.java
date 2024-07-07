@@ -79,7 +79,7 @@ public class APIHelper {
         headers.add("Content-Type", "application/json");
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
         try {
-            ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, String.class);
+            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
             if (response.getStatusCode().is2xxSuccessful()) {
                 String responseBody = response.getBody();
                 logger.info("Server Response: " + responseBody);

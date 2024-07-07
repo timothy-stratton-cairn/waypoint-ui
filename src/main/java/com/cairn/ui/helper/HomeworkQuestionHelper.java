@@ -20,18 +20,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class HomeworkQuestionHelper{
-    Logger logger = LoggerFactory.getLogger(ProtocolTemplateHelper.class); 
-    private APIHelper apiHelper = new APIHelper();
-
-	@Value("${waypoint.dashboard-api.base-url}")
+    
+    @Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
 	
-	
+    Logger logger = LoggerFactory.getLogger(ProtocolTemplateHelper.class); 
+    private APIHelper apiHelper = new APIHelper();
 	
     public int newHomeworkQuestion(User usr, HomeworkQuestion question) {
         int result = 0;
-
-        String apiUrl = Constants.api_server + Constants.api_homework_question;
+        
+        if (this.dashboardApiBaseUrl == null) {
+            logger.error("dashboardApiBaseUrl is not set");
+            return -1; 
+        }
+        
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework_question;
+        logger.info(apiUrl);
         StringBuilder requestBody = new StringBuilder();
         requestBody.append("{")
             .append("\"questionAbbr\": \"").append(question.getQuestionAbbreviation()).append("\",")
@@ -78,7 +83,8 @@ public class HomeworkQuestionHelper{
     
     public ArrayList<HomeworkQuestion> getHomeworkQuestions(User usr){
     	ArrayList<HomeworkQuestion> results = new ArrayList<HomeworkQuestion>();
-    	String apiUrl = Constants.api_server + Constants.api_homework_question ;
+    	
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework_question ;
     	logger.info("URL: "+ apiUrl);
     	
         // Create a HttpEntity with the headers
@@ -120,7 +126,7 @@ public class HomeworkQuestionHelper{
     
     public HomeworkQuestion getQuestion(User usr, int id) {
         HomeworkQuestion result = new HomeworkQuestion();
-        String apiUrl = Constants.api_server + Constants.api_homework_question_get + id;
+        String apiUrl = this.dashboardApiBaseUrl+ Constants.api_homework_question_get + id;
         logger.info("URL: "+ apiUrl);
         String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 
@@ -210,7 +216,7 @@ public class HomeworkQuestionHelper{
     
     public int updateHomeworkQuestion(User usr, int id, HomeworkQuestion question) {
         int result = -1;
-        String apiUrl = Constants.api_server + Constants.api_homework_question_get + id;
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework_question_get + id;
         StringBuilder requestBody = new StringBuilder();
         requestBody.append("{")
             .append("\"questionAbbr\": \"").append(question.getQuestionAbbreviation()).append("\",")

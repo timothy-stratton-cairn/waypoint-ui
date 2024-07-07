@@ -18,13 +18,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.dto.HomeworkListDto;
 import com.cairn.ui.model.AssignedHomeworkResponseList;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.ExpectedHomeworkResponses;
@@ -37,11 +37,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Service
 public class HomeworkHelper {
     Logger logger = LoggerFactory.getLogger(HomeworkHelper.class); 
     private APIHelper apiHelper = new APIHelper();
 
-	@Value("${waypoint.dashboard-api.base-url}")
+    @Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
 
 	private RestTemplate restTemplate;
@@ -64,7 +65,7 @@ public class HomeworkHelper {
 			return results;
 		}
 
-		String apiUrl = Constants.api_server + Constants.api_homework + "protocol/" + protocolId;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework + "protocol/" + protocolId;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		logger.info(apiUrl);
 		// Make the GET request and retrieve the response
@@ -112,11 +113,11 @@ public class HomeworkHelper {
 		return results;
 	}
 
-	public HomeworkListDto getHomeworkByProtocol(User usr, int id) {
+	public Homework getHomeworkByProtocol(User usr, int id) {
 
-		HomeworkListDto result = new HomeworkListDto();
+		Homework result = new Homework();
 
-		String apiUrl = Constants.api_server + Constants.api_homework + "protocol/" + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework + "protocol/" + id;
 
 		logger.info(apiUrl);
 
@@ -127,7 +128,7 @@ public class HomeworkHelper {
 			if (response.getStatusCode().is2xxSuccessful()) {
 				String jsonResponse = response.getBody();
 				ObjectMapper objectMapper = new ObjectMapper();
-				result = objectMapper.readValue(jsonResponse, HomeworkListDto.class);
+				result = objectMapper.readValue(jsonResponse, Homework.class);
 
 			} else {
 				logger.info("Failed to fetch data. Status code: " + response.getStatusCode());
@@ -147,7 +148,7 @@ public class HomeworkHelper {
 			return results;
 		}
 
-		String apiUrl = Constants.api_server + Constants.api_homework + "household/" + protocolId;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework + "household/" + protocolId;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		logger.info(apiUrl);
 		// Make the GET request and retrieve the response
@@ -220,7 +221,7 @@ public class HomeworkHelper {
 			return null; // Returning null to indicate user not found, handle accordingly
 		}
 
-		String apiUrl = Constants.api_server + Constants.api_homework + id;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework + id;
 		HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 		logger.info(apiUrl);
 
@@ -306,7 +307,7 @@ public class HomeworkHelper {
 	public int submitHomeworkResponses(User user, int homeworkId,
 			AssignedHomeworkResponseList homeworkResponses, List<MultipartFile> files)
       throws IOException {
-		final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+		final String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework + homeworkId;
 		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
 		HttpHeaders requestHeaders = new HttpHeaders();
@@ -351,7 +352,7 @@ public class HomeworkHelper {
 
 	public int assignAnswerToHomework(User usr, int homeworkId, int questionId, String userResponse, String filePath)
 			throws IOException {
-		final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+		final String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework + homeworkId;
 		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
 		HttpHeaders requestHeaders = new HttpHeaders();
@@ -401,7 +402,7 @@ public class HomeworkHelper {
 	        throws IOException {
 		logger.info("Calling AssignAnswerToHomeworkTest");
 		logger.info("File Uploaded: " + file.getOriginalFilename() + " User Response: "+ userResponse);
-	    final String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+	    final String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework + homeworkId;
 	    MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
 
 	    HttpHeaders requestHeaders = new HttpHeaders();
@@ -440,7 +441,7 @@ public class HomeworkHelper {
 	
 	
     public ResponseEntity<ByteArrayResource> downloadResponseFile(User usr, String guid) throws IOException, URISyntaxException {
-        String apiUrl = Constants.api_server + Constants.api_homework_response_file + guid;
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework_response_file + guid;
         HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
 
         ResponseEntity<ByteArrayResource> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, ByteArrayResource.class);
@@ -467,7 +468,7 @@ public class HomeworkHelper {
 
     public int deleteHomeworkQuestion(User usr, int homeworkQuestionId) {
     	int result = -1;
-    	String apiUrl = Constants.api_server + Constants.api_homework_question_get + homeworkQuestionId;
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework_question_get + homeworkQuestionId;
     	result = apiHelper.deleteAPI(apiUrl,usr);
         
     	
@@ -475,7 +476,7 @@ public class HomeworkHelper {
     }
     public int deleteHomework(User usr, int homeworkId) {
     	int result = -1;
-    	String apiUrl = Constants.api_server + Constants.api_homework + homeworkId;
+    	String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework + homeworkId;
     	result = apiHelper.deleteAPI(apiUrl,usr);    	
     	
     	return result;

@@ -93,9 +93,6 @@ public class MainController {
 	@Autowired
 	HomeworkTemplateHelper homeworkTemplateHelper;
 
-	// @Autowired
-	// HomeworkHelper homeworkHelper;
-
 	@Autowired
 	ProtocolHelper protocolHelper;
 
@@ -110,6 +107,12 @@ public class MainController {
 
 	@Autowired
 	ReportHelper reportHelper;
+	
+	@Autowired
+	HomeworkHelper homeworkHelper;
+	
+	@Autowired
+	HomeworkQuestionHelper questionHelper;
 
 	@Autowired
 	private JavaMailSender mailSender;
@@ -185,7 +188,7 @@ public class MainController {
 	public String viewProtocol(Model model, @PathVariable int pcolId, @PathVariable int userId) {
 		User currentUser = userDAO.getUser();
 		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
-		HomeworkHelper homeworkHelper = new HomeworkHelper();
+		
 		logger.info("Calling getHomeworkByProtocol");
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, pcolId);
 		if (allHomeworks != null && !allHomeworks.isEmpty()) {
@@ -220,7 +223,7 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 		ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
 		ArrayList<Integer> stepIds = new ArrayList<Integer>();
-		HomeworkHelper homeworkHelper = new HomeworkHelper();
+		
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
 		
 		for (ProtocolStep step : stepList) {
@@ -264,7 +267,7 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 		ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
 		ArrayList<Integer> stepIds = new ArrayList<Integer>();
-		HomeworkHelper homeworkHelper = new HomeworkHelper();
+
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
 
 		for (ProtocolStep step : stepList) {
@@ -801,30 +804,63 @@ public class MainController {
 		// Return -1 if no ID is found
 		return -1;
 	}
-
+	
 	@RequestMapping(value = "addDependant/{clientId}", method = { RequestMethod.POST, RequestMethod.PATCH })
 	public ResponseEntity<Object> addDependant(@PathVariable int clientId, @RequestBody User dependantUser) {
 		logger.info("Calling addDependent from controller");
 		User currentUser = userDAO.getUser();
-		User client = userHelper.getUser(currentUser, clientId);
-		String userDependant = userHelper.addUser(currentUser, dependantUser);
-		int dependantId = extractIdFromString(userDependant);
+		Map<String, String> errorResponse = new HashMap<>();
+		String call = userHelper.addUser(currentUser, dependantUser);
+		Household mainHouse = userHelper.getHouseholdById(currentUser, clientId);
+		ArrayList<Integer> dependantList = new ArrayList<Integer>();
 
-		User newDependant = userHelper.getUser(currentUser, dependantId);
-		logger.info("Dependant Created: " + newDependant + "Dependant ID " + dependantId);
-		ArrayList<User> dependants = client.getDependents();
-		dependants.add(newDependant);
-
-		try {
-			userHelper.addDependant(currentUser, client, dependants);
-
-		} catch (Exception e) {
-			logger.info("Error in addClientToProtocol:");
-			e.printStackTrace(); // Print the stack trace to the console
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Error adding client to protocol: " + e.getMessage());
+		int primaryContactId = 0;
+		ArrayList<User> primaryContactList = mainHouse.getPrimaryContacts();
+		if (!primaryContactList.isEmpty()) {
+		    User primaryContact = primaryContactList.get(0);
+		    primaryContactId = primaryContact.getId();
+		    logger.info("PC ID: "+ primaryContactId);
+		    primaryContact = userHelper.getUser(currentUser, primaryContactId);
+		    for(User usr: primaryContact.getDependents()) {
+		    	dependantList.add(usr.getId());
+		    }
+		    for(int id: dependantList) {
+		    	logger.info("ID: " + id);
+		    }
+		   
 		}
-		return ResponseEntity.ok().build();
+		else {
+			errorResponse.put("error", "Household does not have a primary contact");
+			return ResponseEntity.badRequest().body(errorResponse);
+		}
+		logger.info(call);
+		if (call.startsWith("success")) {
+			String[] parts = call.split(" ");
+	        int dependantId = Integer.parseInt(parts[2]);
+	        dependantList.add(dependantId);
+	        logger.info("Id: "+ dependantId);
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        String dependantCall = userHelper.addDependant(currentUser, primaryContactId, dependantList);
+	        if (dependantCall.startsWith("success")) {
+	        	response.put("message", "Client added successfully");
+	        	return ResponseEntity.ok(response);
+	        }
+	        
+		} else {
+			
+			errorResponse.put("error", "Error processing the request");
+
+			// Customize this logic to parse the actual error message
+			if (call.contains("error")) {
+				String errorMessage = "Error in Creating New User";
+				errorResponse.put("error", errorMessage);
+			}
+			logger.warn(errorResponse.toString());
+			return ResponseEntity.badRequest().body(errorResponse);
+		}
+		errorResponse.put("error", "Error Creating Dependat");
+		return ResponseEntity.badRequest().body(errorResponse);
 	}
 
 	@PatchMapping("addCoClient/{clientId}/{coClientId}")
@@ -883,10 +919,23 @@ public class MainController {
 		ArrayList<User> userList = userHelper.getUserList(currentUser);
 		int userId = userHelper.getUserId(currentUser);
 		ArrayList<User> clientList = household.getHouseholdAccounts();
-		ArrayList<User> primaryContact = household.getPrimaryContacts();
-		User primaryContactUser = !primaryContact.isEmpty() ? primaryContact.get(0) : null;
+		ArrayList<User> primaryContacts = household.getPrimaryContacts();
+		User primaryContactUser = !primaryContacts.isEmpty() ? primaryContacts.get(0) : null;
+		int pcId = primaryContactUser.getId();
+		
+		User pcUser = userHelper.getUser(currentUser, pcId);
 
-
+		
+		
+		
+		ArrayList<User> dependants = pcUser.getDependents();
+		if(!dependants.isEmpty()) {
+			for(User dependant: dependants) {
+				logger.info(dependant.getFirstName()+ dependant.getLastName());
+			}
+		}
+		model.addAttribute("dependants",dependants);
+		model.addAttribute("primaryContact", pcUser);
 		model.addAttribute("primaryContact", primaryContactUser);
 		model.addAttribute("userList", userList);
 		model.addAttribute("coClientList", clientList);
@@ -1095,12 +1144,12 @@ public class MainController {
     public String editHomeworkTemplate(Model model) {
         User currentUser = userDAO.getUser();
         ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
-        HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
-        ArrayList<HomeworkQuestion> questions = helper.getHomeworkQuestions(currentUser);
+        
+        ArrayList<HomeworkQuestion> questions = questionHelper.getHomeworkQuestions(currentUser);
         ArrayList<HomeworkQuestion> detailedQuestions = new ArrayList<>();
 
         for (HomeworkQuestion question : questions) {
-            HomeworkQuestion dQuestion = helper.getQuestion(currentUser, question.getQuestionId());
+            HomeworkQuestion dQuestion = questionHelper.getQuestion(currentUser, question.getQuestionId());
             detailedQuestions.add(dQuestion);
         }
 
@@ -1233,8 +1282,8 @@ public class MainController {
 	@GetMapping("/homeworkList/{id}")
 	public String homeworkList(@PathVariable int id, Model model) {
 		User currentUser = userDAO.getUser();
-		HomeworkHelper helper = new HomeworkHelper(); // this will need to be autowired at some point
-		ArrayList<Homework> homeworks = helper.getHomeworkByProtocolId(currentUser, id);
+
+		ArrayList<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
 
 		model.addAttribute("homeworks", homeworks);
 
@@ -1244,8 +1293,8 @@ public class MainController {
 	@GetMapping("homeworkDisplay/{homeworkId}")
 	public String homeworkDisplay(@PathVariable int homeworkId, Model model) {
 		User currentUser = userDAO.getUser();
-		HomeworkHelper hwHelper = new HomeworkHelper();
-		Homework homework = hwHelper.getHomeworkByHomeworkId(currentUser, homeworkId);
+
+		Homework homework = homeworkHelper.getHomeworkByHomeworkId(currentUser, homeworkId);
 		model.addAttribute("homework", homework);
 		return "homeworkDisplay";
 	}
@@ -1257,7 +1306,7 @@ public class MainController {
 			@RequestParam("userResponses") String[] userResponses,
 			@RequestParam("files") Optional<List<MultipartFile>> files) {
 		User currentUser = userDAO.getUser();
-		HomeworkHelper helper = new HomeworkHelper();
+
 		logger.info("Responses: " + userResponses);
 
 		Iterator<Long> questionIdList = Arrays.asList(questionIds).iterator();
@@ -1285,7 +1334,7 @@ public class MainController {
 			AssignedHomeworkResponseList assignedHomeworkResponseList = new AssignedHomeworkResponseList();
 			assignedHomeworkResponseList.setResponses(homeworkResponses);
 
-			helper.submitHomeworkResponses(currentUser, homeworkId, assignedHomeworkResponseList,
+			homeworkHelper.submitHomeworkResponses(currentUser, homeworkId, assignedHomeworkResponseList,
 					files.orElseGet(List::of));
 			return ResponseEntity.ok().body("{\"message\": \"Success!\"}");
 		} catch (NumberFormatException e) {
@@ -1322,11 +1371,11 @@ public class MainController {
 	public ResponseEntity<String> uploadFileToHomework(@RequestParam("file") MultipartFile file, String userResponse,
 			@RequestParam("homeworkId") int homeworkId, @RequestParam("questionId") int questionId) {
 		User currentUser = userDAO.getUser();
-		HomeworkHelper helper = new HomeworkHelper();
+
 		logger.info("Calling upoloadFileToHomework");
 		try {
 
-			helper.assigneFileUpload(currentUser, homeworkId, questionId, "File Upload", file);
+			homeworkHelper.assigneFileUpload(currentUser, homeworkId, questionId, "File Upload", file);
 			return ResponseEntity.ok().body("{\"message\": \"File successfully uploaded\"}");
 
 		} catch (Exception e) {
@@ -1360,11 +1409,11 @@ public class MainController {
 	@GetMapping("/homeworkReport/{clientId}")
 	public String homeworkReport(@PathVariable int clientId, Model model) {
 		User currentUser = userDAO.getUser();
-		HomeworkHelper helper = new HomeworkHelper();
-		ArrayList<Homework> homeworks = helper.getHomeworkByUser(currentUser, clientId);
+
+		ArrayList<Homework> homeworks = homeworkHelper.getHomeworkByUser(currentUser, clientId);
 		ArrayList<Homework> homeworkDetails = new ArrayList<>();
 		for (Homework homework : homeworks) {
-			Homework detailedHomework = helper.getHomeworkByHomeworkId(currentUser, homework.getId());
+			Homework detailedHomework = homeworkHelper.getHomeworkByHomeworkId(currentUser, homework.getId());
 			homeworkDetails.add(detailedHomework);
 			logger.info("Added homework with ID: " + detailedHomework.getId());
 		}
@@ -1667,10 +1716,10 @@ public class MainController {
 	@GetMapping("/downloadFile/{guid}")
 	public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable String guid) {
 		User currentUser = userDAO.getUser();
-		HomeworkHelper helper = new HomeworkHelper();
+
 		try {
 			logger.info("Initiating file download...");
-			return helper.downloadResponseFile(currentUser, guid);
+			return homeworkHelper.downloadResponseFile(currentUser, guid);
 		} catch (IOException | URISyntaxException e) {
 			System.err.println("Error Downloading File: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -1688,7 +1737,7 @@ public class MainController {
 	@DeleteMapping("deleteTemplate/{type}/{id}")
 	public ResponseEntity<String> deleteTemplate(@PathVariable String type, @PathVariable int id) {
 		User currentUser = userDAO.getUser();
-		HomeworkHelper helper = new HomeworkHelper();
+	
 		int call = 0;
 
 		switch (type) {
@@ -1717,7 +1766,7 @@ public class MainController {
 			break;
 
 		case "Homework":
-			call = helper.deleteHomework(currentUser, id);
+			call =homeworkHelper.deleteHomework(currentUser, id);
 			if (call != 1) {
 				return new ResponseEntity<>("Error deleting Homework", HttpStatus.BAD_REQUEST);
 			}
@@ -1731,7 +1780,7 @@ public class MainController {
 			break;
 
 		case "HomeworkQuestion":
-			call = helper.deleteHomeworkQuestion(currentUser, id);
+			call = homeworkHelper.deleteHomeworkQuestion(currentUser, id);
 			if (call != 1) {
 				return new ResponseEntity<>("Error deleting Homework Question", HttpStatus.BAD_REQUEST);
 			}
@@ -1749,9 +1798,9 @@ public class MainController {
 	public ResponseEntity<String>updateHomeworkTemplate(@PathVariable int id, @RequestBody HomeworkQuestion question){
 		User currentUser = userDAO.getUser();
 		logger.info("Trigger Response id" + question.getTriggerProtocolId());
-		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
+	
 		try {
-			helper.updateHomeworkQuestion(currentUser, id, question);
+			questionHelper.updateHomeworkQuestion(currentUser, id, question);
 			return ResponseEntity.ok().body("{\"message\": \"Homework Successfully Changed\"}");
 		
 		} catch (Exception e) {
@@ -1770,8 +1819,8 @@ public class MainController {
 	@GetMapping("/displayHomeworkQustion/{id}")
 	public String displayHomeworkQuestion(@PathVariable int id, Model model) {
 		User currentUser = userDAO.getUser();
-		HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
-		HomeworkQuestion question = helper.getQuestion(currentUser, id);
+
+		HomeworkQuestion question = questionHelper.getQuestion(currentUser, id);
 		ArrayList<ProtocolTemplate> protocolList = protocolTemplateHelper.getList(currentUser);
 		ExpectedHomeworkResponses responses = question.getExpectedHomeworkResponses();
 		if (responses.getResponses().isEmpty()) {
@@ -1801,9 +1850,9 @@ public class MainController {
         User currentUser = userDAO.getUser();
         String body = ("QuestionID: "+ question.getQuestionId() + "Question Abbr: "+ question.getQuestionAbbreviation() + "Question Type"+ question.getQuestionType() + "Trigger Response: "+ question.getTriggerProtocolId());
         logger.info(body);
-        HomeworkQuestionHelper helper = new HomeworkQuestionHelper();
+
         try {
-            helper.newHomeworkQuestion(currentUser, question);
+            questionHelper.newHomeworkQuestion(currentUser, question);
             return ResponseEntity.ok("{\"message\": \"Question successfully saved\"}");
         } catch (Exception e) {
             logger.error("Error saving question", e);
