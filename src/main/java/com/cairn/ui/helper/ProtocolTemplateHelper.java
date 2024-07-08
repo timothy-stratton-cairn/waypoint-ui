@@ -699,11 +699,16 @@ public class ProtocolTemplateHelper {
     public int deleteProtocolTemplate(User usr, int protocolTemplateId) {
     	int result = 0;
     	logger.info("Calling deleteProtocolTemplate");
-    	String apiUrl = Constants.api_server + Constants.api_ep_protocoltemplateget + protocolTemplateId;
+    	String apiUrl = this.dashboardApiBaseUrl+ Constants.api_ep_protocoltemplateget + protocolTemplateId;
     	logger.info("Api Url: "+apiUrl);
     	result = apiHelper.deleteAPI(apiUrl,usr);
     	logger.info("Result: " + result);
     	
+    	return result;
+    }
+    
+    public int updateHomeworkTemplate(User usr, int id, HomeworkTemplate template) {
+    	int result = -1;
     	return result;
     }
 }
