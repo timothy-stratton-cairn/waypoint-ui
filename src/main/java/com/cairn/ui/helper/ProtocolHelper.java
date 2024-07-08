@@ -464,7 +464,7 @@ public class ProtocolHelper {
 
 	public int updateStepStatus(User usr, int protocolId, int stepId, String status) {
 		int result = 0;
-		String requestBody = "{\"status\": \"" + status + "\"}";
+		String requestBody = "{\"status\": \"" + status + "\", \"completionCondition\": \"" + status + "\"}";
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + protocolId + "/protocol-step/"
 				+ stepId + "/status";
 		result = apiHelper.patchAPI(apiUrl, requestBody, usr);
