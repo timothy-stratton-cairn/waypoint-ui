@@ -271,6 +271,35 @@
             }
         });
     }
+    
+     function deleteProtocolTemplate(id) {
+            var name = document.getElementById('name').value;
+            var isConfirmed = confirm(`Are you sure you want to delete ${name}?`);
+
+            if (!isConfirmed) {
+                return;
+            }
+
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+            $.ajax({
+                url: '/deleteTemplate/ProtocolTemplate/' + id,
+                type: 'DELETE',
+                headers: {
+                    'Accept': 'text/plain', 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                success: function(response) {
+                    window.location.href = '/protocolTemplates';
+                },
+                error: function(xhr, status, error) {
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
+                    showBannerMessage('Failed to delete Protocol Template. Error: ' + errorMessage, 'danger');
+                }
+            });
+        }
 
     function confirmStep(buttonElement) {
         var csrfToken = $('meta[name="_csrf"]').attr('content');
@@ -387,36 +416,9 @@
         }
         return errorMessage;
     }
-    
-    function deleteProtocolTemplate(id) {
-        var protocolName = document.getElementById('name').value;
-        var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
-
-        if (!isConfirmed) {
-            return;
-        }
-        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-        $.ajax({
-            url: '/deleteTemplate/ProtocolTemplate/' + id,
-            type: 'DELETE',
-            headers: {
-                'Accept': 'application/json, text/plain', 
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            success: function(response) {
-                window.location.href = '/protocolTemplates';
-
-            },
-            error: function(xhr, status, error) {
-                showBannerMessage( xhr.responseText, 'danger');
 
 
-            }
-        });
-    }
+
 </script>
 <div th:insert="~{footer :: main}">...</div>
 </body>

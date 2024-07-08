@@ -353,7 +353,7 @@
     }
     
     function deleteProtocol(id) {
-        var protocolName = document.getElementById('name').value;
+        var protocolName = document.getElementById('nameInput').value;
         var isConfirmed = confirm(`Are you sure you want to delete ${protocolName}?`);
 
         if (!isConfirmed) {
@@ -367,7 +367,7 @@
             url: '/deleteTemplate/Protocol/' + protocolId,
             type: 'DELETE',
             headers: {
-                'Accept': 'application/json, text/plain', 
+                'Accept': 'text/plain', 
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': csrfToken
             },
