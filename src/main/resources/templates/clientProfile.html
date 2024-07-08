@@ -111,6 +111,13 @@
         <div class="note_card">
             <fieldset>
                 <legend>Assigned Protocols</legend>
+                <div class="row">
+                    <div class="col-3">
+                        <button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+                        <button type="button" class="btn btn-primary" onclick="viewHistory();">View All Protocols</button>
+                    </div>
+		            <div id="protocolContainer"></div>
+                </div><br/>
                 <ul class="nav nav-tabs">
                     <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
                     <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
@@ -175,14 +182,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-3">
-                        <button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
-                        <button type="button" class="btn btn-primary" onclick="viewHistory();">View All Protocols</button>
-                    </div>
-                </div>
             </fieldset>
-            <div id="protocolContainer"></div>
         </div>
     </div>
 

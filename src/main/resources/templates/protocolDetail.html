@@ -223,7 +223,6 @@
     }
 
     function updateProgress(stepId) {
-        console.log(`Attempting to select: #stepContainer_${stepId}`);
         const container = document.querySelector(`#stepContainer_${stepId}`);
         if (!container) {
             console.error(`Container not found for step ID: ${stepId}`);
@@ -244,10 +243,19 @@
                                <button onclick="confirmNote(${stepId})">Confirm Note</button>`;
     }
 
+    function camel(str) {
+		if (str == 'todo') {
+			str = "to do";
+		}
+    	return str.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+    }
+    
     function confirmStatus(stepId) {
         var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
         var status = document.querySelector(`#statusDropdown_${stepId}`).value;
+        const container = document.querySelector(`#stepContainer_${stepId}`);
+        container.innerHTML = "";
 
         $.ajax({
             url: `/updateStepStatus/${protocolId}/${stepId}/${status}`,
@@ -258,7 +266,7 @@
                 'X-CSRF-TOKEN': csrfToken
             },
             success: function(response) {
-                $(`#row_${stepId} .col-md-3:nth-child(3)`).text(status.replace(/_/g, ' '));
+                $(`#row_${stepId} .col-md-3:nth-child(3)`).text(camel(status.toLowerCase().replace(/_/g, ' ')));
                 showMessageBanner('Status updated successfully.', 'success');
             },
             error: function(xhr, status, error) {
