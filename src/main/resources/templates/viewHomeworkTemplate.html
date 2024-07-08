@@ -57,13 +57,17 @@
                 <div class="col" th:text="${question.question}"></div>
                 <div class="col" th:text="${question.questionType}"></div>
                 <div class="col" th:text="${question.isRequired ? 'Yes' : 'No'}"></div>
-                <div class="col">
-                    <button type="button" class="btn btn-danger" th:attr="onclick='removeQuestionFromTemplate(' + ${question.questionId} + ');'">Remove</button>
-                </div>
+			 <div class="col">
+			    
+			    <button type="button" class="btn btn-secondary" th:attr="onclick='viewQuestion(' + ${question.questionId} + ');'">Details</button>
+			    <button type="button" class="btn btn-secondary" th:attr="onclick='removeQuestionFromTemplate(' + ${question.questionId} + ');'">Remove</button>
+			    
+			</div>
+
             </div>
             <br>
             <div>
-                <button type="button" class="btn btn-info" onclick="showAddQuestionForm();">Add Question</button>
+                <button type="button" class="btn btn-primary" onclick="showAddQuestionForm();">Add Question</button>
             </div>
             <div id="addQuestionForm" class="d-none">
                 <template id="questionTemplate">
@@ -83,6 +87,9 @@
 <script>
 	var templateId =[[${templateId}]];
 	
+	function viewQuestion(id){
+		window.location ='/displayHomeworkQustion/' + id;
+	}
 	
     function showBannerMessage(message, type) {
         const banner = document.getElementById('messageBanner');

@@ -84,7 +84,7 @@
             <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
             
             <button type="button" class="btn btn-secondary" onclick="addResponseOption()">Add Response Option</button>
-        
+            <button type="button" class="btn btn-primary" th:attr="onclick='deleteQuestion();'">Delete</button>
             <button type="submit" class="btn btn-success" onclick="prepareSubmit()">Save Question</button>
         </fieldset>
     </div>
@@ -193,6 +193,35 @@ function prepareSubmit() {
         displayBanner('error', 'Error updating question');
     });
 }
+
+function deleteQuestion() {
+        var name = document.getElementById('questionAbbr').value;
+        var isConfirmed = confirm(`Are you sure you want to delete ${name}?`);
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+        $.ajax({
+            url: '/deleteTemplate/HomeworkQuestion/' + questionId,
+            type: 'DELETE',
+            headers: {
+                'Accept': 'text/plain', 
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
+                window.location.href = '/homeworkQuestionList';
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
+                displayBanner( 'danger', 'Failed to delete Homework Question. Error: ' + errorMessage);
+            }
+        });
+    }
 
 function displayBanner(type, message) {
     const banner = type === 'success' ? document.getElementById('successBanner') : document.getElementById('errorBanner');
