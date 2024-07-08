@@ -10,7 +10,7 @@
 <div th:insert="~{header :: main}">...</div>
 
 <!-- Message banner -->
-<div class="container">
+<div class="container" id="templateContainter">
     <div id="messageBanner" class="alert d-none" role="alert"></div>
 </div>
 
@@ -18,31 +18,32 @@
     <div class="row note_card">
         <fieldset>
             <legend>Edit Homework Template</legend>
-			<div class="form-row">
-	            <div class="form-group col-md-6">
-	                <label for="templateName">Name:</label>
-	                <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
-	            </div>
-	        	<div class="form-group col-md-3">
-					<label for="status" class="mr-md-3"><strong>Status:</strong></label>
-				    <select id="status" name="status" class="form-control">
-				        <option value="LIVE" th:selected="${template.status == 'LIVE'}">Live</option>
-				        <option value="INACTIVE" th:selected="${template.status == 'INACTIVE'}">Inactive</option>
-				        <option value="ARCHIVED" th:selected="${template.status == 'ARCHIVED'}">Archived</option>
-					</select>
-				</div>
-			</div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="templateName">Name:</label>
+                    <input type="text" id="templateName" name="templateName" class="form-control" th:value="${template.name}">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="status" class="mr-md-3"><strong>Status:</strong></label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="LIVE" th:selected="${template.status == 'LIVE'}">Live</option>
+                        <option value="INACTIVE" th:selected="${template.status == 'INACTIVE'}">Inactive</option>
+                        <option value="ARCHIVED" th:selected="${template.status == 'ARCHIVED'}">Archived</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group">
                 <label for="templateDetails">Description:</label>
                 <textarea id="templateDetails" name="templateDescription" class="form-control" rows="3" th:text="${template.description}"></textarea>
             </div>
             <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
-            <button type="button" class="btn btn-primary" th:attr="onclick='deleteHomeworkTemplate(' + ${template.id} + ');'">Delete</button>
+            <button type="button" class="btn btn-primary" onclick="deleteHomeworkTemplate();">Delete</button>
+            <button type="button" class="btn btn-success" onclick="saveTemplate();">Save</button>
         </fieldset>
     </div>
 </div>
 
-<div class="container">
+<div class="container" id="questionsContainer">
     <div class="row note_card">
         <fieldset>
             <legend>Homework Questions</legend>
@@ -50,18 +51,39 @@
                 <div class="col">Question</div>
                 <div class="col">Type</div>
                 <div class="col">Required</div>
+                <div class="col">Actions</div>
             </div>
             <div th:each="question, stat : ${template.questions}" th:id="|row_${stat.index}|" th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
                 <div class="col" th:text="${question.question}"></div>
                 <div class="col" th:text="${question.questionType}"></div>
                 <div class="col" th:text="${question.isRequired ? 'Yes' : 'No'}"></div>
+                <div class="col">
+                    <button type="button" class="btn btn-danger" th:attr="onclick='removeQuestionFromTemplate(' + ${question.questionId} + ');'">Remove</button>
+                </div>
             </div>
             <br>
+            <div>
+                <button type="button" class="btn btn-info" onclick="showAddQuestionForm();">Add Question</button>
+            </div>
+            <div id="addQuestionForm" class="d-none">
+                <template id="questionTemplate">
+                    <div class="new-question-row">
+                        <select class="form-control" id="existingQuestions">
+                            <option th:each="question : ${questionList}" th:value="${question.questionId}" th:text="${question.question}"></option>
+                        </select>
+                        <button type="button" class="btn btn-secondary" onclick="confirmQuestion(this);">Confirm</button>
+                    </div>
+                </template>
+                <div id="questionContainer"></div>
+            </div>
         </fieldset>
     </div>
 </div>
 
 <script>
+	var templateId =[[${templateId}]];
+	
+	
     function showBannerMessage(message, type) {
         const banner = document.getElementById('messageBanner');
         banner.className = 'alert alert-' + type;
@@ -69,42 +91,133 @@
         banner.classList.remove('d-none');
     }
 
-    function deleteHomeworkTemplate(Id) {
-		var hwName = document.getElementById('templateName').value;
-	    var isConfirmed = confirm(`Are you sure you want to delete ${hwName}?`);
-	
-	    // If the user clicks "Cancel", exit the function
-	    if (!isConfirmed) {
-	        return;
-	    }
-		
+    function deleteHomeworkTemplate() {
+        var hwName = document.getElementById('templateName').value;
+        var isConfirmed = confirm(`Are you sure you want to delete ${hwName}?`);
+
+        if (!isConfirmed) {
+            return;
+        }
+
         var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
         var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
         var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
         var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
 
-        fetch('/deleteTemplate/HomeworkTemplate/' + Id, {
-            method: 'DELETE',
+        $.ajax({
+            url: '/deleteTemplate/HomeworkTemplate/' + templateId,
+            type: 'DELETE',
             headers: {
-                'Accept': 'application/json',
+                'Accept': 'text/plain',
                 'Content-Type': 'application/json',
                 [csrfHeader]: csrfToken
             },
-            credentials: 'include'
-        })
-        .then(response => {
-            if (response.ok) {
+            success: function(response) {
                 window.location.href = '/homeworkTemplates/';
-            } else {
+            },
+            error: function(xhr, status, error) {
                 showBannerMessage('Failed to delete Homework Template.', 'danger');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showBannerMessage('Error deleting Homework Template.', 'danger');
+        });
+    }
+
+    function saveTemplate() {
+        var name = document.getElementById('templateName').value;
+        var status = document.getElementById('status').value;
+        var description = document.getElementById('templateDetails').value;
+
+        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+        var template = {
+            name: name,
+            status: status,
+            description: description
+        };
+
+        $.ajax({
+            url: '/updateHomeworkTemplate/' + templateId,
+            type: 'PATCH',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            data: JSON.stringify(template),
+            success: function(response) {
+                showBannerMessage(response.message, 'success');
+                $("#templateContainter").load(location.href + " #templateContainer>*", "");
+            },
+            error: function(xhr, status, error) {
+                var response = JSON.parse(xhr.responseText);
+                showBannerMessage(response.message || 'Error updating Homework Template.', 'danger');
+            }
+        });
+    }
+
+    function showAddQuestionForm() {
+        document.getElementById('addQuestionForm').classList.remove('d-none');
+        var template = document.getElementById('questionTemplate').content.cloneNode(true);
+        document.getElementById('questionContainer').appendChild(template);
+    }
+
+    function confirmQuestion(button) {
+        var questionDropdown = button.previousElementSibling;
+        var questionId = questionDropdown.value;
+
+        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+        $.ajax({
+            url: '/saveTemplateQuestions/Add/' + templateId + '/' + questionId,
+            type: 'PATCH',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            success: function(response) {
+                showBannerMessage(response.message, 'success');
+                $("#questionsContainer").load(location.href + " #questionsContainer>*", "");
+            },
+            error: function(xhr, status, error) {
+                var response = JSON.parse(xhr.responseText);
+                showBannerMessage(response.message || 'Error adding question.', 'danger');
+            }
+        });
+    }
+
+    function removeQuestionFromTemplate(questionId) {
+        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+
+        $.ajax({
+            url: '/saveTemplateQuestions/Delete/' + templateId + '/' + questionId,
+            type: 'PATCH',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            success: function(response) {
+                showBannerMessage(response.message, 'success');
+                $("#questionsContainer").load(location.href + " #questionsContainer>*", "");
+            },
+            error: function(xhr, status, error) {
+                var response = JSON.parse(xhr.responseText);
+                showBannerMessage(response.message || 'Error removing question.', 'danger');
+            }
         });
     }
 </script>
 <div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
+
+

@@ -1165,7 +1165,11 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 
 		HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, tempId);
+		ArrayList<HomeworkQuestion> questionList = questionHelper.getHomeworkQuestions(currentUser);
+		model.addAttribute("questionList",questionList);
 		model.addAttribute("template", template);
+		model.addAttribute("templateId",tempId);
+		
 		return "viewHomeworkTemplate";
 	}
 
@@ -1736,64 +1740,48 @@ public class MainController {
 
 	@DeleteMapping("deleteTemplate/{type}/{id}")
 	public ResponseEntity<String> deleteTemplate(@PathVariable String type, @PathVariable int id) {
-		User currentUser = userDAO.getUser();
-	
-		int call = 0;
+	    User currentUser = userDAO.getUser();
+	    int call = 0;
+	    String errorMessage = "";
 
-		switch (type) {
-		case "Protocol":
-			call = protocolHelper.deleteProtocol(currentUser, id);
+	    switch (type) {
+	        case "Protocol":
+	            call = protocolHelper.deleteProtocol(currentUser, id);
+	            errorMessage = "Error deleting Protocol";
+	            break;
+	        case "ProtocolTemplate":
+	            call = protocolTemplateHelper.deleteProtocolTemplate(currentUser, id);
+	            errorMessage = "Error deleting Protocol Template";
+	            break;
+	        case "StepTemplate":
+	            call = protocolStepTemplateHelper.deleteStepTemplate(currentUser, id);
+	            errorMessage = "Error deleting Step Template";
+	            break;
+	        case "Homework":
+	            call = homeworkHelper.deleteHomework(currentUser, id);
+	            errorMessage = "Error deleting Homework";
+	            break;
+	        case "HomeworkTemplate":
+	            call = homeworkTemplateHelper.deleteHomeworkTemplate(currentUser, id);
+	            errorMessage = "Error deleting Homework Template";
+	            break;
+	        case "HomeworkQuestion":
+	            call = homeworkHelper.deleteHomeworkQuestion(currentUser, id);
+	            errorMessage = "Error deleting Homework Question";
+	            break;
+	        default:
+	            return new ResponseEntity<>("Invalid type", HttpStatus.BAD_REQUEST);
+	    }
 
-			if (call != 1) {
-				logger.info("Failed to delete");
-				return new ResponseEntity<>("Error deleting Protocol", HttpStatus.BAD_REQUEST);
-			}
-			break;
+	    if (call != 1) {
+	        logger.info("Failed to delete " + type + " with id " + id);
+	        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+	    }
 
-		case "ProtocolTemplate":
-			call = protocolTemplateHelper.deleteProtocolTemplate(currentUser, id);
-
-			if (call != 1) {
-				return new ResponseEntity<>("Error deleting Protocol Template", HttpStatus.BAD_REQUEST);
-			}
-			break;
-
-		case "StepTemplate":
-			call = protocolStepTemplateHelper.deleteStepTemplate(currentUser, id);
-			if (call != 1) {
-				return new ResponseEntity<>("Error deleting Step Template", HttpStatus.BAD_REQUEST);
-			}
-			break;
-
-		case "Homework":
-			call =homeworkHelper.deleteHomework(currentUser, id);
-			if (call != 1) {
-				return new ResponseEntity<>("Error deleting Homework", HttpStatus.BAD_REQUEST);
-			}
-			break;
-
-		case "HomeworkTemplate":
-			call = homeworkTemplateHelper.deleteHomeworkTemplate(currentUser, id);
-			if (call != 1) {
-				return new ResponseEntity<>("Error deleting Homework Template", HttpStatus.BAD_REQUEST);
-			}
-			break;
-
-		case "HomeworkQuestion":
-			call = homeworkHelper.deleteHomeworkQuestion(currentUser, id);
-			if (call != 1) {
-				return new ResponseEntity<>("Error deleting Homework Question", HttpStatus.BAD_REQUEST);
-			}
-			break;
-
-		default:
-			return new ResponseEntity<>("Invalid type", HttpStatus.BAD_REQUEST);
-		}
-		logger.info("Success "+ call);
-		
-		return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
+	    logger.info("Successfully deleted " + type + " with id " + id);
+	    return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
 	}
-	
+
 	@PatchMapping("/updateHomeworkQuestion/{id}")
 	public ResponseEntity<String>updateHomeworkTemplate(@PathVariable int id, @RequestBody HomeworkQuestion question){
 		User currentUser = userDAO.getUser();
@@ -1859,5 +1847,59 @@ public class MainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("{\"message\": \"Error saving question\"}");
         }
+    }
+    
+
+    
+    @PatchMapping("/saveTemplateQuestions/{mode}/{tempId}/{qId}")
+    public ResponseEntity<String>saveTemplateQuestions(@PathVariable String mode, @PathVariable int tempId, @PathVariable int qId) {
+    	User currentUser = userDAO.getUser();
+    	logger.info("Question Id: " + qId);
+    	logger.info("Mode: "+mode);
+   
+    	HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, tempId);
+    	
+    	List<HomeworkQuestionsTemplate> questionList = template.getQuestions();
+    	ArrayList<Integer> questionIds = new ArrayList<Integer>();
+    	String status = template.getStatus();
+    	for (HomeworkQuestionsTemplate question: questionList) {
+    		int questionId = question.getQuestionId();
+    		questionIds.add(questionId);
+    	}
+        if (mode.equals("Delete")) {
+            questionIds.remove(Integer.valueOf(qId));
+        }
+    	if(mode.equals("Add")) {
+    		questionIds.add(qId);
+    		logger.info("Question Id: " + qId + " added");
+    	}
+    	
+    	try {
+    		int call = homeworkTemplateHelper.updateTemplateQuestions(currentUser, tempId,status ,questionIds);
+    		if(call>0) {
+    		return new ResponseEntity<>("Question Added successfully", HttpStatus.OK);
+    		}
+    		else {
+    			return new ResponseEntity<>("Error Updating Question: See Logs", HttpStatus.BAD_REQUEST);
+    		}
+		
+		} catch (Exception e) {
+			return new ResponseEntity<>("Error Updating Question: See Logs", HttpStatus.BAD_REQUEST);
+		}
+    	
+    }
+    
+    @PatchMapping("/updateHomeworkTemplate/{id}")
+    public ResponseEntity<String>updateHomeworktempalt(@RequestBody HomeworkTemplate template, @PathVariable int id){
+    	User currentUser = userDAO.getUser();
+    	try {
+			int call = homeworkTemplateHelper.updateHomeworkTemplate(currentUser, id, template);
+			if (call >0 ) {
+			return ResponseEntity.ok().body("{\"message\": \"Homework Successfully Changed\"}");
+			}
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Template : exception"+e);
+		}
+    	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Template");
     }
 }

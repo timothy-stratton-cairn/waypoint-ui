@@ -90,6 +90,7 @@ public class HomeworkTemplateHelper{
             List<HomeworkQuestionsTemplate> questions = new ArrayList<>();
             questionsNode.forEach(questionNode -> {
                 HomeworkQuestionsTemplate question = new HomeworkQuestionsTemplate();
+                question.setQuestionId(questionNode.path("questionId").asInt());
                 question.setQuestionAbbreviation(questionNode.path("questionAbbreviation").asText());
                 question.setQuestion(questionNode.path("question").asText());
                 question.setQuestionType(questionNode.path("questionType").asText());
@@ -274,8 +275,61 @@ public class HomeworkTemplateHelper{
         return result;
     }
 
+    public int updateHomeworkTemplate(User usr, int id, HomeworkTemplate template) {
+        int result = -1;
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate + "/" + id;
+        StringBuilder requestBody = new StringBuilder();
+        
+        // Manually building the JSON string
+        requestBody.append("{");
+        requestBody.append("\"name\":\"").append(template.getName()).append("\",");
+        requestBody.append("\"description\":\"").append(template.getDescription()).append("\",");
+        requestBody.append("\"status\":\"").append(template.getStatus()).append("\"");
+        requestBody.append("}");
+        
+        int call = apiHelper.patchAPI(apiUrl, requestBody.toString(), usr);
+        logger.info(apiUrl);
+        logger.info(requestBody.toString());
+        if (call > 0) {
+        	result = call;
+        }
+        
+        return result;
+    }
 
-    
+    public int updateTemplateQuestions(User usr, int tempId,String status ,ArrayList<Integer> questionIds) {
+        int result = -1;
+        String apiUrl = this.dashboardApiBaseUrl + Constants.api_homeworktemplate + "/" + tempId;
+        StringBuilder requestBody = new StringBuilder();
+        
+        // Manually building the JSON string
+        requestBody.append("{");
+        requestBody.append("\"status\": \"");
+        requestBody.append(status);
+        requestBody.append("\",");
+        requestBody.append("\"homeworkQuestionIds\":[");
+        
+        for (int i = 0; i < questionIds.size(); i++) {
+            requestBody.append(questionIds.get(i));
+            if (i < questionIds.size() - 1) {
+                requestBody.append(",");
+            }
+        }
+        
+        requestBody.append("]");
+        requestBody.append("}");
+        
+        logger.info(apiUrl);
+        logger.info(requestBody.toString());
+        
+        int call = apiHelper.patchAPI(apiUrl, requestBody.toString(), usr);
+        if (call >0) {
+        	result = 1;
+        }
+
+        return result;
+    }
+
     
     
 }
