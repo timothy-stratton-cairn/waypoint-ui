@@ -934,6 +934,30 @@ public class MainController {
 				logger.info(dependant.getFirstName()+ dependant.getLastName());
 			}
 		}
+		ArrayList<Household> allHouseholds = userHelper.getHouseholdList(currentUser);
+		ArrayList<Integer> householdUserIds = new ArrayList<Integer>();
+		
+		for (Household client: allHouseholds) {
+			for (User usr: client.getHouseholdAccounts()) {
+				int id = usr.getId();
+				householdUserIds.add(id);
+
+			}
+		}
+		String listPreFilter = "";
+		for (User usr: userList) {
+			listPreFilter += usr.getFirstName()+" "+usr.getLastName()+",";
+		}
+
+		userList.removeIf(usr -> householdUserIds.contains(usr.getId()));
+		userList.removeIf(usr -> !usr.getRole().equals("CLIENT"));
+		String listPostFilter ="";
+		for (User usr: userList) {
+			listPostFilter += usr.getFirstName()+" "+usr.getLastName()+",";
+		}
+		logger.info("User List before filtering: "+listPreFilter);
+		logger.info("User List afer filtering: "+ listPostFilter);
+		
 		model.addAttribute("dependants",dependants);
 		model.addAttribute("primaryContact", pcUser);
 		model.addAttribute("primaryContact", primaryContactUser);
@@ -995,6 +1019,28 @@ public class MainController {
 	public String newClient(Model model) {
 		User currentUser = userDAO.getUser();
 		ArrayList<User> list = userHelper.getUserList(currentUser);
+		ArrayList<Household> allHouseholds = userHelper.getHouseholdList(currentUser);
+		ArrayList<Integer> householdUserIds = new ArrayList<Integer>();
+		for (Household household: allHouseholds) {
+			for (User usr: household.getHouseholdAccounts()) {
+				int id = usr.getId();
+				householdUserIds.add(id);
+
+			}
+		}
+		String listPreFilter = "";
+		for (User usr: list) {
+			listPreFilter += usr.getFirstName()+" "+usr.getLastName()+",";
+		}
+
+		list.removeIf(usr -> householdUserIds.contains(usr.getId()));
+		list.removeIf(usr -> !usr.getRole().equals("CLIENT"));
+		String listPostFilter ="";
+		for (User usr: list) {
+			listPostFilter += usr.getFirstName()+" "+usr.getLastName()+",";
+		}
+		logger.info("User List before filtering: "+listPreFilter);
+		logger.info("User List afer filtering: "+ listPostFilter);
 		model.addAttribute("userList",list);
 		return "newClient";
 	}

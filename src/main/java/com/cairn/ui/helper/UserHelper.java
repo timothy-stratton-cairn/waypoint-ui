@@ -34,44 +34,51 @@ public class UserHelper {
 	 * @return
 	 */
 	public ArrayList<User> getUserList(User usr) {
-		ArrayList<User> results = new ArrayList<User>();
+	    ArrayList<User> results = new ArrayList<User>();
 
-		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
-		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
-		if (!jsonResponse.isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+	    if (!jsonResponse.isEmpty()) {
+	        ObjectMapper objectMapper = new ObjectMapper();
 
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				JsonNode prots = jsonNode.get("accounts");
-				// Iterate through the array elements
-				User entry = null;
-				if (prots.isArray()) {
-					for (JsonNode element : prots) {
-						// Access and print array elements
-						if (element != null) {
-							entry = new User();
-							entry.setId(Integer.valueOf(element.get("id").toString()));
-							entry.setFirstName(element.get("firstName").asText());
-							entry.setLastName(element.get("lastName").asText());
-							entry.setEmail(element.get("email").asText());
-							results.add(entry);
-						}
-					}
-				}
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-		} else {
-			logger.info("Failed to fetch getUserList data.");
-		}
+	        JsonNode jsonNode;
+	        try {
+	            jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode prots = jsonNode.get("accounts");
+	            // Iterate through the array elements
+	            User entry = null;
+	            if (prots.isArray()) {
+	                for (JsonNode element : prots) {
+	                    // Access and print array elements
+	                    if (element != null) {
+	                        entry = new User();
+	                        entry.setId(element.get("id").asInt());
+	                        entry.setFirstName(element.get("firstName").asText());
+	                        entry.setLastName(element.get("lastName").asText());
+	                        entry.setEmail(element.get("email").asText());
+	                        
+	                        // Set the role
+	                        JsonNode rolesNode = element.get("accountRoles").get("roles");
+	                        if (rolesNode.isArray() && rolesNode.size() > 0) {
+	                            entry.setRole(rolesNode.get(0).asText());
+	                        }
+	                        
+	                        results.add(entry);
+	                    }
+	                }
+	            }
+	        } catch (JsonMappingException e) {
+	            e.printStackTrace();
+	        } catch (JsonProcessingException e) {
+	            e.printStackTrace();
+	        }
+	    } else {
+	        logger.info("Failed to fetch getUserList data.");
+	    }
 
-		return results;
-
+	    return results;
 	}
+
 	public Household getHouseholdById(User usr, int id) {
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get + id;
 		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
