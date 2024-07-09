@@ -42,11 +42,15 @@
                         <div class="card-body">
                             <ul id="primaryContactList" class="list-group mb-3"></ul>
                             <button type="button" class="btn btn-primary" onclick="togglePrimaryContactFields()">Add Primary Contact</button>
+                            <button type="button" class="btn btn-secondary" onclick="showNewPrimaryContactForm()">Add New Primary Contact</button>
                             <div id="primaryContactFields" class="d-none mt-3">
                                 <select id="primaryContactSelect" class="form-control">
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
                                 </select>
-                                <button type="button" class="btn btn-success mt-2" onclick="addPrimaryContact()">Confirm Primary Contact</button>
+                                <button type="button" class="btn btn-success mt-2" onclick="addPrimaryContact('primaryContactSelect')">Confirm Primary Contact</button>
+                            </div>
+                            <div id="newPrimaryContactForm" class="d-none mt-3">
+                                <!-- New Primary Contact Form will be injected here -->
                             </div>
                         </div>
                     </fieldset>
@@ -58,11 +62,15 @@
                         <div class="card-body">
                             <ul id="coClientList" class="list-group mb-3"></ul>
                             <button type="button" class="btn btn-primary" onclick="toggleCoClientFields()">Add CoClient</button>
+                            <button type="button" class="btn btn-secondary" onclick="showNewCoClientForm()">Add New CoClient</button>
                             <div id="coClientFields" class="d-none mt-3">
                                 <select id="coClientSelect" class="form-control">
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
                                 </select>
-                                <button type="button" class="btn btn-success mt-2" onclick="addCoClient()">Confirm CoClient</button>
+                                <button type="button" class="btn btn-success mt-2" onclick="addCoClient('coClientSelect')">Confirm CoClient</button>
+                            </div>
+                            <div id="newCoClientForm" class="d-none mt-3">
+                                <!-- New CoClient Form will be injected here -->
                             </div>
                         </div>
                     </fieldset>
@@ -88,13 +96,147 @@
         document.getElementById('coClientFields').classList.toggle('d-none');
     }
 
-    function addPrimaryContact() {
+    function showNewPrimaryContactForm() {
+        document.getElementById('newPrimaryContactForm').innerHTML = getNewContactFormHtml('primary');
+        document.getElementById('newPrimaryContactForm').classList.remove('d-none');
+    }
+
+    function showNewCoClientForm() {
+        document.getElementById('newCoClientForm').innerHTML = getNewContactFormHtml('coClient');
+        document.getElementById('newCoClientForm').classList.remove('d-none');
+    }
+
+    function getNewContactFormHtml(type) {
+        return `
+            <div class="form-group">
+                <label for="${type}Email">Email:</label>
+                <input type="text" id="${type}Email" name="email" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="${type}FirstName">First Name:</label>
+                <input type="text" id="${type}FirstName" name="firstName" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="${type}LastName">Last Name:</label>
+                <input type="text" id="${type}LastName" name="lastName" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="${type}Username">Username:</label>
+                <input type="text" id="${type}Username" name="username" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="${type}Password">Password:</label>
+                <input type="password" id="${type}Password" name="password" class="form-control">
+            </div>
+
+            <button type="button" class="btn btn-success mt-2" onclick="saveNewClient('${type}')">Confirm ${type === 'primary' ? 'Primary Contact' : 'CoClient'}</button>
+        `;
+    }
+
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    function validatePassword(password) {
+        const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+        return re.test(password);
+    }
+
+    function showValidationError(message) {
+        const errorBanner = document.getElementById('errorBanner');
+        errorBanner.classList.remove('d-none');
+        errorBanner.textContent = 'Error: ' + message;
+    }
+
+    function saveNewClient(type) {
+        const email = document.getElementById(`${type}Email`).value;
+        const password = document.getElementById(`${type}Password`).value;
+
+        if (!validateEmail(email)) {
+            showValidationError('Invalid email address.');
+            return;
+        }
+
+        if (!validatePassword(password)) {
+            showValidationError('Password must contain at least one number, one special character, one uppercase letter, one lowercase letter, and be at least 8 characters long.');
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        const clientData = {
+            username: document.getElementById(`${type}Username`).value,
+            firstName: document.getElementById(`${type}FirstName`).value,
+            lastName: document.getElementById(`${type}LastName`).value,
+            email: email,
+            password: password,
+            roles: [2]
+        };
+
+        $.ajax({
+            url: '/addClient/',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(clientData),
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(csrfHeader, csrfToken);
+            },
+            success: function(data) {
+                if (data.message) {
+                    const userId = data.clientId;
+                    fetchUserAndAddToDropdown(type, userId);
+                } else {
+                    showError(data.error || 'Unknown error occurred.');
+                }
+            },
+            error: function(xhr, status, error) {
+                showError('Error adding client: ' + error);
+            }
+        });
+    }
+
+    function fetchUserAndAddToDropdown(type, userId) {
+        $.ajax({
+            url: `/getUser/${userId}`,
+            type: 'GET',
+            success: function(data) {
+                const newOption = document.createElement('option');
+                newOption.value = userId;
+                newOption.text = data.name;
+
+                if (type === 'primary') {
+                    const select = document.getElementById('primaryContactSelect');
+                    select.appendChild(newOption);
+                    select.value = userId;
+                    addPrimaryContact('primaryContactSelect');
+                } else {
+                    const select = document.getElementById('coClientSelect');
+                    select.appendChild(newOption);
+                    select.value = userId;
+                    addCoClient('coClientSelect');
+                }
+
+                document.getElementById(`new${type.charAt(0).toUpperCase() + type.slice(1)}ContactForm`).classList.add('d-none');
+            },
+            error: function(xhr, status, error) {
+                showError('Error fetching user details: ' + error);
+            }
+        });
+    }
+
+    function addPrimaryContact(id) {
         if (primaryContactAdded) {
             showError('Primary contact already added.');
             return;
         }
 
-        const select = document.getElementById('primaryContactSelect');
+        const select = document.getElementById(id);
         const userId = select.value;
         const userName = select.options[select.selectedIndex].text;
 
@@ -108,7 +250,7 @@
         const removeButton = document.createElement('button');
         removeButton.className = 'btn btn-danger btn-sm';
         removeButton.textContent = 'Remove';
-        removeButton.onclick = () => removePrimaryContact(userId, li);
+        removeButton.onclick = () => removeElement(removeButton, userId, primaryContactsIds, () => primaryContactAdded = false);
         li.appendChild(removeButton);
 
         document.getElementById('primaryContactList').appendChild(li);
@@ -116,8 +258,8 @@
         togglePrimaryContactFields();
     }
 
-    function addCoClient() {
-        const select = document.getElementById('coClientSelect');
+    function addCoClient(id) {
+        const select = document.getElementById(id);
         const userId = select.value;
         const userName = select.options[select.selectedIndex].text;
 
@@ -130,7 +272,7 @@
         const removeButton = document.createElement('button');
         removeButton.className = 'btn btn-danger btn-sm';
         removeButton.textContent = 'Remove';
-        removeButton.onclick = () => removeCoClient(userId, li);
+        removeButton.onclick = () => removeElement(removeButton, userId, coClientsIds);
         li.appendChild(removeButton);
 
         document.getElementById('coClientList').appendChild(li);
@@ -138,20 +280,13 @@
         toggleCoClientFields();
     }
 
-    function removePrimaryContact(userId, listItem) {
-        const index = primaryContactsIds.indexOf(userId);
+    function removeElement(button, userId, idArray, callback) {
+        const index = idArray.indexOf(parseInt(userId));
         if (index > -1) {
-            primaryContactsIds.splice(index, 1);
-            primaryContactAdded = false;
-            listItem.remove();
-        }
-    }
-
-    function removeCoClient(userId, listItem) {
-        const index = coClientsIds.indexOf(userId);
-        if (index > -1) {
-            coClientsIds.splice(index, 1);
-            listItem.remove();
+            idArray.splice(index, 1);
+            const row = button.parentNode;
+            row.parentNode.removeChild(row);
+            if (callback) callback();
         }
     }
 
@@ -210,4 +345,5 @@
 <div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
+
 

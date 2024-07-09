@@ -1318,6 +1318,20 @@ public class MainController {
 		}
 	}
 	
+	@GetMapping("/getUser/{id}")
+	public ResponseEntity<Map<String, String>> getUser(@PathVariable int id) {
+	    User currentUser = userDAO.getUser();
+	    User usr = userHelper.getUser(currentUser, id);
+	    if (usr != null) {
+	        String userName = usr.getFirstName() + " " + usr.getLastName();
+	        Map<String, String> response = new HashMap<>();
+	        response.put("name", userName);
+	        response.put("id", String.valueOf(id));
+	        return ResponseEntity.ok(response);
+	    } else {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    }
+	}
 
 
     @GetMapping("/api/protocols/{protocolId}/steps")
