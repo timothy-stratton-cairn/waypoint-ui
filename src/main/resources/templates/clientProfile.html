@@ -90,14 +90,6 @@
                 <div class="tab-content" id="dependentTabsContent">
                     <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade" th:id="'dependent' + ${iterStat.index}" role="tabpanel">
                         <div>
-                            <label>Id:</label>
-                            <span th:text="${dependent.id}"></span>
-                        </div>
-                        <div>
-                            <label>Username:</label>
-                            <span th:text="${dependent.username}"></span>
-                        </div>
-                        <div>
                             <label>Name:</label>
                             <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
                         </div>

@@ -911,67 +911,87 @@ public class MainController {
 
 	@GetMapping("clientProfile/{clientId}")
 	public String clientProfile(@PathVariable int clientId, Model model) {
-		User currentUser = userDAO.getUser();
-		Household household = userHelper.getHouseholdById(currentUser, clientId);
-		logger.info(household.getName());
-		ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
-		ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
-		ArrayList<User> userList = userHelper.getUserList(currentUser);
-		int userId = userHelper.getUserId(currentUser);
-		ArrayList<User> clientList = household.getHouseholdAccounts();
-		ArrayList<User> primaryContacts = household.getPrimaryContacts();
-		User primaryContactUser = !primaryContacts.isEmpty() ? primaryContacts.get(0) : null;
-		int pcId = primaryContactUser.getId();
-		
-		User pcUser = userHelper.getUser(currentUser, pcId);
+	    User currentUser = userDAO.getUser();
+	    Household household = userHelper.getHouseholdById(currentUser, clientId);
+	    logger.info(household.getName());
 
-		
-		
-		
-		ArrayList<User> dependants = pcUser.getDependents();
-		if(!dependants.isEmpty()) {
-			for(User dependant: dependants) {
-				logger.info(dependant.getFirstName()+ dependant.getLastName());
-			}
-		}
-		ArrayList<Household> allHouseholds = userHelper.getHouseholdList(currentUser);
-		ArrayList<Integer> householdUserIds = new ArrayList<Integer>();
-		
-		for (Household client: allHouseholds) {
-			for (User usr: client.getHouseholdAccounts()) {
-				int id = usr.getId();
-				householdUserIds.add(id);
+	    ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
+	    ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
+	    ArrayList<User> userList = userHelper.getUserList(currentUser);
+	    int userId = userHelper.getUserId(currentUser);
+	    ArrayList<User> clientList = household.getHouseholdAccounts();
+	    ArrayList<User> primaryContacts = household.getPrimaryContacts();
+	    User primaryContactUser = !primaryContacts.isEmpty() ? primaryContacts.get(0) : null;
+	    int pcId = primaryContactUser.getId();
+	    ArrayList<User> dependantList = new ArrayList<User>();
+	    User pcUser = userHelper.getUser(currentUser, pcId);
+	    ArrayList<Integer> dependantIds = new ArrayList<Integer>();
 
-			}
-		}
-		String listPreFilter = "";
-		for (User usr: userList) {
-			listPreFilter += usr.getFirstName()+" "+usr.getLastName()+",";
-		}
+	    for (User client : clientList) {
+	        logger.info("Client: " + client.getFirstName() + " " + client.getLastName() + " Id: " + client.getId());
+	        int id = client.getId();
+	        User detailedUser = userHelper.getUser(currentUser, id);
+	        if (detailedUser.getDependents().isEmpty()) {
+	            logger.info("No dependents");
+	        } else {
+	            for (User dependant : detailedUser.getDependents()) {
+	                logger.info("Dependant Id:" + dependant.getId());
+	                dependantIds.add(dependant.getId());
+	            }
+	        }
+	    }
 
-		userList.removeIf(usr -> householdUserIds.contains(usr.getId()));
-		userList.removeIf(usr -> !usr.getRole().equals("CLIENT"));
-		String listPostFilter ="";
-		for (User usr: userList) {
-			listPostFilter += usr.getFirstName()+" "+usr.getLastName()+",";
-		}
-		logger.info("User List before filtering: "+listPreFilter);
-		logger.info("User List afer filtering: "+ listPostFilter);
-		
-		model.addAttribute("dependants",dependants);
-		model.addAttribute("primaryContact", pcUser);
-		model.addAttribute("primaryContact", primaryContactUser);
-		model.addAttribute("userList", userList);
-		model.addAttribute("coClientList", clientList);
-		model.addAttribute("userId", userId);
-		model.addAttribute("client", household);
-		model.addAttribute("clientId", clientId);
-		model.addAttribute("protocolList", pcolList);
-		model.addAttribute("assignedProtocols", assignedProtocols);
+	    String dependantIdString = dependantIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+	    logger.info(dependantIdString);
 
+	    Iterator<User> clientIterator = clientList.iterator();
+	    while (clientIterator.hasNext()) {
+	        User client = clientIterator.next();
+	        if (dependantIds.contains(client.getId())) {
+	            dependantList.add(client);
+	            clientIterator.remove();
+	        }
+	    }
 
-		return "clientProfile";
+	    String dependantListString = dependantList.stream()
+	            .map(dependant -> dependant.getFirstName() + " " + dependant.getLastName())
+	            .collect(Collectors.joining(","));
+	    logger.info(dependantListString);
+
+	    ArrayList<Household> allHouseholds = userHelper.getHouseholdList(currentUser);
+	    ArrayList<Integer> householdUserIds = new ArrayList<Integer>();
+
+	    for (Household client : allHouseholds) {
+	        for (User usr : client.getHouseholdAccounts()) {
+	            int id = usr.getId();
+	            householdUserIds.add(id);
+	        }
+	    }
+
+	    String listPreFilter = userList.stream()
+	            .map(usr -> usr.getFirstName() + " " + usr.getLastName())
+	            .collect(Collectors.joining(","));
+	    userList.removeIf(usr -> householdUserIds.contains(usr.getId()) || !usr.getRole().equals("CLIENT"));
+	    String listPostFilter = userList.stream()
+	            .map(usr -> usr.getFirstName() + " " + usr.getLastName())
+	            .collect(Collectors.joining(","));
+	    logger.info("User List before filtering: " + listPreFilter);
+	    logger.info("User List after filtering: " + listPostFilter);
+
+	    model.addAttribute("dependants", dependantList);
+	    model.addAttribute("primaryContact", pcUser);
+	    model.addAttribute("primaryContactUser", primaryContactUser); // Fixed duplicate attribute key
+	    model.addAttribute("userList", userList);
+	    model.addAttribute("coClientList", clientList);
+	    model.addAttribute("userId", userId);
+	    model.addAttribute("client", household);
+	    model.addAttribute("clientId", clientId);
+	    model.addAttribute("protocolList", pcolList);
+	    model.addAttribute("assignedProtocols", assignedProtocols);
+
+	    return "clientProfile";
 	}
+
 
 	@PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
 	public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolTemplateId,

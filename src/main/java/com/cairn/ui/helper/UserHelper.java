@@ -199,73 +199,75 @@ public class UserHelper {
 	 * 
 	 * @return
 	 */
-	public User getUser(User usr, int uid) {
-		User result = new User();
+    public User getUser(User usr, int uid) {
+        User result = new User();
 
-		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
-		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
-		if (!jsonResponse.isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
+        String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + uid;
+        String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+        if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
 
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				result = new User();
-				result.setId(uid);
-				result.setFirstName(jsonNode.get("firstName").asText());
-				result.setLastName(jsonNode.get("lastName").asText());
-				result.setUsername(jsonNode.get("username").asText());
-				result.setEmail(jsonNode.get("email").asText());
-				JsonNode roles = jsonNode.get("roles");
-				JsonNode deps = jsonNode.get("dependents");
-				JsonNode coclient = jsonNode.get("coClient");
-				User temp = new User();
-				if (!coclient.toString().equals("null")) {
-					temp = new User();
-					temp.setId(Integer.valueOf(coclient.get("id").toString()));
-					temp.setFirstName(coclient.get("firstName").asText());
-					temp.setLastName(coclient.get("lastName").asText());
-					temp.setUsername(coclient.get("username").asText());
-					result.setCoclient(temp);
-				}
-				// Iterate through the array elements
-				ArrayList<String> userRoles = new ArrayList<String>(); 
-				if (roles.isArray()) {
-					for (JsonNode element : roles) {
-						// Access and print array elements
-						if (element != null) {
-							userRoles.add(element.asText());
-						}
-					}
-				}
-				result.setRoles(userRoles);
-				ArrayList<User> userDeps = new ArrayList<User>(); 
-				if (deps.isArray()) {
-					for (JsonNode element : deps) {
-						// Access and print array elements
-						if (element != null) {
-							temp = new User();
-							temp.setId(Integer.valueOf(element.get("id").toString()));
-							temp.setFirstName(element.get("firstName").asText());
-							temp.setLastName(element.get("lastName").asText());
-							temp.setUsername(element.get("username").asText());
-							userDeps.add(temp);
-						}
-					}
-				}
-				result.setDependents(userDeps);
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-		} else {
-			logger.info("Failed to fetch getUser data.");
-		}
+            try {
+                JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+                result.setId(uid);
+                result.setFirstName(jsonNode.path("firstName").asText(null));
+                result.setLastName(jsonNode.path("lastName").asText(null));
+                result.setUsername(jsonNode.path("username").asText(null));
+                result.setEmail(jsonNode.path("email").asText(null));
 
-		return result;
+                JsonNode roles = jsonNode.path("roles");
+                JsonNode deps = jsonNode.path("dependents");
+                JsonNode coclient = jsonNode.path("coClient");
 
-	}
+                // Handle coClient
+                if (coclient != null && !coclient.isNull()) {
+                    User temp = new User();
+                    temp.setId(coclient.path("id").asInt());
+                    temp.setFirstName(coclient.path("firstName").asText(null));
+                    temp.setLastName(coclient.path("lastName").asText(null));
+                    temp.setUsername(coclient.path("username").asText(null));
+                    result.setCoclient(temp);
+                }
+
+                // Handle roles
+                ArrayList<String> userRoles = new ArrayList<>();
+                if (roles.isArray()) {
+                    for (JsonNode element : roles) {
+                        if (element != null && !element.isNull()) {
+                            userRoles.add(element.asText());
+                        }
+                    }
+                }
+                result.setRoles(userRoles);
+
+                // Handle dependents
+                ArrayList<User> userDeps = new ArrayList<>();
+                if (deps.isArray()) {
+                    for (JsonNode element : deps) {
+                        if (element != null && !element.isNull()) {
+                            User temp = new User();
+                            temp.setId(element.path("id").asInt());
+                            temp.setFirstName(element.path("firstName").asText(null));
+                            temp.setLastName(element.path("lastName").asText(null));
+                            temp.setUsername(element.path("username").asText(null));
+                            userDeps.add(temp);
+                        }
+                    }
+                }
+                result.setDependents(userDeps);
+
+            } catch (JsonMappingException e) {
+                logger.error("JsonMappingException while parsing user data: ", e);
+            } catch (JsonProcessingException e) {
+                logger.error("JsonProcessingException while parsing user data: ", e);
+            }
+        } else {
+            logger.info("Failed to fetch getUser data.");
+        }
+
+        return result;
+    }
+
 	
 	
 	public String addUser(User loggedInUser, User newUser) {
