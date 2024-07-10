@@ -374,6 +374,13 @@ public class ProtocolHelper {
 							entry.setProgress("None"); // Adjusted as per your instruction, but "None" seems more
 														// appropriate here
 						}
+						entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
+	                    if (element.has("completedOn" ) && !element.get("completedOn").isNull()) {
+	                    	entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
+	                    }
+	                    else{
+	                    	entry.setCompletionDate(null);
+	                    }
 	
 						JsonNode assoc = element.get("associatedSteps"); // This should target 'element', not 'jsonNode'
 						ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
@@ -418,8 +425,6 @@ public class ProtocolHelper {
 							entry.setSteps(steps);
 							entry.setStepCount();
 							entry.setCompletedSteps();
-							logger.info("Step Count" + entry.getStepCount() + " Completed Steps"
-									+ entry.getCompletedSteps());
 						}
 						results.add(entry);
 					}

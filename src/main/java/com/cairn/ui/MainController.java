@@ -130,6 +130,8 @@ public class MainController {
 		}
 
 		ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, userHelper.getHouseholdId(usr));
+
+		logger.info("Household Id: "+ userHelper.getHouseholdId(usr));
 		ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date currentDate = new Date();
@@ -1151,7 +1153,7 @@ public class MainController {
 			return ResponseEntity.badRequest().body(errorResponse);
 		}
 	}
-
+	@GetMapping("/resetUserPassword/{id}")
 	@PatchMapping("/updateUserDetails/{id}/{firstName}/{lastName}/{email}/{role}")
 	public ResponseEntity<Object> updateUserDetails(@PathVariable int id, @PathVariable String firstName,
 			@PathVariable String lastName, @PathVariable String email, @PathVariable int role, Model model) {
@@ -1444,6 +1446,8 @@ public class MainController {
 	public String extraInfoPopUp(@PathVariable int userId, @PathVariable int protocolId, Model model) {
 		User currentUser = userDAO.getUser();
 		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(currentUser, protocolId);
+		String name = pcol.getName();
+		model.addAttribute("name",name);
 		model.addAttribute("pcol", pcol);
 		model.addAttribute("userId", userId);
 		model.addAttribute("protocolId", protocolId);
@@ -1545,236 +1549,35 @@ public class MainController {
 	@GetMapping("/completionReport")
 	public String completionReport(Model model) {
 		User currentUser = userDAO.getUser();
-		ArrayList<ProtocolReport> reports = new ArrayList<ProtocolReport>();
-		ArrayList<ProtocolTemplate> templates = protocolTemplateHelper.getList(currentUser);
-		ArrayList<User> users = userHelper.getUserList(currentUser);
-		Map<String, ArrayList<ProtocolStep>> stepMap = new HashMap<>();
-		Map<Integer, ArrayList<Protocol>> userMap = new HashMap<>();
-		Map<Integer, ArrayList<ProtocolStep>> userStepMap = new HashMap<>();
-		ArrayList<Protocol> completedProtocols = new ArrayList<Protocol>();
-		ArrayList<ProtocolReport> userReports = new ArrayList<>();
-		ArrayList<ProtocolReport> stepReports = new ArrayList<>();
-		ArrayList<ProtocolReport> userStepReports = new ArrayList<>();
-		for (ProtocolTemplate template : templates) {
-			ArrayList<Protocol> tempPcolList = protocolHelper.getListbyTemplateId(currentUser, template.getId());
-			for (Protocol pcol : tempPcolList) {
-			    logger.info("Protocol: " + pcol.getId() + " HouseholdId: " + pcol.getUserId() + pcol.getId() + " Status: " + pcol.getStatus());
-			    if (pcol.getStatus().equalsIgnoreCase("Completed")) {
-			        completedProtocols.add(pcol);
-			        logger.info("Protocol: " + pcol.getId() + " added to completedProtocol");
-			    }
-			}
-			if(!completedProtocols.isEmpty()) {
-				for (Protocol protocol : completedProtocols) {
-					logger.info("Protocol in User List:" + protocol.getName() + "Protocol Users: " + protocol.getUserId());
-				}
-			} 
-			
-			
-			for (Protocol protocol : completedProtocols) { // for each protocol
-
-				for (int userId : protocol.getUsers()) {
-					logger.info("UserID: " + userId); // for each userid
-					if (!userMap.containsKey(userId)) { // set check to see if user is in the UserMap already if it is
-														// just add the protocol to the map
-						if (users.contains(userId)) { // if it's not verify that the userID is real and not a bit of
-														// junk data
-							ArrayList<Protocol> tempList = new ArrayList<Protocol>(); // then add a new entry into the
-																						// map
-							tempList.add(protocol);
-							userMap.put(userId, tempList);
-						}
-					} else {
-						userMap.get(userId).add(protocol);
-					}
-					if (!userStepMap.containsKey(userId)) {
-						if (protocol.getSteps() != null) {
-							userStepMap.put(userId, protocol.getSteps());
-						}
-					} else {
-						for (ProtocolStep step : protocol.getSteps()) {
-							boolean stepExists = false;
-							for (ProtocolStep existingStep : userStepMap.get(userId)) {
-								if (existingStep.getId() == step.getId()) {
-									stepExists = true;
-									break;
-								}
-							}
-
-							if (!stepExists) {
-								userStepMap.get(userId).add(step);
-							}
-						}
-					}
-				}
-
-				for (ProtocolStep step : protocol.getSteps()) { // this does the same thing but we don't need to bother
-																// with verifying
-					if (step.getDaysToComplete() >= 0) {
-						if (!stepMap.containsKey(step.getName())) { // if the step is real as it's a full step object in
-																	// the array not just an id
-							ArrayList<ProtocolStep> tempList = new ArrayList<ProtocolStep>(); // using names instead of
-																								// ids because we can't
-																								// change step names and
-																								// I
-							tempList.add(step); // don't have a way to get associated stepIds from this call, this is
-												// good enough
-							stepMap.put(step.getName(), tempList);
-						} else {
-							stepMap.get(step.getName()).add(step);
-						}
-					}
-				}
-			}
-			if (completedProtocols.isEmpty())
-				continue;
-
-			completedProtocols.sort(Comparator.comparingInt(Protocol::getDaysToComplete));
-
-			int size = completedProtocols.size();
-			int meanDays = completedProtocols.stream().mapToInt(Protocol::getDaysToComplete).sum() / size;
-			int medianDays = completedProtocols.get(size / 2).getDaysToComplete();
-			int high = completedProtocols.get(size - 1).getDaysToComplete();
-			int low = completedProtocols.get(0).getDaysToComplete();
-
-			int highId = completedProtocols.get(size - 1).getId();
-			int lowId = completedProtocols.get(0).getId();
-
-			ProtocolReport report = new ProtocolReport();
-			report.setId(template.getId());
-			report.setMeanDays(meanDays);
-			report.setMedDays(medianDays);
-			report.setHigh(high);
-			report.setHighId(highId);
-			report.setLow(low);
-			report.setLowId(lowId);
-			report.setName(template.getName());
-
-			reports.add(report);
-		}
-
-		// Process userMap
-		for (Map.Entry<Integer, ArrayList<Protocol>> entry : userMap.entrySet()) {
-			int userId = entry.getKey();
-			ArrayList<Protocol> protocols = entry.getValue();
-
-			int size = protocols.size();
-			int meanDays = protocols.stream().mapToInt(Protocol::getDaysToComplete).sum() / size;
-			int medianDays = protocols.get(size / 2).getDaysToComplete();
-			int high = protocols.get(size - 1).getDaysToComplete();
-			int low = protocols.get(0).getDaysToComplete();
-
-			ProtocolReport report = new ProtocolReport();
-			for (User usr : users) {
-				if (usr.getId() == userId) {
-					report.setName(usr.getFirstName() + " " + usr.getLastName());
-				}
-			}
-			report.setId(userId);
-			report.setMeanDays(meanDays);
-			report.setMedDays(medianDays);
-			report.setHigh(high);
-			report.setLow(low);
-
-			userReports.add(report);
-		}
-
-		// Process stepMap
-		for (Map.Entry<String, ArrayList<ProtocolStep>> entry : stepMap.entrySet()) {
-			String stepName = entry.getKey();
-			ArrayList<ProtocolStep> protocols = entry.getValue();
-
-			int size = protocols.size();
-			int meanDays = protocols.stream().mapToInt(ProtocolStep::getDaysToComplete).sum() / size;
-			int medianDays = protocols.get(size / 2).getDaysToComplete();
-			int high = protocols.get(size - 1).getDaysToComplete();
-			int low = protocols.get(0).getDaysToComplete();
-
-			ProtocolReport report = new ProtocolReport();
-			report.setId(stepName.hashCode()); // Assuming a unique hash code for the step name
-			report.setMeanDays(meanDays);
-			report.setMedDays(medianDays);
-			report.setHigh(high);
-			report.setLow(low);
-			report.setName("Step: " + stepName);
-
-			stepReports.add(report);
-		}
-
-		for (Map.Entry<Integer, ArrayList<ProtocolStep>> entry : userStepMap.entrySet()) {
-			int userId = entry.getKey();
-			ArrayList<ProtocolStep> protocols = entry.getValue();
-
-			int size = protocols.size();
-			int meanDays = protocols.stream().mapToInt(ProtocolStep::getDaysToComplete).sum() / size;
-			int medianDays = protocols.get(size / 2).getDaysToComplete();
-			int high = protocols.get(size - 1).getDaysToComplete();
-			int low = protocols.get(0).getDaysToComplete();
-
-			ProtocolReport report = new ProtocolReport();
-			for (User usr : users) {
-				if (usr.getId() == userId) {
-					report.setName(usr.getFirstName() + " " + usr.getLastName());
-				}
-			}
-			report.setId(userId);
-			report.setMeanDays(meanDays);
-			report.setMedDays(medianDays);
-			report.setHigh(high);
-			report.setLow(low);
-
-			userStepReports.add(report);
-		}
-
-		if (!reports.isEmpty()) {
-			for (ProtocolReport report : reports) {
-				logger.info("Report Id: " + report.getId() + " Report Name: " + report.getName() + " Report AVG: "
-						+ report.getMeanDays() + " Report MED: " + report.getMedDays() + " Report Low: "
-						+ report.getLow() + " Report High: " + report.getHigh());
-			}
-		} else {
-			logger.info("No Protocols in Template Report");
-		}
-
-		if (!userReports.isEmpty()) {
-			for (ProtocolReport report : userReports) {
-
-				logger.info("Report Id: " + report.getId() + " Report Name: " + report.getName() + " Report AVG: "
-						+ report.getMeanDays() + " Report MED: " + report.getMedDays() + " Report Low: "
-						+ report.getLow() + " Report High: " + report.getHigh());
-			}
-		} else {
-			logger.info("No Protocols in User Report");
-		}
-
-		if (!stepReports.isEmpty()) {
-			for (ProtocolReport report : stepReports) {
-
-				logger.info("Report Id: " + report.getId() + " Report Name: " + report.getName() + " Report AVG: "
-						+ report.getMeanDays() + " Report MED: " + report.getMedDays() + " Report Low: "
-						+ report.getLow() + " Report High: " + report.getHigh());
-			}
-		} else {
-			logger.info("No Protocols in Step Report");
-		}
-		if (!userStepReports.isEmpty()) {
-			for (ProtocolReport report : userStepReports) {
-
-				logger.info("Report not Empty");
-				logger.info("Report Id: " + report.getId() + " Report Name: " + report.getName() + " Report AVG: "
-						+ report.getMeanDays() + " Report MED: " + report.getMedDays() + " Report Low: "
-						+ report.getLow() + " Report High: " + report.getHigh());
-			}
-		} else {
-			logger.info("No Protocols in User Step Report");
-		}
-
+		
+		ArrayList<ProtocolTemplate> pcolList= protocolTemplateHelper.getList(currentUser);
+		ArrayList<Household> householdList = userHelper.getHouseholdList(currentUser);
+		ArrayList<ProtocolStepTemplate> stepTList = protocolTemplateHelper.getAllSteps(currentUser);
+		ArrayList<ProtocolReport> userReports = reportHelper.protocolCompletionReportByHousehold(currentUser,householdList);
+		ArrayList<ProtocolReport> templateReports = reportHelper.protocolCompletionReportByTemplate(currentUser,pcolList);
+		ArrayList<ProtocolReport> stepReports = stepCompletionReportByStep(stepTList);
+		ArrayList<ProtocolReport> clientStepReports = stepCompletionReportByHousehold(householdList);
+		
 		model.addAttribute("userReports", userReports);
 		model.addAttribute("stepReports", stepReports);
-		model.addAttribute("reports", reports);
-		model.addAttribute("userStepReports", userStepReports);
+		model.addAttribute("reports", templateReports);
+		model.addAttribute("userStepReports", clientStepReports);
 		return "completionReport";
 	}
+	
+	
+
+
+
+	public ArrayList<ProtocolReport> stepCompletionReportByStep(ArrayList<ProtocolStepTemplate> stepList) {
+		ArrayList<ProtocolReport> reports = new ArrayList<ProtocolReport>();
+		return reports;
+	}
+	public ArrayList<ProtocolReport> stepCompletionReportByHousehold(ArrayList<Household> households){
+		ArrayList<ProtocolReport> reports = new ArrayList<ProtocolReport>();
+		return reports;
+	}
+	
 
 	@PostMapping("/postRecommendations/{id}")
 	public ResponseEntity<String> postRecommendation(@PathVariable int id, @RequestBody String recommendation) {
@@ -1981,5 +1784,11 @@ public class MainController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Template : exception"+e);
 		}
     	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Template");
+    }
+    
+    @GetMapping("/sendResetPasswordEmail/{id}")
+    public int sendResetPasswordEmail(@PathVariable int id) {
+    	int result = -1;
+    	return result;
     }
 }
