@@ -149,7 +149,7 @@
                                     </div>
                                     <div class="flip-card-back">
 									    <p>Education:</p>
-									    <ul>
+									    <ul th:id="|ed_${pcol.id}|">
 									        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
 									            <span th:text="${step.name + ' - ' + 
 									                (step.status == 'TODO' ? 'To Do' : 
@@ -157,6 +157,12 @@
 									                (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
 									        </li>
 									    </ul>
+									    <script>
+											var ed_sect = document.getElementById("ed_[[${pcol.id}]]");
+											if (ed_sect.innerHTML.trim() == "") {
+												ed_sect.innerHTML = "<H4>No education items currently available.</H4>";
+											}
+										</script>
 									</div>
                                 </div>
                             </div>
