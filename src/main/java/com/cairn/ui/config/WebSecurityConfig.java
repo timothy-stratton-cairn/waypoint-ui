@@ -22,6 +22,7 @@ public class WebSecurityConfig {
 		MvcRequestMatcher mvc7 = new MvcRequestMatcher(null,"/css/**");
 		MvcRequestMatcher mvc8 = new MvcRequestMatcher(null,"/js/**");
 		MvcRequestMatcher mvc9 = new MvcRequestMatcher(null,"/registerUser");
+		MvcRequestMatcher mvc10 = new MvcRequestMatcher(null,"/health");
 		http
 			.authorizeHttpRequests((requests) -> requests
 				.requestMatchers(mvc).permitAll()
@@ -33,6 +34,7 @@ public class WebSecurityConfig {
 				.requestMatchers(mvc7).permitAll()
 				.requestMatchers(mvc8).permitAll()
 				.requestMatchers(mvc9).permitAll()
+				.requestMatchers(mvc10).permitAll()
 				.anyRequest().authenticated()
 			)
 			.formLogin((form) -> form
