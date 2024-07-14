@@ -19,65 +19,65 @@
         <div class="note_card">
             <fieldset>
                 <legend> Household</legend>
-				<div class="row mb-3">
-				    <div class="col-md-3">
-				        <label>Name:</label>
-				        <span th:text="${client.name}"></span>
-				    </div>
-				</div>
-                <!-- CoClients -->
-				<div class="row mb-3">
-					    <div class="col-md-3">
-					        <label>Primary Contact:</label>
-					        <span th:each="client : ${primaryContact}" th:text="${client.firstName + ' ' + client.lastName}"></span>
-					    </div>
-					    <div class="col-md-3">
-					        <label>Email:</label>
-					        <span th:each="client : ${primaryContact}" th:text="${client.email}"></span>
-					    </div>
-					    <div class="col-md-3">
-					        <a class="btn btn-sm btn-secondary" th:each="client : ${primaryContact}" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
-					    </div>
-					</div>
-				<div class="row mb-3">
-				    <div class="col-md-12">
-				        <table class="table">
-				            <thead>
-				                <tr>
-				                    <th>CoClients</th>
-				                    <th>Action</th>
-				                </tr>
-				            </thead>
-				            <tbody>
-				                <tr th:each="coclient : ${coClientList}">
-				                    <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
-				                    <td>
-				                       <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
-				                    </td>
-				                </tr>
-				            </tbody>
-				        </table>
-				    </div>
-				</div>
-				    <div class="col-3">
-                        <div class="input-group">
-                            <select class="form-select" id="coClientSelect">
-                                <option value="">Select CoClient</option>
-                                <!-- Populate dropdown menu with CoClient list -->
-                                <option th:each="coClient : ${userList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
-                            </select>
-                            <button class="btn btn-primary" type="button" onclick="addCoClient()">Add CoClient</button>
-                        </div>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label>Name:</label>
+                        <span th:text="${client.name}"></span>
                     </div>
+                </div>
+                <!-- CoClients -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label>Primary Contact:</label>
+                        <span th:each="client : ${primaryContact}" th:text="${client.firstName + ' ' + client.lastName}"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Email:</label>
+                        <span th:each="client : ${primaryContact}" th:text="${client.email}"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <a class="btn btn-sm btn-secondary" th:each="client : ${primaryContact}" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>CoClients</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="coclient : ${coClientList}">
+                                    <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
+                                    <td>
+                                        <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="input-group">
+                        <select class="form-select" id="coClientSelect">
+                            <option value="">Select CoClient</option>
+                            <!-- Populate dropdown menu with CoClient list -->
+                            <option th:each="coClient : ${userList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
+                        </select>
+                        <button class="btn btn-primary" type="button" onclick="addCoClient()">Add CoClient</button>
+                    </div>
+                </div>
 
-            <button onclick="history.back()" class="btn btn-primary">Back</button>       
-			<br>
-			
+                <button onclick="history.back()" class="btn btn-primary">Back</button>
+                <br>
+
             </fieldset>
 
         </div>
     </div>
-    <div class="container">
+    <div class="container" id="dependentSection">
         <!-- Dependents Information -->
         <div class="note_card">
             <fieldset>
@@ -95,7 +95,16 @@
                         </div>
                     </div>
                 </div>
-                <a class="btn btn-sm btn-secondary" th:href="${'javascript:addDependant(' + client.id + ');'}">Add Dependent</a>
+                <button class="btn btn-sm btn-secondary" onclick="toggleDependentForm()">Add Dependent</button>
+                <div id="dependentFormContainer" style="display: none;">
+                    <label>Email Address:</label>
+                    <input type="email" id="dependentEmail" class="form-control">
+                    <label>First Name:</label>
+                    <input type="text" id="dependentFirstName" class="form-control">
+                    <label>Last Name:</label>
+                    <input type="text" id="dependentLastName" class="form-control">
+                    <button class="btn btn-primary mt-2" onclick="confirmAddDependent()">Confirm</button>
+                </div>
             </fieldset>
         </div>
     </div>
@@ -108,8 +117,8 @@
                         <button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
                         <button type="button" class="btn btn-primary" onclick="viewHistory();">View All Protocols</button>
                     </div>
-		            <div id="protocolContainer"></div>
-                </div><br/>
+                    <div id="protocolContainer"></div>
+                </div><br />
                 <ul class="nav nav-tabs">
                     <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
                     <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
@@ -148,16 +157,16 @@
                                         </div>
                                     </div>
                                     <div class="flip-card-back">
-									    <p>Education:</p>
-									    <ul>
-									        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
-									            <span th:text="${step.name + ' - ' + 
-									                (step.status == 'TODO' ? 'To Do' : 
-									                (step.status == 'IN_PROGRESS' ? 'In Progress' : 
-									                (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
-									        </li>
-									    </ul>
-									</div>
+                                        <p>Education:</p>
+                                        <ul>
+                                            <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
+                                                <span th:text="${step.name + ' - ' + 
+                                                    (step.status == 'TODO' ? 'To Do' : 
+                                                    (step.status == 'IN_PROGRESS' ? 'In Progress' : 
+                                                    (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </a>
@@ -189,9 +198,9 @@
         </div>
     </template>
 
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-	<script th:inline="javascript">
-	 	var clientId = [[${clientId}]];
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        var clientId = [[${clientId}]];
 
         function showMessageBanner(message, type) {
             const banner = document.getElementById('messageBanner');
@@ -200,150 +209,150 @@
             banner.style.display = 'block';
         }
 
-	   function viewProtocol(id){
-		    window.location = '/viewProtocol/'+id+ '/'+ clientId;
-	   }
+        function viewProtocol(id){
+            window.location = '/viewProtocol/'+id+ '/'+ clientId;
+        }
 
-	   function addDependant(id){
-		   window.location = '/createDependant/'+id;
-	   }
+        function addDependant(id){
+            window.location = '/createDependant/'+id;
+        }
 
-	   function viewAnalysis(id){
-		   window.location= '/analysis/'+id;
-	   }
+        function viewAnalysis(id){
+            window.location= '/analysis/'+id;
+        }
 
-	   function viewHistory(){
-		   window.location='/allClientProtocols/'+clientId;
-	   }
+        function viewHistory(){
+            window.location='/allClientProtocols/'+clientId;
+        }
 
-	   function protocolHistory(name){
-		   window.location='/protocolHistory/'+clientId+'/'+name;
-	   }
+        function protocolHistory(name){
+            window.location='/protocolHistory/'+clientId+'/'+name;
+        }
 
-	   function viewRecommendations(id){
-		   window.location= '/protocolRecommendations/'+id +'/'+clientId;
-	   }
+        function viewRecommendations(id){
+            window.location= '/protocolRecommendations/'+id +'/'+clientId;
+        }
 
-	   	function goToHomeworkTemplates() {
-			window.location.href = '/homeworkList/';
-		}
+        function goToHomeworkTemplates() {
+            window.location.href = '/homeworkList/';
+        }
 
-		function goToHomeworks(id) {
-			window.location.href = '/homeworkList/'+id;
-		}
+        function goToHomeworks(id) {
+            window.location.href = '/homeworkList/'+id;
+        }
 
-		function editClient(id){
-			window.location.href= '/changeClientInfo/'+id;
-		}
+        function editClient(id){
+            window.location.href= '/changeClientInfo/'+id;
+        }
 
-		var firstTabEl = document.querySelector('#dependentTabs .nav-link');
-		var firstTab = new bootstrap.Tab(firstTabEl);
-		var apTracker = true; 
+        var firstTabEl = document.querySelector('#dependentTabs .nav-link');
+        var firstTab = new bootstrap.Tab(firstTabEl);
+        var apTracker = true; 
 
-		if (firstTabEl) {
-			firstTab.show();
-		}
+        if (firstTabEl) {
+            firstTab.show();
+        }
 
-		function addProtocol() {
-		    if (!apTracker) {
-		        console.log("addProtocol: Prevented from spawning multiple lines.");
-		        return; 
-		    }
-		    
-		    console.log("addProtocol: Function called.");
-		    const container = document.querySelector("#protocolContainer");
-		    if (container) {
-		        console.log("addProtocol: Container found.");
-		    } else {
-		        console.error("addProtocol: #protocolContainer not found.");
-		        return; 
-		    }
-		    const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
-		    container.appendChild(template);
-		    console.log("addProtocol: Protocol added to container.");
-		    apTracker = false; 
-		}
+        function addProtocol() {
+            if (!apTracker) {
+                console.log("addProtocol: Prevented from spawning multiple lines.");
+                return; 
+            }
+            
+            console.log("addProtocol: Function called.");
+            const container = document.querySelector("#protocolContainer");
+            if (container) {
+                console.log("addProtocol: Container found.");
+            } else {
+                console.error("addProtocol: #protocolContainer not found.");
+                return; 
+            }
+            const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
+            container.appendChild(template);
+            console.log("addProtocol: Protocol added to container.");
+            apTracker = false; 
+        }
 
-		function confirmProtocol(buttonElement) {
-			console.log("confirmProtocol: Function called.");
+        function confirmProtocol(buttonElement) {
+            console.log("confirmProtocol: Function called.");
 
-			var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-			var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-			var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-			var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-			if (csrfTokenElement && csrfHeaderElement) {
-				console.log("confirmProtocol: CSRF elements found.");
-			} else {
-				console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
-			}
+            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+            if (csrfTokenElement && csrfHeaderElement) {
+                console.log("confirmProtocol: CSRF elements found.");
+            } else {
+                console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
+            }
 
-			var selectElement = buttonElement.previousElementSibling;
-			var protocolId = selectElement ? selectElement.value : null;
-		    const popupWidth = 800;
-		    const popupHeight = 400;
-		    const left = (screen.width - popupWidth) / 2;
-		    const top = (screen.height - popupHeight) / 2;
-		    window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
-			if (protocolId) {
-				console.log(`confirmProtocol: Selected protocol ID is ${protocolId}.`);
-			} else {
-				console.error("confirmProtocol: No protocol ID selected.");
-				return;
-			}
+            var selectElement = buttonElement.previousElementSibling;
+            var protocolId = selectElement ? selectElement.value : null;
+            const popupWidth = 800;
+            const popupHeight = 400;
+            const left = (screen.width - popupWidth) / 2;
+            const top = (screen.height - popupHeight) / 2;
+            window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+            if (protocolId) {
+                console.log(`confirmProtocol: Selected protocol ID is ${protocolId}.`);
+            } else {
+                console.error("confirmProtocol: No protocol ID selected.");
+                return;
+            }
 
-			/*$.ajax({
-				url: `/addClientToProtocol/[[${clientId}]]/` + protocolId,
-				type: 'POST',
-				headers: {
-					'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': csrfToken
-				},
-				success: function(response) {
-					apTracker = true;
-					window.location.reload(); // Reload page if successful
-				},
-				error: function(xhr, status, error) {
-					console.error('Error adding step:', error);
-					alert('Failed to add the Protocol. Error: ' + xhr.responseText);
-				}
-			});*/
-		}
+            /*$.ajax({
+                url: `/addClientToProtocol/[[${clientId}]]/` + protocolId,
+                type: 'POST',
+                headers: {
+                    'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                success: function(response) {
+                    apTracker = true;
+                    window.location.reload(); // Reload page if successful
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error adding step:', error);
+                    alert('Failed to add the Protocol. Error: ' + xhr.responseText);
+                }
+            });*/
+        }
 
-		document.addEventListener('DOMContentLoaded', function () {
-			var searchField = document.getElementById('protocolSearch');
+        document.addEventListener('DOMContentLoaded', function () {
+            var searchField = document.getElementById('protocolSearch');
 
-			searchField.addEventListener('input', function () {
-				var searchTerm = this.value.toLowerCase();
+            searchField.addEventListener('input', function () {
+                var searchTerm = this.value.toLowerCase();
 
-				var protocols = document.querySelectorAll('.note_card.col-md-5');
+                var protocols = document.querySelectorAll('.note_card.col-md-5');
 
-				protocols.forEach(function (protocol) {
-					var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
-					var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
-					var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
-					var descriptionElement = protocol.querySelector('.flip-card-front .container .row:nth-child(5)');
+                protocols.forEach(function (protocol) {
+                    var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
+                    var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
+                    var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
+                    var descriptionElement = protocol.querySelector('.flip-card-front .container .row:nth-child(5)');
 
-					var name = nameElement ? nameElement.textContent.toLowerCase() : '';
-					var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
-					var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
-					var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
+                    var name = nameElement ? nameElement.textContent.toLowerCase() : '';
+                    var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
+                    var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
+                    var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
 
-					var isMatch = name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm) || description.includes(searchTerm);
+                    var isMatch = name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm) || description.includes(searchTerm);
 
-					var steps = protocol.querySelectorAll('.flip-card-back li');
-					steps.forEach(function (step) {
-						var stepName = step.textContent.toLowerCase();
-						if (stepName.includes(searchTerm)) {
-							isMatch = true;
-						}
-					});
+                    var steps = protocol.querySelectorAll('.flip-card-back li');
+                    steps.forEach(function (step) {
+                        var stepName = step.textContent.toLowerCase();
+                        if (stepName.includes(searchTerm)) {
+                            isMatch = true;
+                        }
+                    });
 
-					protocol.style.display = isMatch ? '' : 'none';
-				});
-			});
-		});
-		
+                    protocol.style.display = isMatch ? '' : 'none';
+                });
+            });
+        });
+
         function filterProtocolsByStatus(status) {
             const protocols = document.querySelectorAll('#protocolContent > div');
             let visibleProtocolsCount = 0;
@@ -378,13 +387,13 @@
             }
         }
 
-		function flipCard(card) {
-		    if (card) {
-		        card.classList.toggle('do-flip');
-		    } else {
-		        console.error("No card element found");
-		    }
-		}
+        function flipCard(card) {
+            if (card) {
+                card.classList.toggle('do-flip');
+            } else {
+                console.error("No card element found");
+            }
+        }
         
         function addCoClient() {
             const selectedCoClientId = document.getElementById('coClientSelect').value;
@@ -414,12 +423,57 @@
                 showMessageBanner('Please select a CoClient first.', 'warning');
             }
         }
-        
 
-	</script>
-	<div th:insert="~{footer :: main}">...</div>
+        function toggleDependentForm() {
+            const formContainer = document.getElementById('dependentFormContainer');
+            formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function confirmAddDependent() {
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            
+            const dependent = {
+                email: document.getElementById('dependentEmail').value,
+                firstName: document.getElementById('dependentFirstName').value,
+                lastName: document.getElementById('dependentLastName').value,
+                roles: [2]
+            };
+
+            $.ajax({
+                url: `/createAndAssignDependent/${clientId}`,
+                type: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                data: JSON.stringify(dependent),
+                success: function(response) {
+                    showMessageBanner('Dependent Successfully Created and Assigned', 'success');
+                    loadDependents();
+                },
+                error: function(xhr, status, error) {
+                    showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
+                }
+            });
+        }
+
+        function loadDependents() {
+            $.ajax({
+                url: `/getDependents/${clientId}`,
+                type: 'GET',
+                success: function(response) {
+                    $('#dependentSection').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading dependents:', error);
+                }
+            });
+        }
+    </script>
+    <div th:insert="~{footer :: main}">...</div>
 </body>
-
 
 </html>
 

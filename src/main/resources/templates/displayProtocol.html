@@ -300,6 +300,19 @@
                 }
             });
         }
+   function parseErrorMessage(xhr) {
+        var errorMessage = "An error occurred.";
+        try {
+            var responseJson = JSON.parse(xhr.responseText);
+            if (responseJson.message) {
+                errorMessage = responseJson.message;
+            }
+        } catch (e) {
+            console.error('Error parsing error response:', e);
+        }
+        return errorMessage;
+    }
+
 
     function confirmStep(buttonElement) {
         var csrfToken = $('meta[name="_csrf"]').attr('content');
@@ -404,23 +417,12 @@
         });
     }
 
-    function parseErrorMessage(xhr) {
-        var errorMessage = "An error occurred.";
-        try {
-            var responseJson = JSON.parse(xhr.responseText);
-            if (responseJson.message) {
-                errorMessage = responseJson.message;
-            }
-        } catch (e) {
-            console.error('Error parsing error response:', e);
-        }
-        return errorMessage;
-    }
 
 
 
 </script>
-<div th:insert="~{footer :: main}">...</div>
+
+	<div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
 

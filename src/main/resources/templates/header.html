@@ -41,9 +41,10 @@
 		    <li><a class="dropdown-item" href="/protocolTemplates">Protocol Templates</a></li>
 		    <li><a class="dropdown-item" href="/homeworkTemplates/">Homework Templates</a></li>
 		    <li><a class="dropdown-item" href="/protocolStepTemplates">Step Templates</a></li>
+		    <li><a class="dropdown-item" href="/homeworkQuestionList">Homework Questions</a></li>
 		  </ul>
 		</li>
-        <li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/homeworkQuestionList">Homework Questions</a></li>
+        <!--<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/homeworkQuestionList">Homework Questions</a></li>-->
 		<li class="nav-item"><a class="nav-link" href="/completionReport">Reports</a></li>
 		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/clients">Households</a></li>
 		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/userAdminList">Users</a></li>

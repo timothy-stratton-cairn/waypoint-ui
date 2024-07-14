@@ -1,11 +1,13 @@
 package com.cairn.ui.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class ProtocolStep {
 
 	private int id;
+	private int templateId;
 	private String name;
 	private String description;
 	private String notes;
@@ -16,6 +18,8 @@ public class ProtocolStep {
 	private Date startDate;
 	private Date completionDate;
 	private int daysToComplete;
+	
+	private ArrayList<ProtocolStepNote> stepNotes;
 
 	public int getId() {
 		return id;
@@ -85,4 +89,16 @@ public class ProtocolStep {
             return (int) TimeUnit.DAYS.convert(diffInMilli, TimeUnit.MILLISECONDS);
         }
     }
+	public ArrayList<ProtocolStepNote> getStepNotes() {
+		return stepNotes;
+	}
+	public void setStepNotes(ArrayList<ProtocolStepNote> stepNotes) {
+		this.stepNotes = stepNotes;
+	}
+	public int getTemplateId() {
+		return templateId;
+	}
+	public void setTemplateId(int templateId) {
+		this.templateId = templateId;
+	}
 }

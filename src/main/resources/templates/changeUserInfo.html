@@ -1,156 +1,202 @@
 <!DOCTYPE html>
-<xmlns="http://www.thymeleaf.org">
-<div th:insert="~{header :: main}">...</div>
+<html xmlns="http://www.thymeleaf.org">
 <head>
-	<meta name="_csrf" th:content="${_csrf.token}" />
-	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <div th:insert="~{header :: main}">...</div>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 <body>
-	<div class="container">
-	    <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
-	    <div class="row note_card">
-	        <fieldset>
-				<legend>Change User Details</legend>
-				<form id="userDetailsForm">
-				<div class="form-row">
-					<div class="form-group col-md-4">
-		                <label for="firstName">First Name:</label>
-		                <input type="text" id="firstName" name="firstName" class="form-control" th:value="${user.firstName}">
-		            </div>
-		            <div class="form-group col-md-4">
-		                <label for="lastName">Last Name:</label>
-		                <input type="text" id="lastName" name="lastName" class="form-control" th:value="${user.lastName}">
-		            </div>
-				</div>
-				<div class="form-group">
-	                <label for="username">Username:</label>
-	                <input type="text" id="username" name="username" class="form-control" th:value="${user.username}">
-	            </div>
-				<div class="form-group">
-				    <label for="email">Email:</label>
-				    <input type="text" id="email" name="email" class="form-control" th:value="${user.email}">
-				</div>
-				
-				<div class="form-group">
-                    <label for="role">Role:</label>
-                    <select id="role" name="role" class="form-control">
-                        <option value="2" th:selected="${roles == 'CLIENT'}">Client</option>
-                        <option value="3" th:selected="${roles == 'USER'}">User</option>
-                        <option value="4" th:selected="${roles == 'ADMIN'}">Admin</option>
-                    </select>
+    <div class="container">
+        <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
+        <div class="row note_card">
+            <fieldset>
+                <legend>Change User Details</legend>
+                <form id="userDetailsForm">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="firstName">First Name:</label>
+                            <input type="text" id="firstName" name="firstName" class="form-control" th:value="${user.firstName}">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="lastName">Last Name:</label>
+                            <input type="text" id="lastName" name="lastName" class="form-control" th:value="${user.lastName}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" class="form-control" th:value="${user.username}">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="text" id="email" name="email" class="form-control" th:value="${user.email}">
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role:</label>
+                        <select id="role" name="role" class="form-control">
+                            <option value="2" th:selected="${roles == 'CLIENT'}">Client</option>
+                            <option value="3" th:selected="${roles == 'USER'}">User</option>
+                            <option value="4" th:selected="${roles == 'ADMIN'}">Admin</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
+                    <button type="button" class="btn btn-success" onclick="saveUserDetails()">Save</button>
+                </form>
+            </fieldset>
+        </div>
+    </div>
+    <div class="container" id="dependentSection">
+        <!-- Dependents Information -->
+        <div class="note_card">
+            <fieldset>
+                <legend>Dependents</legend>
+                <div th:each="dependent : ${dependents}">
+                    <div>
+                        <label>Dependent Name:</label>
+                        <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
+                    </div>
                 </div>
-                
-	            <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
-	            <button type="button" class="btn btn-success" onclick="saveUserDetails()">Save</button>
-	        </form>
-	        </fieldset>
-	    </div>
-	</div>
-	<div class="container">
-		<div class="row note_card">
-			<fieldset>
-				<legend>Change Password</legend>
-				<form id="passwordForm">
-				    <div class="form-group">
-					    <label for="oldPassword">Old Password:</label>
-					    <input type="password" id="oldPassword" name="oldPassword" class="form-control">
-					</div>
-					<div class="form-group">
-					    <label for="newPassword">New Password:</label>
-					    <input type="password" id="newPassword" name="newPassword" class="form-control">
-					</div>
-					<button type="button" class="btn btn-primary" onclick="savePassword()">Save</button>
-	            </form>
-			</fieldset>
-		</div>
-	</div>
-<script th:inline="javascript">
-	const clientId = [[${id}]];
+                <button class="btn btn-sm btn-secondary" onclick="toggleDependentForm()">Add Dependent</button>
+                <div id="dependentFormContainer" style="display: none;">
+                    <label>Email Address:</label>
+                    <input type="email" id="dependentEmail" class="form-control">
+                    <label>First Name:</label>
+                    <input type="text" id="dependentFirstName" class="form-control">
+                    <label>Last Name:</label>
+                    <input type="text" id="dependentLastName" class="form-control">
+                    <button class="btn btn-primary mt-2" onclick="confirmAddDependent()">Confirm</button>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Change Password</legend>
+                <div>
+                    <button type="button" class="btn btn-primary" onclick="sendResetPassword()"> Reset Password Email </button>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        const clientId = [[${id}]];
 
-	function showMessageBanner(message, type) {
-	    const banner = document.getElementById('messageBanner');
-	    banner.className = 'alert alert-' + type;
-	    banner.textContent = message;
-	    banner.style.display = 'block';
-	}
+        function showMessageBanner(message, type) {
+            const banner = document.getElementById('messageBanner');
+            banner.className = 'alert alert-' + type;
+            banner.textContent = message;
+            banner.style.display = 'block';
+        }
 
-	function saveUserDetails() {
-		console.log("saveUserDetails: Function called.");
-		var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        function saveUserDetails() {
+            console.log("saveUserDetails: Function called.");
+            var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-	    var email = document.getElementById('email').value;
-	    var firstName = document.getElementById('firstName').value;
-	    var lastName = document.getElementById('lastName').value;
-		var role = document.getElementById('role').value;
-	    var requestUrl = `/updateUserDetails/${clientId}/${firstName}/${lastName}/${email}/${role}`;
+            var email = document.getElementById('email').value;
+            var firstName = document.getElementById('firstName').value;
+            var lastName = document.getElementById('lastName').value;
+            var role = document.getElementById('role').value;
+            var requestUrl = `/updateUserDetails/${clientId}/${firstName}/${lastName}/${email}/${role}`;
 
-	    fetch(requestUrl, {
-	        method: 'PATCH',
-	        headers: {
-	            'Accept': 'application/json',
-	            'Content-Type': 'application/json',
-	            [csrfHeader]: csrfToken
-	        }
-	    })
-	    .then(response => {
-	        if (response.ok) {
-	            showMessageBanner('User details saved successfully.', 'success');
-	            window.location.reload();
-	        } else {
-	            response.text().then(text => { throw new Error(text); });
-	        }
-	    })
-	    .catch(error => {
-	        console.error('Error:', error);
-	        showMessageBanner('Error saving user details.', 'danger');
-	    });
-	}
+            fetch(requestUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    showMessageBanner('User details saved successfully.', 'success');
+                    window.location.reload();
+                } else {
+                    response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessageBanner('Error saving user details.', 'danger');
+            });
+        }
 
-	function savePassword() {
-	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        function sendResetPassword() {
+            console.log("sendResetPassword: Function called with id:", clientId);
+            var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-	    var oldPassword = document.getElementById('oldPassword').value;
-	    var newPassword = document.getElementById('newPassword').value;
+            var requestUrl = `/sendResetPasswordEmail/${clientId}`;
 
-	    var userObj = {
-	        "pwd": oldPassword,
-	        "verifyPwd": newPassword
-	    };
+            fetch(requestUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'text/plain',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    showMessageBanner('Reset password email sent successfully.', 'success');
+                } else {
+                    response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessageBanner('Error sending reset password email.', 'danger');
+            });
+        }
 
-	    fetch('/updateUserPassword/' + clientId, {
-	        method: 'POST',
-	        headers: {
-	            'Accept': 'application/json',
-	            'Content-Type': 'application/json',
-	            [csrfHeader]: csrfToken
-	        },
-	        body: JSON.stringify(userObj)
-	    })
-	    .then(response => response.json().then(data => ({
-	        status: response.status,
-	        body: data
-	    })))
-	    .then(result => {
-	        if (result.status === 200) {
-	            showMessageBanner('Password updated successfully.', 'success');
-	            window.location.reload();
-	        } else {
-	            if (result.body.error) {
-	                showMessageBanner('Error updating password: ' + result.body.error, 'danger');
-	            } else {
-	                showMessageBanner('Failed to update password.', 'danger');
-	            }
-	        }
-	    })
-	    .catch(error => {
-	        console.error('Error:', error);
-	        showMessageBanner('Error updating password.', 'danger');
-	    });
-	}
-</script>
+        function toggleDependentForm() {
+            const formContainer = document.getElementById('dependentFormContainer');
+            formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function confirmAddDependent() {
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            
+            const dependent = {
+                email: document.getElementById('dependentEmail').value,
+                firstName: document.getElementById('dependentFirstName').value,
+                lastName: document.getElementById('dependentLastName').value,
+                roles: [2]
+            };
+
+            $.ajax({
+                url: `/createAndAssignDependent/${clientId}`,
+                type: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                data: JSON.stringify(dependent),
+                success: function(response) {
+                    showMessageBanner('Dependent Successfully Created and Assigned', 'success');
+                    loadDependents();
+                },
+                error: function(xhr, status, error) {
+                    showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
+                }
+            });
+        }
+
+        function loadDependents() {
+            $.ajax({
+                url: `/getDependents/${clientId}`,
+                type: 'GET',
+                success: function(response) {
+                    $('#dependentSection').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading dependents:', error);
+                }
+            });
+        }
+    </script>
+    <div th:insert="~{footer :: main}">...</div>
 </body>
-<div th:insert="~{footer :: main}">...</div>
 </html>
-

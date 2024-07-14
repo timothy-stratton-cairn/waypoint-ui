@@ -370,6 +370,14 @@ public class MainController {
 		logger.info(status);
 		try {
 			protocolHelper.updateStepStatus(currentUser, protocolId, stepId, status);
+			if(status.equals("DONE")) {
+				protocolHelper.updateStepNote(currentUser, protocolId, stepId, "COMPLETED");
+				
+			}
+			if(status.equals("CONDITIONAL_COMPLETION")) {
+				protocolHelper.updateStepNote(currentUser, protocolId, stepId, "CONDITIONAL COMPLETION");
+			}
+			
 		} catch (Exception e) {
 			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace(); // Print the stack trace to the console
@@ -734,28 +742,33 @@ public class MainController {
 
 		int id = userHelper.getUserId(usr);
 		User currentUser = userHelper.getUser(usr, id);
+		ArrayList<User> dependants = currentUser.getDependents();
+		
+		model.addAttribute(dependants);
 		model.addAttribute("user", currentUser);// Adds the object to the model to be accessed by the form
 		model.addAttribute("id", id);
 		return "changeUserInfo";
 	}
 
-	@GetMapping("/changeClientInfo/{id}") // basically the same from above but for clients that aren't the current user,
-											// requires a different page.
+	@GetMapping("/changeClientInfo/{id}") 
 	public String changeClientInfo(@PathVariable int id, Model model) {
-		User usr = userDAO.getUser();
-		User client = userHelper.getUser(usr, id);
-		int clientId = client.getId();
-		String roles = "";
-		for (String role : client.getRoles()) {
-			roles = roles + role;
-		}
-		logger.info(roles);
-		model.addAttribute("roles", roles);
-		model.addAttribute("user", client);
-		model.addAttribute("id", clientId);
+	    User usr = userDAO.getUser();
+	    User client = userHelper.getUser(usr, id);
+	    int clientId = client.getId();
+	    String roles = String.join(",", client.getRoles());
+	    logger.info(roles);
+	    ArrayList<User> dependents = client.getDependents();
+	    for (User dependent : dependents) {
+	        logger.info("Id: " + dependent.getId() + " Name: " + dependent.getFirstName() + " " + dependent.getLastName());
+	    }
+	    model.addAttribute("dependents", dependents);
+	    model.addAttribute("roles", roles);
+	    model.addAttribute("user", client);
+	    model.addAttribute("id", clientId);
 
-		return "changeUserInfo";
+	    return "changeUserInfo";
 	}
+
 
 	@GetMapping("reports")
 	public String reports(Model model) {
@@ -884,7 +897,7 @@ public class MainController {
 		}
 		
 		try {
-			userHelper.addHouseholdAccount(currentUser, clientId, householdIds);
+			userHelper.addHouseholdAccount(currentUser, household, householdIds);
 			return ResponseEntity.ok().body("{\"message\": \"CoClient Successfully Added!\"}");
 
 		} catch (Exception e) {
@@ -916,7 +929,10 @@ public class MainController {
 	    User currentUser = userDAO.getUser();
 	    Household household = userHelper.getHouseholdById(currentUser, clientId);
 	    logger.info(household.getName());
-
+	    ArrayList<User> primaryContact = household.getPrimaryContacts();
+	    for(User pc: primaryContact) {
+	    	logger.info("PC Contact:"+ pc.getFirstName()+ " "+pc.getLastName());
+	    }
 	    ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
 	    ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
 	    ArrayList<User> userList = userHelper.getUserList(currentUser);
@@ -1001,8 +1017,13 @@ public class MainController {
 		logger.info("Protocol Name: " + protocolRequest.getName() + " Protocol Due Date: " + protocolRequest.getDueDate());
 		try {
 			User currentUser = userDAO.getUser();
-			protocolHelper.addClient(currentUser, clientId, protocolTemplateId, protocolRequest); // Perform the
-																									// operation
+			int call = protocolHelper.addClient(currentUser, clientId, protocolTemplateId, protocolRequest); // Perform the
+			logger.info("new protocolId" + call);// operation
+			ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser, call);
+			for(ProtocolStep step: steps) {
+				logger.info("Step Id: " + step.getId());
+				protocolHelper.updateStepNote(currentUser, call, step.getId() ,"CREATED");
+			}
 
 		} catch (Exception e) {
 			logger.info("Error in addClientToProtocol:");
@@ -1555,9 +1576,9 @@ public class MainController {
 		ArrayList<ProtocolStepTemplate> stepTList = protocolTemplateHelper.getAllSteps(currentUser);
 		ArrayList<ProtocolReport> userReports = reportHelper.protocolCompletionReportByHousehold(currentUser,householdList);
 		ArrayList<ProtocolReport> templateReports = reportHelper.protocolCompletionReportByTemplate(currentUser,pcolList);
-		ArrayList<ProtocolReport> stepReports = stepCompletionReportByStep(stepTList);
-		ArrayList<ProtocolReport> clientStepReports = stepCompletionReportByHousehold(householdList);
-		
+		ArrayList<ProtocolReport> stepReports = reportHelper.stepCompletionReportTemplate(currentUser, stepTList,householdList);
+		ArrayList<ProtocolReport> clientStepReports = reportHelper.stepCompletionReportByHousehold(currentUser,householdList);
+
 		model.addAttribute("userReports", userReports);
 		model.addAttribute("stepReports", stepReports);
 		model.addAttribute("reports", templateReports);
@@ -1566,8 +1587,6 @@ public class MainController {
 	}
 	
 	
-
-
 
 	public ArrayList<ProtocolReport> stepCompletionReportByStep(ArrayList<ProtocolStepTemplate> stepList) {
 		ArrayList<ProtocolReport> reports = new ArrayList<ProtocolReport>();
@@ -1786,9 +1805,91 @@ public class MainController {
     	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Updating Template");
     }
     
-    @GetMapping("/sendResetPasswordEmail/{id}")
-    public int sendResetPasswordEmail(@PathVariable int id) {
-    	int result = -1;
-    	return result;
+    @PostMapping("/createAndAssignDependent/{id}")
+    public ResponseEntity<String> createAndAssignDependent(@RequestBody User dependent, @PathVariable int id) {
+        User currentUser = userDAO.getUser();
+        logger.info(dependent.getFirstName() + " " + dependent.getLastName() + " " + dependent.getEmail());
+        String call = userHelper.createDependent(currentUser, dependent);
+        try {
+            if (call.contains("success")) {
+                // Extract the ID using regular expression
+                Pattern pattern = Pattern.compile("id: (\\d+)");
+                Matcher matcher = pattern.matcher(call);
+                if (matcher.find()) {
+                    int dependentId = Integer.parseInt(matcher.group(1));
+                    logger.info("DependentID: " + dependentId);
+                    
+                    User primeUser = userHelper.getUser(currentUser, id);
+                    ArrayList<User> dependents = primeUser.getDependents();
+                    
+                    // Logging existing dependents
+                    String dependentAsString = dependents.stream()
+                        .map(dep -> dep.getFirstName() + " " + dep.getLastName())
+                        .collect(Collectors.joining(", "));
+                    logger.info(dependentAsString);
+                    
+                    // Creating a list of dependent IDs
+                    ArrayList<Integer> dependentIdList = dependents.stream()
+                        .map(User::getId)
+                        .collect(Collectors.toCollection(ArrayList::new));
+                    dependentIdList.add(dependentId);
+                    
+                    String call2 = userHelper.addDependant(primeUser, id, dependentIdList);
+                    if (call2.contains("success")) {
+                        return ResponseEntity.ok().body("Dependent Successfully Created and Assigned");
+                    }
+                } else {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unable to parse dependent ID");
+                }
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
     }
+
+   
+    
+    
+    @PostMapping("/createUserAndDependents/{id}")
+    public ResponseEntity<String> createUserAndDependents(@RequestBody User user, @RequestBody ArrayList<User> dependents, @PathVariable int id) {
+        User currentUser = userDAO.getUser();
+        String call = userHelper.addUser(currentUser, user);
+        ArrayList<Integer> dependentIdList = new ArrayList<>();
+        
+        try {
+            if (call.contains("success")) {
+                for (User dependent: dependents) {
+                    String call2 = userHelper.createDependent(currentUser, dependent);
+                    if (call2.contains("success")) {
+                        // Assuming call2 returns a response string that includes the ID like "success: ID=123"
+                        String[] parts = call2.split("id: ");
+                        if (parts.length == 2) {
+                            int dependentId = Integer.parseInt(parts[1].trim());
+                            dependentIdList.add(dependentId);
+                        } else {
+                            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Failed to parse dependent ID");
+                        }
+                        String call3 = userHelper.addDependant(currentUser, id, dependentIdList);
+                        if (call3.contains("success")) {
+                        	return ResponseEntity.ok().body("User and Dependents Successfully Created and Assigned");
+                        	
+                        }
+                    } else {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
+                    }
+                }
+                // Return success response with list of dependent IDs
+                return ResponseEntity.status(HttpStatus.OK).body("Success: Dependent IDs = " + dependentIdList.toString());
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+        
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
+    }
+
+   
+
 }

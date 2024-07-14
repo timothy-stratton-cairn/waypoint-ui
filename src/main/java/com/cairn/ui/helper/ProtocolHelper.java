@@ -14,6 +14,7 @@ import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolComments;
 import com.cairn.ui.model.ProtocolStep;
+import com.cairn.ui.model.ProtocolStepNote;
 import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -78,42 +79,31 @@ public class ProtocolHelper {
 	    ArrayList<Protocol> results = new ArrayList<>();
 
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/protocol-template/" + tempId;
-		String jsonResponse = apiHelper.callAPI(apiUrl,usr);
-		if (!jsonResponse.isEmpty()) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            
-            try {
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+	    if (!jsonResponse.isEmpty()) {
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        
+	        try {
 	            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 	            JsonNode prots = jsonNode.get("protocols");
-	            if (prots.isArray()) {
+	            if (prots != null && prots.isArray()) {
 	                for (JsonNode element : prots) {
 	                    Protocol entry = new Protocol();
-	                    entry.setId(element.get("id").asInt());
-	                    entry.setName(element.get("name").asText());
-	                    entry.setDescription(element.get("description").asText());
-	                    entry.setGoal(element.has("goal") ? element.get("goal").asText() : null);
-	                    entry.setProgress(element.has("goalProgress") ? element.get("goalProgress").asText() : null);
-	                    entry.setNeedsAttention(element.get("needsAttention").asBoolean());
-	                    entry.setCompletionPercent(element.has("completionPercentage") ? element.get("completionPercentage").asText() : "0.0");
-	                    entry.setStatus(element.get("status").asText());
-	                    entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
-	                    if (element.has("completedOn" ) && !element.get("completedOn").isNull()) {
-	                    	entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
-	                    }
-	                    else{
-	                    	entry.setCompletionDate(null);
-	                    }
-	                    if (element.has("associatedHouseholdId" ) && !element.get("associatedHouseholdId").isNull()) {
-	                    	entry.setUserId(element.get("associatedHouseholdId").asInt());
-	                    }else {
-	                    	entry.setUserId(0);
-	                    }
-	                    if (element.has("completedOn") && !element.get("completedOn").isNull()) {
-	                        entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
-	                    } else {
-	                        entry.setCompletionDate(null);
-	                    }
-	
+
+	                    // Extract and set Protocol properties with null checks
+	                    entry.setId((element.has("id") && !element.get("id").isNull()) ? element.get("id").asInt() : -1);
+	                    entry.setName((element.has("name") && !element.get("name").isNull()) ? element.get("name").asText() : "null");
+	                    entry.setDescription((element.has("description") && !element.get("description").isNull()) ? element.get("description").asText() : "null");
+	                    entry.setGoal((element.has("goal") && !element.get("goal").isNull()) ? element.get("goal").asText() : "No Goal Set");
+	                    entry.setProgress((element.has("goalProgress") && !element.get("goalProgress").isNull()) ? element.get("goalProgress").asText() : "None");
+	                    entry.setNeedsAttention((element.has("needsAttention") && !element.get("needsAttention").isNull()) ? element.get("needsAttention").asBoolean() : false);
+	                    entry.setCompletionPercent((element.has("completionPercentage") && !element.get("completionPercentage").isNull()) ? element.get("completionPercentage").asText() : "0.0");
+	                    entry.setStatus((element.has("status") && !element.get("status").isNull()) ? element.get("status").asText() : "null");
+
+	                    entry.setStartDate((element.has("createdAt") && !element.get("createdAt").isNull()) ? new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()) : null);
+	                    entry.setCompletionDate((element.has("completedOn") && !element.get("completedOn").isNull()) ? new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()) : null);
+	                    entry.setUserId((element.has("associatedHouseholdId") && !element.get("associatedHouseholdId").isNull()) ? element.get("associatedHouseholdId").asInt() : 0);
+
 	                    // Parse steps
 	                    JsonNode assoc = element.get("associatedSteps");
 	                    if (assoc != null && assoc.has("steps")) {
@@ -122,51 +112,70 @@ public class ProtocolHelper {
 	                        if (asteps.isArray()) {
 	                            for (JsonNode stepElement : asteps) {
 	                                ProtocolStep curStep = new ProtocolStep();
-	                                curStep.setId(stepElement.get("id").asInt());
-	                                curStep.setName(stepElement.get("name").asText());
-	                                curStep.setDescription(stepElement.get("description").asText());
-	
-	                                JsonNode stepNotes = stepElement.get("stepNotes");
-	                                if (stepNotes != null && stepNotes.has("notes") && stepNotes.get("notes").isArray()) {
-	                                    curStep.setNotes(stepNotes.get("notes").toString());
-	                                } else {
-	                                    curStep.setNotes("");
+
+	                                // Extract and set ProtocolStep properties with null checks
+	                                curStep.setId((stepElement.has("id") && !stepElement.get("id").isNull()) ? stepElement.get("id").asInt() : -1);
+	                                curStep.setName((stepElement.has("name") && !stepElement.get("name").isNull()) ? stepElement.get("name").asText() : "null");
+	                                curStep.setDescription((stepElement.has("description") && !stepElement.get("description").isNull()) ? stepElement.get("description").asText() : "null");
+	                                curStep.setStartDate(entry.getStartDate());
+
+	                                // Parse step notes
+	                                JsonNode stepNotesNode = stepElement.path("stepNotes").path("notes");
+	                                ArrayList<ProtocolStepNote> stepNotes = new ArrayList<>();
+	                                if (stepNotesNode.isArray()) {
+	                                    for (JsonNode noteElement : stepNotesNode) {
+	                                        ProtocolStepNote stepNote = new ProtocolStepNote();
+
+	                                        // Extract and set ProtocolStepNote properties with null checks
+	                                        stepNote.setNote((noteElement.has("note") && !noteElement.get("note").isNull()) ? noteElement.get("note").asText() : "null");
+	                                        stepNote.setTakenBy((noteElement.has("takenBy") && !noteElement.get("takenBy").isNull()) ? noteElement.get("takenBy").asText() : "null");
+	                                        stepNote.setType((noteElement.has("type") && !noteElement.get("type").isNull()) ? noteElement.get("type").asText() : "null");
+
+	                                        // Parse takenAt date
+	                                        try {
+	                                            stepNote.setTakenAt((noteElement.has("takenAt") && !noteElement.get("takenAt").isNull()) ? new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(noteElement.get("takenAt").asText()) : null);
+	                                            if ("COMPLETED".equals(stepNote.getType()) || "CONDITIONAL COMPLETION".equals(stepNote.getType())) {
+	                                                curStep.setCompletionDate(stepNote.getTakenAt());
+	                                            }
+	                                        } catch (ParseException e) {
+	                                            e.printStackTrace();
+	                                        }
+
+	                                        stepNotes.add(stepNote);
+	                                    }
 	                                }
-	
-	                                if (stepElement.has("category")) {
-	                                    curStep.setCategoryName(stepElement.get("category").asText());
+	                                curStep.setStepNotes(stepNotes);
+
+	                                // Extract and set step category properties with null checks
+	                                JsonNode stepCategoryNode = stepElement.path("category");
+	                                if (!stepCategoryNode.isMissingNode() && !stepCategoryNode.path("id").isMissingNode()) {
+	                                    curStep.setCategoryId(stepCategoryNode.path("id").asInt());
+	                                    curStep.setCategoryName(stepCategoryNode.path("name").asText());
+	                                    curStep.setCategoryDescription(stepCategoryNode.path("description").asText());
 	                                }
-	
-	                                curStep.setStatus(stepElement.get("status").asText());
+
+	                                curStep.setStatus((stepElement.has("status") && !stepElement.get("status").isNull()) ? stepElement.get("status").asText() : "null");
+
 	                                steps.add(curStep);
 	                            }
 	                            entry.setSteps(steps);
 	                        }
 	                    }
-	
+
 	                    entry.setStepCount();
-	                    
-	
-	                    // Parse associated users
-	                    JsonNode associatedUsers = element.get("associatedHouseholdId").get("householdIdS"); //there's only one household id now change this tonight. 
-	                    ArrayList<Integer> userIds = new ArrayList<>();
-	                    if (associatedUsers != null && associatedUsers.isArray()) {
-	                        for (JsonNode user : associatedUsers) {
-	                            userIds.add(user.asInt());
-	                        }
-	                    }
-	                    entry.setUsers(userIds);
-	
+
 	                    results.add(entry);
 	                }
 	            }
-		    } catch (Exception e) {
-		        e.printStackTrace();
-		        logger.info("Error fetching protocols: " + e.getMessage());
-		    }
-		}
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            logger.info("Error fetching protocols: " + e.getMessage());
+	        }
+	    }
 	    return results;
 	}
+
+
 
 	/**
 	 * Get a specific protocol.
@@ -177,110 +186,286 @@ public class ProtocolHelper {
 	 * @return Protocol instance. New/Blank is returned if an error occurs.
 	 */
 	public Protocol getProtocol(User usr, int id) {
-		Protocol result = new Protocol();
+	    Protocol result = new Protocol();
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/" + id;
-		String jsonResponse = apiHelper.callAPI(apiUrl,usr);
-		if (!jsonResponse.isEmpty()) {
-            ObjectMapper objectMapper = new ObjectMapper();
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				result.setName(jsonNode.get("name").asText());
-				result.setDescription(jsonNode.get("description").asText());
-				result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
-				if (jsonNode.has("dueBy") && !jsonNode.get("dueBy").isNull()) {
-					result.setDueDate(jsonNode.get("dueBy").asText());
-				} else {
-					result.setDueDate("No Due Date"); // Fallback if goal is not set
-				}
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/" + id;
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+	    if (!jsonResponse.isEmpty()) {
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        JsonNode jsonNode;
+	        try {
+	            jsonNode = objectMapper.readTree(jsonResponse);
+	            result.setName(jsonNode.get("name").asText());
+	            result.setDescription(jsonNode.get("description").asText());
+	            result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
+	            if (jsonNode.has("dueBy") && !jsonNode.get("dueBy").isNull()) {
+	                result.setDueDate(jsonNode.get("dueBy").asText());
+	            } else {
+	                result.setDueDate("No Due Date");
+	            }
 
-				JsonNode commentsNode = jsonNode.path("protocolComments").path("comments");
-				ArrayList<ProtocolComments> comments = new ArrayList<>();
-				if (commentsNode.isArray()) {
-					for (JsonNode commentElement : commentsNode) {
-						ProtocolComments comment = new ProtocolComments();
-						comment.setComment(commentElement.has("comment") && !commentElement.get("comment").isNull()
-								? commentElement.get("comment").asText()
-								: "No Comment");
-						try {
-							comment.setTakenAt(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-									.parse(commentElement.get("takenAt").asText()));
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-						comment.setTakenBy(commentElement.get("takenBy").asText());
-						comment.setCommentType(commentElement.get("commentType").asText());
-						comments.add(comment);
-					}
-				}
-				result.setComments(comments);
+	            JsonNode commentsNode = jsonNode.path("protocolComments").path("comments");
+	            ArrayList<ProtocolComments> comments = new ArrayList<>();
+	            if (commentsNode.isArray()) {
+	                for (JsonNode commentElement : commentsNode) {
+	                    ProtocolComments comment = new ProtocolComments();
+	                    comment.setComment(commentElement.has("comment") && !commentElement.get("comment").isNull()
+	                            ? commentElement.get("comment").asText()
+	                            : "No Comment");
+	                    try {
+	                        comment.setTakenAt(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+	                                .parse(commentElement.get("takenAt").asText()));
+	                    } catch (ParseException e) {
+	                        e.printStackTrace();
+	                    }
+	                    comment.setTakenBy(commentElement.get("takenBy").asText());
+	                    comment.setCommentType(commentElement.get("commentType").asText());
+	                    comments.add(comment);
+	                }
+	            }
+	            result.setComments(comments);
 
-				result.setStatus(jsonNode.path("status").asText());
-				result.setId(Integer.valueOf(jsonNode.get("id").toString()));
-				result.setNeedsAttention(Boolean.valueOf(jsonNode.get("needsAttention").toString()));
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-				Calendar calendar = Calendar.getInstance();
-				try {
-					calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
-					result.setLastStatus(calendar.getTime());
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	            result.setStatus(jsonNode.path("status").asText());
+	            result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+	            result.setNeedsAttention(Boolean.valueOf(jsonNode.get("needsAttention").toString()));
+	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	            Calendar calendar = Calendar.getInstance();
+	            try {
+	                calendar.setTime(sdf.parse(jsonNode.get("lastStatusUpdateTimestamp").asText()));
+	                result.setLastStatus(calendar.getTime());
+	            } catch (ParseException e) {
+	                e.printStackTrace();
+	            }
 
-				if (jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
-					result.setGoal(jsonNode.get("goal").asText());
-				} else {
-					result.setGoal("No Goal Set"); // Fallback if goal is not set
-				}
+	            if (jsonNode.has("goal") && !jsonNode.get("goal").isNull()) {
+	                result.setGoal(jsonNode.get("goal").asText());
+	            } else {
+	                result.setGoal("No Goal Set");
+	            }
 
-				if (jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
-					result.setProgress(jsonNode.get("goalProgress").asText());
-				} else {
-					result.setProgress("None"); // Fallback if goalProgress is not present or is null
-				}
+	            if (jsonNode.has("goalProgress") && !jsonNode.get("goalProgress").isNull()) {
+	                result.setProgress(jsonNode.get("goalProgress").asText());
+	            } else {
+	                result.setProgress("None");
+	            }
 
-				/* Add in the steps */
-				JsonNode assoc = jsonNode.get("associatedSteps");
-				JsonNode asteps = assoc.get("steps");
-				// Iterate through the array elements
-				ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
-				if (asteps.isArray()) {
-					for (JsonNode element : asteps) {
-						// Access and print array elements
-						if (element != null) {
-							ProtocolStep curStep = new ProtocolStep();
-							curStep.setId(Integer.parseInt(element.get("id").asText()));
-							curStep.setName(element.get("name").asText());
-							curStep.setDescription(element.get("description").asText());
-							curStep.setNotes(element.get("stepNotes").get("notes").asText());
+	            JsonNode assoc = jsonNode.get("associatedSteps");
+	            JsonNode asteps = assoc.get("steps");
+	            ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
+	            if (asteps.isArray()) {
+	                for (JsonNode element : asteps) {
+	                    if (element != null) {
+	                        ProtocolStep curStep = new ProtocolStep();
+	                        curStep.setId(Integer.parseInt(element.get("id").asText()));
+	                        curStep.setName(element.get("name").asText());
+	                        curStep.setDescription(element.get("description").asText());
 
-							JsonNode stepCategoryNode = jsonNode.path("category");
-							if (!stepCategoryNode.isMissingNode() && !stepCategoryNode.path("id").isMissingNode()) {
-								curStep.setCategoryId(element.get("category").asInt());
-							}
-							curStep.setStatus(element.get("status").asText());
-							steps.add(curStep);
-						}
-					}
-					result.setSteps(steps);
-				}
-				result.setStepCount();
-				logger.info("Retrieved " + result.getStepCount() + " steps.");
+	                        JsonNode stepNotesNode = element.path("stepNotes").path("notes");
+	                        ArrayList<ProtocolStepNote> stepNotes = new ArrayList<>();
+	                        if (stepNotesNode.isArray()) {
+	                            for (JsonNode noteElement : stepNotesNode) {
+	                                ProtocolStepNote stepNote = new ProtocolStepNote();
+	                                stepNote.setNote(noteElement.get("note").asText());
+	                                stepNote.setTakenBy(noteElement.get("takenBy").asText());
+	                                stepNote.setType(noteElement.get("type").asText());
+	                                try {
+	                                    stepNote.setTakenAt(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+	                                            .parse(noteElement.get("takenAt").asText()));
+	                                    if (stepNote.getType().equals("COMPLETED") || stepNote.getType().equals("CONDITIONAL COMPLETION")) {
+	                                        curStep.setCompletionDate(stepNote.getTakenAt());
+	                                    }
+	                                } catch (ParseException e) {
+	                                    e.printStackTrace();
+	                                }
+	                                stepNotes.add(stepNote);
+	                            }
+	                        }
+	                        curStep.setStepNotes(stepNotes);
+	                        
+	                        curStep.setNotes(element.get("stepNotes").path("notes").asText());
+	                        curStep.setStartDate(result.getStartDate());
 
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-		} else {
-			logger.warn("Failed to fetch protocol data for user");
-		}
+	                        JsonNode stepCategoryNode = element.path("category");
+	                        if (!stepCategoryNode.isMissingNode()) {
+	                            curStep.setCategoryId(stepCategoryNode.asInt());
+	                        }
+	                        curStep.setStatus(element.get("status").asText());
+	                        steps.add(curStep);
+	                    }
+	                }
+	                result.setSteps(steps);
+	            }
+	            result.setStepCount();
+	            logger.info("Retrieved " + result.getStepCount() + " steps.");
 
-		return result;
+	        } catch (JsonMappingException e) {
+	            e.printStackTrace();
+	        } catch (JsonProcessingException e) {
+	            e.printStackTrace();
+	        }
+	    } else {
+	        //logger.warn("Failed to fetch protocol data for user");
+	    }
+
+	    return result;
 	}
 
+
+	/**
+	 * Provides list of Protocols that have been assigned clientId to their user
+	 * array
+	 * 
+	 * @param usr
+	 * @param clientId
+	 * @return
+	 */
+	public ArrayList<Protocol> getAssignedProtocols(User usr, int clientId) {
+	    ArrayList<Protocol> results = new ArrayList<Protocol>();
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolaccount + clientId;
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+	    if (!jsonResponse.isEmpty()) {
+	        ObjectMapper objectMapper = new ObjectMapper();
+
+	        JsonNode jsonNode;
+	        try {
+	            jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode prots = jsonNode.get("protocols");
+	            if (prots != null && prots.isArray()) {
+	                for (JsonNode element : prots) {
+	                    Protocol entry = new Protocol();
+	                    entry.setName(
+	                            element.has("name") && !element.get("name").isNull() ? element.get("name").asText()
+	                                    : "null");
+	                    entry.setDescription(element.has("description") && !element.get("description").isNull()
+	                            ? element.get("description").asText()
+	                            : "null");
+	                    entry.setId(
+	                            element.has("id") && !element.get("id").isNull() ? element.get("id").intValue() : -1);
+	                    
+	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	                    entry.setStatus(element.has("status") && !element.get("status").isNull()
+	                            ? element.get("status").asText()
+	                            : "null");
+	                    entry.setCompletionPercent(
+	                            element.has("completionPercentage") && !element.get("completionPercentage").isNull()
+	                                    ? element.get("completionPercentage").asText()
+	                                    : "null");
+	                    entry.setLastStatus(sdf.parse(element.get("lastStatusUpdateTimestamp").asText()));
+	                    if (element.has("dueBy") && !element.get("dueBy").isNull()) {
+	                        entry.setDueDate(element.get("dueBy").asText());
+	                    }
+	                    if (element.has("goal") && !element.get("goal").isNull()) {
+	                        entry.setGoal(element.get("goal").asText());
+	                    } else {
+	                        entry.setGoal("No Goal Set");
+	                    }
+	                    if (element.has("goalProgress") && !element.get("goalProgress").isNull()) {
+	                        entry.setProgress(element.get("goalProgress").asText());
+	                    } else {
+	                        entry.setProgress("None");
+	                    }
+	                    entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
+	                    if (element.has("completedOn") && !element.get("completedOn").isNull()) {
+	                        entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
+	                    } else {
+	                        entry.setCompletionDate(null);
+	                    }
+
+	                    JsonNode assoc = element.get("associatedSteps");
+	                    ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
+	                    if (assoc != null) {
+	                        JsonNode asteps = assoc.get("steps");
+	                        if (asteps != null && asteps.isArray()) {
+	                            for (JsonNode stepElement : asteps) {
+	                                ProtocolStep curStep = new ProtocolStep();
+	                                curStep.setId(stepElement.has("id") && !stepElement.get("id").isNull()
+	                                        ? stepElement.get("id").intValue()
+	                                        : -1);
+	                                curStep.setTemplateId(stepElement.has("stepTemplateId") && !stepElement.get("stepTemplateId").isNull()
+	                                        ? stepElement.get("stepTemplateId").intValue()
+	                                        : -1);
+	                                
+	                                curStep.setName(stepElement.has("name") && !stepElement.get("name").isNull()
+	                                        ? stepElement.get("name").asText()
+	                                        : "null");
+	                                
+	                                logger.info("Step: " + curStep.getName()+ " Template ID: " + curStep.getTemplateId());
+	                                curStep.setDescription(
+	                                        stepElement.has("description") && !stepElement.get("description").isNull()
+	                                                ? stepElement.get("description").asText()
+	                                                : "null");
+	                                curStep.setStartDate(entry.getStartDate());
+	                                JsonNode stepCategoryNode = stepElement.path("category");
+	                                if (!stepCategoryNode.isMissingNode()
+	                                        && !stepCategoryNode.path("id").isMissingNode()) {
+	                                    curStep.setCategoryId(stepCategoryNode.path("id").asInt());
+	                                    curStep.setCategoryName(stepCategoryNode.path("name").asText());
+	                                    curStep.setCategoryDescription(stepCategoryNode.path("description").asText());
+	                                }
+
+	                                JsonNode stepNotesNode = stepElement.path("stepNotes").path("notes");
+	                                ArrayList<ProtocolStepNote> stepNotes = new ArrayList<>();
+	                                if (stepNotesNode.isArray()) {
+	                                    for (JsonNode noteElement : stepNotesNode) {
+	                                        ProtocolStepNote stepNote = new ProtocolStepNote();
+	                                        stepNote.setNote(noteElement.has("note") && !noteElement.get("note").isNull()
+	                                                ? noteElement.get("note").asText()
+	                                                : "null");
+	                                        stepNote.setTakenBy(noteElement.has("takenBy") && !noteElement.get("takenBy").isNull()
+	                                                ? noteElement.get("takenBy").asText()
+	                                                : "null");
+	                                        stepNote.setType(noteElement.has("type") && !noteElement.get("type").isNull()
+	                                                ? noteElement.get("type").asText()
+	                                                : "null");
+	                                        try {
+	                                            stepNote.setTakenAt(noteElement.has("takenAt") && !noteElement.get("takenAt").isNull()
+	                                                    ? new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(noteElement.get("takenAt").asText())
+	                                                    : null);
+	                                            if (stepNote.getNote().equals("COMPLETED") || stepNote.getNote().equals("CONDITIONAL COMPLETION")) {
+	                                                curStep.setCompletionDate(stepNote.getTakenAt());
+	                                                logger.info(stepNote.getNote()+ " Start Date: "+curStep.getStartDate() +" Completed Date: " +curStep.getCompletionDate()+ " "+ curStep.getDaysToComplete());
+	                                            }
+	                                        } catch (ParseException e) {
+	                                            e.printStackTrace();
+	                                        }
+	                                        stepNotes.add(stepNote);
+	                                    }
+	                                }
+	                                curStep.setStepNotes(stepNotes);
+
+	                                curStep.setCategoryName(
+	                                        stepElement.has("category") && !stepElement.get("category").isNull()
+	                                                ? stepElement.get("category").asText()
+	                                                : "null");
+	                                curStep.setStatus(stepElement.has("status") && !stepElement.get("status").isNull()
+	                                        ? stepElement.get("status").asText()
+	                                        : "null");
+	                                steps.add(curStep);
+	                            }
+	                        }
+	                        entry.setSteps(steps);
+	                        entry.setStepCount();
+	                        entry.setCompletedSteps();
+	                    }
+	                    results.add(entry);
+	                }
+	            }
+	        } catch (JsonMappingException e) {
+	            e.printStackTrace();
+	        } catch (JsonProcessingException e) {
+	            e.printStackTrace();
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    } else {
+	        logger.info("Failed to fetch data. getAssignedProtocols");
+	    }
+
+	    return results;
+	}
+
+	
+	
 	public ArrayList<ProtocolStep> getStepList(User usr, int id) {
 		ArrayList<ProtocolStep> results = new ArrayList<ProtocolStep>();
 
@@ -322,130 +507,6 @@ public class ProtocolHelper {
 		return results;
 	}
 
-	/**
-	 * Provides list of Protocols that have been assigned clientId to their user
-	 * array
-	 * 
-	 * @param usr
-	 * @param clientId
-	 * @return
-	 */
-	public ArrayList<Protocol> getAssignedProtocols(User usr, int clientId) {
-		ArrayList<Protocol> results = new ArrayList<Protocol>();
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolaccount + clientId;
-		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
-		if (!jsonResponse.isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
-
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				JsonNode prots = jsonNode.get("protocols");
-				// Iterate through the array elements
-				if (prots != null && prots.isArray()) {
-					for (JsonNode element : prots) {
-						Protocol entry = new Protocol();
-						entry.setName(
-								element.has("name") && !element.get("name").isNull() ? element.get("name").asText()
-										: "null");
-						entry.setDescription(element.has("description") && !element.get("description").isNull()
-								? element.get("description").asText()
-								: "null");
-						entry.setId(
-								element.has("id") && !element.get("id").isNull() ? element.get("id").intValue() : -1);
-						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-						entry.setStatus(element.get("status").asText());
-						entry.setCompletionPercent(
-								element.has("completionPercentage") && !element.get("completionPercentage").isNull()
-										? element.get("completionPercentage").asText()
-										: "null");
-						entry.setLastStatus(sdf.parse(element.get("lastStatusUpdateTimestamp").asText()));
-						if (element.has("dueBy") && !element.get("goal").isNull()) {
-							entry.setDueDate(element.get("dueBy").asText());
-						}
-						if (element.has("goal") && !element.get("goal").isNull()) {
-							entry.setProgress(element.get("goal").asText());
-						} else {
-							entry.setGoal("No Goal Set"); // This should probably be entry.setGoal("null");
-						}
-						if (element.has("goalProgress") && !element.get("goalProgress").isNull()) {
-							entry.setProgress(element.get("goalProgress").asText());
-						} else {
-							entry.setProgress("None"); // Adjusted as per your instruction, but "None" seems more
-														// appropriate here
-						}
-						entry.setStartDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
-	                    if (element.has("completedOn" ) && !element.get("completedOn").isNull()) {
-	                    	entry.setCompletionDate(new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
-	                    }
-	                    else{
-	                    	entry.setCompletionDate(null);
-	                    }
-	
-						JsonNode assoc = element.get("associatedSteps"); // This should target 'element', not 'jsonNode'
-						ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
-						if (assoc != null) {
-							JsonNode asteps = assoc.get("steps");
-							if (asteps != null && asteps.isArray()) {
-								for (JsonNode stepElement : asteps) {
-									ProtocolStep curStep = new ProtocolStep();
-									curStep.setId(stepElement.has("id") && !stepElement.get("id").isNull()
-											? stepElement.get("id").intValue()
-											: -1);
-									curStep.setName(stepElement.has("name") && !stepElement.get("name").isNull()
-											? stepElement.get("name").asText()
-											: "null");
-									curStep.setDescription(
-											stepElement.has("description") && !stepElement.get("description").isNull()
-													? stepElement.get("description").asText()
-													: "null");
-									JsonNode stepCategoryNode = jsonNode.path("category");
-									if (!stepCategoryNode.isMissingNode()
-											&& !stepCategoryNode.path("id").isMissingNode()) {
-										curStep.setCategoryId(stepCategoryNode.path("id").asInt());
-										curStep.setCategoryName(stepCategoryNode.path("name").asText());
-										curStep.setCategoryDescription(stepCategoryNode.path("description").asText());
-									}
-									curStep.setNotes(
-											stepElement.has("stepNotes") && !stepElement.get("stepNotes").isNull()
-													&& stepElement.get("stepNotes").has("notes")
-															? stepElement.get("stepNotes").get("notes").asText()
-															: "null");
-	
-									curStep.setCategoryName(
-											stepElement.has("category") && !stepElement.get("category").isNull()
-													? stepElement.get("category").asText()
-													: "null");
-									curStep.setStatus(stepElement.has("status") && !stepElement.get("status").isNull()
-											? stepElement.get("status").asText()
-											: "null");
-									steps.add(curStep);
-								}
-							}
-							entry.setSteps(steps);
-							entry.setStepCount();
-							entry.setCompletedSteps();
-						}
-						results.add(entry);
-					}
-				}
-			} catch (JsonMappingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			logger.info("Failed to fetch data. getAssignedProtocols");
-		}
-
-		return results;
-	}
-
 	/*
 	 * Assigns a clientId to a protocol
 	 * 
@@ -463,6 +524,10 @@ public class ProtocolHelper {
 		logger.info(apiUrl);
 		logger.info(requestBody);
 		result = apiHelper.postAPI(apiUrl, requestBody, usr);
+		
+		
+		
+		
 
 		return result;
 	}
@@ -603,6 +668,8 @@ public class ProtocolHelper {
     	
     	return result;
     }
+
+
 	
 	
 

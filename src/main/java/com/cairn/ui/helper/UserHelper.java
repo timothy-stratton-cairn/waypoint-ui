@@ -2,7 +2,9 @@ package com.cairn.ui.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,20 +51,35 @@ public class UserHelper {
 	            User entry = null;
 	            if (prots.isArray()) {
 	                for (JsonNode element : prots) {
-	                    // Access and print array elements
+	                    // Access and parse array elements
 	                    if (element != null) {
 	                        entry = new User();
 	                        entry.setId(element.get("id").asInt());
 	                        entry.setFirstName(element.get("firstName").asText());
 	                        entry.setLastName(element.get("lastName").asText());
 	                        entry.setEmail(element.get("email").asText());
-	                        
+
 	                        // Set the role
-	                        JsonNode rolesNode = element.get("accountRoles").get("roles");
-	                        if (rolesNode.isArray() && rolesNode.size() > 0) {
+	                        JsonNode rolesNode = element.get("roles");
+	                        if (rolesNode != null && rolesNode.isArray() && rolesNode.size() > 0) {
 	                            entry.setRole(rolesNode.get(0).asText());
 	                        }
-	                        
+
+	                        // Parse and set dependents
+	                        JsonNode dependentsNode = element.get("dependents");
+	                        if (dependentsNode != null && dependentsNode.isArray()) {
+	                            ArrayList<User> dependents = new ArrayList<>();
+	                            for (JsonNode dep : dependentsNode) {
+	                                User dependent = new User();
+	                                dependent.setId(dep.get("id").asInt());
+	                                dependent.setFirstName(dep.get("firstName").asText());
+	                                dependent.setLastName(dep.get("lastName").asText());
+	                                dependent.setUsername(dep.get("username").asText());
+	                                dependents.add(dependent);
+	                            }
+	                            entry.setDependents(dependents);
+	                        }
+
 	                        results.add(entry);
 	                    }
 	                }
@@ -78,6 +95,8 @@ public class UserHelper {
 
 	    return results;
 	}
+
+
 
 	public Household getHouseholdById(User usr, int id) {
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get + id;
@@ -423,17 +442,38 @@ public class UserHelper {
 
 
 
-	public int addHouseholdAccount(User usr, int primaryContactId, ArrayList<Integer> householdIds) {
-		int result = -1;
+	public int addHouseholdAccount(User usr, Household household, ArrayList<Integer> householdIds) {
+	    int result = -1;
 
-		String requestBody = "{\"householdAccountIds\":" + householdIds.toString() + "}";
-		
-	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get +primaryContactId;
-	    
-	    logger.info("URL: "+apiUrl);
-	    logger.info("REQUEST BODY: "+requestBody);
-	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
-		return result;
+	    // Convert primary contacts to a list of their IDs
+	    ArrayList<Integer> primaryContactIds = household.getPrimaryContacts().stream()
+	            .map(User::getId)
+	            .collect(Collectors.toCollection(ArrayList::new));
+
+	    // Create a map to hold the request body data
+	    Map<String, Object> requestBodyMap = new HashMap<>();
+	    requestBodyMap.put("householdAccountIds", householdIds);
+	    requestBodyMap.put("name", household.getName());
+	    requestBodyMap.put("description", household.getDescription());
+	    requestBodyMap.put("primaryContactAccountIds", primaryContactIds);
+
+	    // Convert the map to a JSON string
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    String requestBody = "";
+	    try {
+	        requestBody = objectMapper.writeValueAsString(requestBodyMap);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        // Handle the exception if necessary
+	    }
+
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get + household.getId();
+
+	    logger.info("URL: " + apiUrl);
+	    logger.info("REQUEST BODY: " + requestBody);
+
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
+	    return result;
 	}
 	
 	
@@ -516,9 +556,27 @@ public class UserHelper {
 				
 	}
 		
-	public int sendResetUserPasswordEmail(User usr, User client) {
-		int result = -1;
-		return result;
+	public String sendResetUserPasswordEmail(User usr, User client) {
+		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset?username=" + client.getUsername() + "&email=" +client.getEmail();
+		logger.info(apiUrl);
+		String call = apiHelper.callAPI(apiUrl, usr);
+		return call;
+	}
+	
+	public String createDependent(User loggedInUser, User newUser) {
+		ArrayList<String> roles = newUser.getRoles();
+		int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers
+	    String requestBody = String.format(
+	            "{\"firstName\": \"%s\", \"lastName\": \"%s\", \"roleIds\": [%d], \"email\": \"%s\"}",
+	            newUser.getFirstName(), newUser.getLastName(),role,newUser.getEmail()
+	        );
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
+		int result = apiHelper.postAPI(apiUrl, requestBody, loggedInUser);
+		logger.info(apiUrl);
+		if (result < 0) {
+			return "error ";
+		}
+		return "success " + "id: "+ result;
 	}
 	
 	
