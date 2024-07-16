@@ -12,7 +12,7 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private String authToken;
-	private String role;
+	private String role; // this is being phased out 
 	private String phoneNumber;
 	private User coclient;
 	private ArrayList<String> roles = new ArrayList<String>();

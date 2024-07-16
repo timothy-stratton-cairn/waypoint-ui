@@ -180,6 +180,12 @@ public class MainController {
 
 		return "home";
 	}
+    @GetMapping("/forgotPassword")
+    public String forgotPassowrd() {
+    	
+    	return "forgotPassword";
+    }
+    	
 
 	/**
 	 * Handle a request to view the Protocol details.
@@ -685,27 +691,28 @@ public class MainController {
 
 	@PatchMapping("/addStepToProtocol/{protocolId}/{stepId}")
 	public ResponseEntity<String> addStepToProtocol(@PathVariable Integer protocolId, @PathVariable Integer stepId) {
-		try {
-			User usr = (User) userDAO.getUser();
+	    try {
+	        User usr = (User) userDAO.getUser();
 
-
-			int result = protocolTemplateHelper.addTemplateStep(usr, protocolId, stepId);
-			if (result == 1) {
-				// Success
-				return ResponseEntity.ok().build();
-			} else if (result == 0) {
-				// Failed operation
-				return ResponseEntity.badRequest().body("Failed to assign step to template");
-			} else {
-				// Error
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error in assigning step");
-			}
-		} catch (Exception e) {
-
-			System.err.println("Error adding step to protocol: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding step to protocol");
-		}
+	        int result = protocolTemplateHelper.addTemplateStep(usr, protocolId, stepId);
+	        if (result == 1) {
+	            // Success
+	            return ResponseEntity.ok().build();
+	        } else if (result == 0) {
+	            // Failed operation
+	            logger.warn("Failed to assign step to template. Protocol ID: {}, Step ID: {}", protocolId, stepId);
+	            return ResponseEntity.badRequest().body("Failed to assign step to template");
+	        } else {
+	            // Error
+	            logger.error("Error in assigning step. Protocol ID: {}, Step ID: {}", protocolId, stepId);
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error in assigning step");
+	        }
+	    } catch (Exception e) {
+	        logger.error("Error adding step to protocol. Protocol ID: {}, Step ID: {}, Error: {}", protocolId, stepId, e.getMessage(), e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding step to protocol");
+	    }
 	}
+
 
 	@GetMapping("/editStep/{stepId}")
 	public String edit_step(@PathVariable int stepId, Model model) {
@@ -743,7 +750,7 @@ public class MainController {
 		int id = userHelper.getUserId(usr);
 		User currentUser = userHelper.getUser(usr, id);
 		ArrayList<User> dependants = currentUser.getDependents();
-		
+		ArrayList<Household> householdList = userHelper.getHouseholdList(usr);
 		model.addAttribute(dependants);
 		model.addAttribute("user", currentUser);// Adds the object to the model to be accessed by the form
 		model.addAttribute("id", id);
@@ -761,6 +768,16 @@ public class MainController {
 	    for (User dependent : dependents) {
 	        logger.info("Id: " + dependent.getId() + " Name: " + dependent.getFirstName() + " " + dependent.getLastName());
 	    }
+		ArrayList<Household> householdList = userHelper.getHouseholdList(usr);
+		Household myHousehold = null;
+		
+		for (Household household: householdList) {
+			if (household.getHouseholdAccountsIds().contains(id)) {
+				myHousehold = household;
+			}
+		}
+		model.addAttribute("myHousehold", myHousehold);
+		model.addAttribute("householdList",householdList);
 	    model.addAttribute("dependents", dependents);
 	    model.addAttribute("roles", roles);
 	    model.addAttribute("user", client);
@@ -878,11 +895,11 @@ public class MainController {
 		return ResponseEntity.badRequest().body(errorResponse);
 	}
 
-	@PatchMapping("addCoClient/{clientId}/{coClientId}")
-	public ResponseEntity<String> addCoClient(@PathVariable int clientId, @PathVariable int coClientId) {
-		logger.info("Calling Add CoClient for Household: " + clientId + " and CoClient ID: " + coClientId);
+	@PatchMapping("addCoClient/{householdId}/{coClientId}")
+	public ResponseEntity<String> addCoClient(@PathVariable int householdId, @PathVariable int coClientId) {
+		logger.info("Calling Add CoClient for Household: " + householdId + " and CoClient ID: " + coClientId);
 		User currentUser = userDAO.getUser();
-		Household household = userHelper.getHouseholdById(currentUser, clientId);
+		Household household = userHelper.getHouseholdById(currentUser, householdId);
 		ArrayList<User> householdMemembers = household.getHouseholdAccounts();
 		
 		ArrayList<Integer> householdIds = new ArrayList<Integer>();
@@ -907,6 +924,8 @@ public class MainController {
 		}
 
 	}
+	
+
 
 	@GetMapping("protocolClients/{protocolId}")
 	public String ProtocolClients(@PathVariable int ProtocolId, Model model) {
@@ -931,7 +950,7 @@ public class MainController {
 	    logger.info(household.getName());
 	    ArrayList<User> primaryContact = household.getPrimaryContacts();
 	    for(User pc: primaryContact) {
-	    	logger.info("PC Contact:"+ pc.getFirstName()+ " "+pc.getLastName());
+	        logger.info("PC Contact:"+ pc.getFirstName()+ " "+pc.getLastName());
 	    }
 	    ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
 	    ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
@@ -940,9 +959,15 @@ public class MainController {
 	    ArrayList<User> clientList = household.getHouseholdAccounts();
 	    ArrayList<User> primaryContacts = household.getPrimaryContacts();
 	    User primaryContactUser = !primaryContacts.isEmpty() ? primaryContacts.get(0) : null;
-	    int pcId = primaryContactUser.getId();
+	    User pcUser = null;
+	    if (primaryContactUser != null) {
+	        int pcId = primaryContactUser.getId();
+	        pcUser = userHelper.getUser(currentUser, pcId);
+	    } else {
+	        logger.info("No primary contact user found");
+	    }
+	    
 	    ArrayList<User> dependantList = new ArrayList<User>();
-	    User pcUser = userHelper.getUser(currentUser, pcId);
 	    ArrayList<Integer> dependantIds = new ArrayList<Integer>();
 
 	    for (User client : clientList) {
@@ -986,13 +1011,39 @@ public class MainController {
 	        }
 	    }
 
+	    // Retrieve all users to find those with CLIENT in roles
+	    ArrayList<User> allUsers = userHelper.getUserList(currentUser);
+	    ArrayList<Integer> clientRoleUserIds = new ArrayList<>();
+
+	    for (User user : allUsers) {
+	        if (user.getRoles().contains("CLIENT")) {
+	            clientRoleUserIds.add(user.getId());
+	            logger.info("User Is Client: " + user.getFirstName()+  " "+ user.getLastName() );
+	        }
+	    }
+
 	    String listPreFilter = userList.stream()
 	            .map(usr -> usr.getFirstName() + " " + usr.getLastName())
 	            .collect(Collectors.joining(","));
-	    userList.removeIf(usr -> householdUserIds.contains(usr.getId()) || !usr.getRole().equals("CLIENT"));
+	    
+	    ArrayList<User> usersToRemove = new ArrayList<>();
+
+	    for (User usr : userList) {
+	        if (householdUserIds.contains(usr.getId())) {
+	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they are part of a household.");
+	            usersToRemove.add(usr);
+	        } else if (!clientRoleUserIds.contains(usr.getId())) {
+	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they do not have the CLIENT role.");
+	            usersToRemove.add(usr);
+	        }
+	    }
+
+	    userList.removeAll(usersToRemove);
+
 	    String listPostFilter = userList.stream()
 	            .map(usr -> usr.getFirstName() + " " + usr.getLastName())
 	            .collect(Collectors.joining(","));
+
 	    logger.info("User List before filtering: " + listPreFilter);
 	    logger.info("User List after filtering: " + listPostFilter);
 
@@ -1009,6 +1060,7 @@ public class MainController {
 
 	    return "clientProfile";
 	}
+
 
 
 	@PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
@@ -1174,7 +1226,7 @@ public class MainController {
 			return ResponseEntity.badRequest().body(errorResponse);
 		}
 	}
-	@GetMapping("/resetUserPassword/{id}")
+
 	@PatchMapping("/updateUserDetails/{id}/{firstName}/{lastName}/{email}/{role}")
 	public ResponseEntity<Object> updateUserDetails(@PathVariable int id, @PathVariable String firstName,
 			@PathVariable String lastName, @PathVariable String email, @PathVariable int role, Model model) {
@@ -1640,6 +1692,7 @@ public class MainController {
 
 	}
 
+
 	@DeleteMapping("deleteTemplate/{type}/{id}")
 	public ResponseEntity<String> deleteTemplate(@PathVariable String type, @PathVariable int id) {
 	    User currentUser = userDAO.getUser();
@@ -1688,7 +1741,7 @@ public class MainController {
 	public ResponseEntity<String>updateHomeworkTemplate(@PathVariable int id, @RequestBody HomeworkQuestion question){
 		User currentUser = userDAO.getUser();
 		logger.info("Trigger Response id" + question.getTriggerProtocolId());
-	
+		logger.info("Homework Question: "+ question.getQuestion()+ " Status: " +  question.getStatus());
 		try {
 			questionHelper.updateHomeworkQuestion(currentUser, id, question);
 			return ResponseEntity.ok().body("{\"message\": \"Homework Successfully Changed\"}");
@@ -1751,6 +1804,36 @@ public class MainController {
         }
     }
     
+    
+    @GetMapping("/resetPassword/{username}/{email}")
+    public ResponseEntity<String>resetPassword(@PathVariable String username, @PathVariable String email){
+    	User currentUser = userDAO.getUser();
+    	try {
+            userHelper.resetUserPasswordEmail(currentUser, username, email);
+            return ResponseEntity.ok("{\"message\": \"Question successfully saved\"}");
+        } catch (Exception e) {
+            logger.error("Error saving question", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("{\"message\": \"Error saving question\"}");
+        }
+    }
+    	
+    
+    
+    @GetMapping("/sendResetEmail/{id}")
+    public ResponseEntity<String>sendResetEmail(@PathVariable int id){
+    	User currentUser = userDAO.getUser();
+    	User client = userHelper.getUser(currentUser, id);
+    	try {
+            userHelper.sendResetUserPasswordEmail(currentUser, client);
+            return ResponseEntity.ok("{\"message\": \"Question successfully saved\"}");
+        } catch (Exception e) {
+            logger.error("Error saving question", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("{\"message\": \"Error saving question\"}");
+        }
+    
+    }
 
     
     @PatchMapping("/saveTemplateQuestions/{mode}/{tempId}/{qId}")
@@ -1889,7 +1972,10 @@ public class MainController {
         
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
     }
+    
+    
 
-   
+
+    
 
 }

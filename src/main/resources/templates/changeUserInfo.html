@@ -78,6 +78,38 @@
             </fieldset>
         </div>
     </div>
+
+    <!-- My Household Section -->
+    <div class="container" id="householdSection">
+        <div class="note_card">
+            <fieldset>
+                <legend>My Household</legend>
+                <div th:if="${myHousehold != null}">
+                    <div>
+                        <label>Household Name:</label>
+                        <span th:text="${myHousehold.name}"></span>
+                    </div>
+                    <div th:each="member : ${myHousehold.householdAccounts}">
+                        <div th:if="${member.id != id}">
+                            <label>Member Name:</label>
+                            <span th:text="${member.firstName} + ' ' + ${member.lastName}"></span>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${myHousehold == null}">
+                    <button class="btn btn-sm btn-secondary" onclick="toggleHouseholdForm()">Add Household</button>
+                    <div id="householdFormContainer" style="display: none;">
+                        <label>Select Household:</label>
+                        <select id="householdSelect" class="form-control">
+                            <option th:each="household : ${householdList}" th:value="${household.id}" th:text="${household.name}"></option>
+                        </select>
+                        <button class="btn btn-primary mt-2" onclick="confirmAddCoClient()">Confirm</button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
     <script th:inline="javascript">
         const clientId = [[${id}]];
 
@@ -126,7 +158,7 @@
             var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-            var requestUrl = `/sendResetPasswordEmail/${clientId}`;
+            var requestUrl = `/sendResetEmail/${clientId}`;
 
             fetch(requestUrl, {
                 method: 'GET',
@@ -155,7 +187,7 @@
         }
 
         function confirmAddDependent() {
-			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
             
             const dependent = {
@@ -194,6 +226,39 @@
                 error: function(xhr, status, error) {
                     console.error('Error loading dependents:', error);
                 }
+            });
+        }
+
+        function toggleHouseholdForm() {
+            const formContainer = document.getElementById('householdFormContainer');
+            formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function confirmAddCoClient() {
+            var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            var householdId = document.getElementById('householdSelect').value;
+
+            fetch(`/addCoClient/${householdId}/${clientId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    showMessageBanner('CoClient Successfully Added!', 'success');
+                    window.location.reload();
+                } else {
+                    response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessageBanner('Error adding CoClient.', 'danger');
             });
         }
     </script>

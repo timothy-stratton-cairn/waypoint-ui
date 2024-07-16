@@ -36,8 +36,7 @@
                     </div>
                     <div class="form-group mb-3">
                         <button type="submit" class="btn btn-primary">Submit</button>&nbsp;&nbsp;
-                        <a class="btn btn-primary" href="${pageContext.request.contextPath}/forgotPassword">Forgot
-                            Password</a>
+                        <button type="button" class="btn btn-primary" onclick="forgotPassword()">Forgot Password</button>
                     </div>
                 </form>
             </div>
@@ -48,5 +47,10 @@
 <div class="row" align="center">
     <div th:insert="~{footer :: main}">...</div>
 </div>
+<script>
+    function forgotPassword() {
+        window.location='/forgotPassword';
+    }
+</script>
 </body>
 </html>

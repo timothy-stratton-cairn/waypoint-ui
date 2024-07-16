@@ -256,7 +256,7 @@
             url: `/removeStepFromTemplate/${protocolId}/${id}`,
             type: 'DELETE',
             headers: {
-                'Accept': 'application/json, text/plain',
+                'Accept': 'text/plain',
                 'Content-Type': 'application/json',
                 [csrfHeader]: csrfToken
             },
@@ -300,58 +300,95 @@
                 }
             });
         }
-   function parseErrorMessage(xhr) {
-        var errorMessage = "An error occurred.";
+function parseErrorMessage(xhr) {
+    var errorMessage = "An error occurred.";
+    var contentType = xhr.getResponseHeader("Content-Type");
+
+    // Check if the content type is JSON before attempting to parse
+    if (contentType && contentType.includes("application/json")) {
         try {
             var responseJson = JSON.parse(xhr.responseText);
             if (responseJson.message) {
                 errorMessage = responseJson.message;
             }
         } catch (e) {
-            console.error('Error parsing error response:', e);
+            console.error('Error parsing JSON error response:', e);
         }
-        return errorMessage;
+    } else {
+        // If the response is not JSON, use the response text directly
+        errorMessage = xhr.responseText;
+    }
+    return errorMessage;
+}
+
+
+
+function confirmStep(buttonElement) {
+    var csrfToken = $('meta[name="_csrf"]').attr('content');
+    var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+    var selectElement = $(buttonElement).prev();
+    var stepId = selectElement.val();
+
+    var stepExists = $(`#stepsContent > div#row_${stepId}`).length > 0;
+
+    if (stepExists) {
+        showBannerMessage('Step has already been assigned to template.', 'danger');
+        return;
     }
 
-
-    function confirmStep(buttonElement) {
-        var csrfToken = $('meta[name="_csrf"]').attr('content');
-        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-
-        var selectElement = $(buttonElement).prev();
-        var stepId = selectElement.val();
-
-        var stepExists = $(`#stepsContent > div#row_${stepId}`).length > 0;
-
-        if (stepExists) {
-            showBannerMessage('Step has already been assigned to template.', 'danger');
-            return;
+    $.ajax({
+        url: `/addStepToProtocol/` + protocolId + `/` + stepId,
+        type: 'PATCH',
+        headers: {
+            'Accept': 'text/plain',
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        success: function() {
+            showBannerMessage("Step added successfully.", "success");
+            addStepToDOM(stepId, selectElement.find('option:selected').text());
+        },
+        error: function(xhr, status, error) {
+            console.error('Error adding step:', error);
+            var errorMessage = parseErrorMessage(xhr);
+            updateDisplayedSteps();
+            //showBannerMessage('Failed to add the step. Error: ' + errorMessage, "danger");
         }
+    });
+}
 
-        $.ajax({
-            url: `/addStepToProtocol/` + protocolId + `/` + stepId,
-            type: 'PATCH',
-            headers: {
-                'Accept': 'application/json, text/plain',
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            success: function() {
-                showBannerMessage("Step added successfully.", "success");
-                updateDisplayedSteps();
-            },
-            error: function(xhr, status, error) {
-                console.error('Error adding step:', error);
-                var errorMessage = parseErrorMessage(xhr);
-                showBannerMessage('Failed to add the step. Error: ' + errorMessage, "danger");
-            }
-        });
-    }
+function addStepToDOM(stepId, stepName) {
+    var stepsContent = $('#stepsContent');
+    var stepHtml = `
+        <div id="row_${stepId}" class="row" data-type="all">
+            <div class="col">${stepName}</div>
+            <div class="col">
+                <button type="button" class="btn btn-secondary" onclick="editProtocol(${stepId});">Details</button>
+                <button type="button" class="btn btn-secondary" onclick="deleteStep(${stepId});">Delete</button>
+            </div>
+        </div>`;
+    stepsContent.append(stepHtml);
+}
 
-    function showBannerMessage(message, type) {
-        var banner = $('#banner');
-        banner.removeClass().addClass('alert alert-' + type).text(message).show();
+
+    function parseErrorMessage(xhr) {
+    var errorMessage = "An error occurred.";
+    try {
+        var responseJson = JSON.parse(xhr.responseText);
+        if (responseJson.message) {
+            errorMessage = responseJson.message;
+        }
+    } catch (e) {
+        console.error('Error parsing error response:', e);
     }
+    return errorMessage;
+}
+
+function showBannerMessage(message, type) {
+    var banner = $('#banner');
+    banner.removeClass().addClass('alert alert-' + type).text(message).show();
+}
 
     function updateDisplayedSteps() {
         $.ajax({

@@ -18,7 +18,7 @@
         <!-- Client Information -->
         <div class="note_card">
             <fieldset>
-                <legend> Household</legend>
+                <legend>Household</legend>
                 <div class="row mb-3">
                     <div class="col-md-3">
                         <label>Name:</label>
@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <!-- CoClients -->
-                <div class="row mb-3">
+                <div class="row mb-3" th:if="${primaryContact != null}">
                     <div class="col-md-3">
                         <label>Primary Contact:</label>
                         <span th:each="client : ${primaryContact}" th:text="${client.firstName + ' ' + client.lastName}"></span>
@@ -37,6 +37,11 @@
                     </div>
                     <div class="col-md-3">
                         <a class="btn btn-sm btn-secondary" th:each="client : ${primaryContact}" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
+                    </div>
+                </div>
+                <div class="row mb-3" th:if="${primaryContact == null}">
+                    <div class="col-md-12">
+                        <p>No primary contact available</p>
                     </div>
                 </div>
                 <div class="row mb-3">

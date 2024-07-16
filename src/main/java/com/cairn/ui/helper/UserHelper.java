@@ -35,6 +35,8 @@ public class UserHelper {
 	 * 
 	 * @return
 	 */
+	
+	
 	public ArrayList<User> getUserList(User usr) {
 	    ArrayList<User> results = new ArrayList<User>();
 
@@ -43,27 +45,28 @@ public class UserHelper {
 	    if (!jsonResponse.isEmpty()) {
 	        ObjectMapper objectMapper = new ObjectMapper();
 
-	        JsonNode jsonNode;
 	        try {
-	            jsonNode = objectMapper.readTree(jsonResponse);
-	            JsonNode prots = jsonNode.get("accounts");
-	            // Iterate through the array elements
-	            User entry = null;
-	            if (prots.isArray()) {
-	                for (JsonNode element : prots) {
-	                    // Access and parse array elements
+	            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode accountsNode = jsonNode.get("accounts");
+
+	            if (accountsNode.isArray()) {
+	                for (JsonNode element : accountsNode) {
 	                    if (element != null) {
-	                        entry = new User();
+	                        User entry = new User();
 	                        entry.setId(element.get("id").asInt());
 	                        entry.setFirstName(element.get("firstName").asText());
 	                        entry.setLastName(element.get("lastName").asText());
 	                        entry.setEmail(element.get("email").asText());
 
 	                        // Set the role
-	                        JsonNode rolesNode = element.get("roles");
-	                        if (rolesNode != null && rolesNode.isArray() && rolesNode.size() > 0) {
-	                            entry.setRole(rolesNode.get(0).asText());
+	                        JsonNode accountRolesNode = element.get("accountRoles").get("roles");
+	                        ArrayList<String> userRoles = new ArrayList<>();
+	                        if (accountRolesNode != null && accountRolesNode.isArray()) {
+	                            for (JsonNode roleNode : accountRolesNode) {
+	                                userRoles.add(roleNode.asText());
+	                            }
 	                        }
+	                        entry.setRoles(userRoles);
 
 	                        // Parse and set dependents
 	                        JsonNode dependentsNode = element.get("dependents");
@@ -95,6 +98,7 @@ public class UserHelper {
 
 	    return results;
 	}
+
 
 
 
@@ -234,7 +238,7 @@ public class UserHelper {
                 result.setUsername(jsonNode.path("username").asText(null));
                 result.setEmail(jsonNode.path("email").asText(null));
 
-                JsonNode roles = jsonNode.path("roles");
+                JsonNode accountRoles = jsonNode.path("accountRoles").path("roles");
                 JsonNode deps = jsonNode.path("dependents");
                 JsonNode coclient = jsonNode.path("coClient");
 
@@ -250,8 +254,8 @@ public class UserHelper {
 
                 // Handle roles
                 ArrayList<String> userRoles = new ArrayList<>();
-                if (roles.isArray()) {
-                    for (JsonNode element : roles) {
+                if (accountRoles.isArray()) {
+                    for (JsonNode element : accountRoles) {
                         if (element != null && !element.isNull()) {
                             userRoles.add(element.asText());
                         }
@@ -556,13 +560,53 @@ public class UserHelper {
 				
 	}
 		
-	public String sendResetUserPasswordEmail(User usr, User client) {
-		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset?username=" + client.getUsername() + "&email=" +client.getEmail();
-		logger.info(apiUrl);
-		String call = apiHelper.callAPI(apiUrl, usr);
-		return call;
-	}
-	
+    public String sendResetUserPasswordEmail(User usr, User client) {
+        if (usr == null || client == null) {
+            logger.error("User or client is null");
+            return "Error: User or client is null";
+        }
+
+        if (client.getUsername() == null || client.getEmail() == null) {
+            logger.error("Client username or email is null");
+            return "Error: Client username or email is null";
+        }
+
+        String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset?username=" + client.getUsername() + "&email=" + client.getEmail();
+        logger.info("API URL: " + apiUrl);
+
+        try {
+            String call = apiHelper.callAPI(apiUrl, usr);
+            logger.info("API Response: " + call);
+            return call;
+        } catch (Exception e) {
+            logger.error("Error calling API: " + e.getMessage(), e);
+            return "Error calling API: " + e.getMessage();
+        }
+    }
+
+    public String resetUserPasswordEmail(User usr, String username, String email) {
+        if (usr == null) {
+            logger.error("User is null");
+            return "Error: User is null";
+        }
+
+        if (username == null || email == null) {
+            logger.error("Username or email is null");
+            return "Error: Username or email is null";
+        }
+
+        String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset?username=" + username + "&email=" + email;
+        logger.info("API URL: " + apiUrl);
+
+        try {
+            String call = apiHelper.callAPI(apiUrl, usr);
+            logger.info("API Response: " + call);
+            return call;
+        } catch (Exception e) {
+            logger.error("Error calling API: " + e.getMessage(), e);
+            return "Error calling API: " + e.getMessage();
+        }
+    }
 	public String createDependent(User loggedInUser, User newUser) {
 		ArrayList<String> roles = newUser.getRoles();
 		int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers

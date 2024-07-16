@@ -221,6 +221,7 @@ public class HomeworkQuestionHelper{
         requestBody.append("{")
             .append("\"questionAbbr\": \"").append(question.getQuestionAbbreviation()).append("\",")
             .append("\"question\": \"").append(question.getQuestion()).append("\",")
+            .append("\"status\": \"").append(question.getStatus()).append("\",")
             .append("\"questionType\": \"").append(question.getQuestionType()).append("\",")
             .append("\"isRequired\": ").append(question.isRequired()).append(",")
             .append("\"responseOptions\": [");
