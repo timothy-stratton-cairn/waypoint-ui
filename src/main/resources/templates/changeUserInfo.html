@@ -68,18 +68,7 @@
             </fieldset>
         </div>
     </div>
-    <div class="container">
-        <div class="row note_card">
-            <fieldset>
-                <legend>Change Password</legend>
-                <div>
-                    <button type="button" class="btn btn-primary" onclick="sendResetPassword()"> Reset Password Email </button>
-                </div>
-            </fieldset>
-        </div>
-    </div>
-
-    <!-- My Household Section -->
+        <!-- My Household Section -->
     <div class="container" id="householdSection">
         <div class="note_card">
             <fieldset>
@@ -109,6 +98,19 @@
             </fieldset>
         </div>
     </div>
+    
+    <div class="container">
+        <div class="row note_card">
+            <fieldset>
+                <legend>Change Password</legend>
+                <div>
+                    <button type="button" class="btn btn-primary" onclick="sendResetPassword()"> Reset Password Email </button>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
 
     <script th:inline="javascript">
         const clientId = [[${id}]];

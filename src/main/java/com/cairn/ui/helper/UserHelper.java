@@ -194,6 +194,7 @@ public class UserHelper {
                                 for (JsonNode account : accounts) {
                                     User user = new User();
                                     user.setId(Integer.valueOf(account.get("id").asText()));
+                                    household.getHouseholdAccountsIds().add(user.getId());
                                     user.setFirstName(account.get("firstName").asText());
                                     user.setLastName(account.get("lastName").asText());
 

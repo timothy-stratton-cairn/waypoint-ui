@@ -771,9 +771,16 @@ public class MainController {
 		ArrayList<Household> householdList = userHelper.getHouseholdList(usr);
 		Household myHousehold = null;
 		
+		
+		
+		
 		for (Household household: householdList) {
 			if (household.getHouseholdAccountsIds().contains(id)) {
 				myHousehold = household;
+				logger.info("My Household: "+ myHousehold.getName());
+			}
+			else {
+				logger.info("No Household");
 			}
 		}
 		model.addAttribute("myHousehold", myHousehold);
