@@ -214,6 +214,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script th:inline="javascript">
         var clientId = [[${clientId}]];
+        const pcId = [[${pcId}]];
 
 
         function showMessageBanner(message, type) {
@@ -443,11 +444,11 @@
             formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
         }
 
-		function confirmAddDependent(id) {
+		function confirmAddDependent() {
 	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 	    
-	    if (pcId != null) {
+	    if (pcId <= 0) {
 	        showMessageBanner('Household must have a Primary Contact in order to assign a Dependent', 'danger');
 	        return;
 	    }
@@ -460,7 +461,7 @@
 	    };
 	
 	    $.ajax({
-	        url: `/createAndAssignDependent/${id}`,
+	        url: `/createAndAssignDependent/${pcId}`,
 	        type: 'POST',
 	        headers: {
 	            'Accept': 'text/plain',

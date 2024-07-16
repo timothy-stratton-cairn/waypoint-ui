@@ -129,6 +129,7 @@ public class APIHelper {
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity,
 					String.class);
+			System.out.print(response);
 			if (response.getStatusCode().is2xxSuccessful()) {
 				result = 1;
 			} else {

@@ -968,11 +968,13 @@ public class MainController {
 	    User primaryContactUser = !primaryContacts.isEmpty() ? primaryContacts.get(0) : null;
 
 	    User pcUser = null;
+	    int pcId = 0;
 	    if (primaryContactUser != null) {
-	        int pcId = primaryContactUser.getId();
+	        pcId = primaryContactUser.getId();
 	        pcUser = userHelper.getUser(currentUser, pcId);
+	        logger.info("Primary Contact User: " + pcId);
 	    } else {
-	    	int pcId = 0;
+	    	
 	        logger.info("No primary contact user found");
 	    }
 	    
@@ -1057,7 +1059,7 @@ public class MainController {
 	    
 	    model.addAttribute("dependants", dependantList);
 	    model.addAttribute("primaryContact", pcUser);
-	    
+	    model.addAttribute("pcId", pcId);
 	    model.addAttribute("primaryContactUser", primaryContactUser); // Fixed duplicate attribute key
 	    model.addAttribute("userList", userList);
 	    model.addAttribute("coClientList", clientList);

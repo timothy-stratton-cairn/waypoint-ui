@@ -436,8 +436,8 @@ public class UserHelper {
 	    
 	    logger.info(apiUrl);
 	    logger.info(requestBody.toString());
-	    
-	    int call = apiHelper.patchAPI(apiUrl, requestBody.toString(), usr);  // Assuming requestBody is the second parameter
+	    String requestBodyString = requestBody.toString();
+	    int call = apiHelper.patchAPI(apiUrl, requestBodyString, usr);  // Assuming requestBody is the second parameter
 	    if (call > 0) {
 	        result = "success: Id: " + call;
 	    }
