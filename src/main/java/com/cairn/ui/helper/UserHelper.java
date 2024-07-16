@@ -608,7 +608,7 @@ public class UserHelper {
             return "Error calling API: " + e.getMessage();
         }
     }
-	public String createDependent(User loggedInUser, User newUser) {
+	public String createDependent(User usr, User newUser) {
 		ArrayList<String> roles = newUser.getRoles();
 		int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers
 	    String requestBody = String.format(
@@ -616,7 +616,7 @@ public class UserHelper {
 	            newUser.getFirstName(), newUser.getLastName(),role,newUser.getEmail()
 	        );
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
-		int result = apiHelper.postAPI(apiUrl, requestBody, loggedInUser);
+		int result = apiHelper.postAPI(apiUrl, requestBody, usr);
 		logger.info(apiUrl);
 		if (result < 0) {
 			return "error ";
@@ -624,5 +624,22 @@ public class UserHelper {
 		return "success " + "id: "+ result;
 	}
 	
+	
+	public String promoteToPrimaryContact(User usr, int householdId, int clientId) {
+		int call = 0;
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get + householdId;
+	    String requestBody = String.format("{\"primaryContactAccountIds\": [%d]}", clientId);
+	    
+	    call = apiHelper.patchAPI(apiUrl, requestBody, usr);
+	    logger.info(requestBody);
+	    logger.info(apiUrl);
+	    if (call > 0) {
+	    	return "success";
+	    }
+	    else {
+	    	return "Error Updating Primary Contact";
+	    }
+		
+	}
 	
 }

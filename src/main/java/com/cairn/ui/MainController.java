@@ -1052,12 +1052,12 @@ public class MainController {
 	    String listPostFilter = userList.stream()
 	            .map(usr -> usr.getFirstName() + " " + usr.getLastName())
 	            .collect(Collectors.joining(","));
-
-	    logger.info("User List before filtering: " + listPreFilter);
+	
 	    logger.info("User List after filtering: " + listPostFilter);
 	    
 	    model.addAttribute("dependants", dependantList);
 	    model.addAttribute("primaryContact", pcUser);
+	    
 	    model.addAttribute("primaryContactUser", primaryContactUser); // Fixed duplicate attribute key
 	    model.addAttribute("userList", userList);
 	    model.addAttribute("coClientList", clientList);
@@ -1983,7 +1983,19 @@ public class MainController {
     }
     
     
-
+    @PatchMapping("/promoteToPrimaryContact/{householdId}/{clientId}")
+    public ResponseEntity<String> promoteToPrimaryContact(@PathVariable int householdId, @PathVariable int clientId) {
+        User currentUser = userDAO.getUser();
+        try {
+            String call = userHelper.promoteToPrimaryContact(currentUser, householdId, clientId);
+            if (call.contains("success")) {
+                return ResponseEntity.ok().body("Primary Contact Successfully Updated");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
+    }
 
     
 
