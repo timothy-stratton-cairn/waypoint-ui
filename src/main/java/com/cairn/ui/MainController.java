@@ -966,11 +966,13 @@ public class MainController {
 	    ArrayList<User> clientList = household.getHouseholdAccounts();
 	    ArrayList<User> primaryContacts = household.getPrimaryContacts();
 	    User primaryContactUser = !primaryContacts.isEmpty() ? primaryContacts.get(0) : null;
+
 	    User pcUser = null;
 	    if (primaryContactUser != null) {
 	        int pcId = primaryContactUser.getId();
 	        pcUser = userHelper.getUser(currentUser, pcId);
 	    } else {
+	    	int pcId = 0;
 	        logger.info("No primary contact user found");
 	    }
 	    
@@ -1025,7 +1027,7 @@ public class MainController {
 	    for (User user : allUsers) {
 	        if (user.getRoles().contains("CLIENT")) {
 	            clientRoleUserIds.add(user.getId());
-	            logger.info("User Is Client: " + user.getFirstName()+  " "+ user.getLastName() );
+
 	        }
 	    }
 
@@ -1037,10 +1039,10 @@ public class MainController {
 
 	    for (User usr : userList) {
 	        if (householdUserIds.contains(usr.getId())) {
-	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they are part of a household.");
+	            //logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they are part of a household.");
 	            usersToRemove.add(usr);
 	        } else if (!clientRoleUserIds.contains(usr.getId())) {
-	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they do not have the CLIENT role.");
+	            //logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they do not have the CLIENT role.");
 	            usersToRemove.add(usr);
 	        }
 	    }
@@ -1053,7 +1055,7 @@ public class MainController {
 
 	    logger.info("User List before filtering: " + listPreFilter);
 	    logger.info("User List after filtering: " + listPostFilter);
-
+	    
 	    model.addAttribute("dependants", dependantList);
 	    model.addAttribute("primaryContact", pcUser);
 	    model.addAttribute("primaryContactUser", primaryContactUser); // Fixed duplicate attribute key
@@ -1136,7 +1138,7 @@ public class MainController {
 		}
 
 		list.removeIf(usr -> householdUserIds.contains(usr.getId()));
-		list.removeIf(usr -> !usr.getRole().equals("CLIENT"));
+		list.removeIf(usr -> !usr.getRoles().contains("CLIENT"));
 		String listPostFilter ="";
 		for (User usr: list) {
 			listPostFilter += usr.getFirstName()+" "+usr.getLastName()+",";

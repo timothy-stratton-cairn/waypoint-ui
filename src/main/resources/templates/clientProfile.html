@@ -212,6 +212,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script th:inline="javascript">
         var clientId = [[${clientId}]];
+        const pcId = [[${pcId}]];
 
         function showMessageBanner(message, type) {
             const banner = document.getElementById('messageBanner');
@@ -440,35 +441,41 @@
             formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
         }
 
-        function confirmAddDependent() {
-			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-            var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-            
-            const dependent = {
-                email: document.getElementById('dependentEmail').value,
-                firstName: document.getElementById('dependentFirstName').value,
-                lastName: document.getElementById('dependentLastName').value,
-                roles: [2]
-            };
+		function confirmAddDependent(id) {
+	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+	    
+	    if (pcId != null) {
+	        showMessageBanner('Household must have a Primary Contact in order to assign a Dependent', 'danger');
+	        return;
+	    }
+	
+	    const dependent = {
+	        email: document.getElementById('dependentEmail').value,
+	        firstName: document.getElementById('dependentFirstName').value,
+	        lastName: document.getElementById('dependentLastName').value,
+	        roles: [2]
+	    };
+	
+	    $.ajax({
+	        url: `/createAndAssignDependent/${id}`,
+	        type: 'POST',
+	        headers: {
+	            'Accept': 'application/json',
+	            'Content-Type': 'application/json',
+	            [csrfHeader]: csrfToken
+	        },
+	        data: JSON.stringify(dependent),
+	        success: function(response) {
+	            showMessageBanner('Dependent Successfully Created and Assigned', 'success');
+	            loadDependents();
+	        },
+	        error: function(xhr, status, error) {
+	            showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
+	        }
+	    });
+	}
 
-            $.ajax({
-                url: `/createAndAssignDependent/${clientId}`,
-                type: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
-                },
-                data: JSON.stringify(dependent),
-                success: function(response) {
-                    showMessageBanner('Dependent Successfully Created and Assigned', 'success');
-                    loadDependents();
-                },
-                error: function(xhr, status, error) {
-                    showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
-                }
-            });
-        }
 
         function loadDependents() {
             $.ajax({
