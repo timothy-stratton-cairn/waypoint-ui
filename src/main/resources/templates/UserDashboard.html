@@ -41,15 +41,11 @@
 					<div class="col-md-2" th:text="${stat.progress}"></div>
 					<div class="col-md-1" th:text="${stat.done}"></div>
 					<div class="col-md-1" th:text="|${stat.completion}%|"></div>
-				    <div class="col-md-2">
-                        <button class="btn btn-sm btn-secondary" type="button" th:onclick="'toggleAssignedUsers(' + ${stat.templateId} + ')'">Show Users</button>
-                        <div th:id="|assignedUsers_${stat.templateId}|" style="display: none;">
+ 					<div class="col-md-2">
+                        <button class="btn btn-sm btn-secondary" type="button" th:onclick="'toggleAssignedHouseholds(' + ${stat.templateId} + ')'">Display Households</button>
+                        <div th:id="|assignedHouseholds_${stat.templateId}|" style="display: none;">
                             <ul>
-                                <li th:each="household : ${stat.assignedHouseholds}">
-                                    <ul>
-                                        <li th:each="user : ${household.householdAccounts}" th:text="${user.firstName} + ' ' + ${user.lastName}"></li>
-                                    </ul>
-                                </li>
+                                <li th:each="household : ${stat.assignedHouseholds}" th:text="${household.name}"></li>
                             </ul>
                         </div>
                     </div>
@@ -110,12 +106,12 @@
         function viewProtocol(pcolId) {
             window.location = '/viewProtocol/' + pcolId;
         }
-        function toggleAssignedUsers(templateId) {
-            var userList = document.getElementById('assignedUsers_' + templateId);
-            if (userList.style.display === 'none') {
-                userList.style.display = 'block';
+        function toggleAssignedHouseholds(templateId) {
+            var householdList = document.getElementById('assignedHouseholds_' + templateId);
+            if (householdList.style.display === 'none') {
+                householdList.style.display = 'block';
             } else {
-                userList.style.display = 'none';
+                householdList.style.display = 'none';
             }
         }
     </script>
