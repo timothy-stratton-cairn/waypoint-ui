@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
 <div th:insert="~{header :: main}">...</div>
-<script>
-	function selectClient(id) {
-		window.location = 'workClient/' + id;
-	}
-	function getProtocols(id){
-		window.location = '/protocolsByTemplate/'+ id + '/'
-	}
-	function viewProtocol(pcolId) {
-		window.location = '/viewProtocol/' + pcolId;
-	}
-</script>
-
 <body>
 	<div class="container">
 		<div>
@@ -31,12 +19,18 @@
 					<div class="col-md-2">
 						Steps In Progress
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-1">
 						Steps Completed
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-1">
 						Completion Percent
 					</div>
+					
+					<div class="col-md-2">
+						Assigned Households
+					</div>
+					
+					
 					<div class="col-md-2">
 						Action
 					</div>
@@ -45,8 +39,21 @@
 					<div class="col-md-2" th:text="${stat.templateName}"></div>
 					<div class="col-md-2" th:text="${stat.numSteps}"></div>
 					<div class="col-md-2" th:text="${stat.progress}"></div>
-					<div class="col-md-2" th:text="${stat.done}"></div>
-					<div class="col-md-2" th:text="|${stat.completion}%|"></div>
+					<div class="col-md-1" th:text="${stat.done}"></div>
+					<div class="col-md-1" th:text="|${stat.completion}%|"></div>
+				    <div class="col-md-2">
+                        <button class="btn btn-sm btn-secondary" type="button" th:onclick="'toggleAssignedUsers(' + ${stat.templateId} + ')'">Show Users</button>
+                        <div th:id="|assignedUsers_${stat.templateId}|" style="display: none;">
+                            <ul>
+                                <li th:each="household : ${stat.assignedHouseholds}">
+                                    <ul>
+                                        <li th:each="user : ${household.householdAccounts}" th:text="${user.firstName} + ' ' + ${user.lastName}"></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+					
 					<div class="col-md-2">
 						<a class="btn btn-sm btn-secondary" th:href="@{'/protocolsByTemplate/' + ${stat.templateId} + '/'}" th:text="'View Protocols'"></a>
 					</div>
@@ -93,6 +100,25 @@
 	<br />
 	<br />
 	<br />
+	<script>
+        function selectClient(id) {
+            window.location = 'workClient/' + id;
+        }
+        function getProtocols(id) {
+            window.location = '/protocolsByTemplate/' + id + '/'
+        }
+        function viewProtocol(pcolId) {
+            window.location = '/viewProtocol/' + pcolId;
+        }
+        function toggleAssignedUsers(templateId) {
+            var userList = document.getElementById('assignedUsers_' + templateId);
+            if (userList.style.display === 'none') {
+                userList.style.display = 'block';
+            } else {
+                userList.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 <div th:insert="~{footer :: main}">...</div>
 

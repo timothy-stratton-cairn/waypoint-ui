@@ -160,12 +160,12 @@ public class MainController {
 			}
 		}
 		ArrayList<ProtocolStats> stats = helper.getDashboard(usr);
-		for (ProtocolStats stat : stats) {
-			logger.info("Temp ID: " + stat.getTemplateId() + " Number Of Steps: " + stat.getNumSteps() + " Progress: "
-					+ stat.getProgress());
+logger.info("Empty List");
+			
 			// logger.info("Temp ID: " + stat.getTemplateId() + " Number Of Steps: "+
 			// stat.getNumSteps() + " Progress: " + stat.getProgress());
-		}
+	
+
 		session.setAttribute("me", usr);
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);

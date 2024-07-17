@@ -1,5 +1,7 @@
 package com.cairn.ui.model;
 
+import java.util.ArrayList;
+
 public class ProtocolStats {
 	private int templateId;
 	private AssignedUsers assignedUsers;
@@ -8,6 +10,9 @@ public class ProtocolStats {
 	private int done;
 	private String completion;
 	private String templateName;
+	private ArrayList<Household> assignedHouseholds;
+	
+	
 	public int getTemplateId() {
 		return templateId;
 	}
@@ -49,6 +54,12 @@ public class ProtocolStats {
 	}
 	public void setTemplateName(String templateName) {
 		this.templateName = templateName;
+	}
+	public ArrayList<Household> getAssignedHouseholds() {
+		return assignedHouseholds;
+	}
+	public void setAssignedHouseholds(ArrayList<Household> assignedHouseholds) {
+		this.assignedHouseholds = assignedHouseholds;
 	}
 
 }

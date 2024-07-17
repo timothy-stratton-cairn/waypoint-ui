@@ -125,7 +125,10 @@ public class APIHelper {
 
 	public int patchAPI(String apiUrl, String requestBody, User usr) {
 		int result = 0;
-		HttpEntity<String> entity = Entity.getEntityWithBody(usr, apiUrl, requestBody);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + usr.getToken());
+        headers.add("Content-Type", "application/json");
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity,
 					String.class);
@@ -139,7 +142,7 @@ public class APIHelper {
 			}
 
 		} catch (Exception e) {
-			logger.info("Error in updating progress");
+			logger.info("Error in updating progress" + e);
 			e.printStackTrace();
 		}
 		return result;
