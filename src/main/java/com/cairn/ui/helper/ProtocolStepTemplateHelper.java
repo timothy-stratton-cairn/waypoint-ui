@@ -243,7 +243,7 @@ public class ProtocolStepTemplateHelper{
     public int changeStatus(User usr, int Id, String status) {
     	int result = -1;
 
-	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + Id;
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + Id;
 	    
 	    StringBuilder requestBodyBuilder = new StringBuilder();
 	    requestBodyBuilder.append("{");

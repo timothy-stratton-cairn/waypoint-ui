@@ -2121,13 +2121,34 @@ logger.info("Empty List");
 	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
 	        }
     	if(type.equals("Homework Template")) {	
-    		
+    		try {
+	    		int call = homeworkTemplateHelper.changeStatus(currentUser, id, newStatus);
+	    		if (call > 0) {
+	                return ResponseEntity.ok().body("Primary Contact Successfully Updated");
+	            }
+	    	}catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+	        }
     	}
     	if(type.equals("Step Template")) {
-    		
+    		try {
+	    		int call = protocolStepTemplateHelper.changeStatus(currentUser, id, newStatus);
+	    		if (call > 0) {
+	                return ResponseEntity.ok().body("Primary Contact Successfully Updated");
+	            }
+	    	}catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+	        }
     	}
     	if(type.equals("Homework Question")) {
-    		
+    		try {
+	    		int call = questionHelper.changeStatus(currentUser, id, newStatus);
+	    		if (call > 0) {
+	                return ResponseEntity.ok().body("Primary Contact Successfully Updated");
+	            }
+	    	}catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+	        }
     	}
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
     }
