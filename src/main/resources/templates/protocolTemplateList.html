@@ -54,9 +54,10 @@
             var status = $(button).attr('data-status');
             var csrfToken = $("meta[name='_csrf']").attr("content");
             var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+            var type = "Protocol Template";
             
             $.ajax({
-                url: '/changeStatus/' + id + '/' + status,
+                url: '/changeStatus/' + type + '/'+ id + '/' + status,
                 type: 'PATCH',
                 beforeSend: function(xhr) {
                     xhr.setRequestHeader(csrfHeader, csrfToken);

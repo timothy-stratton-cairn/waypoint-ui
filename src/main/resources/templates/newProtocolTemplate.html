@@ -158,30 +158,26 @@
                 <textarea id="stepDetails" class="form-control" rows="3"></textarea>
             </div>
             <!-- Homework Form -->
-            <div class="container">
-                <div class="row note_card">
-                    <fieldset>
-                        <legend>Assigned Homework</legend>
-                        <div class="table-responsive">
-                            <table class="table" id="homeworkTable">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Remove</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                        <select class="form-control mt-2" id="homeworkTemplateDropdown">
-                            <option value="">Select Homework Template</option>
-                            <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
-                        </select>
-                        <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate()">Add Homework</button>
-                    </fieldset>
-                </div>
+
+            <legend>Assigned Homework</legend>
+            <div class="table-responsive">
+                <table class="table" id="homeworkTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
+            <select class="form-control mt-2" id="homeworkTemplateDropdown">
+                <option value="">Select Homework Template</option>
+                <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
+            </select>
+            <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate()">Add Homework</button>
+
             <button type="button" class="btn btn-primary" onclick="hideNewStepTemplate()">Cancel</button>
             <button type="button" class="btn btn-success" onclick="saveStep()">Save Step</button>
         </fieldset>

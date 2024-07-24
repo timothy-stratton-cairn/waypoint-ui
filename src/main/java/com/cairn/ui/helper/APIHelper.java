@@ -2,6 +2,7 @@ package com.cairn.ui.helper;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,8 +125,8 @@ public class APIHelper {
         try (OutputStream os = new FileOutputStream(binaryFile)) {
             os.write(file.getBytes());
         }
-        catch(Exception e) {
-        	
+        catch(IOException e) {
+        	 logger.info("Error in updating note");
         }
         
         body.add("file", binaryFile);

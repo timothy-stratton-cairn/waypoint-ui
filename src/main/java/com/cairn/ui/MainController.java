@@ -35,6 +35,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -188,10 +189,35 @@ logger.info("Empty List");
     }
     
     @GetMapping("/password-reset")
-    public String changePassword() {
+    public String changePassword(@RequestParam String passwordResetToken, @RequestParam String username, Model model) {
     	
+    	model.addAttribute("username", username);
+    	model.addAttribute("token",passwordResetToken);
     	return "changePassword";
     }
+    
+    @PostMapping("/newUserPassword/")
+    public ResponseEntity<Object> newUserPassword(@RequestBody String username, @RequestBody String password, @RequestBody String key ) {
+    	User currentUser = userDAO.getUser();
+    	String call = userHelper.newUserPassword(currentUser, username, key, password);
+    	if (call.startsWith("Success")) {
+			return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
+		} else {
+			Map<String, String> errorResponse = new HashMap<>();
+			errorResponse.put("error", "Error processing the request");
+
+			if (call.contains("error")) {
+
+				String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8,
+						call.indexOf("\",", call.indexOf("\"error\":\"")));
+				errorResponse.put("error", errorMessage);
+			}
+			logger.warn(errorResponse.toString());
+			return ResponseEntity.badRequest().body(errorResponse);
+		}
+
+    }
+
 
 	/**
 	 * Handle a request to view the Protocol details.
@@ -695,6 +721,13 @@ logger.info("Empty List");
 		for (ProtocolStepTemplate step: associatedSteps) {
 			logger.info("Step: "+ step.getName() + " CatagoryID: "+ step.getCategoryId());
 		}
+		
+		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
+		for (HomeworkTemplate hw : templatelist) {
+			logger.info("Homework ID: " + hw.getId() + " Homework Name: " + hw.getName());
+		}
+		
+		model.addAttribute("homework", templatelist);
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", associatedSteps);
@@ -1286,30 +1319,6 @@ logger.info("Empty List");
 
 		String call = userHelper.changeUserPassword(currentUser, id, requestBody.getPassword(),
 				requestBody.getVerifypassword());
-		if (call.startsWith("Success")) {
-			return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
-		} else {
-			Map<String, String> errorResponse = new HashMap<>();
-			errorResponse.put("error", "Error processing the request");
-
-			if (call.contains("error")) {
-
-				String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8,
-						call.indexOf("\",", call.indexOf("\"error\":\"")));
-				errorResponse.put("error", errorMessage);
-			}
-			logger.warn(errorResponse.toString());
-			return ResponseEntity.badRequest().body(errorResponse);
-		}
-	}
-	
-	@PostMapping("/newUserPassword/")
-	public ResponseEntity<Object> newUserPassword() {
-		User currentUser = userDAO.getUser();
-		String password = ""; //fake 
-		String username = ""; //will replace
-		String token = ""; // have some questions about how the token gets sent 
-		String call = userHelper.newUserPassword(currentUser, username, token, password);
 		if (call.startsWith("Success")) {
 			return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
 		} else {
@@ -2093,8 +2102,8 @@ logger.info("Empty List");
     }
 
     
-    @PatchMapping("/changeStatus/{id}/{status}")
-    public ResponseEntity<String>changeStatus(@PathVariable int id, @PathVariable String status ){
+    @PatchMapping("/changeStatus/{type}/{id}/{status}")
+    public ResponseEntity<String>changeStatus(@PathVariable String type, @PathVariable int id, @PathVariable String status ){
     	User currentUser = userDAO.getUser();
     	String newStatus = "";
  
@@ -2104,17 +2113,40 @@ logger.info("Empty List");
     	else {
     		newStatus = "LIVE";
     	}
-    	try {
-    		int call = protocolTemplateHelper.changeStatus(currentUser, id, newStatus);
-    		if (call > 0) {
-                return ResponseEntity.ok().body("Primary Contact Successfully Updated");
-            }
-    	}catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
-        }
+    	if (type.equals("Protocol Template"))
+	    	try {
+	    		int call = protocolTemplateHelper.changeStatus(currentUser, id, newStatus);
+	    		if (call > 0) {
+	                return ResponseEntity.ok().body("Primary Contact Successfully Updated");
+	            }
+	    	}catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+	        }
+    	if(type.equals("Homework Template")) {
+    		
+    		
+    	}
+    	if(type.equals("Step Template")) {
+    		
+    	}
+    	if(type.equals("Homework Question")) {
+    		
+    	}
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
     }
     
+    @PostMapping("/uploadFile")
+    public int submit(@RequestParam("files") MultipartFile file, int pcolId, int stepId) {
+    	User currentUser = userDAO.getUser();
+    	int call = -1;
+    	try {
+    		call = protocolHelper.assigneFileUpload(currentUser, pcolId, stepId, file);
+    	}catch( IOException e) {
+    		
+    	}
+        return call;
+        
+    }
     
     
 

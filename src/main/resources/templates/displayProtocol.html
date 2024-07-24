@@ -178,41 +178,184 @@
             <template id="stepTemplate">
                 <div class="new-step-row">
                     <select class="form-control" name="newid">
+						<option value="new">Create New Step</option>
                         <option th:each="step : ${allSteps}" th:value="${step.id}" th:text="${step.name}"></option>
                     </select>
-                    <button type="button" class="btn btn-secondary" onclick="confirmClient(this);">Confirm</button>
+                    <button type="button" class="btn btn-secondary" onclick="confirmStep(this);">Confirm</button>
                 </div>
             </template>
             <div id="stepsContainer">
                 <!-- New step rows will be appended here -->
             </div>
             <br>
-            
-            <button type="button" class="btn btn-primary" onclick="newStep();">Create New Step</button>
+
             <button type="button" class="btn btn-primary" onclick="addStep();">Add Existing Step</button>
+        </fieldset>
+    </div>
+</div>
+
+<div class="container" id="newStepTemplate" style="display:none;">
+    <div class="row note_card">
+        <fieldset>
+			
+            <legend>New Step</legend>
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="form-group col-md-9">
+                        <label for="stepName">Name:</label>
+                        <input type="text" id="stepName" class="form-control">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="stepCategory">Category:</label>
+                        <select class="form-control" id="stepCategory">
+                            <option value="1">Gather Data</option>
+                            <option value="2">Run Analysis</option>
+                            <option value="3">Craft Recommendations</option>
+                            <option value="4">Share Education</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="stepDetails">Description:</label>
+                <textarea id="stepDetails" class="form-control" rows="3"></textarea>
+            </div>
+            <!-- Homework Form -->             
+                    <legend>Assigned Homework</legend>
+                    <div class="table-responsive">
+                        <table class="table" id="homeworkTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <select class="form-control mt-2" id="homeworkTemplateDropdown">
+                        <option value="">Select Homework Template</option>
+                        <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
+                    </select>
+                    <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate()">Add Homework</button>
+
+
+            <button type="button" class="btn btn-primary" onclick="hideNewStepTemplate()">Cancel</button>
+            <button type="button" class="btn btn-success" onclick="saveStep()">Save Step</button>
         </fieldset>
     </div>
 </div>
 
 <script>
     var protocolId = [[${protocolId}]];
+   
 
     function newStep() {
         window.location = '/newStep/' + protocolId;
     }
-
-    function addStep() {
-        var stepsContainer = document.getElementById('stepsContainer');
-        var stepTemplate = document.getElementById('stepTemplate').content.cloneNode(true);
-        stepsContainer.appendChild(stepTemplate);
-    }
-
+    
     function viewHomeworkDetails(homeworkId) {
         window.location = '/viewHomeworkTemplate/' + homeworkId + '/';
     }
 
     function editProtocol(id) {
         window.location = '/editStep/' + id;
+    }
+    
+    function showBannerMessage(message, type) {
+	    var banner = $('#banner');
+	    banner.removeClass().addClass('alert alert-' + type).text(message).show();
+	}
+
+    function addStep() {
+
+	        var stepsContainer = document.getElementById('stepsContainer');
+	        var stepTemplate = document.getElementById('stepTemplate').content.cloneNode(true);
+	        stepsContainer.appendChild(stepTemplate);
+	 
+    }
+    
+    function saveStep() {
+        var stepData = {
+            "categoryId": document.getElementById("stepCategory").value,
+            "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
+            "name": document.getElementById("stepName").value,
+            "description": document.getElementById("stepDetails").value,
+            "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
+                return {
+                    "id": parseInt(row.dataset.homeworkId),
+                    "name": row.cells[0].textContent.trim()
+                };
+            })
+        };
+
+        console.log("Saving step data:", stepData); // Logging step data
+
+        $.ajax({
+            url: '/saveStep/',
+            type: 'POST',
+            contentType: 'application/json',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+            },
+            data: JSON.stringify(stepData),
+            success: function(response) {
+                console.log("Step saved successfully, response data:", response); // Logging response data
+                try {
+                    var parsedResponse = JSON.parse(response);
+                    var stepId = parsedResponse.stepId;
+                    if (stepId) {
+                        console.log("Step being added: ", stepId);
+                        showMessageBanner('Step saved successfully!', 'success');
+                        addStepById(stepId);
+                        document.getElementById('newStepTemplate').style.display = 'none';
+                    } else {
+                        console.error("Error in response:", parsedResponse.message);
+                        showMessageBanner('Error saving step: ' + parsedResponse.message, 'danger');
+                    }
+                } catch (error) {
+                    console.error("Error parsing response:", error);
+                    showMessageBanner('Error saving step: ' + error.message, 'danger');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("AJAX error:", errorThrown);
+                showMessageBanner('Error saving step: ' + errorThrown, 'danger');
+            }
+        });
+    }
+
+    function addStepById(stepId) {
+        console.log("Adding step by ID:", stepId); // Logging step ID
+
+        $.ajax({
+            url: '/getStep/' + stepId,
+            type: 'GET',
+            success: function(step) {
+                console.log("Retrieved step data:", step); // Logging retrieved step data
+                const stepsContainer = document.getElementById('stepsContent');
+                const stepExists = Array.from(stepsContainer.children).some(child => child.getAttribute('data-step-id') === step.id.toString());
+
+                if (stepExists) {
+                    console.warn("Step already exists in protocol.");
+                    showMessageBanner('Step has already been assigned to template.', 'danger');
+                    return;
+                }
+
+                const newRow = document.createElement('div');
+                newRow.className = 'row';
+                newRow.innerHTML = `<div class="col-md-9">${step.name}</div>
+                                    <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
+                newRow.setAttribute('data-step-id', step.id);
+                stepsContainer.appendChild(newRow);
+                console.log("Step added to protocol.");
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("Error retrieving step:", errorThrown);
+                showMessageBanner('Error retrieving step: ' + errorThrown, 'danger');
+            }
+        });
     }
 
     function saveProtocol(id) {
@@ -314,63 +457,69 @@
                 }
             });
         }
-function parseErrorMessage(xhr) {
-    var errorMessage = "An error occurred.";
-    var contentType = xhr.getResponseHeader("Content-Type");
+        
+	function parseErrorMessage(xhr) {
+	    var errorMessage = "An error occurred.";
+	    var contentType = xhr.getResponseHeader("Content-Type");
+	
+	    // Check if the content type is JSON before attempting to parse
+	    if (contentType && contentType.includes("application/json")) {
+	        try {
+	            var responseJson = JSON.parse(xhr.responseText);
+	            if (responseJson.message) {
+	                errorMessage = responseJson.message;
+	            }
+	        } catch (e) {
+	            console.error('Error parsing JSON error response:', e);
+	        }
+	    } else {
+	        // If the response is not JSON, use the response text directly
+	        errorMessage = xhr.responseText;
+	    }
+	    return errorMessage;
+}
 
-    // Check if the content type is JSON before attempting to parse
-    if (contentType && contentType.includes("application/json")) {
-        try {
-            var responseJson = JSON.parse(xhr.responseText);
-            if (responseJson.message) {
-                errorMessage = responseJson.message;
+
+
+    function confirmStep(buttonElement) {
+        const select = buttonElement.previousElementSibling;
+        const selectedOption = select.options[select.selectedIndex];
+
+        if (selectedOption.value === "new") {
+            document.getElementById('newStepTemplate').style.display = 'block';
+        } else {
+            var stepId = selectedOption.value;
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+            var stepExists = $(`#stepsContent > div#row_${stepId}`).length > 0;
+
+            if (stepExists) {
+                showBannerMessage('Step has already been assigned to template.', 'danger');
+                return;
             }
-        } catch (e) {
-            console.error('Error parsing JSON error response:', e);
+
+            $.ajax({
+                url: `/addStepToProtocol/` + protocolId + `/` + stepId,
+                type: 'PATCH',
+                headers: {
+                    'Accept': 'text/plain',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                success: function() {
+                    showBannerMessage("Step added successfully.", "success");
+                    addStepToDOM(stepId, select.options[select.selectedIndex].text);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error adding step:', error);
+                    var errorMessage = parseErrorMessage(xhr);
+                    updateDisplayedSteps();
+                    showBannerMessage('Failed to add the step. Error: ' + errorMessage, "danger");
+                }
+            });
         }
-    } else {
-        // If the response is not JSON, use the response text directly
-        errorMessage = xhr.responseText;
     }
-    return errorMessage;
-}
-
-
-
-function confirmStep(buttonElement) {
-    var csrfToken = $('meta[name="_csrf"]').attr('content');
-    var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-
-    var selectElement = $(buttonElement).prev();
-    var stepId = selectElement.val();
-
-    var stepExists = $(`#stepsContent > div#row_${stepId}`).length > 0;
-
-    if (stepExists) {
-        showBannerMessage('Step has already been assigned to template.', 'danger');
-        return;
-    }
-
-    $.ajax({
-        url: `/addStepToProtocol/` + protocolId + `/` + stepId,
-        type: 'PATCH',
-        headers: {
-            'Accept': 'text/plain',
-            'Content-Type': 'application/json',
-            [csrfHeader]: csrfToken
-        },
-        success: function() {
-            showBannerMessage("Step added successfully.", "success");
-            addStepToDOM(stepId, selectElement.find('option:selected').text());
-        },
-        error: function(xhr, status, error) {
-            console.error('Error adding step:', error);
-            var errorMessage = parseErrorMessage(xhr);
-            updateDisplayedSteps();
-            //showBannerMessage('Failed to add the step. Error: ' + errorMessage, "danger");
-        }
-    });
-}
 
 function addStepToDOM(stepId, stepName) {
     var stepsContent = $('#stepsContent');
@@ -397,11 +546,6 @@ function addStepToDOM(stepId, stepName) {
         console.error('Error parsing error response:', e);
     }
     return errorMessage;
-}
-
-function showBannerMessage(message, type) {
-    var banner = $('#banner');
-    banner.removeClass().addClass('alert alert-' + type).text(message).show();
 }
 
     function updateDisplayedSteps() {
