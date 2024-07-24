@@ -26,6 +26,7 @@
                             <td th:text="${question.status}"></td>
                             <td>
                                 <button class="btn btn-sm btn-secondary" th:attr="onclick='editQuestion('+${question.questionId}+');'">Edit Question</button>
+                                <button class="btn btn-sm" th:classappend="${question.status == 'LIVE'} ? 'btn-secondary' : 'btn-success'" th:text="${question.status == 'LIVE'} ? 'Deactivate' : 'Activate'" th:data-id="${question.questionId}" th:data-status="${question.status}" onclick="changeStatusAndRefresh(this);"></button>
                             </td>
                         </tr>
                     </tbody>

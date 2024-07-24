@@ -263,7 +263,7 @@
         window.location = '/editStep/' + id;
     }
     
-    function showBannerMessage(message, type) {
+    function showMessageBanner(message, type) {
 	    var banner = $('#banner');
 	    banner.removeClass().addClass('alert alert-' + type).text(message).show();
 	}
@@ -329,33 +329,28 @@
     function addStepById(stepId) {
         console.log("Adding step by ID:", stepId); // Logging step ID
 
-        $.ajax({
-            url: '/getStep/' + stepId,
-            type: 'GET',
-            success: function(step) {
-                console.log("Retrieved step data:", step); // Logging retrieved step data
-                const stepsContainer = document.getElementById('stepsContent');
-                const stepExists = Array.from(stepsContainer.children).some(child => child.getAttribute('data-step-id') === step.id.toString());
+            var csrfToken = $('meta[name="_csrf"]').attr('content');
+            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
-                if (stepExists) {
-                    console.warn("Step already exists in protocol.");
-                    showMessageBanner('Step has already been assigned to template.', 'danger');
-                    return;
+            $.ajax({
+                url: `/addStepToProtocol/` + protocolId + `/` + stepId,
+                type: 'PATCH',
+                headers: {
+                    'Accept': 'text/plain',
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                success: function() {
+                    showMessageBanner("Step added successfully.", "success");
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error adding step:', error);
+                    var errorMessage = parseErrorMessage(xhr);
+                    updateDisplayedSteps();
+                    showMessageBanner('Failed to add the step. Error: ' + errorMessage, "danger");
                 }
-
-                const newRow = document.createElement('div');
-                newRow.className = 'row';
-                newRow.innerHTML = `<div class="col-md-9">${step.name}</div>
-                                    <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
-                newRow.setAttribute('data-step-id', step.id);
-                stepsContainer.appendChild(newRow);
-                console.log("Step added to protocol.");
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Error retrieving step:", errorThrown);
-                showMessageBanner('Error retrieving step: ' + errorThrown, 'danger');
-            }
-        });
+            });
     }
 
     function saveProtocol(id) {
@@ -394,13 +389,13 @@
             },
             data: JSON.stringify(data),
             success: function(response) {
-                showBannerMessage(response, "success");
+                showMessageBanner(response, "success");
                 console.log(response);
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
                 var errorMessage = parseErrorMessage(xhr);
-                showBannerMessage(errorMessage, "danger");
+                showMessageBanner(errorMessage, "danger");
             }
         });
     }
@@ -418,13 +413,13 @@
                 [csrfHeader]: csrfToken
             },
             success: function(response) {
-                showBannerMessage(response, "success");
+                showMessageBanner(response, "success");
                 updateDisplayedSteps();
             },
             error: function(xhr, status, error) {
                 console.error('Error deleting step:', error);
                 var errorMessage = parseErrorMessage(xhr);
-                showBannerMessage('Failed to delete the step. Error: ' + errorMessage, "danger");
+                showMessageBanner('Failed to delete the step. Error: ' + errorMessage, "danger");
             }
         });
     }
@@ -453,7 +448,7 @@
                 },
                 error: function(xhr, status, error) {
                     var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
-                    showBannerMessage('Failed to delete Protocol Template. Error: ' + errorMessage, 'danger');
+                    showMessageBanner('Failed to delete Protocol Template. Error: ' + errorMessage, 'danger');
                 }
             });
         }
@@ -495,7 +490,7 @@
             var stepExists = $(`#stepsContent > div#row_${stepId}`).length > 0;
 
             if (stepExists) {
-                showBannerMessage('Step has already been assigned to template.', 'danger');
+                showMessageBanner('Step has already been assigned to template.', 'danger');
                 return;
             }
 
@@ -508,30 +503,30 @@
                     [csrfHeader]: csrfToken
                 },
                 success: function() {
-                    showBannerMessage("Step added successfully.", "success");
+                    showMessageBanner("Step added successfully.", "success");
                     addStepToDOM(stepId, select.options[select.selectedIndex].text);
                 },
                 error: function(xhr, status, error) {
                     console.error('Error adding step:', error);
                     var errorMessage = parseErrorMessage(xhr);
                     updateDisplayedSteps();
-                    showBannerMessage('Failed to add the step. Error: ' + errorMessage, "danger");
+                    showMessageBanner('Failed to add the step. Error: ' + errorMessage, "danger");
                 }
             });
         }
     }
 
-function addStepToDOM(stepId, stepName) {
-    var stepsContent = $('#stepsContent');
-    var stepHtml = `
-        <div id="row_${stepId}" class="row" data-type="all">
-            <div class="col">${stepName}</div>
-            <div class="col">
-                <button type="button" class="btn btn-secondary" onclick="editProtocol(${stepId});">Details</button>
-                <button type="button" class="btn btn-secondary" onclick="deleteStep(${stepId});">Delete</button>
-            </div>
-        </div>`;
-    stepsContent.append(stepHtml);
+	function addStepToDOM(stepId, stepName) {
+	    var stepsContent = $('#stepsContent');
+	    var stepHtml = `
+	        <div id="row_${stepId}" class="row" data-type="all">
+	            <div class="col">${stepName}</div>
+	            <div class="col">
+	                <button type="button" class="btn btn-secondary" onclick="editProtocol(${stepId});">Details</button>
+	                <button type="button" class="btn btn-secondary" onclick="deleteStep(${stepId});">Delete</button>
+	            </div>
+	        </div>`;
+	    stepsContent.append(stepHtml);
 }
 
 
@@ -574,7 +569,7 @@ function addStepToDOM(stepId, stepName) {
             error: function(xhr, status, error) {
                 console.error('Error fetching steps:', error);
                 var errorMessage = parseErrorMessage(xhr);
-                showBannerMessage('Failed to fetch steps. Error: ' + errorMessage, "danger");
+                showMessageBanner('Failed to fetch steps. Error: ' + errorMessage, "danger");
             }
         });
     }
@@ -646,6 +641,44 @@ function addStepToDOM(stepId, stepName) {
 	    const formContainer = document.getElementById('householdFormContainer');
 	    formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
 	}
+	
+	
+	function addHomeworkTemplate() {
+        var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
+        
+        var homeworkSelect = document.getElementById("homeworkTemplateDropdown");
+        var selectedOption = homeworkSelect.options[homeworkSelect.selectedIndex];
+        var homeworkExists = Array.from(tableBody.rows).some(row => row.dataset.homeworkId === selectedOption.value);
+        
+        if (homeworkExists) {
+            showMessageBanner("This homework template is already added.", "warning");
+            return; // Stop the function if the homework already exists
+        }
+
+        if (tableBody.rows.length >= maxHomeworkItems) {
+            showMessageBanner("The maximum number of homework items allowed has been reached, please remove a homework item before trying to add another.", "warning");
+            return; // Stop the function if the max limit is reached
+        }
+
+        if (selectedOption.value !== "") {
+            var newRow = tableBody.insertRow();
+            var cell1 = newRow.insertCell(0);
+            var cell2 = newRow.insertCell(1);
+
+            cell1.textContent = selectedOption.text;
+            cell2.innerHTML = '<button type="button" class="btn btn-danger" onclick="removeHomework(this);">Remove</button>';
+            newRow.dataset.homeworkId = selectedOption.value;
+
+            homeworkSelect.selectedIndex = 0; // Reset the dropdown after adding
+        } else {
+            showMessageBanner("Please select a homework template before adding.", "warning");
+        }
+    }
+
+    function removeHomework(button) {
+        var row = button.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+    }
 
 
 </script>

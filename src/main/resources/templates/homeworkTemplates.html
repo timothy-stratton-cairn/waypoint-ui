@@ -30,13 +30,16 @@
                         <tr>
                             <th>Name</th>
                             <th>Action</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="template, stat : ${templates}">
                             <td th:text="${template.name}"></td>
+                            <td th:text="${template.status}"></td>
                             <td>
                                 <a class="btn btn-sm btn-secondary" th:href="@{'/viewHomeworkTemplate/' + ${template.id} + '/'}">Details</a>
+                                <button class="btn btn-sm" th:classappend="${template.status == 'LIVE'} ? 'btn-secondary' : 'btn-success'" th:text="${template.status == 'LIVE'} ? 'Deactivate' : 'Activate'" th:data-id="${template.id}" th:data-status="${template.status}" onclick="changeStatusAndRefresh(this);"></button>
                             </td>
                         </tr>
                     </tbody>
@@ -60,6 +63,29 @@
         function newTemplate() {
             window.location = '/editHomeworkTemplate/';
         }
+        
+        function changeStatusAndRefresh(button) {
+	        var id = $(button).attr('data-id');
+	        var status = $(button).attr('data-status');
+	        var csrfToken = $("meta[name='_csrf']").attr("content");
+	        var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	        var type = "Homework Template";
+	        
+	        $.ajax({
+	            url: '/changeStatus/' + type + '/'+ id + '/' + status,
+	            type: 'PATCH',
+	            beforeSend: function(xhr) {
+	                xhr.setRequestHeader(csrfHeader, csrfToken);
+	            },
+	            success: function(response) {
+	                alert('Status changed successfully.');
+	                location.reload();
+	            },
+	            error: function(xhr, status, error) {
+	                alert('Error: ' + error);
+	            }
+	        });
+    	}
 
         $(document).ready(function() {
             $('#templateTable').DataTable({

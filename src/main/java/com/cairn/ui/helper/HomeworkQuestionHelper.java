@@ -260,6 +260,24 @@ public class HomeworkQuestionHelper{
         result = apiHelper.patchAPI(apiUrl, requestBody.toString(), usr);
         return result;
     }
+    
+    public int changeStatus(User usr, int questionId, String status) {
+    	int result = -1;
+
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_homework_question_get + questionId;
+	    
+	    StringBuilder requestBodyBuilder = new StringBuilder();
+	    requestBodyBuilder.append("{");
+	    requestBodyBuilder.append("\"status\": \"").append(status).append("\"");
+	    requestBodyBuilder.append("}");
+	    String requestBody = requestBodyBuilder.toString();
+	    logger.info("apiUrl: "+ apiUrl);
+	    logger.info("requestBody: " + requestBody);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
+	    
+	    return result;
+    	
+    }
 
 
 }

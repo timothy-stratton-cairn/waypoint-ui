@@ -32,7 +32,8 @@
                                 <td th:text="${step.status}"></td>
                                 <td>
                                     <a class="btn btn-sm btn-secondary" th:href="@{'/editStep/' + ${step.id}}">Details</a>
-                                </td>
+	                                <button class="btn btn-sm" th:classappend="${step.status == 'LIVE'} ? 'btn-secondary' : 'btn-success'" th:text="${step.status == 'LIVE'} ? 'Deactivate' : 'Activate'" th:data-id="${step.id}" th:data-status="${step.status}" onclick="changeStatusAndRefresh(this);"></button>
+	                            </td>
                             </tr>
                         </tbody>
                     </table>
