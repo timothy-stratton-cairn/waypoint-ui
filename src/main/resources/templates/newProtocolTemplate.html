@@ -3,6 +3,7 @@
 <head>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 <div th:insert="~{header :: main}">...</div>
@@ -98,6 +99,8 @@
         </fieldset>
     </div>
 </div>
+
+
 <div class="container">
     <div class="row note_card">
         <fieldset>
@@ -120,6 +123,7 @@
             <div class="form-group">
                 <label for="stepSelector">Add Step:</label>
                 <select class="form-control" id="stepSelector">
+					<option value="new">Create New Step</option>
                     <option th:each="step : ${allSteps}" th:value="${step.id}" th:text="${step.name}"></option>
                 </select>
                 <button type="button" class="btn btn-primary" onclick="addStep()">Add Step</button>
@@ -128,7 +132,66 @@
     </div>
 </div>
 
+<div class="container" id="newStepTemplate" style="display:none;">
+    <div class="row note_card">
+        <fieldset>
+            <legend>New Step</legend>
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="form-group col-md-9">
+                        <label for="stepName">Name:</label>
+                        <input type="text" id="stepName" class="form-control">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="stepCategory">Category:</label>
+                        <select class="form-control" id="stepCategory">
+                            <option value="1">Gather Data</option>
+                            <option value="2">Run Analysis</option>
+                            <option value="3">Craft Recommendations</option>
+                            <option value="4">Share Education</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="stepDetails">Description:</label>
+                <textarea id="stepDetails" class="form-control" rows="3"></textarea>
+            </div>
+            <!-- Homework Form -->
+            <div class="container">
+                <div class="row note_card">
+                    <fieldset>
+                        <legend>Assigned Homework</legend>
+                        <div class="table-responsive">
+                            <table class="table" id="homeworkTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <select class="form-control mt-2" id="homeworkTemplateDropdown">
+                            <option value="">Select Homework Template</option>
+                            <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
+                        </select>
+                        <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate()">Add Homework</button>
+                    </fieldset>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="hideNewStepTemplate()">Cancel</button>
+            <button type="button" class="btn btn-success" onclick="saveStep()">Save Step</button>
+        </fieldset>
+    </div>
+</div>
+
 <script>
+	
+	const maxHomeworkItems = 1;
+	
     function editProtocol(id) {
         window.location = '/editStep/' + id;
     }
@@ -146,6 +209,24 @@
     function goToHomeworkTemplates() {
         window.location.href = '/homeworkTemplates/';
     }
+    
+
+
+    function addStep() {
+        const select = document.getElementById('stepSelector');
+        const selectedOption = select.options[select.selectedIndex];
+
+        if (selectedOption.value === "new") {
+            document.getElementById('newStepTemplate').style.display = 'block';
+        } else {
+            addStepById(selectedOption.value);
+        }
+    }
+
+    function hideNewStepTemplate() {
+        document.getElementById('newStepTemplate').style.display = 'none';
+    }
+
 
     function filterStepsByCategory(categoryId) {
         const steps = document.querySelectorAll('#stepsContent > div');
@@ -259,29 +340,128 @@
             showMessageBanner('Error creating protocol template: ' + error.message, 'danger');
         });
     }
-
-    function addStep() {
-        const select = document.getElementById('stepSelector');
-        const selectedOption = select.options[select.selectedIndex];
-        const stepsContainer = document.getElementById('stepsContent');
-
-        // Check if the step is already added
-        const stepExists = Array.from(stepsContainer.children).some(child => child.getAttribute('data-step-id') === selectedOption.value);
-
-        if (stepExists) {
-            showMessageBanner('Step has already been assigned to template.', 'danger');
-            return;
+    
+    function addHomeworkTemplate() {
+        var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
+        
+        var homeworkSelect = document.getElementById("homeworkTemplateDropdown");
+        var selectedOption = homeworkSelect.options[homeworkSelect.selectedIndex];
+        var homeworkExists = Array.from(tableBody.rows).some(row => row.dataset.homeworkId === selectedOption.value);
+        
+        if (homeworkExists) {
+            showMessageBanner("This homework template is already added.", "warning");
+            return; // Stop the function if the homework already exists
         }
 
-        // Create a new row for the step
-        const newRow = document.createElement('div');
-        newRow.className = 'row';
-        newRow.innerHTML = `<div class="col-md-9">${selectedOption.text}</div>
-                            <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
-        newRow.setAttribute('data-step-id', selectedOption.value);
+        if (tableBody.rows.length >= maxHomeworkItems) {
+            showMessageBanner("The maximum number of homework items allowed has been reached, please remove a homework item before trying to add another.", "warning");
+            return; // Stop the function if the max limit is reached
+        }
 
-        stepsContainer.appendChild(newRow); // Append the new step
+        if (selectedOption.value !== "") {
+            var newRow = tableBody.insertRow();
+            var cell1 = newRow.insertCell(0);
+            var cell2 = newRow.insertCell(1);
+
+            cell1.textContent = selectedOption.text;
+            cell2.innerHTML = '<button type="button" class="btn btn-danger" onclick="removeHomework(this);">Remove</button>';
+            newRow.dataset.homeworkId = selectedOption.value;
+
+            homeworkSelect.selectedIndex = 0; // Reset the dropdown after adding
+        } else {
+            showMessageBanner("Please select a homework template before adding.", "warning");
+        }
     }
+
+    function removeHomework(button) {
+        var row = button.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+    }
+    
+    
+function saveStep() {
+        var stepData = {
+            "categoryId": document.getElementById("stepCategory").value,
+            "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
+            "name": document.getElementById("stepName").value,
+            "description": document.getElementById("stepDetails").value,
+            "homework": Array.from(document.querySelectorAll("#homeworkTable tbody tr")).map(row => {
+                return {
+                    "id": parseInt(row.dataset.homeworkId),
+                    "name": row.cells[0].textContent.trim()
+                };
+            })
+        };
+
+        console.log("Saving step data:", stepData); // Logging step data
+
+        $.ajax({
+            url: '/saveStep/',
+            type: 'POST',
+            contentType: 'application/json',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+            },
+            data: JSON.stringify(stepData),
+            success: function(response) {
+                console.log("Step saved successfully, response data:", response); // Logging response data
+                try {
+                    var parsedResponse = JSON.parse(response);
+                    var stepId = parsedResponse.stepId;
+                    if (stepId) {
+                        console.log("Step being added: ", stepId);
+                        showMessageBanner('Step saved successfully!', 'success');
+                        addStepById(stepId);
+                        document.getElementById('newStepTemplate').style.display = 'none';
+                    } else {
+                        console.error("Error in response:", parsedResponse.message);
+                        showMessageBanner('Error saving step: ' + parsedResponse.message, 'danger');
+                    }
+                } catch (error) {
+                    console.error("Error parsing response:", error);
+                    showMessageBanner('Error saving step: ' + error.message, 'danger');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("AJAX error:", errorThrown);
+                showMessageBanner('Error saving step: ' + errorThrown, 'danger');
+            }
+        });
+    }
+
+    function addStepById(stepId) {
+        console.log("Adding step by ID:", stepId); // Logging step ID
+
+        $.ajax({
+            url: '/getStep/' + stepId,
+            type: 'GET',
+            success: function(step) {
+                console.log("Retrieved step data:", step); // Logging retrieved step data
+                const stepsContainer = document.getElementById('stepsContent');
+                const stepExists = Array.from(stepsContainer.children).some(child => child.getAttribute('data-step-id') === step.id.toString());
+
+                if (stepExists) {
+                    console.warn("Step already exists in protocol.");
+                    showMessageBanner('Step has already been assigned to template.', 'danger');
+                    return;
+                }
+
+                const newRow = document.createElement('div');
+                newRow.className = 'row';
+                newRow.innerHTML = `<div class="col-md-9">${step.name}</div>
+                                    <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
+                newRow.setAttribute('data-step-id', step.id);
+                stepsContainer.appendChild(newRow);
+                console.log("Step added to protocol.");
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("Error retrieving step:", errorThrown);
+                showMessageBanner('Error retrieving step: ' + errorThrown, 'danger');
+            }
+        });
+    }
+    
+    
 
     function removeStep(button) {
         const row = button.parentNode.parentNode;

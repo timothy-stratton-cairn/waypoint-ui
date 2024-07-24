@@ -35,6 +35,8 @@ public class WebSecurityConfig {
 				.requestMatchers(mvc8).permitAll()
 				.requestMatchers(mvc9).permitAll()
 				.requestMatchers(mvc10).permitAll()
+				.requestMatchers("/password-reset").permitAll()
+				.requestMatchers("/forgotPassword").permitAll()
 				.anyRequest().authenticated()
 			)
 			.formLogin((form) -> form

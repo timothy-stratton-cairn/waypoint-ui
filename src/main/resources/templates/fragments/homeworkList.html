@@ -1,0 +1,6 @@
+
+<div th:fragment="analysisFragment">
+    <ul>
+        <li th:each="step : ${steps}" th:text="${step.name}"></li>
+    </ul>
+</div>

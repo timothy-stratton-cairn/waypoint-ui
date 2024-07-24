@@ -1,5 +1,6 @@
 package com.cairn.ui.helper;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,7 +9,18 @@ import java.util.Calendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cairn.ui.Constants;
 import com.cairn.ui.model.Protocol;
@@ -28,6 +40,18 @@ public class ProtocolHelper {
 
     @Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
+
+	private RestTemplate restTemplate;
+
+	private RestTemplate getRestTemplate() {
+		if (this.restTemplate == null) {
+			// Using HttpComponentsClientHttpRequestFactory to support PATCH
+			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+			requestFactory.setConnectTimeout(5000);
+			this.restTemplate = new RestTemplate(requestFactory);
+		}
+		return this.restTemplate;
+	}
 	
 	/**
 	 * Get a list of available protocols
@@ -669,6 +693,17 @@ public class ProtocolHelper {
     	return result;
     }
 
+    
+	public int assigneFileUpload(User usr, int protocolId, int stepId, MultipartFile file)
+	        throws IOException {
+		logger.info("Calling assignFileUpload");
+
+	    final String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + protocolId + "/protocol-step/"+ stepId + "/attachment";
+	    int call = apiHelper.postFileAPI(apiUrl, file, usr);
+
+	    return call;
+	}
+	
 
 	
 	

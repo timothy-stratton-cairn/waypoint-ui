@@ -1,0 +1,5 @@
+<div th:fragment="allClientProtocolsFragment">
+    <ul>
+        <li th:each="protocol : ${listProtocols}" th:text="${protocol.name}"></li>
+    </ul>
+</div>

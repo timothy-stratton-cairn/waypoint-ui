@@ -56,6 +56,9 @@
                     </div>
                 </form>
             </div>
+
+
+
             <div class="row mt-3">
                 <div class="col-md-2">
                     <label for="dueDate" class="mr-md-1"><strong>Default Due Date: </strong></label>
@@ -102,8 +105,19 @@
                 </div>
             </div>
             <button onclick="history.back()" class="btn btn-primary">Back</button>
+            <button class="btn btn-sm btn-primary" onclick="toggleHouseholdForm()">Add Household</button>
+                <div id="householdFormContainer" style="display: none;">
+                    <label>Select Household:</label>
+                    <select id="householdSelect" class="form-control">
+                        <option th:each="household : ${clientList}" th:value="${household.id}" th:text="${household.name}"></option>
+                    </select>
+                    <button class="btn btn-primary mt-2" onclick="confirmAddCoClient()">Confirm</button>
+                </div>
             <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
             <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
+
+           
+
         </fieldset>
     </div>
 
@@ -166,7 +180,7 @@
                     <select class="form-control" name="newid">
                         <option th:each="step : ${allSteps}" th:value="${step.id}" th:text="${step.name}"></option>
                     </select>
-                    <button type="button" class="btn btn-secondary" onclick="confirmStep(this);">Confirm</button>
+                    <button type="button" class="btn btn-secondary" onclick="confirmClient(this);">Confirm</button>
                 </div>
             </template>
             <div id="stepsContainer">
@@ -454,7 +468,40 @@ function showBannerMessage(message, type) {
         });
     }
 
-
+        
+	 function confirmClient(buttonElement) {
+	        console.log("confirmProtocol: Function called.");
+	
+	        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+	        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+	        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+	        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+	        if (csrfTokenElement && csrfHeaderElement) {
+	            console.log("confirmProtocol: CSRF elements found.");
+	        } else {
+	            console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
+	        }
+	
+	        var selectElement = buttonElement.previousElementSibling;
+	        var clientId = selectElement ? selectElement.value : null;
+	        const popupWidth = 800;
+	        const popupHeight = 400;
+	        const left = (screen.width - popupWidth) / 2;
+	        const top = (screen.height - popupHeight) / 2;
+	        window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+	        if (protocolId) {
+	            console.log(`confirmProtocol: Selected Client ID is ${protocolId}.`);
+	        } else {
+	            console.error("confirmProtocol: No Client ID selected.");
+	            return;
+	        }
+	 }
+            
+            
+	function toggleHouseholdForm() {
+	    const formContainer = document.getElementById('householdFormContainer');
+	    formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+	}
 
 
 </script>

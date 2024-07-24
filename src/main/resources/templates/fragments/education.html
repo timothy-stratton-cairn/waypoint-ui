@@ -1,0 +1,17 @@
+<div th:fragment="educationFragment(protocolId)">
+    <p>Education:</p>
+    <ul id="ed_${protocolId}">
+        <li th:each="step : ${steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
+            <span th:text="${step.name + ' - ' + 
+                (step.status == 'TODO' ? 'To Do' : 
+                (step.status == 'IN_PROGRESS' ? 'In Progress' : 
+                (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+        </li>
+    </ul>
+    <script th:inline="javascript">
+        var edSect = document.getElementById("ed_${protocolId}");
+        if (edSect && edSect.innerHTML.trim() === "") {
+            edSect.innerHTML = "<h4>No education items currently available.</h4>";
+        }
+    </script>
+</div>

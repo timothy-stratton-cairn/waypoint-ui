@@ -180,12 +180,18 @@ logger.info("Empty List");
 
 		return "home";
 	}
+	
     @GetMapping("/forgotPassword")
     public String forgotPassowrd() {
     	
     	return "forgotPassword";
     }
+    
+    @GetMapping("/password-reset")
+    public String changePassword() {
     	
+    	return "changePassword";
+    }
 
 	/**
 	 * Handle a request to view the Protocol details.
@@ -465,7 +471,7 @@ logger.info("Empty List");
 		logger.info("Protocol TEmplate Status: "+ pcol.getStatus());
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
-
+		List<Household> clientList = userHelper.getHouseholdList(usr);
 		List<ProtocolStepTemplate> fullStepList = new ArrayList<ProtocolStepTemplate>(); // there's a method to this
 																							// madness. getStepList
 																							// doesn't get homeworks
@@ -480,6 +486,9 @@ logger.info("Empty List");
 		for (ProtocolStepTemplate step: listSteps) {
 			logger.info("Step: "+ step.getName() + " CatagoryID: "+ step.getCategoryName());
 		}
+		
+		model.addAttribute("clientList", clientList);
+		
 		model.addAttribute("dueBy", dueByDays);
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", pcol);
@@ -497,10 +506,10 @@ logger.info("Empty List");
 		for (HomeworkTemplate hw : templatelist) {
 			logger.info("Homework ID: " + hw.getId() + " Homework Name: " + hw.getName());
 		}
-		model.addAttribute("pcolId", null);
+		
 		model.addAttribute("homework", templatelist);
 		model.addAttribute("step", step);
-
+		model.addAttribute("pcolId", null);
 		return "newStep";
 	}
 
@@ -556,10 +565,30 @@ logger.info("Empty List");
 	public String newProtocol(Model model) {
 		User usr = (User) userDAO.getUser();
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
+		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
+		for (HomeworkTemplate hw : templatelist) {
+			logger.info("Homework ID: " + hw.getId() + " Homework Name: " + hw.getName());
+		}
+		
+		model.addAttribute("homework", templatelist);
 		model.addAttribute("allSteps", allSteps);
 		return "newProtocolTemplate";
 	}
+	
+	
+    @GetMapping("getStep/{id}")
+    public ResponseEntity<?> getStep(@PathVariable int id) {
+        User usr = (User) userDAO.getUser();
+        ProtocolStepTemplate step = protocolStepTemplateHelper.getTemplate(usr, id);
 
+        if (step != null) {
+            return ResponseEntity.ok(step);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Step not found.\"}");
+        }
+    }
+    
+    
 	@PostMapping("/createNewProtocolTemplate/")
 	public ResponseEntity<String> createNewProtocolTemplate(@RequestBody ProtocolTemplate requestBody) {
 		logger.info("Calling createNewProtocolTemplate");
@@ -960,6 +989,7 @@ logger.info("Empty List");
 	        logger.info("PC Contact:"+ pc.getFirstName()+ " "+pc.getLastName());
 	    }
 	    ArrayList<ProtocolTemplate> pcolList = protocolTemplateHelper.getList(currentUser);
+	    pcolList.removeIf(protocol -> !"LIVE".equals(protocol.getStatus())); 
 	    ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
 	    ArrayList<User> userList = userHelper.getUserList(currentUser);
 	    int userId = userHelper.getUserId(currentUser);
@@ -1057,6 +1087,7 @@ logger.info("Empty List");
 	
 	    logger.info("User List after filtering: " + listPostFilter);
 	    
+	    
 	    model.addAttribute("dependants", dependantList);
 	    model.addAttribute("primaryContact", pcUser);
 	    model.addAttribute("pcId", pcId);
@@ -1071,7 +1102,41 @@ logger.info("Empty List");
 
 	    return "clientProfile";
 	}
+	
+	@GetMapping("/getHomeworkList/{id}")
+	public String getHomeworkList(@PathVariable int id, Model model) {
+	    User currentUser = userDAO.getUser();
+	    ArrayList<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
+	    model.addAttribute("homeworks", homeworks);
+	    return "fragments/homeworkList :: homeworkListFragment";
+	}
 
+	@GetMapping("/getAllClientProtocols/{clientId}")
+	public String getAllClientProtocols(@PathVariable int clientId, Model model) {
+	    User currentUser = userDAO.getUser();
+	    ArrayList<Protocol> listProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
+	    model.addAttribute("listProtocols", listProtocols);
+	    return "fragments/allClientProtocols :: allClientProtocolsFragment";
+	}
+
+	@GetMapping("/getAnalysis/{id}")
+	public String getAnalysis(@PathVariable int id, Model model) {
+	    User currentUser = userDAO.getUser();
+	    ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
+	    stepList.removeIf(step -> !step.getCategoryName().equals("Run Analysis"));
+	    model.addAttribute("steps", stepList);
+	    return "fragments/analysis :: analysisFragment";
+	}
+
+	@GetMapping("/getEducation/{id}")
+	public String getEducation(@PathVariable int id, Model model) {
+	    User currentUser = userDAO.getUser();
+	    ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser, id);
+	    model.addAttribute("steps", steps);
+	    model.addAttribute("protocolId", id);
+	    return "fragments/education :: educationFragment";
+	}
+	
 
 
 	@PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
@@ -1237,6 +1302,32 @@ logger.info("Empty List");
 			return ResponseEntity.badRequest().body(errorResponse);
 		}
 	}
+	
+	@PostMapping("/newUserPassword/")
+	public ResponseEntity<Object> newUserPassword() {
+		User currentUser = userDAO.getUser();
+		String password = ""; //fake 
+		String username = ""; //will replace
+		String token = ""; // have some questions about how the token gets sent 
+		String call = userHelper.newUserPassword(currentUser, username, token, password);
+		if (call.startsWith("Success")) {
+			return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
+		} else {
+			Map<String, String> errorResponse = new HashMap<>();
+			errorResponse.put("error", "Error processing the request");
+
+			if (call.contains("error")) {
+
+				String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8,
+						call.indexOf("\",", call.indexOf("\"error\":\"")));
+				errorResponse.put("error", errorMessage);
+			}
+			logger.warn(errorResponse.toString());
+			return ResponseEntity.badRequest().body(errorResponse);
+		}
+	}
+	
+	
 
 	@PatchMapping("/updateUserDetails/{id}/{firstName}/{lastName}/{email}/{role}")
 	public ResponseEntity<Object> updateUserDetails(@PathVariable int id, @PathVariable String firstName,
@@ -1556,6 +1647,8 @@ logger.info("Empty List");
 					.body("{\"error\": \"Error uploading file\"}");
 		}
 	}
+	
+	
 
 	@GetMapping("/allClientProtocols/{clientId}")
 	public String allClientProtocols(@PathVariable int clientId, Model model) {
@@ -1999,6 +2092,30 @@ logger.info("Empty List");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
     }
 
+    
+    @PatchMapping("/changeStatus/{id}/{status}")
+    public ResponseEntity<String>changeStatus(@PathVariable int id, @PathVariable String status ){
+    	User currentUser = userDAO.getUser();
+    	String newStatus = "";
+ 
+    	if (status.equals("LIVE")){
+    		newStatus = "INACTIVE";
+    	}
+    	else {
+    		newStatus = "LIVE";
+    	}
+    	try {
+    		int call = protocolTemplateHelper.changeStatus(currentUser, id, newStatus);
+    		if (call > 0) {
+                return ResponseEntity.ok().body("Primary Contact Successfully Updated");
+            }
+    	}catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
+    }
+    
+    
     
 
 }

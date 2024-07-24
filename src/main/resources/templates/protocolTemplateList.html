@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Protocols</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
-
 </head>
 
 <body>
@@ -15,25 +16,25 @@
             <fieldset>
                 <legend>Protocols</legend>
                 <button class="btn btn-sm btn-primary" onclick="newProtocol();">New Protocol</button>
-                    <table id="protocolTable" class="table table-striped table-bordered" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="pcol, status: ${listProtocols}">
-                                <td th:text="${pcol.name}"></td>
-                                <td th:text="${pcol.status}"></td>
-                                <td>
-                                    <a class="btn btn-sm btn-secondary" th:href="@{'/editProtocol/' + ${pcol.id}}">Details</a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
+                <table id="protocolTable" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="pcol, status: ${listProtocols}">
+                            <td th:text="${pcol.name}"></td>
+                            <td th:text="${pcol.status}"></td>
+                            <td>
+                                <a class="btn btn-sm btn-secondary" th:href="@{'/editProtocol/' + ${pcol.id}}">Details</a>
+                                <button class="btn btn-sm" th:classappend="${pcol.status == 'LIVE'} ? 'btn-secondary' : 'btn-success'" th:text="${pcol.status == 'LIVE'} ? 'Deactivate' : 'Activate'" th:data-id="${pcol.id}" th:data-status="${pcol.status}" onclick="changeStatusAndRefresh(this);"></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </fieldset>
         </div>
     </div>
@@ -48,6 +49,28 @@
             window.location = '/newProtocol/';
         }
 
+        function changeStatusAndRefresh(button) {
+            var id = $(button).attr('data-id');
+            var status = $(button).attr('data-status');
+            var csrfToken = $("meta[name='_csrf']").attr("content");
+            var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+            
+            $.ajax({
+                url: '/changeStatus/' + id + '/' + status,
+                type: 'PATCH',
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader(csrfHeader, csrfToken);
+                },
+                success: function(response) {
+                    alert('Status changed successfully.');
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('Error: ' + error);
+                }
+            });
+        }
+
         $(document).ready(function() {
             $('#protocolTable').DataTable({
                 "paging": true,
@@ -59,12 +82,12 @@
                     [10, 25, 100, "All"],
                 ],
                 "dom": '<"top"f>rt<"bottom"lpi><"clear">',
-                "info": true 
+                "info": true
             });
         });
     </script>
-    
 </body>
 
 </html>
+
 

@@ -42,7 +42,9 @@
 					<div class="col-md-1" th:text="${stat.done}"></div>
 					<div class="col-md-1" th:text="|${stat.completion}%|"></div>
  					<div class="col-md-2">
-                        <button class="btn btn-sm btn-secondary" type="button" th:onclick="'toggleAssignedHouseholds(' + ${stat.templateId} + ')'">Display Households</button>
+                        <button class="btn btn-sm btn-secondary" type="button" th:onclick="'toggleAssignedHouseholds(' + ${stat.templateId} + ')'">
+                            <span th:text="'Number Of Households (' + ${stat.assignedHouseholdNum} + ')'"></span>
+                        </button>
                         <div th:id="|assignedHouseholds_${stat.templateId}|" style="display: none;">
                             <ul>
                                 <li th:each="household : ${stat.assignedHouseholds}" th:text="${household.name}"></li>

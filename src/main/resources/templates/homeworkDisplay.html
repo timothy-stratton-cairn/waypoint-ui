@@ -82,6 +82,7 @@
                                             <input th:id="${question.questionId} + '-filename'" type="hidden" th:name="userResponses" th:value="${question.userResponse}"/>
                                             <input th:id="${question.questionId}" type="file" th:name="files" th:value="${question.userResponse}" th:required="${question.isRequired} ? 'required' : null"/>
                                             <button th:if="${question.userResponse} != null and ${question.userResponse} != ''" type="button" class="btn btn-primary" th:data-guid="${question.userResponse}" onclick="downloadFile(this)">Download File</button>
+                                            <button type="button" class="btn btn-success" onclick="uploadFile()">Upload File</button>
                                         </span>
                                     </span>
                                 </td>
@@ -234,6 +235,31 @@
                 showBannerMessage('Error deleting Homework.', 'danger');
             });
         }
+        function uploadFile() {
+	        var form = document.getElementById('homeworkForm');
+	        var formData = new FormData(form);
+	        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+	        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+	
+	        fetch('/uploadFileToHomework/', {
+	            method: 'PATCH',
+	            body: formData,
+	            headers: {
+	                [csrfHeader]: csrfToken
+	            }
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	            console.log('Success:', data);
+	            showMessageBanner('File uploaded successfully!', 'success');
+	            setTimeout(() => window.close(), 2000); // Close the window after 2 seconds
+	        })
+	        .catch((error) => {
+	            console.error('Error:', error);
+	            showMessageBanner('Error uploading file', 'danger');
+	        });
+	    }
+        
 </script>
 <div th:insert="~{footer :: main}">...</div>
 </body>

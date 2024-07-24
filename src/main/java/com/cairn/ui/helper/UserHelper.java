@@ -336,6 +336,20 @@ public class UserHelper {
 		}
 		return "success";
 	}
+	
+	public String newUserPassword(User usr, String username, String passwordResetToken ,String newPassword) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer " + usr.getToken());
+	    headers.add("Content-Type", "application/json");
+	    String requestBody = "{\"username\":\"" + username + "\", \"passwordResetToken\":\"" + passwordResetToken + "\", \"newPassword\":\"" + newPassword + "\"}";
+
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset";
+		int result = apiHelper.postAPI(apiUrl, requestBody, usr);
+		if (result < 0) {
+			return "error ";
+		}
+		return "success";
+	}
 
 	public int getUserId(User usr) {
 		int result = 0;
