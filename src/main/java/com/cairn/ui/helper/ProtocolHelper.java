@@ -698,7 +698,7 @@ public class ProtocolHelper {
 	        throws IOException {
 		logger.info("Calling assignFileUpload");
 
-	    final String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + protocolId + "/protocol-step/"+ stepId + "/attachment";
+	    final String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol+ '/' + protocolId + "/protocol-step/"+ stepId + "/attachment";
 	    int call = apiHelper.postFileAPI(apiUrl, file, usr);
 
 	    return call;

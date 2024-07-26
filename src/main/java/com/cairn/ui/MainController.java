@@ -1918,9 +1918,10 @@ logger.info("Empty List");
     
     @GetMapping("/resetPassword/{username}/{email}")
     public ResponseEntity<String>resetPassword(@PathVariable String username, @PathVariable String email){
-    	User currentUser = userDAO.getUser();
+    	logger.info("Calling resetPassowrd with: "+ username + " email: "+ email);
     	try {
-            userHelper.resetUserPasswordEmail(currentUser, username, email);
+    		logger.info(" Try resetUserPasswordEmail");
+            userHelper.resetUserPasswordEmail(username, email);
             return ResponseEntity.ok("{\"message\": \"Question successfully saved\"}");
         } catch (Exception e) {
             logger.error("Error saving question", e);
@@ -2154,16 +2155,25 @@ logger.info("Empty List");
     }
     
     @PostMapping("/uploadFile")
-    public int submit(@RequestParam("files") MultipartFile file, int pcolId, int stepId) {
+    public ResponseEntity<Integer> submit(@RequestParam("files") MultipartFile file, @RequestParam("pcolId") int pcolId, @RequestParam("stepId") int stepId) {
+        User currentUser = userDAO.getUser();
+        int call = -1;
+        try {
+            call = protocolHelper.assigneFileUpload(currentUser, pcolId, stepId, file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(call);
+        }
+        return ResponseEntity.ok(call);
+    }
+
+    
+    
+    @GetMapping("/testCards")
+    public String testCards(Model model) {
     	User currentUser = userDAO.getUser();
-    	int call = -1;
-    	try {
-    		call = protocolHelper.assigneFileUpload(currentUser, pcolId, stepId, file);
-    	}catch( IOException e) {
-    		
-    	}
-        return call;
-        
+    	
+    	return "testCards";
     }
     
     

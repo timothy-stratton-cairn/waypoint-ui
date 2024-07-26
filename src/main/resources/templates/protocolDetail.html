@@ -146,7 +146,10 @@
                     <div class="col-md-3">
                         <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
                         <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
-                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="''">Add File</button>
+						<button type="button" class="btn btn-sm btn-secondary" th:onclick="'showFileUploadForm(' + ${step.id} + ');'">Add File</button>
+					</div>
+					<div th:if="${step != null}" th:id="'fileUploadContainer_' + ${step.id}"></div>
+
                     </div>
                     
                     <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
@@ -388,6 +391,44 @@
             }
         });
     }
+    
+    
+    function showFileUploadForm(stepId) {
+	    const container = document.querySelector(`#fileUploadContainer_${stepId}`);
+	    container.innerHTML = `<form id="fileUploadForm_${stepId}" enctype="multipart/form-data">
+	                               <input type="file" id="fileInput_${stepId}" name="files" class="form-control">
+	                               <button type="button" onclick="uploadFile(${stepId})" class="btn btn-sm btn-primary">Upload</button>
+	                           </form>`;
+	}
+	
+	function uploadFile(stepId) {
+	    const form = document.querySelector(`#fileUploadForm_${stepId}`);
+	    const formData = new FormData(form);
+	    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+	    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+	
+	    formData.append("pcolId", protocolId);
+	    formData.append("stepId", stepId);
+	
+	    $.ajax({
+	        url: '/uploadFile',
+	        type: 'POST',
+	        headers: {
+	            'X-CSRF-TOKEN': csrfToken
+	        },
+	        data: formData,
+	        processData: false,
+	        contentType: false,
+	        success: function(response) {
+	            showMessageBanner('File uploaded successfully.', 'success');
+	        },
+	        error: function(xhr, status, error) {
+	            console.error('Error uploading file:', error);
+	            showMessageBanner('Failed to upload file. Error: ' + xhr.responseText, 'danger');
+	        }
+	    });
+	}
+
 </script>
 <div th:insert="~{footer :: main}">...</div>
 </body>

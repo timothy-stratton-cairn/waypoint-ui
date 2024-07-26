@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Client Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+<div class="container">
+	<div class="note_card">
+		<div class="flip-card" data-current-back="back_1">
+			<div class="flip-card-inner">
+				<div class="flip-card-front " id = "front">
+					<div class="container">
+						<div class="row" th:text="${pcol.name}"></div>
+                            <hr />
+                            <div class="row">
+                                <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
+                                <div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
+                            </div>
+                            <div class="row">
+                                <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
+                                <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
+                            </div>
+                            <div class='row' th:text="|Description: ${pcol.description}"></div>
+                            <hr />
+                            <!-- Actionable Items Section -->
+                            <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}" th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}"></li>
+					</div>
+				</div>
+			
+				<div class="flip-card-back" id = "back_1">
+					<div class="container">
+						<div class="row">Back 1</div>
+						    <p>Education:</p>
+								    <ul th:id="|ed_${pcol.id}|">
+								        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
+								            <span th:text="${step.name + ' - ' + 
+								                (step.status == 'TODO' ? 'To Do' : 
+								                (step.status == 'IN_PROGRESS' ? 'In Progress' : 
+								                (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+								        </li>
+								    </ul>
+								    <script>
+										var ed_sect = document.getElementById("ed_[[${pcol.id}]]");
+										if (ed_sect.innerHTML.trim() == "") {
+											ed_sect.innerHTML = "<H4>No education items currently available.</H4>";
+										}
+									</script>
+						
+					</div>
+				</div>
+				<div class="flip-card-back" id = "back_2" style="display: none">
+					<div class="container">
+						 <div class="row">Back 2</div>
+						 
+						 
+						
+					</div>
+				</div>
+				<div class="flip-card-back" id = "back_3" style="display: none">
+					<div class="container">
+						 <div class="row">Back 3</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+            <button type="button" class="btn btn-secondary" onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
+            <button type="button" class="btn btn-secondary" onclick="changeBackAndFlip(this.closest('.note_card').querySelector('.flip-card'),getCurrentBack(document.querySelector('.notecard')),'back_1' )">Back 1</button>
+            <button type="button" class="btn btn-secondary" onclick="changeBackAndFlip(this.closest('.note_card').querySelector('.flip-card'),getCurrentBack(document.querySelector('.notecard')),'back_2' )">Back 2</button>
+            <button type="button" class="btn btn-secondary" onclick="changeBackAndFlip(this.closest('.note_card').querySelector('.flip-card'),getCurrentBack(document.querySelector('.notecard')),'back_3')">Back 3</button>
+        </div>
+	</div>
+</div>
+<script>
+   	let currentBack = document.getElementById('back_1');
+
+    function changeBackAndFlip(card,cBack,nBack) {
+        var front = document.getElementById("front");
+        var newBack = document.getElementById(nBack);
+       
+
+        front.style.display = "none"; // turn front side of the card off
+        newBack.style.display = "block"; // turn the new back on meaning the current back is now the front and this is the new back of the card
+
+        flipCard(card); // flip the card to the new back
+        
+        cBack.style.display = "none"; // turn off the old back 
+        front.style.display = "block"; // turn the front back on. Thus changing the Back of the card and allowing us to flip to the new back 
+        
+        
+        // Update the global variable to the new back
+        cBack = newBack;
+
+    }
+	
+   function flipCard(card) {
+        if (card) {
+            card.classList.toggle('do-flip');
+        } else {
+            console.error("No card element found");
+        }
+    }
+    
+    document.querySelectorAll('.notecard').forEach(card => flipCard(card));
+
+</script>
+</body>

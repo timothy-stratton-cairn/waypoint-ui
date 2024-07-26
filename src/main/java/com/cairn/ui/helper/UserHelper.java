@@ -599,11 +599,8 @@ public class UserHelper {
         }
     }
 
-    public String resetUserPasswordEmail(User usr, String username, String email) {
-        if (usr == null) {
-            logger.error("User is null");
-            return "Error: User is null";
-        }
+    public String resetUserPasswordEmail(String username, String email) {
+    	logger.info(" Calling resetUserPasswordEmail");
 
         if (username == null || email == null) {
             logger.error("Username or email is null");
@@ -612,7 +609,7 @@ public class UserHelper {
 
         String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset?username=" + username + "&email=" + email;
         logger.info("API URL: " + apiUrl);
-
+        User usr = new User();
         try {
             String call = apiHelper.callAPI(apiUrl, usr);
             logger.info("API Response: " + call);
