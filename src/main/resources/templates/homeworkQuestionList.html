@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+   	<meta charset="UTF-8">
     <title>Homework Questions</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 </head>
 <body>
@@ -26,6 +28,7 @@
                             <td th:text="${question.status}"></td>
                             <td>
                                 <button class="btn btn-sm btn-secondary" th:attr="onclick='editQuestion('+${question.questionId}+');'">Edit Question</button>
+                                <button class="btn btn-sm" th:classappend="${question.status == 'LIVE'} ? 'btn-secondary' : 'btn-success'" th:text="${question.status == 'LIVE'} ? 'Deactivate' : 'Activate'" th:data-id="${question.questionId}" th:data-status="${question.status}" onclick="changeStatusAndRefresh(this);"></button>
                             </td>
                         </tr>
                     </tbody>

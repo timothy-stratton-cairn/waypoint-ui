@@ -240,4 +240,22 @@ public class ProtocolStepTemplateHelper{
     	return result;
     }
     
+    public int changeStatus(User usr, int Id, String status) {
+    	int result = -1;
+
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + Id;
+	    
+	    StringBuilder requestBodyBuilder = new StringBuilder();
+	    requestBodyBuilder.append("{");
+	    requestBodyBuilder.append("\"status\": \"").append(status).append("\"");
+	    requestBodyBuilder.append("}");
+	    String requestBody = requestBodyBuilder.toString();
+	    logger.info("apiUrl: "+ apiUrl);
+	    logger.info("requestBody: " + requestBody);
+	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
+	    
+	    return result;
+    	
+    }
+    
 }
