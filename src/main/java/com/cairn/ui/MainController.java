@@ -1134,13 +1134,13 @@ logger.info("Empty List");
 	    return "clientProfile";
 	}
 	
-	@GetMapping("/getHomeworkList/{id}")
+/*	@GetMapping("/getHomeworkList/{id}")
 	public String getHomeworkList(@PathVariable int id, Model model) {
 	    User currentUser = userDAO.getUser();
 	    ArrayList<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
 	    model.addAttribute("homeworks", homeworks);
 	    return "fragments/homeworkList :: homeworkListFragment";
-	}
+	}*/
 
 	@GetMapping("/getAllClientProtocols/{clientId}")
 	public String getAllClientProtocols(@PathVariable int clientId, Model model) {
@@ -2167,12 +2167,24 @@ logger.info("Empty List");
         return ResponseEntity.ok(call);
     }
 
+    @GetMapping("/getHomeworkList/{id}")
+    @ResponseBody
+    public ArrayList<Homework> getHomeworkList(@PathVariable int id) {
+    	logger.info("calling getHomeworkList");
+        User currentUser = userDAO.getUser();
+        ArrayList<Homework> homeworks =homeworkHelper.getHomeworkByProtocolId(currentUser, id);
+        for (Homework homework : homeworks) {
+        	logger.info("Homework: "+ homework.getName());
+        }
+        return homeworks;
+    }
     
-    
-    @GetMapping("/testCards")
-    public String testCards(Model model) {
+    @GetMapping("/testCards/{id}")
+    public String testCards(@PathVariable int id,  Model model) {
     	User currentUser = userDAO.getUser();
-    	
+    	ArrayList<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, id);
+		
+    	model.addAttribute("pcol",assignedProtocols);
     	return "testCards";
     }
     

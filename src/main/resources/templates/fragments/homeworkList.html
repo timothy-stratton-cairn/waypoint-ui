@@ -1,6 +1,6 @@
 
-<div th:fragment="analysisFragment">
+<div th:fragment="homeworkList">
     <ul>
-        <li th:each="step : ${steps}" th:text="${step.name}"></li>
+        <li th:each="homework : ${homeworks}" th:text="${homework.name}"></li>
     </ul>
 </div>

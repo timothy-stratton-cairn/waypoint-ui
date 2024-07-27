@@ -139,62 +139,77 @@
                 </div>
                 <div class="row" id="protocolContent">
                     <!-- Display Assigned Protocols -->
-                    <div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|" class="note_card col-md-5" th:data-type="${pcol.status}">
+                    <div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|" class="note_card col-md-5" th:data-type="${pcol.status}" data-current-back="back_1">
                         <a href="#" th:onclick="'viewProtocol(' + ${pcol.id} + ');'">
 
-                            <div class="flip-card ">
-                                <div class="flip-card-inner">
-                                    <div class="flip-card-front">
-                                        <div class="container">
-                                            <div class="row" th:text="${pcol.name}"></div>
-                                            <hr />
-                                            <div class="row">
-                                                <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
-                                                <div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
-                                                <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
-                                            </div>
-                                            <div class='row' th:text="|Description: ${pcol.description}"></div>
-                                            <hr />
-                                            <!-- Actionable Items Section -->
-                                            <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}" th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}"></li>
-
-                                        </div>
-                                    </div>
-                                    <div class="flip-card-back">
-									    <p>Education:</p>
-									    <ul th:id="|ed_${pcol.id}|">
-									        <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
-									            <span th:text="${step.name + ' - ' + 
-									                (step.status == 'TODO' ? 'To Do' : 
-									                (step.status == 'IN_PROGRESS' ? 'In Progress' : 
-									                (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
-									        </li>
-									    </ul>
-									    <script>
-											var ed_sect = document.getElementById("ed_[[${pcol.id}]]");
-											if (ed_sect.innerHTML.trim() == "") {
-												ed_sect.innerHTML = "<H4>No education items currently available.</H4>";
-											}
-										</script>
-									</div>
-                                </div>
-                            </div>
-                        </a>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <button type="button" class="btn btn-secondary" onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
-                            </div>
-                            <div class="col-md-8">
-                                <button class="btn btn-secondary" th:attr="onclick=|goToHomeworks('${pcol.id}');|">Homework</button>&nbsp;&nbsp;
-                                <button class="btn btn-secondary" th:attr="onclick=|viewAnalysis('${pcol.id}');|">Analysis</button>&nbsp;&nbsp;
-                                <button class="btn btn-secondary" th:attr="onclick=|protocolHistory('${pcol.name}');|">History</button>&nbsp;&nbsp;
-                                <button class="btn btn-secondary" th:attr="onclick=|viewRecommendations('${pcol.id}');|">Recommendations</button>
-                            </div>
-                        </div>
+						<div class="flip-card">
+			                <div class="flip-card-inner">
+			                    <div class="flip-card-front" id="front">
+			                        <div class="container">
+			                            <div class="row" th:text="${pcol.name}"></div>
+			                            <hr />
+			                            <div class="row">
+			                                <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
+			                                <div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
+			                            </div>
+			                            <div class="row">
+			                                <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
+			                                <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
+			                            </div>
+			                            <div class='row' th:text="|Description: ${pcol.description}"></div>
+			                            <hr />
+			                            <!-- Actionable Items Section -->
+			                            <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}" th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}"></li>
+			                        </div>
+			                    </div>
+			
+			                    <div class="flip-card-back" id="back_1">
+			                        <div class="container">
+			                            <div class="row">Back 1</div>
+			                            <p>Education:</p>
+			                            <ul id="ed_${pcol.id}">
+			                                <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
+			                                    <span th:text="${step.name + ' - ' + 
+			                                        (step.status == 'TODO' ? 'To Do' : 
+			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' : 
+			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+			                                </li>
+			                            </ul>
+			                        </div>
+			                    </div>
+			                    <div class="flip-card-back" id="back_2" style="display: none">
+			                        <div class="container">
+			                            <div class="row">Back 2</div>
+			                            <p>Homework:</p>
+			                            <div th:text="${pcol.id}"></div>
+			                            <ul th:id="'homeworkList_' + ${pcol.id}"></ul>
+			                        </div>
+			                    </div>
+			                    <div class="flip-card-back" id="back_3" style="display: none">
+			                        <div class="container">
+			                            <div class="row">Back 3</div>
+			                            <p>Analysis:</p>
+			                            <ul id="ed_${pcol.id}">
+			                                <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Run Analysis'}">
+			                                    <span th:text="${step.name + ' - ' + 
+			                                        (step.status == 'TODO' ? 'To Do' : 
+			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' : 
+			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+			                                </li>
+			                            </ul>
+			                        </div>
+			                    </div>
+			                </div>
+			            </div>
+						</a>
+			            <div class="col-md-12">
+			                <button type="button" class="btn btn-secondary" onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
+			                <button type="button" class="btn btn-secondary" th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_1\', ' + ${pcol.id} + ')'">Education</button>
+			                <button type="button" class="btn btn-secondary" th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_2\', ' + ${pcol.id} + ')'">Homework</button>
+			                <button type="button" class="btn btn-secondary" th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_3\', ' + ${pcol.id} + ')'">Analysis</button>
+			            </div>
                     </div>
+                    
                 </div>
             </fieldset>
         </div>
@@ -514,6 +529,66 @@
 	        }
 	    });
 	}
+	
+	    function fetchHomework(protocolId) {
+        console.log('Fetching homework for protocol ID:', protocolId); // Log protocolId
+        $.ajax({
+            url: '/getHomeworkList/' + protocolId,
+            method: 'GET',
+            success: function(data) {
+                var homeworkList = document.querySelector('#homeworkList_' + protocolId);
+                if (homeworkList) {
+                    homeworkList.innerHTML = ''; // Clear any existing items
+
+                    // Add the fetched homework items to the list
+                    data.forEach(function(homework) {
+                        var listItem = document.createElement('li');
+                        listItem.textContent = homework.name;
+                        homeworkList.appendChild(listItem);
+                    });
+                } else {
+                    console.error('Homework list element not found for protocol ID:', protocolId);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching homework data:', {
+                    status: status,
+                    error: error,
+                    responseText: xhr.responseText,
+                    statusCode: xhr.status
+                });
+            }
+        });
+    }
+
+    function changeBackAndFlip(noteCard, newBackId, protocolId) {
+        var card = noteCard.querySelector('.flip-card');
+        var front = card.querySelector(".flip-card-front");
+        var currentBackId = noteCard.getAttribute('data-current-back');
+        var currentBack = card.querySelector("#" + currentBackId);
+        var newBack = card.querySelector("#" + newBackId);
+
+        if (currentBack) {
+            currentBack.style.display = "none"; // hide current back
+        }
+        if (newBack) {
+            newBack.style.display = "block"; // show new back
+        } else {
+            console.error('New back element not found:', newBackId);
+        }
+
+    
+
+        front.style.display = "block"; // show the front
+
+        // Update the current back
+        noteCard.setAttribute('data-current-back', newBackId);
+
+        // Fetch homework data if switching to back_2
+        if (newBackId === 'back_2') {
+            fetchHomework(protocolId);
+        }
+    }
        
         
     </script>
