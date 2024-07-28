@@ -127,10 +127,10 @@
                     <div id="protocolContainer"></div>
                 </div><br />
                 <ul class="nav nav-tabs">
-                    <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
-                    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
                     <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
                     <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
                 </ul>
                 <div class="row">
                     <div class="col-2">
@@ -230,7 +230,7 @@
     <script th:inline="javascript">
         var clientId = [[${clientId}]];
         const pcId = [[${pcId}]];
-
+		filterProtocolsByStatus('IN_PROGRESS');
 
         function showMessageBanner(message, type) {
             const banner = document.getElementById('messageBanner');
