@@ -17,11 +17,144 @@
             <legend>Protocol Template Details</legend>
             <div>
                 <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
-                    <!-- Form Fields... -->
+                                        <div class="row">
+                        <div class="col-md-1">
+                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" id="name" name="name" th:value="${protocol.name}" class="form-control" />
+                        </div>
+                        <div class="col-md-1">
+                            <label for="status" class="mr-md-3"><strong>Status:</strong></label>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="status" name="status" class="form-control">
+                                <option value="LIVE" th:selected="${protocol.status == 'LIVE'}">Live</option>
+                                <option value="INACTIVE" th:selected="${protocol.status == 'INACTIVE'}">Inactive</option>
+                                <option value="ARCHIVED" th:selected="${protocol.status == 'ARCHIVED'}">Archived</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label for="status" class="mr-md-3"><strong>Category:</strong></label>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="type" name="type" class="form-control">
+                                <option value="EVENT_DRIVEN" th:selected="${protocol.type == 'EVENT_DRIVEN'}">Event Driven</option>
+                                <option value="LIFECYCLE" th:selected="${protocol.type== 'LIFECYCLE'}">Life Cycle</option>
+                            </select>
+                        </div>
+                        
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label for="description"><strong>Description:</strong></label>
+                        </div>
+                        <div class="col-md-11">
+                            <input type="text" id="description" name="description" th:value="${protocol.description}" class="form-control"/>
+                        </div>
+                    </div>
                 </form>
+            </div>
+
+
+
+            <div class="row mt-3">
+                <div class="col-md-2">
+                    <label for="dueDate" class="mr-md-1"><strong>Default Due Date: </strong></label>
+                </div>
+                <div class="col-md-2">
+                    <label for="dueDateYear" class="d-inline"><strong>Year</strong></label>
+                    <input type="number" class="form-control d-inline" id="dueDateYear" name="year" th:value="${protocol.dueByYear}" min="0" max="10" style="width: 40%;">
+                </div>
+                <div class="col-md-2">
+                    <label for="dueDateMonth" class="d-inline"><strong>Month</strong></label>
+                    <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" th:value="${protocol.dueByMonth}" min="0" max="12" style="width: 40%;">
+                </div>
+                <div class="col-md-2">
+                    <label for="dueDateDay" class="d-inline"><strong>Day</strong></label>
+                    <input type="number" class="form-control d-inline" id="dueDateDay" name="day" th:value="${protocol.dueByDay}" min="0" max="31" style="width: 40%;">
+                </div>
+            </div>
+            <br>
+            <div class="border border-dark p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
+                        <input type="checkbox" id="reoccurring" name="reoccurring"/>
+                    </div>
+                </div>
+                <div id="schedule-fields" style="display: none;">
+                    <div class="row mt-3">
+                        <div class="col-md-2">
+                            <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="year" class="d-inline"><strong>Year</strong></label>
+                            <input type="number" class="form-control d-inline" id="year" name="year" th:value= "${protocol.yearSchedule}" min="0" max="10" style="width: 40%;">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="month" class="d-inline"><strong>Month</strong></label>
+                            <input type="number" class="form-control d-inline" id="month" name="month" th:value= "${protocol.monthSchedule}" min="0" max="12" style="width: 40%;">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="day" class="d-inline"><strong>Day</strong></label>
+                            <input type="number" class="form-control d-inline" id="day" name="day" th:value= "${protocol.daySchedule}" min="0" max="31" style="width: 40%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="history.back()" class="btn btn-primary">Back</button>
+            <button class="btn btn-sm btn-primary" onclick="toggleHouseholdForm()">Add Household</button>
+                <div id="householdFormContainer" style="display: none;">
+                    <label>Select Household:</label>
+                    <select id="householdSelect" class="form-control">
+                        <option th:each="household : ${clientList}" th:value="${household.id}" th:text="${household.name}"></option>
+                    </select>
+                    <button class="btn btn-primary mt-2" onclick="confirmAddCoClient()">Confirm</button>
+                </div>
+            <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
+            <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
+
+           
+
+        </fieldset>
+    </div>
+
+    <div class="row note_card">
+        <fieldset>
+            <legend>Assigned Homework</legend>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Homework Name</th>
+                            <th>Step Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <th:block th:with="hasHomework=false">
+                            <th:block th:each="step : ${steps}">
+                                <th:block th:each="homework : ${step.homework}">
+                                    <th:block th:if="${not #lists.isEmpty(step.homework)}" th:with="hasHomework=true">
+                                        <tr>
+                                            <td th:text="${homework.name}">[Homework Name]</td>
+                                            <td th:text="${step.name}">[Step Name]</td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary" th:attr="onclick='viewHomeworkDetails('+${homework.id}+');'">Details</button>
+                                            </td>
+                                        </tr>
+                                    </th:block>
+                                </th:block>
+                            </th:block>
+                        </th:block>
+                    </tbody>
+                </table>
             </div>
         </fieldset>
     </div>
+
 
     <div class="row note_card">
         <fieldset>
@@ -107,6 +240,12 @@
         </fieldset>
     </div>
 </div>
+
+                </form>
+            </div>
+        </fieldset>
+    </div>
+
 
 <script>
     var protocolId = [[${protocolId}]];
