@@ -30,6 +30,10 @@ public class ProtocolStepTemplateHelper{
     	ArrayList<ProtocolStepTemplate> stepTemplateList = new ArrayList<ProtocolStepTemplate>();
 	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
 		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		
+		logger.info(apiUrl);
+		logger.info(jsonResponse);
+		
 		if (!jsonResponse.isEmpty()) {
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -81,7 +85,9 @@ public class ProtocolStepTemplateHelper{
         } else {
             logger.info("Failed to fetch data. getStepList");
         }   	
-    	
+    	if(stepTemplateList.isEmpty()) {
+    		logger.info("No Steps Found");
+    	}
     	return stepTemplateList;
     }
     

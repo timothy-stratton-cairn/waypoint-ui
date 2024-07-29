@@ -1916,20 +1916,23 @@ logger.info("Empty List");
     }
     
     
-    @GetMapping("/resetPassword/{username}/{email}")
-    public ResponseEntity<String>resetPassword(@PathVariable String username, @PathVariable String email){
-    	logger.info("Calling resetPassowrd with: "+ username + " email: "+ email);
-    	try {
-    		logger.info(" Try resetUserPasswordEmail");
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(@RequestBody User request) {
+        String username = request.getUsername();
+        String email = request.getEmail();
+        
+        logger.info("Calling resetPassword with: " + username + " email: " + email);
+        try {
+            logger.info(" Try resetUserPasswordEmail");
             userHelper.resetUserPasswordEmail(username, email);
-            return ResponseEntity.ok("{\"message\": \"Question successfully saved\"}");
+            return ResponseEntity.ok("{\"message\": \"Reset password email sent successfully\"}");
         } catch (Exception e) {
-            logger.error("Error saving question", e);
+            logger.error("Error sending reset password email", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("{\"message\": \"Error saving question\"}");
+                                 .body("{\"message\": \"Error sending reset password email\"}");
         }
     }
-    	
+
     
     
     @GetMapping("/sendResetEmail/{id}")
@@ -2188,6 +2191,24 @@ logger.info("Empty List");
     	return "testCards";
     }
     
-    
+    @GetMapping("/getStepListFiltered/{type}")
+    public ResponseEntity<List<ProtocolStepTemplate>> getStepListFiltered(@PathVariable int type) {
+        User currentUser = userDAO.getUser();
+        ArrayList<ProtocolStepTemplate> stepList = protocolTemplateHelper.getAllSteps(currentUser);
+        logger.info("Type: "+ type);
+        if(stepList.isEmpty()) {
+        	logger.info("List is empty");
+        }
+
+        if (type > 0) {
+            stepList.removeIf(step -> step.getCategoryId() != type);
+        }
+
+        for (ProtocolStepTemplate template: stepList) {
+        	logger.info("Step: "+ template.getName() + " Type: "+ template.getCategoryId() + " Type ID: " +template.getCategoryId());
+        }
+
+        return ResponseEntity.ok(stepList);
+    }
 
 }

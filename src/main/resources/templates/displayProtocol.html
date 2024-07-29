@@ -17,156 +17,23 @@
             <legend>Protocol Template Details</legend>
             <div>
                 <form action="#" th:action="@{/saveProtocol}" th:object="${protocol}" method="post">
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label for="name" class="mr-md-3"><strong>Name:</strong></label>
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" id="name" name="name" th:value="${protocol.name}" class="form-control" />
-                        </div>
-                        <div class="col-md-1">
-                            <label for="status" class="mr-md-3"><strong>Status:</strong></label>
-                        </div>
-                        <div class="col-md-2">
-                            <select id="status" name="status" class="form-control">
-                                <option value="LIVE" th:selected="${protocol.status == 'LIVE'}">Live</option>
-                                <option value="INACTIVE" th:selected="${protocol.status == 'INACTIVE'}">Inactive</option>
-                                <option value="ARCHIVED" th:selected="${protocol.status == 'ARCHIVED'}">Archived</option>
-                            </select>
-                        </div>
-                        <div class="col-md-1">
-                            <label for="status" class="mr-md-3"><strong>Category:</strong></label>
-                        </div>
-                        <div class="col-md-2">
-                            <select id="type" name="type" class="form-control">
-                                <option value="EVENT_DRIVEN" th:selected="${protocol.type == 'EVENT_DRIVEN'}">Event Driven</option>
-                                <option value="LIFECYCLE" th:selected="${protocol.type== 'LIFECYCLE'}">Life Cycle</option>
-                            </select>
-                        </div>
-                        
-                    </div>
-                    <br>
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label for="description"><strong>Description:</strong></label>
-                        </div>
-                        <div class="col-md-11">
-                            <input type="text" id="description" name="description" th:value="${protocol.description}" class="form-control"/>
-                        </div>
-                    </div>
+                    <!-- Form Fields... -->
                 </form>
             </div>
-
-
-
-            <div class="row mt-3">
-                <div class="col-md-2">
-                    <label for="dueDate" class="mr-md-1"><strong>Default Due Date: </strong></label>
-                </div>
-                <div class="col-md-2">
-                    <label for="dueDateYear" class="d-inline"><strong>Year</strong></label>
-                    <input type="number" class="form-control d-inline" id="dueDateYear" name="year" th:value="${protocol.dueByYear}" min="0" max="10" style="width: 40%;">
-                </div>
-                <div class="col-md-2">
-                    <label for="dueDateMonth" class="d-inline"><strong>Month</strong></label>
-                    <input type="number" class="form-control d-inline" id="dueDateMonth" name="month" th:value="${protocol.dueByMonth}" min="0" max="12" style="width: 40%;">
-                </div>
-                <div class="col-md-2">
-                    <label for="dueDateDay" class="d-inline"><strong>Day</strong></label>
-                    <input type="number" class="form-control d-inline" id="dueDateDay" name="day" th:value="${protocol.dueByDay}" min="0" max="31" style="width: 40%;">
-                </div>
-            </div>
-            <br>
-            <div class="border border-dark p-3 mb-3">
-                <div class="row">
-                    <div class="col-md-2">
-                        <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
-                        <input type="checkbox" id="reoccurring" name="reoccurring"/>
-                    </div>
-                </div>
-                <div id="schedule-fields" style="display: none;">
-                    <div class="row mt-3">
-                        <div class="col-md-2">
-                            <label for="schedule" class="mr-md-1"><strong>Default Schedule?</strong></label>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="year" class="d-inline"><strong>Year</strong></label>
-                            <input type="number" class="form-control d-inline" id="year" name="year" th:value= "${protocol.yearSchedule}" min="0" max="10" style="width: 40%;">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="month" class="d-inline"><strong>Month</strong></label>
-                            <input type="number" class="form-control d-inline" id="month" name="month" th:value= "${protocol.monthSchedule}" min="0" max="12" style="width: 40%;">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="day" class="d-inline"><strong>Day</strong></label>
-                            <input type="number" class="form-control d-inline" id="day" name="day" th:value= "${protocol.daySchedule}" min="0" max="31" style="width: 40%;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button onclick="history.back()" class="btn btn-primary">Back</button>
-            <button class="btn btn-sm btn-primary" onclick="toggleHouseholdForm()">Add Household</button>
-                <div id="householdFormContainer" style="display: none;">
-                    <label>Select Household:</label>
-                    <select id="householdSelect" class="form-control">
-                        <option th:each="household : ${clientList}" th:value="${household.id}" th:text="${household.name}"></option>
-                    </select>
-                    <button class="btn btn-primary mt-2" onclick="confirmAddCoClient()">Confirm</button>
-                </div>
-            <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
-            <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
-
-           
-
         </fieldset>
     </div>
 
-    <div class="row note_card">
-        <fieldset>
-            <legend>Assigned Homework</legend>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Homework Name</th>
-                            <th>Step Name</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <th:block th:with="hasHomework=false">
-                            <th:block th:each="step : ${steps}">
-                                <th:block th:each="homework : ${step.homework}">
-                                    <th:block th:if="${not #lists.isEmpty(step.homework)}" th:with="hasHomework=true">
-                                        <tr>
-                                            <td th:text="${homework.name}">[Homework Name]</td>
-                                            <td th:text="${step.name}">[Step Name]</td>
-                                            <td>
-                                                <button type="button" class="btn btn-primary" th:attr="onclick='viewHomeworkDetails('+${homework.id}+');'">Details</button>
-                                            </td>
-                                        </tr>
-                                    </th:block>
-                                </th:block>
-                            </th:block>
-                        </th:block>
-                    </tbody>
-                </table>
-            </div>
-        </fieldset>
-    </div>
-
-    <!-- Steps Section with Tabs -->
     <div class="row note_card">
         <fieldset>
             <legend>Steps</legend>
             
             <!-- Tabs for filtering steps -->
             <ul class="nav nav-tabs">
-                <li class="nav-item tab"><a class="nav-link active" href="#" data-type="all">All</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="1">Gather Data</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="2">Run Analysis</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="3">Craft Recommendations</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="4">Share Education</a></li>
+                <li class="nav-item tab"><a class="nav-link active" href="#" data-type="0" onclick="loadSteps('0')">All</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" data-type="1" onclick="loadSteps(1)">Gather Data</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" data-type="2" onclick="loadSteps(2)">Run Analysis</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" data-type="3" onclick="loadSteps(3)">Craft Recommendations</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" data-type="4" onclick="loadSteps(4)">Share Education</a></li>
             </ul>
 
             <div id="stepsContent">
@@ -175,21 +42,18 @@
             <br>
 
             <!-- Template for adding new step -->
-            <template id="stepTemplate">
-                <div class="new-step-row">
-                    <select class="form-control" name="newid">
-						<option value="new">Create New Step</option>
-                        <option th:each="step : ${allSteps}" th:value="${step.id}" th:text="${step.name}"></option>
-                    </select>
-                    <button type="button" class="btn btn-secondary" onclick="confirmStep(this);">Confirm</button>
-                </div>
-            </template>
+            <div class="new-step-row" id="addStepRow" style="display: none;">
+                <select class="form-control" id="stepDropdown" name="newid">
+                    <option value="new">Create New Step</option>
+                </select>
+                <button type="button" class="btn btn-secondary" onclick="confirmStep(this);">Confirm</button>
+            </div>
             <div id="stepsContainer">
                 <!-- New step rows will be appended here -->
             </div>
             <br>
 
-            <button type="button" class="btn btn-primary" onclick="addStep();">Add Existing Step</button>
+            <button type="button" class="btn btn-primary" onclick="toggleAddStepRow();">Add Existing Step</button>
         </fieldset>
     </div>
 </div>
@@ -197,7 +61,6 @@
 <div class="container" id="newStepTemplate" style="display:none;">
     <div class="row note_card">
         <fieldset>
-			
             <legend>New Step</legend>
             <div class="form-group">
                 <div class="form-row">
@@ -220,26 +83,24 @@
                 <label for="stepDetails">Description:</label>
                 <textarea id="stepDetails" class="form-control" rows="3"></textarea>
             </div>
-            <!-- Homework Form -->             
-                    <legend>Assigned Homework</legend>
-                    <div class="table-responsive">
-                        <table class="table" id="homeworkTable">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Remove</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                    <select class="form-control mt-2" id="homeworkTemplateDropdown">
-                        <option value="">Select Homework Template</option>
-                        <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
-                    </select>
-                    <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate()">Add Homework</button>
-
+            <legend>Assigned Homework</legend>
+            <div class="table-responsive">
+                <table class="table" id="homeworkTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <select class="form-control mt-2" id="homeworkTemplateDropdown">
+                <option value="">Select Homework Template</option>
+                <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
+            </select>
+            <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate()">Add Homework</button>
 
             <button type="button" class="btn btn-primary" onclick="hideNewStepTemplate()">Cancel</button>
             <button type="button" class="btn btn-success" onclick="saveStep()">Save Step</button>
@@ -249,12 +110,38 @@
 
 <script>
     var protocolId = [[${protocolId}]];
-   
+    var filterValue = 0;
+
+    function loadSteps(type) {
+        filterValue = type; // Set the global filter value
+        $.ajax({
+            url: `/getStepListFiltered/${type}`,
+            type: 'GET',
+            success: function(response) {
+                updateStepDropdown(response);
+                filterSteps(type);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching steps:', error);
+                var errorMessage = parseErrorMessage(xhr);
+                showMessageBanner('Failed to fetch steps. Error: ' + errorMessage, "danger");
+            }
+        });
+    }
+
+    function updateStepDropdown(steps) {
+        const stepDropdown = $('#stepDropdown');
+        stepDropdown.empty();
+        stepDropdown.append('<option value="new">Create New Step</option>');
+        steps.forEach(step => {
+            stepDropdown.append(`<option value="${step.id}" data-category="${step.categoryId}">${step.name}</option>`);
+        });
+    }
 
     function newStep() {
         window.location = '/newStep/' + protocolId;
     }
-    
+
     function viewHomeworkDetails(homeworkId) {
         window.location = '/viewHomeworkTemplate/' + homeworkId + '/';
     }
@@ -262,20 +149,28 @@
     function editProtocol(id) {
         window.location = '/editStep/' + id;
     }
-    
+
     function showMessageBanner(message, type) {
-	    var banner = $('#banner');
-	    banner.removeClass().addClass('alert alert-' + type).text(message).show();
-	}
+        var banner = $('#banner');
+        banner.removeClass().addClass('alert alert-' + type).text(message).show();
+    }
+
+    function toggleAddStepRow() {
+        var addStepRow = document.getElementById('addStepRow');
+        if (addStepRow.style.display === 'none') {
+            addStepRow.style.display = 'flex';
+            loadSteps(filterValue); // Load steps when showing the dropdown
+        } else {
+            addStepRow.style.display = 'none';
+        }
+    }
 
     function addStep() {
-
-	        var stepsContainer = document.getElementById('stepsContainer');
-	        var stepTemplate = document.getElementById('stepTemplate').content.cloneNode(true);
-	        stepsContainer.appendChild(stepTemplate);
-	 
+        var stepsContainer = document.getElementById('stepsContainer');
+        var stepTemplate = document.getElementById('stepTemplate').content.cloneNode(true);
+        stepsContainer.appendChild(stepTemplate);
     }
-    
+
     function saveStep() {
         var stepData = {
             "categoryId": document.getElementById("stepCategory").value,
@@ -329,28 +224,28 @@
     function addStepById(stepId) {
         console.log("Adding step by ID:", stepId); // Logging step ID
 
-            var csrfToken = $('meta[name="_csrf"]').attr('content');
-            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
-            $.ajax({
-                url: `/addStepToProtocol/` + protocolId + `/` + stepId,
-                type: 'PATCH',
-                headers: {
-                    'Accept': 'text/plain',
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
-                },
-                success: function() {
-                    showMessageBanner("Step added successfully.", "success");
-                    location.reload();
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error adding step:', error);
-                    var errorMessage = parseErrorMessage(xhr);
-                    updateDisplayedSteps();
-                    showMessageBanner('Failed to add the step. Error: ' + errorMessage, "danger");
-                }
-            });
+        $.ajax({
+            url: `/addStepToProtocol/` + protocolId + `/` + stepId,
+            type: 'PATCH',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            success: function() {
+                showMessageBanner("Step added successfully.", "success");
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding step:', error);
+                var errorMessage = parseErrorMessage(xhr);
+                updateDisplayedSteps();
+                showMessageBanner('Failed to add the step. Error: ' + errorMessage, "danger");
+            }
+        });
     }
 
     function saveProtocol(id) {
@@ -424,57 +319,55 @@
         });
     }
     
-     function deleteProtocolTemplate(id) {
-            var name = document.getElementById('name').value;
-            var isConfirmed = confirm(`Are you sure you want to delete ${name}?`);
+    function deleteProtocolTemplate(id) {
+        var name = document.getElementById('name').value;
+        var isConfirmed = confirm(`Are you sure you want to delete ${name}?`);
 
-            if (!isConfirmed) {
-                return;
-            }
-
-            var csrfToken = $('meta[name="_csrf"]').attr('content');
-            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-
-            $.ajax({
-                url: '/deleteTemplate/ProtocolTemplate/' + id,
-                type: 'DELETE',
-                headers: {
-                    'Accept': 'text/plain', 
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                success: function(response) {
-                    window.location.href = '/protocolTemplates';
-                },
-                error: function(xhr, status, error) {
-                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
-                    showMessageBanner('Failed to delete Protocol Template. Error: ' + errorMessage, 'danger');
-                }
-            });
+        if (!isConfirmed) {
+            return;
         }
+
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+        $.ajax({
+            url: '/deleteTemplate/ProtocolTemplate/' + id,
+            type: 'DELETE',
+            headers: {
+                'Accept': 'text/plain', 
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function(response) {
+                window.location.href = '/protocolTemplates';
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
+                showMessageBanner('Failed to delete Protocol Template. Error: ' + errorMessage, 'danger');
+            }
+        });
+    }
         
-	function parseErrorMessage(xhr) {
-	    var errorMessage = "An error occurred.";
-	    var contentType = xhr.getResponseHeader("Content-Type");
-	
-	    // Check if the content type is JSON before attempting to parse
-	    if (contentType && contentType.includes("application/json")) {
-	        try {
-	            var responseJson = JSON.parse(xhr.responseText);
-	            if (responseJson.message) {
-	                errorMessage = responseJson.message;
-	            }
-	        } catch (e) {
-	            console.error('Error parsing JSON error response:', e);
-	        }
-	    } else {
-	        // If the response is not JSON, use the response text directly
-	        errorMessage = xhr.responseText;
-	    }
-	    return errorMessage;
-}
-
-
+    function parseErrorMessage(xhr) {
+        var errorMessage = "An error occurred.";
+        var contentType = xhr.getResponseHeader("Content-Type");
+    
+        // Check if the content type is JSON before attempting to parse
+        if (contentType && contentType.includes("application/json")) {
+            try {
+                var responseJson = JSON.parse(xhr.responseText);
+                if (responseJson.message) {
+                    errorMessage = responseJson.message;
+                }
+            } catch (e) {
+                console.error('Error parsing JSON error response:', e);
+            }
+        } else {
+            // If the response is not JSON, use the response text directly
+            errorMessage = xhr.responseText;
+        }
+        return errorMessage;
+    }
 
     function confirmStep(buttonElement) {
         const select = buttonElement.previousElementSibling;
@@ -516,32 +409,18 @@
         }
     }
 
-	function addStepToDOM(stepId, stepName) {
-	    var stepsContent = $('#stepsContent');
-	    var stepHtml = `
-	        <div id="row_${stepId}" class="row" data-type="all">
-	            <div class="col">${stepName}</div>
-	            <div class="col">
-	                <button type="button" class="btn btn-secondary" onclick="editProtocol(${stepId});">Details</button>
-	                <button type="button" class="btn btn-secondary" onclick="deleteStep(${stepId});">Delete</button>
-	            </div>
-	        </div>`;
-	    stepsContent.append(stepHtml);
-}
-
-
-    function parseErrorMessage(xhr) {
-    var errorMessage = "An error occurred.";
-    try {
-        var responseJson = JSON.parse(xhr.responseText);
-        if (responseJson.message) {
-            errorMessage = responseJson.message;
-        }
-    } catch (e) {
-        console.error('Error parsing error response:', e);
+    function addStepToDOM(stepId, stepName) {
+        var stepsContent = $('#stepsContent');
+        var stepHtml = `
+            <div id="row_${stepId}" class="row" data-type="0">
+                <div class="col">${stepName}</div>
+                <div class="col">
+                    <button type="button" class="btn btn-secondary" onclick="editProtocol(${stepId});">Details</button>
+                    <button type="button" class="btn btn-secondary" onclick="deleteStep(${stepId});">Delete</button>
+                </div>
+            </div>`;
+        stepsContent.append(stepHtml);
     }
-    return errorMessage;
-}
 
     function updateDisplayedSteps() {
         $.ajax({
@@ -564,7 +443,7 @@
                 if (steps.length === 0) {
                     stepsContent.append('<p>No steps available.</p>');
                 }
-                filterSteps('all');
+                filterSteps('0');
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching steps:', error);
@@ -573,6 +452,43 @@
             }
         });
     }
+
+	function filterSteps(type) {
+	    $('#stepsContent > div').each(function() {
+	        var stepType = $(this).data('type');
+	        if (type == 0 || stepType == type) {  // Changed 'all' to 0
+	            $(this).show();
+	        } else {
+	            $(this).hide();
+	        }
+	    });
+	
+	    // Update the stepCategory dropdown in the new step form if not 0
+	    const stepCategoryDropdown = document.getElementById('stepCategory');
+	    if (type !== 0) {  // Changed 'all' to 0
+	        stepCategoryDropdown.value = type;
+	    } else {
+	        stepCategoryDropdown.selectedIndex = 0; // default to the first option
+	    }
+	}
+
+
+	function showType(type) {
+	    filterSteps(type);
+	
+	    const stepDropdowns = document.querySelectorAll('.new-step-row select');
+	    stepDropdowns.forEach(dropdown => {
+	        const options = dropdown.getElementsByTagName('option');
+	        for (let i = 0; i < options.length; i++) {
+	            if (type == 0 || options[i].getAttribute('data-category') == type) {  // Changed 'all' to 0
+	                options[i].style.display = 'block';
+	            } else {
+	                options[i].style.display = 'none';
+	            }
+	        }
+	    });
+	}
+
 
     $(document).ready(function() {
         $('#schedule-fields').hide();
@@ -587,7 +503,8 @@
         $('.nav-link').on('click', function(e) {
             e.preventDefault();
             var type = $(this).data('type');
-            filterSteps(type);
+            filterValue = type; // Set the global filter value
+            showType(type);
 
             $('.nav-link').removeClass('active');
             $(this).addClass('active');
@@ -596,54 +513,12 @@
         updateDisplayedSteps();
     });
 
-    function filterSteps(type) {
-        $('#stepsContent > div').each(function() {
-            var stepType = $(this).data('type');
-            if (type === 'all' || stepType == type) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
+    function toggleHouseholdForm() {
+        const formContainer = document.getElementById('householdFormContainer');
+        formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
     }
-
-        
-	 function confirmClient(buttonElement) {
-	        console.log("confirmProtocol: Function called.");
-	
-	        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-	        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-	        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-	        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-	        if (csrfTokenElement && csrfHeaderElement) {
-	            console.log("confirmProtocol: CSRF elements found.");
-	        } else {
-	            console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
-	        }
-	
-	        var selectElement = buttonElement.previousElementSibling;
-	        var clientId = selectElement ? selectElement.value : null;
-	        const popupWidth = 800;
-	        const popupHeight = 400;
-	        const left = (screen.width - popupWidth) / 2;
-	        const top = (screen.height - popupHeight) / 2;
-	        window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
-	        if (protocolId) {
-	            console.log(`confirmProtocol: Selected Client ID is ${protocolId}.`);
-	        } else {
-	            console.error("confirmProtocol: No Client ID selected.");
-	            return;
-	        }
-	 }
-            
-            
-	function toggleHouseholdForm() {
-	    const formContainer = document.getElementById('householdFormContainer');
-	    formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
-	}
-	
-	
-	function addHomeworkTemplate() {
+    
+    function addHomeworkTemplate() {
         var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
         
         var homeworkSelect = document.getElementById("homeworkTemplateDropdown");
@@ -653,11 +528,6 @@
         if (homeworkExists) {
             showMessageBanner("This homework template is already added.", "warning");
             return; // Stop the function if the homework already exists
-        }
-
-        if (tableBody.rows.length >= maxHomeworkItems) {
-            showMessageBanner("The maximum number of homework items allowed has been reached, please remove a homework item before trying to add another.", "warning");
-            return; // Stop the function if the max limit is reached
         }
 
         if (selectedOption.value !== "") {
@@ -680,10 +550,36 @@
         row.parentNode.removeChild(row);
     }
 
+    function confirmClient(buttonElement) {
+        console.log("confirmProtocol: Function called.");
 
+        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+        if (csrfTokenElement && csrfHeaderElement) {
+            console.log("confirmProtocol: CSRF elements found.");
+        } else {
+            console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
+        }
+
+        var selectElement = buttonElement.previousElementSibling;
+        var clientId = selectElement ? selectElement.value : null;
+        const popupWidth = 800;
+        const popupHeight = 400;
+        const left = (screen.width - popupWidth) / 2;
+        const top = (screen.height - popupHeight) / 2;
+        window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+        if (protocolId) {
+            console.log(`confirmProtocol: Selected Client ID is ${protocolId}.`);
+        } else {
+            console.error("confirmProtocol: No Client ID selected.");
+            return;
+        }
+    }
 </script>
 
-	<div th:insert="~{footer :: main}">...</div>
+<div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
 
