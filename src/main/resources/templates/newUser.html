@@ -58,12 +58,26 @@
                         <option value="4">Admin</option>
                     </select>
                 </div>
-                
+
+                <div class="form-group">
+                    <input type="checkbox" id="addToExistingHousehold" name="addToExistingHousehold" onchange="toggleHouseholdFields()">
+                    <label for="addToExistingHousehold">Add to Existing Household?</label>
+                </div>
+
+                <div id="existingHouseholdFields" class="d-none">
+                    <div class="form-group">
+                        <label for="householdList">Select Household:</label>
+                        <select id="householdSelect" name="householdList" class="form-select">
+							<option th:each="household : ${householdList}" th:value="${household.id}" th:text="${household.name}"></option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <input type="checkbox" id="createHousehold" name="createHousehold" onchange="toggleHouseholdFields()">
                     <label for="createHousehold">Create a Household?</label>
                 </div>
-                
+
                 <div id="householdFields" class="d-none">
                     <div class="form-group">
                         <label for="householdName">Household Name:</label>
@@ -75,7 +89,7 @@
                         <input type="text" id="householdDescription" name="householdDescription" class="form-control">
                     </div>
                 </div>
-                
+
                 <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button>
                 <button type="submit" class="btn btn-success" onclick="saveClient(); return false;">Save</button>
 
@@ -85,10 +99,23 @@
 </div>
 <script>
     function toggleHouseholdFields() {
+        var existingHouseholdFields = document.getElementById('existingHouseholdFields');
         var householdFields = document.getElementById('householdFields');
+        var addToExistingHousehold = document.getElementById('addToExistingHousehold');
         var createHousehold = document.getElementById('createHousehold');
+
+        if (addToExistingHousehold.checked) {
+            createHousehold.checked = false;
+            existingHouseholdFields.classList.remove('d-none');
+            householdFields.classList.add('d-none');
+        } else {
+            existingHouseholdFields.classList.add('d-none');
+        }
+
         if (createHousehold.checked) {
+            addToExistingHousehold.checked = false;
             householdFields.classList.remove('d-none');
+            existingHouseholdFields.classList.add('d-none');
         } else {
             householdFields.classList.add('d-none');
         }
@@ -119,8 +146,32 @@
         .then(response => response.json())
         .then(data => {
             if (data.message) {
-                var createHousehold = document.getElementById('createHousehold');
-                if (createHousehold.checked) {
+                var addToExistingHousehold = document.getElementById('addToExistingHousehold');
+                if (addToExistingHousehold.checked) {
+                    var householdId = document.getElementById('householdSelect').value;
+                    fetch(`/addCoClient/${householdId}/${data.clientId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            [csrfHeader]: csrfToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            window.location.href = '/clients'; // Redirect on success
+                        } else {
+                            throw new Error(data.error || 'Unknown error occurred.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error adding co-client:', error);
+                        var errorBanner = document.getElementById('errorBanner');
+                        errorBanner.classList.remove('d-none');
+                        errorBanner.textContent = 'Error: ' + error.message;
+                    });
+                } else if (document.getElementById('createHousehold').checked) {
                     var householdData = JSON.stringify({
                         name: document.getElementById('householdName').value,
                         description: document.getElementById('householdDescription').value
@@ -167,3 +218,4 @@
 <div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
+

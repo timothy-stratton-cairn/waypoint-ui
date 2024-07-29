@@ -1249,6 +1249,9 @@ logger.info("Empty List");
 
 	@GetMapping("/newUser/")
 	public String newUser(Model model) {
+		User currentUser = userDAO.getUser();
+		ArrayList<Household> households = userHelper.getHouseholdList(currentUser);
+		model.addAttribute("householdList",households);
 		return "newUser";
 	}
 
