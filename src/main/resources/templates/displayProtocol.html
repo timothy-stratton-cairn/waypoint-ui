@@ -8,10 +8,12 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
-<div th:insert="~{header :: main}">...</div>
+	<div th:insert="~{header :: main}">...</div>
 
 <div id="banner" class="alert" role="alert" style="display: none;"></div>
 <div class="container">
+	
+	
     <div class="row note_card">
         <fieldset>
             <legend>Protocol Template Details</legend>
@@ -161,13 +163,13 @@
             <legend>Steps</legend>
             
             <!-- Tabs for filtering steps -->
-            <ul class="nav nav-tabs">
-                <li class="nav-item tab"><a class="nav-link active" href="#" data-type="0" onclick="loadSteps('0')">All</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="1" onclick="loadSteps(1)">Gather Data</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="2" onclick="loadSteps(2)">Run Analysis</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="3" onclick="loadSteps(3)">Craft Recommendations</a></li>
-                <li class="nav-item tab"><a class="nav-link" href="#" data-type="4" onclick="loadSteps(4)">Share Education</a></li>
-            </ul>
+			<ul class="nav nav-tabs">
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#" data-type="0" onclick="loadSteps('0')">All</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" data-type="1" onclick="loadSteps(1)">Gather Data</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" data-type="2" onclick="loadSteps(2)">Run Analysis</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" data-type="3" onclick="loadSteps(3)">Craft Recommendations</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" data-type="4" onclick="loadSteps(4)">Share Education</a></li>
+			</ul>
 
             <div id="stepsContent">
                 <!-- Steps will be dynamically loaded here -->
@@ -241,10 +243,7 @@
     </div>
 </div>
 
-                </form>
-            </div>
-        </fieldset>
-    </div>
+
 
 
 <script>
@@ -629,7 +628,7 @@
 	}
 
 
-    $(document).ready(function() {
+   /* $(document).ready(function() {
         $('#schedule-fields').hide();
         $('#reoccurring').change(function() {
             if ($(this).is(':checked')) {
@@ -640,7 +639,7 @@
         });
 
         $('.nav-link').on('click', function(e) {
-            e.preventDefault();
+            //e.preventDefault();
             var type = $(this).data('type');
             filterValue = type; // Set the global filter value
             showType(type);
@@ -650,7 +649,31 @@
         });
 
         updateDisplayedSteps();
-    });
+    }); */
+    
+    $(document).ready(function() {
+	    $('#schedule-fields').hide();
+	    $('#reoccurring').change(function() {
+	        if ($(this).is(':checked')) {
+	            $('#schedule-fields').show();
+	        } else {
+	            $('#schedule-fields').hide();
+	        }
+	    });
+	
+	    $('.nav-tab-link').on('click', function(e) {
+	        e.preventDefault(); // Prevent default only for nav-tab-link elements
+	        var type = $(this).data('type');
+	        filterValue = type; // Set the global filter value
+	        showType(type);
+	
+	        $('.nav-tab-link').removeClass('active');
+	        $(this).addClass('active');
+	    });
+	
+	    updateDisplayedSteps();
+	});
+
 
     function toggleHouseholdForm() {
         const formContainer = document.getElementById('householdFormContainer');
