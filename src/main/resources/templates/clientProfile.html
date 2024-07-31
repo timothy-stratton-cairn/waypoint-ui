@@ -71,14 +71,41 @@
                         <select class="form-select" id="coClientSelect">
                             <option value="">Select CoClient</option>
                             <!-- Populate dropdown menu with CoClient list -->
+                            <option value="new">Create New Client</option>
                             <option th:each="coClient : ${userList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
                         </select>
                         <button class="btn btn-primary" type="button" onclick="addCoClient()">Add CoClient</button>
+                        
+            				<div id="newCoClientForm" style="display: none;">
+							    <div class="form-group">
+							        <label for="newEmail">Email:</label>
+							        <input type="text" id="newEmail" name="email" class="form-control">
+							    </div>
+							    <div class="form-group">
+							        <label for="newFirstName">First Name:</label>
+							        <input type="text" id="newFirstName" name="firstName" class="form-control">
+							    </div>
+							    <div class="form-group">
+							        <label for="newLastName">Last Name:</label>
+							        <input type="text" id="newLastName" name="lastName" class="form-control">
+							    </div>
+							    <div class="form-group">
+							        <label for="newUsername">Username:</label>
+							        <input type="text" id="newUsername" name="username" class="form-control">
+							    </div>
+							    <div class="form-group">
+							        <label for="newPassword">Password:</label>
+							        <input type="password" id="newPassword" name="password" class="form-control">
+							    </div>
+							    <button class="btn btn-primary" type="button" onclick="createAndAddClient()">Confirm</button>
+							</div>
                     </div>
                 </div>
 
                 <button onclick="history.back()" class="btn btn-primary">Back</button>
                 <br>
+               
+
 
             </fieldset>
 
@@ -282,6 +309,16 @@
         if (firstTabEl) {
             firstTab.show();
         }
+        
+       $(document).ready(function() {
+        $('#coClientSelect').change(function() {
+            if ($(this).val() === 'new') {
+                $('#newCoClientForm').show();
+            } else {
+                $('#newCoClientForm').hide();
+            }
+        });
+    	});
 
         function addProtocol() {
             if (!apTracker) {
@@ -453,6 +490,63 @@
                 showMessageBanner('Please select a CoClient first.', 'warning');
             }
         }
+        
+
+    function createAndAddClient() {
+        var newClient = {
+            email: $('#newEmail').val(),
+            firstName: $('#newFirstName').val(),
+            lastName: $('#newLastName').val(),
+            username: $('#newUsername').val(),
+            password: $('#newPassword').val(),
+            roles: [2] 
+        };
+
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+        $.ajax({
+            url: '/addClient/',
+            type: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            data: JSON.stringify(newClient),
+            success: function(response) {
+                if (response.clientId) {
+                    addCoClientWithId(response.clientId);
+                } else {
+                    showMessageBanner(response.error || 'Error adding client', 'danger');
+                }
+            },
+            error: function(xhr) {
+                showMessageBanner('Error adding client: ' + xhr.responseText, 'danger');
+            }
+        });
+    }
+
+    function addCoClientWithId(coClientId) {
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+        $.ajax({
+            url: `/addCoClient/${clientId}/${coClientId}`,
+            type: 'PATCH',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            success: function(response) {
+                showMessageBanner('CoClient Successfully Added!', 'success');
+                window.location.reload();
+            },
+            error: function(xhr) {
+                showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
+            }
+        });
+    }
 
         function toggleDependentForm() {
             const formContainer = document.getElementById('dependentFormContainer');

@@ -25,6 +25,7 @@ public class WebSecurityConfig {
 		MvcRequestMatcher mvc10 = new MvcRequestMatcher(null,"/health");
 		MvcRequestMatcher mvc11 = new MvcRequestMatcher(null,"/password-reset");
 		MvcRequestMatcher mvc12 = new MvcRequestMatcher(null,"/forgotPassword");
+		MvcRequestMatcher mvc13 = new MvcRequestMatcher(null,"/resetPassword");
 		http
 			.authorizeHttpRequests((requests) -> requests
 				.requestMatchers(mvc).permitAll()
@@ -39,6 +40,7 @@ public class WebSecurityConfig {
 				.requestMatchers(mvc10).permitAll()
 				.requestMatchers(mvc11).permitAll()
 				.requestMatchers(mvc12).permitAll()
+				.requestMatchers(mvc13).permitAll()
 				.anyRequest().authenticated()
 			)
 			.formLogin((form) -> form
