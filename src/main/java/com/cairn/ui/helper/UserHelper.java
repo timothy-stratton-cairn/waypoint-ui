@@ -337,19 +337,9 @@ public class UserHelper {
 		return "success";
 	}
 	
-	public String newUserPassword(User usr, String username, String passwordResetToken ,String newPassword) {
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-	    headers.add("Content-Type", "application/json");
-	    String requestBody = "{\"username\":\"" + username + "\", \"passwordResetToken\":\"" + passwordResetToken + "\", \"newPassword\":\"" + newPassword + "\"}";
 
-	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset";
-		int result = apiHelper.postAPI(apiUrl, requestBody, usr);
-		if (result < 0) {
-			return "error ";
-		}
-		return "success";
-	}
+	
+	
 
 	public int getUserId(User usr) {
 		int result = 0;
@@ -600,25 +590,53 @@ public class UserHelper {
     }
 
     public String resetUserPasswordEmail(String username, String email) {
-    	logger.info(" Calling resetUserPasswordEmail");
+        logger.info("Calling resetUserPasswordEmail");
 
         if (username == null || email == null) {
             logger.error("Username or email is null");
             return "Error: Username or email is null";
         }
 
+        // Replace @ with its URL-encoded equivalent
+        email = email.replace("@", "%40");
+
         String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset?username=" + username + "&email=" + email;
         logger.info("API URL: " + apiUrl);
-        User usr = new User();
         try {
-            String call = apiHelper.callAPI(apiUrl, usr);
-            logger.info("API Response: " + call);
-            return call;
+            String response = apiHelper.callAPINoAuth(apiUrl);
+            logger.info("API Response: " + response);
+
+            // Check if the response contains a success or error message
+            if (response.contains("If an account associated with username/email")) {
+                return "Success: " + response;
+            } else {
+                return "Error: " + response;
+            }
         } catch (Exception e) {
             logger.error("Error calling API: " + e.getMessage(), e);
             return "Error calling API: " + e.getMessage();
         }
     }
+
+
+    
+    
+	public String newUserPassword(String username, String passwordResetToken ,String newPassword) {
+		HttpHeaders headers = new HttpHeaders();
+		User usr  = new User();
+	    headers.add("Authorization", "Bearer " + passwordResetToken);
+	    headers.add("Content-Type", "application/json");
+	    String requestBody = "{\"username\":\"" + username + "\", \"passwordResetToken\":\"" + passwordResetToken + "\", \"newPassword\":\"" + newPassword + "\"}";
+
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset";
+	    logger.info(requestBody);
+	    logger.info(apiUrl);
+		String result = apiHelper.postAPICurl(apiUrl, requestBody);
+		logger.info(result);
+		return result;
+	}
+    
+    
 	public String createDependent(User usr, User newUser) {
 		ArrayList<String> roles = newUser.getRoles();
 		int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers

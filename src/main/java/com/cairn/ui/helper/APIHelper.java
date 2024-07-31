@@ -1,8 +1,10 @@
 package com.cairn.ui.helper;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,17 +49,113 @@ public class APIHelper {
 		// Make the GET request and retrieve the response
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
+			jsonResponse = response.getBody();
+			String statuscode = "Code: "+response.getStatusCode();
+
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
-				jsonResponse = response.getBody();
+				
 			} else {
 				logger.info("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
 			}
 		} catch (Exception e) {
-			logger.info("No records returned for " + apiUrl);
+
+			logger.info("No records returned for " + apiUrl + e);
 		}
 		return jsonResponse;
 	}
+	
+    public String callAPINoAuth(String apiUrl) {
+        String jsonResponse = "";
+        try {
+            ResponseEntity<String> response = getRestTemplate().getForEntity(apiUrl, String.class);
+            jsonResponse = response.getBody();
+            if (response.getStatusCode().is2xxSuccessful()) {
+            	return jsonResponse;
+            } else {
+                logger.info("Failed to fetch data from " + apiUrl + ". Status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            logger.error("Error calling API: " + e.getMessage(), e);
+        }
+        return jsonResponse;
+    }
+    
+	public String postAPINoAuth(String apiUrl, String requestBody) {
+		String result = "";
+		HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("accept", "application/json");
+		HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+		logger.info("Headers: " + headers);
+		try {
+			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+			if (response.getStatusCode().is2xxSuccessful()) {
+				result = response.getBody();
+			} else {
+				result = "Error";
+				logger.warn(apiUrl + "==>Failed to fetch data. Status code: " + response.getStatusCode());
+			}
+	
+		} catch (Exception e) {
+			logger.info("Error in updating note");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+    public static String postAPICurl(String apiUrl, String requestBody) {
+        String result = "";
+        try {
+            // Construct the cURL command
+            String[] cmd = {
+                "curl",
+                "-X", "POST",
+                apiUrl,
+                "-H", "Content-Type: application/json",
+                "-H", "accept: application/json",
+                "-d", requestBody,
+                "-w", "%{http_code}"  // Append the HTTP status code to the output
+            };
+
+            // Execute the cURL command
+            ProcessBuilder processBuilder = new ProcessBuilder(cmd);
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+
+            // Read the response
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+            // Wait for the process to complete
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                String responseString = response.toString();
+                // Extract the HTTP status code
+                String httpStatusCode = responseString.substring(responseString.length() - 3);
+                // Extract the response body
+                String responseBody = responseString.substring(0, responseString.length() - 3);
+
+                if (httpStatusCode.startsWith("2")) { // Check if status code is 2xx
+                    result = "Success";
+                } else {
+                    result = "Error: HTTP status code " + httpStatusCode + ". Response: " + responseBody;
+                }
+            } else {
+                result = "Error: cURL command failed with exit code " + exitCode;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = "Error: " + e.getMessage();
+        }
+        return result;
+    }
 
 	/*public int postAPI(String apiUrl, String requestBody, User usr) {
 		int result = 0;

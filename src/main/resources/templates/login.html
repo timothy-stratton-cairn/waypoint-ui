@@ -8,6 +8,9 @@
     <div th:if="${param.logout}">
         <div class="alert alert-success"> You have been logged out.</div>
     </div>
+    <div th:if="${param.passwordChange}">
+        <div class="alert alert-success"> Password Successfully Changed.</div>
+    </div>
     <div th:if="${param.error}">
         <div class="alert alert-warning"> Those are not valid credentials.</div>
     </div>

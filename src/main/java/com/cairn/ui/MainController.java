@@ -68,6 +68,7 @@ import com.cairn.ui.model.HomeworkQuestionsTemplate;
 import com.cairn.ui.model.HomeworkResponse;
 import com.cairn.ui.model.HomeworkTemplate;
 import com.cairn.ui.model.Household;
+import com.cairn.ui.model.PasswordRequest;
 import com.cairn.ui.model.Protocol;
 import com.cairn.ui.model.ProtocolComments;
 import com.cairn.ui.model.ProtocolReport;
@@ -190,33 +191,50 @@ logger.info("Empty List");
     
     @GetMapping("/password-reset")
     public String changePassword(@RequestParam String passwordResetToken, @RequestParam String username, Model model) {
-    	
-    	model.addAttribute("username", username);
+    	logger.info(username);
+    	logger.info(passwordResetToken);
+    	String user = username;
+    	model.addAttribute("username", user);
     	model.addAttribute("token",passwordResetToken);
     	return "changePassword";
     }
     
     @PostMapping("/newUserPassword/")
-    public ResponseEntity<Object> newUserPassword(@RequestBody String username, @RequestBody String password, @RequestBody String key ) {
-    	User currentUser = userDAO.getUser();
-    	String call = userHelper.newUserPassword(currentUser, username, key, password);
-    	if (call.startsWith("Success")) {
-			return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
-		} else {
-			Map<String, String> errorResponse = new HashMap<>();
-			errorResponse.put("error", "Error processing the request");
-
-			if (call.contains("error")) {
-
-				String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8,
-						call.indexOf("\",", call.indexOf("\"error\":\"")));
-				errorResponse.put("error", errorMessage);
-			}
-			logger.warn(errorResponse.toString());
-			return ResponseEntity.badRequest().body(errorResponse);
-		}
-
+    public ResponseEntity<Object> newUserPassword(@RequestBody PasswordRequest request) {
+        String call = "";
+        try {
+            call = userHelper.newUserPassword(request.getUsername(), request.getKey(), request.getPassword());
+            logger.info(call);
+            
+            if (call.startsWith("Success")) {
+                return ResponseEntity.ok(Collections.singletonMap("message", "Client added successfully"));
+            } else {
+                return generateErrorResponse(call);
+            }
+        } catch (Exception e) {
+            logger.error("Exception occurred while processing newUserPassword: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
+        }
     }
+
+    private ResponseEntity<Object> generateErrorResponse(String call) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Error processing the request");
+
+        if (call.contains("error")) {
+            try {
+                String errorMessage = call.substring(call.indexOf("\"error\":\"") + 8, call.indexOf("\",", call.indexOf("\"error\":\"")));
+                errorResponse.put("error", errorMessage);
+            } catch (Exception e) {
+                logger.error("Error extracting error message: ", e);
+                errorResponse.put("error", "An unexpected error occurred while extracting error details.");
+            }
+        }
+
+        logger.warn("Error response: " + errorResponse.toString());
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
 
 
 	/**
@@ -1926,15 +1944,23 @@ logger.info("Empty List");
         
         logger.info("Calling resetPassword with: " + username + " email: " + email);
         try {
-            logger.info(" Try resetUserPasswordEmail");
-            userHelper.resetUserPasswordEmail(username, email);
-            return ResponseEntity.ok("{\"message\": \"Reset password email sent successfully\"}");
+            logger.info("Try resetUserPasswordEmail");
+            String result = userHelper.resetUserPasswordEmail(username, email);
+
+            if (result.startsWith("Success")) {
+                return ResponseEntity.ok(result);
+            } else {
+                logger.error("Error response from userHelper: " + result);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                     .body(result);
+            }
         } catch (Exception e) {
             logger.error("Error sending reset password email", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("{\"message\": \"Error sending reset password email\"}");
+                                 .body("Error sending reset password email: " + e.getMessage());
         }
     }
+
 
     
     
