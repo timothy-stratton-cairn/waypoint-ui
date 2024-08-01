@@ -1968,8 +1968,10 @@ logger.info("Empty List");
     public ResponseEntity<String>sendResetEmail(@PathVariable int id){
     	User currentUser = userDAO.getUser();
     	User client = userHelper.getUser(currentUser, id);
+    	String email = client.getEmail();
+    	String username = client.getUsername();
     	try {
-            userHelper.sendResetUserPasswordEmail(currentUser, client);
+            userHelper.resetUserPasswordEmail(username,email);
             return ResponseEntity.ok("{\"message\": \"Question successfully saved\"}");
         } catch (Exception e) {
             logger.error("Error saving question", e);
