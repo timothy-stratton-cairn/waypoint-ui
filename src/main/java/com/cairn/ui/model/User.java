@@ -15,6 +15,7 @@ public class User {
 	private String role; // this is being phased out 
 	private String phoneNumber;
 	private User coclient;
+	private int householdId;
 	private ArrayList<String> roles = new ArrayList<String>();
 	private ArrayList<User> dependents = new ArrayList<User>();	
 	private ArrayList<String> permissions = new ArrayList<String>();
@@ -272,5 +273,13 @@ public class User {
 
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
+	}
+
+	public int getHouseholdId() {
+		return householdId;
+	}
+
+	public void setHouseholdId(int householdId) {
+		this.householdId = householdId;
 	}
 }

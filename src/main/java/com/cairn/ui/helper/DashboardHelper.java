@@ -72,6 +72,13 @@ public class DashboardHelper {
 
 	                        JsonNode numStepsInProgressNode = element.get("numStepsInProgress");
 	                        entry.setProgress(numStepsInProgressNode != null && !numStepsInProgressNode.isNull() ? numStepsInProgressNode.asInt() : null);
+	                        
+	                        JsonNode numStepsConCompletedNode = element.get("numStepsConditionallyComplete");
+	                        if (numStepsConCompletedNode != null && !numStepsConCompletedNode.isNull()) {
+	                            entry.setConditionalCompleted(numStepsConCompletedNode.asInt());
+	                        } else {
+	                            entry.setConditionalCompleted(0);
+	                        }
 
 	                        JsonNode numStepsDoneNode = element.get("numStepsDone");
 	                        entry.setDone(numStepsDoneNode != null && !numStepsDoneNode.isNull() ? numStepsDoneNode.asInt() : null);

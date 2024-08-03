@@ -291,7 +291,12 @@ public class ProtocolHelper {
 	                                ProtocolStepNote stepNote = new ProtocolStepNote();
 	                                stepNote.setNote(noteElement.get("note").asText());
 	                                stepNote.setTakenBy(noteElement.get("takenBy").asText());
-	                                stepNote.setType(noteElement.get("type").asText());
+	                                if(noteElement.has("type")&&!noteElement.get("type").isNull()) {
+	                                	stepNote.setType(noteElement.get("type").asText());
+	                                }
+	                                else {
+	                                	stepNote.setType("None");
+	                                }
 	                                try {
 	                                    stepNote.setTakenAt(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
 	                                            .parse(noteElement.get("takenAt").asText()));

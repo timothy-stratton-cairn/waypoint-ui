@@ -156,13 +156,14 @@
     function saveNewClient(type) {
         const email = document.getElementById(`${type}Email`).value;
         const password = document.getElementById(`${type}Password`).value;
+		const lastName = document.getElementById(`${type}LastName`).value;
 
         if (!validateEmail(email)) {
             showValidationError('Invalid email address.');
             return;
         }
 
-        if (!validatePassword(password)) {
+        if (password && !validatePassword(password)) {
             showValidationError('Password must contain at least one number, one special character, one uppercase letter, one lowercase letter, and be at least 8 characters long.');
             return;
         }
@@ -173,9 +174,9 @@
         const clientData = {
             username: document.getElementById(`${type}Username`).value,
             firstName: document.getElementById(`${type}FirstName`).value,
-            lastName: document.getElementById(`${type}LastName`).value,
+            lastName: lastName,
             email: email,
-            password: password,
+            password: password || null, // Set password to null if it's not provided
             roles: [2]
         };
 

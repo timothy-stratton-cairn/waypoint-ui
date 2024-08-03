@@ -16,8 +16,11 @@
 					<div class="col-md-2">
 						Number of Steps
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-1">
 						Steps In Progress
+					</div>
+					<div class="col-md-1">
+						Steps Conditionally Completed
 					</div>
 					<div class="col-md-1">
 						Steps Completed
@@ -38,7 +41,8 @@
 				<div th:each="stat, status: ${stats}" th:id="|row_${stat.templateId}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}">
 					<div class="col-md-2" th:text="${stat.templateName}"></div>
 					<div class="col-md-2" th:text="${stat.numSteps}"></div>
-					<div class="col-md-2" th:text="${stat.progress}"></div>
+					<div class="col-md-1" th:text="${stat.progress}"></div>
+					<div class="col-md-1" th:text="${stat.conditionalCompleted}"></div>
 					<div class="col-md-1" th:text="${stat.done}"></div>
 					<div class="col-md-1" th:text="|${stat.completion}%|"></div>
  					<div class="col-md-2">

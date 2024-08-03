@@ -8,6 +8,7 @@ public class ProtocolStats {
     private int numSteps;
     private int progress;
     private int done;
+    private int conditionalCompleted;
     private String completion;
     private String templateName;
     
@@ -65,6 +66,12 @@ public class ProtocolStats {
     public void setAssignedHouseholds(ArrayList<Household> assignedHouseholds) {
         this.assignedHouseholds = assignedHouseholds;
     }
+	public int getConditionalCompleted() {
+		return conditionalCompleted;
+	}
+	public void setConditionalCompleted(int conditionalCompleted) {
+		this.conditionalCompleted = conditionalCompleted;
+	}
 }
 
 

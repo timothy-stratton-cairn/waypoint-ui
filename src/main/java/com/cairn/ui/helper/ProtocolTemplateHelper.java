@@ -431,6 +431,7 @@ public class ProtocolTemplateHelper {
 				result.setName(jsonNode.get("name").asText());
 				result.setDescription(jsonNode.get("description").asText());
 				result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+				result.setStatus(jsonNode.get("status").asText());
 			    JsonNode stepTemplateCategoryNode = jsonNode.path("category");
 			    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
 			        result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());

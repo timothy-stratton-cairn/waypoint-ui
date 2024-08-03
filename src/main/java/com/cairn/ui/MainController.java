@@ -258,6 +258,10 @@ logger.info("Empty List");
 			logger.info("No homeworks found or list is empty");
 		}
 		ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser, pcolId);
+		for (ProtocolStep step: steps) {
+			logger.info("Step: "+step.getName()+ " Status: "+step.getStatus());
+		}
+		//steps.removeIf(step -> !step.getStatus().equals("LIVE"));
 		ProtocolComments mostRecentComment = protocol.getComments().stream()
 				.filter(comment -> "COMMENT".equals(comment.getCommentType()))
 				.max(Comparator.comparing(ProtocolComments::getTakenAt)).orElse(null);
@@ -524,7 +528,9 @@ logger.info("Empty List");
 		for (ProtocolStepTemplate step : listSteps) {
 			int stepId = step.getId();
 			ProtocolStepTemplate fullStep = protocolTemplateHelper.getStep(usr, stepId);
+			if (fullStep.getStatus().equals("LIVE")) {
 			fullStepList.add(fullStep);
+			}
 		}
 
 		for (ProtocolStepTemplate step: listSteps) {
@@ -829,6 +835,8 @@ logger.info("Empty List");
 		User currentUser = userHelper.getUser(usr, id);
 		ArrayList<User> dependants = currentUser.getDependents();
 		ArrayList<Household> householdList = userHelper.getHouseholdList(usr);
+		
+
 		model.addAttribute(dependants);
 		model.addAttribute("user", currentUser);// Adds the object to the model to be accessed by the form
 		model.addAttribute("id", id);
@@ -842,12 +850,14 @@ logger.info("Empty List");
 	    int clientId = client.getId();
 	    String roles = String.join(",", client.getRoles());
 	    logger.info(roles);
+	    
 	    ArrayList<User> dependents = client.getDependents();
+	    ArrayList<User> userList = userHelper.getUserList(usr);
 	    for (User dependent : dependents) {
 	        logger.info("Id: " + dependent.getId() + " Name: " + dependent.getFirstName() + " " + dependent.getLastName());
 	    }
 		ArrayList<Household> householdList = userHelper.getHouseholdList(usr);
-		Household myHousehold = null;
+		Household myHousehold = userHelper.getHouseholdById(usr, client.getHouseholdId());
 		
 		
 		
@@ -861,6 +871,56 @@ logger.info("Empty List");
 				logger.info("No Household");
 			}
 		}
+		
+		
+		ArrayList<Household> allHouseholds = userHelper.getHouseholdList(usr);
+	    ArrayList<Integer> householdUserIds = new ArrayList<Integer>();
+
+	    for (Household currentClient : allHouseholds) {
+	        for (User user : currentClient.getHouseholdAccounts()) {
+	            int userId = user.getId();
+	            householdUserIds.add(userId);
+	            logger.info("Adding Household: " + userId + "to list" );
+	        }
+	    }
+
+	    // Retrieve all users to find those with CLIENT in roles
+	    ArrayList<User> allUsers = userHelper.getUserList(usr);
+	    ArrayList<Integer> clientRoleUserIds = new ArrayList<>();
+
+	    for (User user : allUsers) {
+	        if (user.getRoles().contains("CLIENT")) {
+	            clientRoleUserIds.add(user.getId());
+
+	        }
+	    }
+
+	    
+	    ArrayList<User> usersToRemove = new ArrayList<>();
+
+	    for (User user : userList) {
+	        if (householdUserIds.contains(user.getId())) {
+	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they are part of a household.");
+	            usersToRemove.add(user);
+	        } else if (!clientRoleUserIds.contains(user.getId())) {
+	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they do not have the CLIENT role.");
+	            usersToRemove.add(user);
+	        }
+	    }
+
+	    String removalList = usersToRemove.stream()
+	    		.map(user -> user.getFirstName() + " " + user.getLastName())
+	            .collect(Collectors.joining(","));
+	    
+	    logger.info("Users Removed: "+ removalList);
+	    userList.removeAll(usersToRemove);
+
+	    String listPostFilter = userList.stream()
+	            .map(user -> user.getFirstName() + " " + user.getLastName())
+	            .collect(Collectors.joining(","));
+	
+	    logger.info("User List after filtering: " + listPostFilter);
+		model.addAttribute("userList", userList);
 		model.addAttribute("myHousehold", myHousehold);
 		model.addAttribute("householdList",householdList);
 	    model.addAttribute("dependents", dependents);
@@ -979,7 +1039,71 @@ logger.info("Empty List");
 		errorResponse.put("error", "Error Creating Dependat");
 		return ResponseEntity.badRequest().body(errorResponse);
 	}
+	
+	@PatchMapping("assignDependentToPrimaryContact/{clientId}/{dependantId}")
+	public ResponseEntity<String> assignDepenedentToPrimaryContact(@PathVariable int clientId, @PathVariable int dependantId){
+		User currentUser = userDAO.getUser();
+		
+		Household mainHouse = userHelper.getHouseholdById(currentUser, clientId);
+		ArrayList<Integer> dependantList = new ArrayList<Integer>();
 
+		int primaryContactId = 0;
+		ArrayList<User> primaryContactList = mainHouse.getPrimaryContacts();
+		if (!primaryContactList.isEmpty()) {
+		    User primaryContact = primaryContactList.get(0);
+		    primaryContactId = primaryContact.getId();
+		    logger.info("PC ID: "+ primaryContactId);
+		    primaryContact = userHelper.getUser(currentUser, primaryContactId);
+		    for(User usr: primaryContact.getDependents()) {
+		    	dependantList.add(usr.getId());
+		    }
+		    for(int id: dependantList) {
+		    	logger.info("ID: " + id);
+		    }
+		   
+		}
+			dependantList.add(dependantId);
+
+		
+		try {
+             String call2 = userHelper.addDependant(currentUser,primaryContactId, dependantList);
+			return ResponseEntity.ok().body("Dependent Successfully Added!");
+
+		} catch (Exception e) {
+			System.err.println("Error uploading file: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error adding CoClient");
+		}
+	}
+	@PatchMapping("assignDependentToUser/{clientId}/{dependantId}")
+	public ResponseEntity<String> assignDepenedentToUser(@PathVariable int clientId, @PathVariable int dependantId){
+		User currentUser = userDAO.getUser();
+		ArrayList<Integer> dependantList = new ArrayList<Integer>();
+		User client = userHelper.getUser(currentUser, clientId);
+		
+		for(User usr: client.getDependents()) {
+	    	dependantList.add(usr.getId());
+	    }
+	    for(int id: dependantList) {
+	    	logger.info("ID: " + id);
+	    }
+	   
+	
+		dependantList.add(dependantId);
+		
+		try {
+            String call = userHelper.addDependant(currentUser,clientId, dependantList);
+			return ResponseEntity.ok().body("Dependent Successfully Added!");
+
+		} catch (Exception e) {
+			System.err.println("Error uploading file: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error adding CoClient");
+		}
+		
+	}
+	
+	
 	@PatchMapping("addCoClient/{householdId}/{coClientId}")
 	public ResponseEntity<String> addCoClient(@PathVariable int householdId, @PathVariable int coClientId) {
 		logger.info("Calling Add CoClient for Household: " + householdId + " and CoClient ID: " + coClientId);
@@ -2063,7 +2187,7 @@ logger.info("Empty List");
                         .collect(Collectors.toCollection(ArrayList::new));
                     dependentIdList.add(dependentId);
                     
-                    String call2 = userHelper.addDependant(primeUser, id, dependentIdList);
+                    String call2 = userHelper.addDependant(currentUser, id, dependentIdList);
                     if (call2.contains("success")) {
                         return ResponseEntity.ok().body("Dependent Successfully Created and Assigned");
                     }
@@ -2232,11 +2356,14 @@ logger.info("Empty List");
         }
 
         if (type > 0) {
+        	stepList.removeIf(step->!step.getStatus().equals("LIVE"));
             stepList.removeIf(step -> step.getCategoryId() != type);
         }
+        stepList.removeIf(step->!step.getStatus().equals("LIVE"));
 
         for (ProtocolStepTemplate template: stepList) {
-        	logger.info("Step: "+ template.getName() + " Type: "+ template.getCategoryId() + " Type ID: " +template.getCategoryId());
+        	logger.info("Step: "+ template.getName() + " Type: "+ template.getCategoryId() + " Type ID: " +template.getCategoryId() + " Status: " + template.getStatus());
+        	
         }
 
         return ResponseEntity.ok(stepList);

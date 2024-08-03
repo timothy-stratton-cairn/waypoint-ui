@@ -238,6 +238,12 @@ public class UserHelper {
                 result.setLastName(jsonNode.path("lastName").asText(null));
                 result.setUsername(jsonNode.path("username").asText(null));
                 result.setEmail(jsonNode.path("email").asText(null));
+                if(jsonNode.has("householdId")&& !jsonNode.get("householdId").isNull()) {
+                	result.setHouseholdId(jsonNode.path("householdId").asInt());
+                }
+                else {
+                	result.setHouseholdId(0);
+                }
 
                 JsonNode accountRoles = jsonNode.path("accountRoles").path("roles");
                 JsonNode deps = jsonNode.path("dependents");
@@ -294,21 +300,42 @@ public class UserHelper {
 
 	
 	
-	public String addUser(User loggedInUser, User newUser) {
-		ArrayList<String> roles = newUser.getRoles();
-		int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers
-	    String requestBody = String.format(
-	            "{\"username\": \"%s\", \"firstName\": \"%s\", \"lastName\": \"%s\", \"roleIds\": [%d], \"email\": \"%s\", \"password\": \"%s\"}",
-	            newUser.getUsername(), newUser.getFirstName(), newUser.getLastName(),role,newUser.getEmail() , newUser.getPassword()
-	        );
-	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
-		int result = apiHelper.postAPI(apiUrl, requestBody, loggedInUser);
-		logger.info(apiUrl);
-		if (result < 0) {
-			return "error ";
-		}
-		return "success " + "id: "+ result;
-	}
+    public String addUser(User loggedInUser, User newUser) {
+        ArrayList<String> roles = newUser.getRoles();
+        int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers
+
+        // Create the request body JSON structure using a Map
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("username", newUser.getUsername());
+        requestBodyMap.put("firstName", newUser.getFirstName());
+        requestBodyMap.put("lastName", newUser.getLastName());
+        requestBodyMap.put("roleIds", new int[]{role});
+        requestBodyMap.put("email", newUser.getEmail());
+
+        // Add password only if it's not null or an empty string
+        String password = newUser.getPassword();
+        if (password != null && !password.isEmpty()) {
+            requestBodyMap.put("password", password);
+        }
+
+        // Convert the Map to JSON
+        ObjectMapper mapper = new ObjectMapper();
+        String requestBody;
+        try {
+            requestBody = mapper.writeValueAsString(requestBodyMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+
+        String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
+        int result = apiHelper.postAPI(apiUrl, requestBody, loggedInUser);
+        logger.info(apiUrl);
+        if (result < 0) {
+            return "error ";
+        }
+        return "success " + "id: " + result;
+    }
 
 	
 	
@@ -441,7 +468,7 @@ public class UserHelper {
 	    logger.info(apiUrl);
 	    logger.info(requestBody.toString());
 	    String requestBodyString = requestBody.toString();
-	    int call = apiHelper.patchAPI(apiUrl, requestBodyString, usr);  // Assuming requestBody is the second parameter
+	    int call = apiHelper.patchAPI(apiUrl, requestBodyString, usr);  
 	    if (call > 0) {
 	        result = "success: Id: " + call;
 	    }

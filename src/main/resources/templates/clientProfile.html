@@ -27,6 +27,9 @@
                 </div>
                 <!-- CoClients -->
                 <div class="row mb-3" th:if="${primaryContact != null}">
+					<div class="col-md-3 "style="display: none;" id ="primaryContactId"  >
+                        <span th:each="client : ${primaryContact}" th:text="${client.id}" th:value = "${client.id}" ></span>
+                    </div>
                     <div class="col-md-3">
                         <label>Primary Contact:</label>
                         <span th:each="client : ${primaryContact}" th:text="${client.firstName + ' ' + client.lastName}"></span>
@@ -121,6 +124,8 @@
                         <button class="nav-link" th:id="'dependent-tab' + ${iterStat.index}" data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}" type="button" role="tab" th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></button>
                     </li>
                 </ul>
+                
+                
                 <div class="tab-content" id="dependentTabsContent">
                     <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade" th:id="'dependent' + ${iterStat.index}" role="tabpanel">
                         <div>
@@ -129,7 +134,13 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-sm btn-secondary" onclick="toggleDependentForm()">Add Dependent</button>
+                <select class="form-select" id="dependentSelect">
+
+                    <option value="new">Create Dependant</option>
+                    <option th:each="dependant : ${userList}" th:value="${dependant.id}" th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
+                </select>
+                <button class="btn btn-primary" type="button" onclick="addDependent()">Add Dependant</button>
+
                 <div id="dependentFormContainer" style="display: none;">
                     <label>Email Address:</label>
                     <input type="email" id="dependentEmail" class="form-control">
@@ -270,9 +281,9 @@
             window.location = '/viewProtocol/'+id+ '/'+ clientId;
         }
 
-        function addDependant(id){
-            window.location = '/createDependant/'+id;
-        }
+        //function addDependant(id){
+        //    window.location = '/createDependant/'+id;
+        //}
 
         function viewAnalysis(id){
             window.location= '/analysis/'+id;
@@ -316,6 +327,16 @@
                 $('#newCoClientForm').show();
             } else {
                 $('#newCoClientForm').hide();
+            }
+        });
+    	});
+    	
+    	$(document).ready(function() {
+        $('#dependentSelect').change(function() {
+            if ($(this).val() === 'new') {
+                $('#dependentFormContainer').show();
+            } else {
+                $('#dependentFormContainer').hide();
             }
         });
     	});
@@ -526,67 +547,94 @@
         });
     }
 
-    function addCoClientWithId(coClientId) {
-        var csrfToken = $('meta[name="_csrf"]').attr('content');
-        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-
-        $.ajax({
-            url: `/addCoClient/${clientId}/${coClientId}`,
-            type: 'PATCH',
-            headers: {
-                'Accept': 'text/plain',
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            success: function(response) {
-                showMessageBanner('CoClient Successfully Added!', 'success');
-                window.location.reload();
-            },
-            error: function(xhr) {
-                showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
-            }
-        });
-    }
-
-        function toggleDependentForm() {
-            const formContainer = document.getElementById('dependentFormContainer');
-            formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
-        }
+	    function addCoClientWithId(coClientId) {
+	        var csrfToken = $('meta[name="_csrf"]').attr('content');
+	        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+	
+	        $.ajax({
+	            url: `/addCoClient/${clientId}/${coClientId}`,
+	            type: 'PATCH',
+	            headers: {
+	                'Accept': 'text/plain',
+	                'Content-Type': 'application/json',
+	                [csrfHeader]: csrfToken
+	            },
+	            success: function(response) {
+	                showMessageBanner('CoClient Successfully Added!', 'success');
+	                window.location.reload();
+	            },
+	            error: function(xhr) {
+	                showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
+	            }
+	        });
+	    }
 
 		function confirmAddDependent() {
-	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	    
-	    if (pcId <= 0) {
-	        showMessageBanner('Household must have a Primary Contact in order to assign a Dependent', 'danger');
-	        return;
+		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+		    
+		    if (pcId <= 0) {
+		        showMessageBanner('Household must have a Primary Contact in order to assign a Dependent', 'danger');
+		        return;
+		    }
+		
+		    const dependent = {
+		        email: document.getElementById('dependentEmail').value,
+		        firstName: document.getElementById('dependentFirstName').value,
+		        lastName: document.getElementById('dependentLastName').value,
+		        roles: [2]
+		    };
+		
+		    $.ajax({
+		        url: `/createAndAssignDependent/${pcId}`,
+		        type: 'POST',
+		        headers: {
+		            'Accept': 'text/plain',
+		            'Content-Type': 'application/json',
+		            [csrfHeader]: csrfToken
+		        },
+		        data: JSON.stringify(dependent),
+		        success: function(response) {
+		            showMessageBanner('Dependent Successfully Created and Assigned', 'success');
+		             window.location.reload();
+		        },
+		        error: function(xhr, status, error) {
+		            showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
+		        }
+		    });
+		}
+		
+	function addDependent() {
+	    const selectedDependent = document.getElementById('dependentSelect').value;
+	    var primaryContactId = document.getElementById('primaryContactId').value;
+	    if (selectedDependent) {
+	        $.ajax({
+	            url: `/assignDependentToPrimaryContact/${clientId}/${selectedDependent}`,
+	            type: 'PATCH',
+	            headers: {
+	                'Accept': 'text/plain',
+	                'Content-Type': 'application/json',
+	                'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+	            },
+	            success: function(response) {
+	                if (response.includes("Successfully Added")) {
+	                    showMessageBanner(response, 'success');
+	                    window.location.reload(); // Reload the page upon successful response
+	                } else {
+	                    showMessageBanner(response, 'danger');
+	                }
+	            },
+	            error: function(xhr, status, error) {
+	                console.error('Error adding Dependent:', error);
+	                showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
+	            }
+	        });
+	    } else {
+	        showMessageBanner('Please select a Dependent first.', 'warning');
 	    }
-	
-	    const dependent = {
-	        email: document.getElementById('dependentEmail').value,
-	        firstName: document.getElementById('dependentFirstName').value,
-	        lastName: document.getElementById('dependentLastName').value,
-	        roles: [2]
-	    };
-	
-	    $.ajax({
-	        url: `/createAndAssignDependent/${pcId}`,
-	        type: 'POST',
-	        headers: {
-	            'Accept': 'text/plain',
-	            'Content-Type': 'application/json',
-	            [csrfHeader]: csrfToken
-	        },
-	        data: JSON.stringify(dependent),
-	        success: function(response) {
-	            showMessageBanner('Dependent Successfully Created and Assigned', 'success');
-	            loadDependents();
-	        },
-	        error: function(xhr, status, error) {
-	            showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
-	        }
-	    });
 	}
+
+
 
 
         function loadDependents() {
