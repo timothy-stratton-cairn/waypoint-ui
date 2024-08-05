@@ -149,12 +149,12 @@
 						<button type="button" class="btn btn-sm btn-secondary" th:onclick="'showFileUploadForm(' + ${step.id} + ');'">Add File</button>
 					</div>
 					<div th:if="${step != null}" th:id="'fileUploadContainer_' + ${step.id}"></div>
+					<div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
+                    <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
 
                     </div>
                     
-                    <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
-
-                    <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
+                   
                 </div>
             </div>
         </fieldset>
@@ -226,6 +226,8 @@
         banner.classList.remove('d-none');
     }
 
+
+
     function updateProgress(stepId) {
         const container = document.querySelector(`#stepContainer_${stepId}`);
         if (!container) {
@@ -240,6 +242,8 @@
                                 </select>
                                 <button onclick="confirmStatus(${stepId})">Confirm Status</button>`;
     }
+    
+    
 
     function addNote(stepId) {
         const container = document.querySelector(`#noteContainer_${stepId}`);
