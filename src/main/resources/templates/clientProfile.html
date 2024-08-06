@@ -203,7 +203,7 @@
 			
 			                    <div class="flip-card-back" id="back_1">
 			                        <div class="container">
-			                            <div class="row">Back 1</div>
+			      
 			                            <p>Education:</p>
 			                            <ul id="ed_${pcol.id}">
 			                                <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
@@ -217,7 +217,7 @@
 			                    </div>
 			                    <div class="flip-card-back" id="back_2" style="display: none">
 			                        <div class="container">
-			                            <div class="row">Back 2</div>
+
 			                            <p>Homework:</p>
 			                            <div th:text="${pcol.id}"></div>
 			                            <ul th:id="'homeworkList_' + ${pcol.id}"></ul>
@@ -225,7 +225,7 @@
 			                    </div>
 			                    <div class="flip-card-back" id="back_3" style="display: none">
 			                        <div class="container">
-			                            <div class="row">Back 3</div>
+			    
 			                            <p>Analysis:</p>
 			                            <ul id="ed_${pcol.id}">
 			                                <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Run Analysis'}">
