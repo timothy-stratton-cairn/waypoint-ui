@@ -177,18 +177,23 @@
             <br>
 
             <!-- Template for adding new step -->
-            <div class="new-step-row" id="addStepRow" style="display: none;">
-                <select class="form-control" id="stepDropdown" name="newid">
+            <div class="new-step-row col-5" id="addStepRow" style="display: none; ">
+                <select class="form-control col-9" id="stepDropdown" name="newid">
                     <option value="new">Create New Step</option>
                 </select>
-                <button type="button" class="btn btn-secondary" onclick="confirmStep(this);">Confirm</button>
+                <button type="button" class="btn btn-secondary col-3" onclick="confirmStep(this);">Confirm</button>
             </div>
+            
+            <button type="button" class="btn btn-primary" onclick="toggleAddStepRow();">Add Existing Step</button>
+            
+            <div class="col-5">
             <div id="stepsContainer">
                 <!-- New step rows will be appended here -->
             </div>
-            <br>
 
-            <button type="button" class="btn btn-primary" onclick="toggleAddStepRow();">Add Existing Step</button>
+            </div>
+
+
         </fieldset>
     </div>
 </div>

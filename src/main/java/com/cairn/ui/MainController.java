@@ -1124,12 +1124,12 @@ logger.info("Empty List");
 		
 		try {
 			userHelper.addHouseholdAccount(currentUser, household, householdIds);
-			return ResponseEntity.ok().body("{\"message\": \"CoClient Successfully Added!\"}");
+			return ResponseEntity.ok().body("Success: Client Profile Added");
 
 		} catch (Exception e) {
-			System.err.println("Error uploading file: " + e.getMessage());
+			System.err.println("Error updating client: " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("{\"error\": \"Error adding CoClient\"}");
+					.body("Error updating client ");
 		}
 
 	}
@@ -1180,11 +1180,11 @@ logger.info("Empty List");
 	    	
 	        logger.info("No primary contact user found");
 	    }
-	    
 	    ArrayList<User> dependantList = new ArrayList<User>();
 	    ArrayList<Integer> dependantIds = new ArrayList<Integer>();
+	    ArrayList<User> clientListCopy = new ArrayList<>(clientList); // Create a copy of the clientList
 
-	    for (User client : clientList) {
+	    for (User client : clientListCopy) { // Iterate over the copy
 	        logger.info("Client: " + client.getFirstName() + " " + client.getLastName() + " Id: " + client.getId());
 	        int id = client.getId();
 	        User detailedUser = userHelper.getUser(currentUser, id);
@@ -1193,27 +1193,33 @@ logger.info("Empty List");
 	        } else {
 	            for (User dependant : detailedUser.getDependents()) {
 	                logger.info("Dependant Id:" + dependant.getId());
-	                dependantIds.add(dependant.getId());
+	                if (!dependantIds.contains(dependant.getId()) && !clientList.contains(dependant)) { // Check if the dependent is not already in the list
+	                    dependantIds.add(dependant.getId());
+	                    dependantList.add(dependant);
+	                }
 	            }
 	        }
 	    }
 
+	    
+
+
 	    String dependantIdString = dependantIds.stream().map(String::valueOf).collect(Collectors.joining(","));
 	    logger.info(dependantIdString);
 
-	    Iterator<User> clientIterator = clientList.iterator();
+	    /*Iterator<User> clientIterator = clientList.iterator();
 	    while (clientIterator.hasNext()) {
 	        User client = clientIterator.next();
-	        if (dependantIds.contains(client.getId())) {
+	        if (dependantIds.contains(client.getId()) && !dependantList.contains(client)) {
 	            dependantList.add(client);
 	            clientIterator.remove();
 	        }
-	    }
+	    }*/
 
 	    String dependantListString = dependantList.stream()
 	            .map(dependant -> dependant.getFirstName() + " " + dependant.getLastName())
 	            .collect(Collectors.joining(","));
-	    logger.info(dependantListString);
+	    logger.info("Dependent List: "+dependantListString);
 
 	    ArrayList<Household> allHouseholds = userHelper.getHouseholdList(currentUser);
 	    ArrayList<Integer> householdUserIds = new ArrayList<Integer>();
@@ -1246,9 +1252,13 @@ logger.info("Empty List");
 	        if (householdUserIds.contains(usr.getId())) {
 	            //logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they are part of a household.");
 	            usersToRemove.add(usr);
+	            
 	        } else if (!clientRoleUserIds.contains(usr.getId())) {
 	            //logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they do not have the CLIENT role.");
 	            usersToRemove.add(usr);
+	        } else if(dependantIds.contains(usr.getId())) {
+	        	usersToRemove.add(usr);
+	        	
 	        }
 	    }
 

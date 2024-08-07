@@ -42,12 +42,13 @@
                         <div class="card-body">
                             <ul id="primaryContactList" class="list-group mb-3"></ul>
                             <button type="button" class="btn btn-primary" onclick="togglePrimaryContactFields()">Add Primary Contact</button>
-                            <button type="button" class="btn btn-secondary" onclick="showNewPrimaryContactForm()">Add New Primary Contact</button>
                             <div id="primaryContactFields" class="d-none mt-3">
-                                <select id="primaryContactSelect" class="form-control">
+                                <select id="primaryContactSelect" class="form-control" onchange="checkNewPrimaryContact()">
+									<option value="new">Add New Primary Contact</option>
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
+                                    
                                 </select>
-                                <button type="button" class="btn btn-success mt-2" onclick="addPrimaryContact('primaryContactSelect')">Confirm Primary Contact</button>
+                                <button id="confirmPrimaryContactBtn" type="button" class="btn btn-success mt-2" onclick="addPrimaryContact('primaryContactSelect')">Confirm Primary Contact</button>
                             </div>
                             <div id="newPrimaryContactForm" class="d-none mt-3">
                                 <!-- New Primary Contact Form will be injected here -->
@@ -62,12 +63,13 @@
                         <div class="card-body">
                             <ul id="coClientList" class="list-group mb-3"></ul>
                             <button type="button" class="btn btn-primary" onclick="toggleCoClientFields()">Add CoClient</button>
-                            <button type="button" class="btn btn-secondary" onclick="showNewCoClientForm()">Add New CoClient</button>
                             <div id="coClientFields" class="d-none mt-3">
-                                <select id="coClientSelect" class="form-control">
+                                <select id="coClientSelect" class="form-control" onchange="checkNewCoClient()">
+									<option value="new">Add New CoClient</option>
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
+                                    
                                 </select>
-                                <button type="button" class="btn btn-success mt-2" onclick="addCoClient('coClientSelect')">Confirm CoClient</button>
+                                <button id="confirmCoClientBtn" type="button" class="btn btn-success mt-2" onclick="addCoClient('coClientSelect')">Confirm CoClient</button>
                             </div>
                             <div id="newCoClientForm" class="d-none mt-3">
                                 <!-- New CoClient Form will be injected here -->
@@ -96,14 +98,28 @@
         document.getElementById('coClientFields').classList.toggle('d-none');
     }
 
-    function showNewPrimaryContactForm() {
-        document.getElementById('newPrimaryContactForm').innerHTML = getNewContactFormHtml('primary');
-        document.getElementById('newPrimaryContactForm').classList.remove('d-none');
+    function checkNewPrimaryContact() {
+        const select = document.getElementById('primaryContactSelect');
+        if (select.value === 'new') {
+            document.getElementById('newPrimaryContactForm').innerHTML = getNewContactFormHtml('primary');
+            document.getElementById('newPrimaryContactForm').classList.remove('d-none');
+            document.getElementById('confirmPrimaryContactBtn').classList.add('d-none');
+        } else {
+            document.getElementById('newPrimaryContactForm').classList.add('d-none');
+            document.getElementById('confirmPrimaryContactBtn').classList.remove('d-none');
+        }
     }
 
-    function showNewCoClientForm() {
-        document.getElementById('newCoClientForm').innerHTML = getNewContactFormHtml('coClient');
-        document.getElementById('newCoClientForm').classList.remove('d-none');
+    function checkNewCoClient() {
+        const select = document.getElementById('coClientSelect');
+        if (select.value === 'new') {
+            document.getElementById('newCoClientForm').innerHTML = getNewContactFormHtml('coClient');
+            document.getElementById('newCoClientForm').classList.remove('d-none');
+            document.getElementById('confirmCoClientBtn').classList.add('d-none');
+        } else {
+            document.getElementById('newCoClientForm').classList.add('d-none');
+            document.getElementById('confirmCoClientBtn').classList.remove('d-none');
+        }
     }
 
     function getNewContactFormHtml(type) {
@@ -133,7 +149,7 @@
                 <input type="password" id="${type}Password" name="password" class="form-control">
             </div>
 
-            <button type="button" class="btn btn-success mt-2" onclick="saveNewClient('${type}')">Confirm ${type === 'primary' ? 'Primary Contact' : 'CoClient'}</button>
+            <button type="button" class="btn btn-success mt-2" onclick="saveNewClient('${type}')">Create ${type === 'primary' ? 'Primary Contact' : 'CoClient'}</button>
         `;
     }
 
@@ -346,5 +362,7 @@
 <div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
+
+
 
 

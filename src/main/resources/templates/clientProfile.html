@@ -69,44 +69,53 @@
                         </table>
                     </div>
                 </div>
-                <div class="col-3">
-                    <div class="input-group">
-                        <select class="form-select" id="coClientSelect">
-                            <option value="">Select CoClient</option>
-                            <!-- Populate dropdown menu with CoClient list -->
-                            <option value="new">Create New Client</option>
-                            <option th:each="coClient : ${userList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
-                        </select>
-                        <button class="btn btn-primary" type="button" onclick="addCoClient()">Add CoClient</button>
-                        
-            				<div id="newCoClientForm" style="display: none;">
-							    <div class="form-group">
-							        <label for="newEmail">Email:</label>
-							        <input type="text" id="newEmail" name="email" class="form-control">
-							    </div>
-							    <div class="form-group">
-							        <label for="newFirstName">First Name:</label>
-							        <input type="text" id="newFirstName" name="firstName" class="form-control">
-							    </div>
-							    <div class="form-group">
-							        <label for="newLastName">Last Name:</label>
-							        <input type="text" id="newLastName" name="lastName" class="form-control">
-							    </div>
-							    <div class="form-group">
-							        <label for="newUsername">Username:</label>
-							        <input type="text" id="newUsername" name="username" class="form-control">
-							    </div>
-							    <div class="form-group">
-							        <label for="newPassword">Password:</label>
-							        <input type="password" id="newPassword" name="password" class="form-control">
-							    </div>
-							    <button class="btn btn-primary" type="button" onclick="createAndAddClient()">Confirm</button>
-							</div>
+                <div class="col-5">
+                    <button class="btn btn-primary" type="button" id="showCoClientBtn">Add CoClient</button>
+                </div>
+                <div id="coClientSection" style="display: none;">
+                    <div class="col-3">
+                        <div class="input-group">
+                            <select class="form-select" id="coClientSelect">
+                                <option value="">Select CoClient</option>
+                                <!-- Populate dropdown menu with CoClient list -->
+                                <option value="new">Create New Client</option>
+                                <option th:each="coClient : ${userList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
+                            </select>
+                            <button class="btn btn-secondary" type="button" onclick="addCoClient()">Confirm</button>
+                        </div>
+                    </div>
+
+                    <div id="newCoClientForm" style="display: none;">
+                        <div class="form-group">
+                            <label for="newEmail">Email:</label>
+                            <input type="text" id="newEmail" name="email" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newFirstName">First Name:</label>
+                            <input type="text" id="newFirstName" name="firstName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newLastName">Last Name:</label>
+                            <input type="text" id="newLastName" name="lastName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newUsername">Username:</label>
+                            <input type="text" id="newUsername" name="username" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">Password:</label>
+                            <input type="password" id="newPassword" name="password" class="form-control">
+                        </div>
+                        <button class="btn btn-secondary" type="button" onclick="createAndAddClient()">Confirm</button>
                     </div>
                 </div>
+                
+                
+                 <button onclick="history.back()" class="btn btn-primary">Back</button>
+                 
+                 
+                </div>
 
-                <button onclick="history.back()" class="btn btn-primary">Back</button>
-                <br>
                
 
 
@@ -134,22 +143,35 @@
                         </div>
                     </div>
                 </div>
-                <select class="form-select" id="dependentSelect">
-
-                    <option value="new">Create Dependant</option>
-                    <option th:each="dependant : ${userList}" th:value="${dependant.id}" th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
-                </select>
-                <button class="btn btn-primary" type="button" onclick="addDependent()">Add Dependant</button>
-
-                <div id="dependentFormContainer" style="display: none;">
-                    <label>Email Address:</label>
-                    <input type="email" id="dependentEmail" class="form-control">
-                    <label>First Name:</label>
-                    <input type="text" id="dependentFirstName" class="form-control">
-                    <label>Last Name:</label>
-                    <input type="text" id="dependentLastName" class="form-control">
-                    <button class="btn btn-primary mt-2" onclick="confirmAddDependent()">Confirm</button>
+                
+                <div class="col-5">
+                    <button class="btn btn-primary" type="button" id="showDependentBtn">Add Dependent</button>
                 </div>
+       
+                <div id="dependentDropdownSection" style="display: none;">
+                
+                
+	                <select class="form-select" id="dependentSelect">
+	
+	                    <option value="new">Create Dependant</option>
+	                    <option th:each="dependant : ${userList}" th:value="${dependant.id}" th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
+	                </select>
+	                <button class="btn btn-secondary" type="button" onclick="addDependent()">Add Dependant</button>
+	
+	                <div id="dependentFormContainer" style="display: none;">
+	                    <label>Email Address:</label>
+	                    <input type="email" id="dependentEmail" class="form-control">
+	                    <label>First Name:</label>
+	                    <input type="text" id="dependentFirstName" class="form-control">
+	                    <label>Last Name:</label>
+	                    <input type="text" id="dependentLastName" class="form-control">
+	                    
+	                    <button class="btn btn-secondary" onclick="confirmAddDependent()">Confirm</button>
+	                </div>
+                </div>
+                <br>
+                
+                
             </fieldset>
         </div>
     </div>
@@ -322,24 +344,30 @@
         }
         
        $(document).ready(function() {
-        $('#coClientSelect').change(function() {
-            if ($(this).val() === 'new') {
-                $('#newCoClientForm').show();
-            } else {
-                $('#newCoClientForm').hide();
-            }
+            $('#coClientSelect').change(function() {
+                if ($(this).val() === 'new') {
+                    $('#newCoClientForm').show();
+                } else {
+                    $('#newCoClientForm').hide();
+                }
+            });
+            
+            $('#dependentSelect').change(function() {
+                if ($(this).val() === 'new') {
+                    $('#dependentFormContainer').show();
+                } else {
+                    $('#dependentFormContainer').hide();
+                }
+            });
+
+            $('#showCoClientBtn').click(function() {
+                $('#coClientSection').toggle();
+            });
+
+            $('#showDependentBtn').click(function() {
+                $('#dependentDropdownSection').toggle();
+            });
         });
-    	});
-    	
-    	$(document).ready(function() {
-        $('#dependentSelect').change(function() {
-            if ($(this).val() === 'new') {
-                $('#dependentFormContainer').show();
-            } else {
-                $('#dependentFormContainer').hide();
-            }
-        });
-    	});
 
         function addProtocol() {
             if (!apTracker) {
@@ -483,34 +511,34 @@
             }
         }
         
-        function addCoClient() {
-            const selectedCoClientId = document.getElementById('coClientSelect').value;
-            if (selectedCoClientId) {
-                $.ajax({
-                    url: `/addCoClient/${clientId}/${selectedCoClientId}`,
-                    type: 'PATCH',
-                    headers: {
-                        'Accept': 'text/plain',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.message) {
-                            showMessageBanner(response.message, 'success');
-                            window.location.reload();
-                        } else if (response.error) {
-                            showMessageBanner(response.error, 'danger');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error adding CoClient:', error);
-                        showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
-                    }
-                });
-            } else {
-                showMessageBanner('Please select a CoClient first.', 'warning');
-            }
-        }
+	function addCoClient() {
+	    const selectedCoClientId = document.getElementById('coClientSelect').value;
+	    if (selectedCoClientId) {
+	        $.ajax({
+	            url: `/addCoClient/${clientId}/${selectedCoClientId}`,
+	            type: 'PATCH',
+	            headers: {
+	                'Accept': 'text/plain',
+	                'Content-Type': 'application/json',
+	                'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+	            },
+	            success: function(response) {
+	                console.log('Response:', response); // Debugging line
+                    showMessageBanner(response.message, 'success');
+                    console.log('Reloading page...'); // Debugging line
+                    window.location.reload();
+
+	            },
+	            error: function(xhr, status, error) {
+	                console.error('Error adding CoClient:', error);
+	                showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
+	            }
+	        });
+	    } else {
+	        showMessageBanner('Please select a CoClient first.', 'warning');
+	    }
+	}
+
         
 
     function createAndAddClient() {
