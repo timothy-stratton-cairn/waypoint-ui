@@ -44,9 +44,8 @@
                             <button type="button" class="btn btn-primary" onclick="togglePrimaryContactFields()">Add Primary Contact</button>
                             <div id="primaryContactFields" class="d-none mt-3">
                                 <select id="primaryContactSelect" class="form-control" onchange="checkNewPrimaryContact()">
-									<option value="new">Add New Primary Contact</option>
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
-                                    
+                                    <option value="new">Add New Primary Contact</option>
                                 </select>
                                 <button id="confirmPrimaryContactBtn" type="button" class="btn btn-success mt-2" onclick="addPrimaryContact('primaryContactSelect')">Confirm Primary Contact</button>
                             </div>
@@ -65,9 +64,8 @@
                             <button type="button" class="btn btn-primary" onclick="toggleCoClientFields()">Add CoClient</button>
                             <div id="coClientFields" class="d-none mt-3">
                                 <select id="coClientSelect" class="form-control" onchange="checkNewCoClient()">
-									<option value="new">Add New CoClient</option>
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
-                                    
+                                    <option value="new">Add New CoClient</option>
                                 </select>
                                 <button id="confirmCoClientBtn" type="button" class="btn btn-success mt-2" onclick="addCoClient('coClientSelect')">Confirm CoClient</button>
                             </div>
@@ -362,7 +360,6 @@
 <div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
-
 
 
 
