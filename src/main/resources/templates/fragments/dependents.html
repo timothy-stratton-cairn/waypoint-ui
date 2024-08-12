@@ -1,0 +1,36 @@
+<!-- fragments/dependents.html -->
+<div th:fragment="dependentsFragment">
+
+    <!-- Dependents Information -->
+    <div class="note_card">
+        <fieldset>
+            <legend>Dependents</legend>
+            <div th:each="dependent : ${dependents}">
+                <div>
+                    <label>Dependent Name:</label>
+                    <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
+                    <button class="btn btn-danger btn-sm ml-2" type="button" th:onclick="'removeDependent(' + ${dependent.id} + ')'">Remove Dependent</button>
+                </div>
+            </div>
+            <button class="btn btn-primary" type="button" onclick="toggleDependentFields()">Add Dependent</button>
+            <div id="dependentFields" style="display: none;">
+                <select class="form-control mt-3" id="dependentSelect">
+                    <option value="" selected disabled>Select Dependent</option>
+                    <option value="new">Create New Dependent</option>
+                    <option th:each="dependant : ${userList}" th:value="${dependant.id}" th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
+                </select>
+                <button id="confirmDependentBtn" class="btn btn-primary mt-2" type="button" onclick="addDependent()">Confirm</button>
+            </div>
+            <div id="dependentFormContainer" style="display: none;">
+                <label>Email Address:</label>
+                <input type="email" id="dependentEmail" class="form-control">
+                <label>First Name:</label>
+                <input type="text" id="dependentFirstName" class="form-control">
+                <label>Last Name:</label>
+                <input type="text" id="dependentLastName" class="form-control">
+                <button class="btn btn-success mt-2" type="button" onclick="confirmAddDependent()">Create Dependent</button>
+            </div>
+        </fieldset>
+    </div>
+
+</div>

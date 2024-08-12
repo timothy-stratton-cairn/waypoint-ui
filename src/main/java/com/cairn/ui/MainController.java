@@ -842,6 +842,15 @@ logger.info("Empty List");
 		model.addAttribute("id", id);
 		return "changeUserInfo";
 	}
+	
+	@GetMapping("/getDependents/{id}")
+	public String getDependent(@PathVariable int id, Model model) {
+	    User currentUser = userDAO.getUser();
+	    User client = userHelper.getUser(currentUser, id);
+	    ArrayList<User> dependents = client.getDependents();
+	    model.addAttribute("dependents", dependents);
+	    return "fragments/dependents :: dependentsFragment";
+	}
 
 	@GetMapping("/changeClientInfo/{id}") 
 	public String changeClientInfo(@PathVariable int id, Model model) {
@@ -2377,6 +2386,97 @@ logger.info("Empty List");
         }
 
         return ResponseEntity.ok(stepList);
+    }
+    
+    
+    public static String addUserId(ArrayList<User> users, int id) {
+        List<Integer> userIds = new ArrayList<>();
+        for (User user : users) {
+            userIds.add(user.getId());
+        }
+        userIds.add(id);
+
+        return convertListToString(userIds);
+    }
+
+    public static String removeUserId(ArrayList<User> users, int id) {
+        List<Integer> userIds = new ArrayList<>();
+ 
+        for (User user : users) {
+            userIds.add(user.getId());
+        }
+
+        userIds.remove((Integer) id); // Use (Integer) to ensure the correct overload of remove() is called
+
+        return convertListToString(userIds);
+    }
+
+    private static String convertListToString(List<Integer> list) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < list.size(); i++) {
+            sb.append(list.get(i));
+            if (i < list.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+    
+    
+    @PatchMapping("/removeDependent/{userId}/{depId}")
+    public ResponseEntity<String>removeDependent(@PathVariable int userId, @PathVariable int depId){
+    	User currentUser = userDAO.getUser();
+    	User primaryClient = userHelper.getUser(currentUser, userId);
+    	ArrayList<User> dependents = primaryClient.getDependents();
+    	String updatedDependentString = removeUserId(dependents,depId);
+    	logger.info(updatedDependentString);
+    	try {
+    		
+    		String call = userHelper.updateDependents(currentUser, userId, updatedDependentString);
+    		if (call.contains("success")) {
+    			return ResponseEntity.ok().body("Dependent Successfully Updated");
+    		}
+    		else {
+    			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    					.body("Error updating Dependent");
+    		}
+
+		} catch (Exception e) {
+			System.err.println("Error Updating Dependent: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error updating Dependent");
+    	
+    }
+ 
+    }
+    
+    @PatchMapping("/removeCoClient/{householdId}/{coclientId}")
+    public ResponseEntity<String>removeCoClient(@PathVariable int householdId, @PathVariable int coclientId){
+    	User currentUser = userDAO.getUser();
+    	Household household = userHelper.getHouseholdById(currentUser, householdId);
+    	ArrayList<User> coclients = household.getHouseholdAccounts();
+    	String updatedCoClientString = removeUserId(coclients,coclientId);
+    	logger.info(updatedCoClientString);
+    	
+    	try {
+    		String call = userHelper.updateCoClients(currentUser, householdId, updatedCoClientString);
+    		if (call.contains("success")) {
+    			return ResponseEntity.ok().body("Dependent Successfully Updated");
+    		}
+    		else {
+    			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    					.body("Error updating Dependent");
+    		}
+
+		} catch (Exception e) {
+			System.err.println("Error Updating Dependent: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error updating Dependent");
+    	
+    	
+    }
     }
 
 }

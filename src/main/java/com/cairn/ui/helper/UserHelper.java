@@ -698,4 +698,35 @@ public class UserHelper {
 		
 	}
 	
+	public String updateDependents(User usr, int userId, String dependentList) {
+		
+		String requestBody = String.format("{\"dependentIds\":%s}",dependentList);
+		String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + userId;
+		logger.info("Request Body: "+ requestBody);
+		logger.info("API URL: "+ apiUrl);
+		int call = apiHelper.patchAPI(apiUrl, requestBody, usr);
+		if (call > 0) {
+	    	return "success";
+	    }
+	    else {
+	    	return "Error Updating Dependents";
+	    }
+	}
+	
+	
+	public String updateCoClients(User usr, int householdId, String coclientList) {
+		
+		String requestBody = String.format("{\"householdAccountIds\":%s}",coclientList);
+		String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get + householdId;
+		logger.info("Request Body: "+ requestBody);
+		logger.info("API URL: "+ apiUrl);
+		int call = apiHelper.patchAPI(apiUrl, requestBody, usr);
+		if (call > 0) {
+	    	return "success";
+	    }
+	    else {
+	    	return "Error Updating CoClients";
+	    }
+	}
+	
 }

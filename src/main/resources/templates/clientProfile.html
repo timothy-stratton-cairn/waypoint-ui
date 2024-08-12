@@ -3,7 +3,6 @@
 
 <head>
     <title>Client Profile</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <!-- Include jQuery library -->
@@ -62,6 +61,7 @@
                                     <td>
 									    <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
 									    <a class="btn btn-sm btn-secondary" th:href="${'javascript:makePrimaryContact(' + coclient.id + ');'}">Make Primary Contact</a>
+									    <a class="btn btn-sm btn-danger" th:href="${'javascript:removeCoClient(' + coclient.id + ');'}">Remove CoClient</a>
 									</td>
 
                                 </tr>
@@ -128,11 +128,12 @@
         <div class="note_card">
             <fieldset>
                 <legend>Dependents</legend>
-                <ul class="nav nav-tabs" id="dependentTabs" role="tablist">
-                    <li class="nav-item" th:each="dependent, iterStat : ${dependants}" role="presentation">
-                        <button class="nav-link" th:id="'dependent-tab' + ${iterStat.index}" data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}" type="button" role="tab" th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></button>
-                    </li>
-                </ul>
+				<ul class="nav nav-tabs" id="dependentTabs" role="tablist">
+				    <li class="nav-item" th:each="dependent, iterStat : ${dependants}" role="presentation">
+				        <button class="nav-link nav-link-dep" th:id="'dependent-tab' + ${iterStat.index}" data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}" type="button" role="tab" th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></button>
+				    </li>
+				</ul>
+
                 
                 
                 <div class="tab-content" id="dependentTabsContent">
@@ -187,10 +188,10 @@
                     <div id="protocolContainer"></div>
                 </div><br />
                 <ul class="nav nav-tabs">
-                    <li class="nav-item tab"><a class="nav-link active" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
-                    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
-                    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
-                    <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
+                    <li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
+                    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
                 </ul>
                 <div class="row">
                     <div class="col-2">
@@ -286,7 +287,7 @@
         </div>
     </template>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+   
     <script th:inline="javascript">
         var clientId = [[${clientId}]];
         const pcId = [[${pcId}]];
@@ -335,13 +336,14 @@
             window.location.href= '/changeClientInfo/'+id;
         }
 
-        var firstTabEl = document.querySelector('#dependentTabs .nav-link');
-        var firstTab = new bootstrap.Tab(firstTabEl);
-        var apTracker = true; 
+        var firstTabEl = document.querySelector('#dependentTabs .nav-link-dep');
+		var firstTab = new bootstrap.Tab(firstTabEl);
+		var apTracker = true; 
+		
+		if (firstTabEl) {
+		    firstTab.show();
+		}
 
-        if (firstTabEl) {
-            firstTab.show();
-        }
         
        $(document).ready(function() {
             $('#coClientSelect').change(function() {
@@ -759,6 +761,31 @@
             fetchHomework(protocolId);
         }
     }
+    
+    function removeCoClient(coClientId) {
+	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+	
+	    if (confirm("Are you sure you want to remove this CoClient?")) {
+	        $.ajax({
+	            url: `/removeCoClient/${clientId}/${coClientId}`,
+	            type: 'PATCH',
+	            headers: {
+	                'Accept': 'text/plain',
+	                'Content-Type': 'application/json',
+	                [csrfHeader]: csrfToken
+	            },
+	            success: function(response) {
+	                showMessageBanner('CoClient Successfully Removed!', 'success');
+	                window.location.reload();
+	            },
+	            error: function(xhr, status, error) {
+	                showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
+	            }
+	        });
+	    }
+	}
+
        
         
     </script>
