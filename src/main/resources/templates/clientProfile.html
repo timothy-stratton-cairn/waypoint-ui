@@ -69,9 +69,7 @@
                         </table>
                     </div>
                 </div>
-                <div class="col-5">
-                    <button class="btn btn-primary" type="button" id="showCoClientBtn">Add CoClient</button>
-                </div>
+
                 <div id="coClientSection" style="display: none;">
                     <div class="col-3">
                         <div class="input-group">
@@ -112,6 +110,8 @@
                 
                 
                  <button onclick="history.back()" class="btn btn-primary">Back</button>
+                 <button class="btn btn-primary" type="button" id="showCoClientBtn">Add CoClient</button>
+                 <br>
                  
                  
                 </div>
@@ -123,60 +123,64 @@
 
         </div>
     </div>
-    <div class="container" id="dependentSection">
-        <!-- Dependents Information -->
-        <div class="note_card">
-            <fieldset>
-                <legend>Dependents</legend>
-				<ul class="nav nav-tabs" id="dependentTabs" role="tablist">
-				    <li class="nav-item" th:each="dependent, iterStat : ${dependants}" role="presentation">
-				        <button class="nav-link nav-link-dep" th:id="'dependent-tab' + ${iterStat.index}" data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}" type="button" role="tab" th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></button>
-				    </li>
-				</ul>
+<div class="container" id="dependentSection">
+    <!-- Dependents Information -->
+    <div class="note_card">
+        <fieldset>
+            <legend>Dependents</legend>
+            <ul class="nav nav-tabs" id="dependentTabs" role="tablist">
+                <li class="nav-item" th:each="dependent, iterStat : ${dependants}" role="presentation">
+                    <button class="nav-link nav-link-dep" th:id="'dependent-tab' + ${iterStat.index}"
+                            th:classappend="${iterStat.index == 0} ? ' active' : ''"
+                            data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}"
+                            type="button" role="tab" th:text="${dependent.firstName} + ' ' + ${dependent.lastName}">
+                    </button>
+                </li>
+            </ul>
 
-                
-                
-                <div class="tab-content" id="dependentTabsContent">
-                    <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade" th:id="'dependent' + ${iterStat.index}" role="tabpanel">
-                        <div>
-                            <label>Name:</label>
-                            <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
-                            <button class="btn btn-default btn-sm ml-2" type="button" th:onclick="'removeDependent(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">Remove Dependent</button>
-                        </div>
+            <div class="tab-content" id="dependentTabsContent">
+                <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade"
+                     th:classappend="${iterStat.index == 0} ? ' show active' : ''"
+                     th:id="'dependent' + ${iterStat.index}" role="tabpanel">
+                    <div>
+                        <label>Name:</label>
+                        <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
+                        <button class="btn btn-default btn-sm ml-2" type="button"
+                                th:onclick="'removeDependent(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
+                            Remove Dependent
+                        </button>
                     </div>
                 </div>
-                
-                <div class="col-5">
-                    <button class="btn btn-primary" type="button" id="showDependentBtn">Add Dependent</button>
+            </div>
+
+            <div class="col-5">
+                <button class="btn btn-primary" type="button" id="showDependentBtn">Add Dependent</button>
+            </div>
+
+            <div id="dependentDropdownSection" style="display: none;">
+                <select class="form-select" id="dependentSelect">
+                    <option value="new">Create Dependant</option>
+                    <option th:each="dependant : ${userList}" th:value="${dependant.id}"
+                            th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
+                </select>
+                <button class="btn btn-secondary" type="button" onclick="addDependent()">Add Dependant</button>
+
+                <div id="dependentFormContainer" style="display: none;">
+                    <label>Email Address:</label>
+                    <input type="email" id="dependentEmail" class="form-control">
+                    <label>First Name:</label>
+                    <input type="text" id="dependentFirstName" class="form-control">
+                    <label>Last Name:</label>
+                    <input type="text" id="dependentLastName" class="form-control">
+
+                    <button class="btn btn-secondary" onclick="confirmAddDependent()">Confirm</button>
                 </div>
-       
-                <div id="dependentDropdownSection" style="display: none;">
-                
-                
-	                <select class="form-select" id="dependentSelect">
-	
-	                    <option value="new">Create Dependant</option>
-	                    <option th:each="dependant : ${userList}" th:value="${dependant.id}" th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
-	                </select>
-	                <button class="btn btn-secondary" type="button" onclick="addDependent()">Add Dependant</button>
-	
-	                <div id="dependentFormContainer" style="display: none;">
-	                    <label>Email Address:</label>
-	                    <input type="email" id="dependentEmail" class="form-control">
-	                    <label>First Name:</label>
-	                    <input type="text" id="dependentFirstName" class="form-control">
-	                    <label>Last Name:</label>
-	                    <input type="text" id="dependentLastName" class="form-control">
-	                    
-	                    <button class="btn btn-secondary" onclick="confirmAddDependent()">Confirm</button>
-	                </div>
-                </div>
-                <br>
-                
-                
-            </fieldset>
-        </div>
+            </div>
+            <br>
+        </fieldset>
     </div>
+</div>
+
     <div class="container">
         <div class="note_card">
             <fieldset>
@@ -347,6 +351,13 @@
 		if (firstTabEl) {
 		    firstTab.show();
 		}
+		document.addEventListener('DOMContentLoaded', function () {
+		    var firstTabEl = document.querySelector('#dependentTabs .nav-link-dep');
+		    if (firstTabEl) {
+		        var firstTab = new bootstrap.Tab(firstTabEl);
+		        firstTab.show();
+		    }
+		});
 
         
        $(document).ready(function() {
