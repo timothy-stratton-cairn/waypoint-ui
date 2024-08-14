@@ -78,6 +78,7 @@ public class UserHelper {
 	                                dependent.setFirstName(dep.get("firstName").asText());
 	                                dependent.setLastName(dep.get("lastName").asText());
 	                                dependent.setUsername(dep.get("username").asText());
+	                                dependent.setGuardianId(entry.getId());
 	                                dependents.add(dependent);
 	                            }
 	                            entry.setDependents(dependents);
@@ -150,6 +151,7 @@ public class UserHelper {
                             user.setId(account.get("clientAccountId").asInt()); // Assuming "clientAccountId" is the correct field name
                             user.setFirstName(account.get("firstName").asText());
                             user.setLastName(account.get("lastName").asText());
+                            user.setHouseholdId(id);
                             // Add more properties as needed
                             householdAccountsList.add(user);
                         }
@@ -197,7 +199,7 @@ public class UserHelper {
                                     household.getHouseholdAccountsIds().add(user.getId());
                                     user.setFirstName(account.get("firstName").asText());
                                     user.setLastName(account.get("lastName").asText());
-
+                                    user.setHouseholdId(household.getId());
                                     user.setRole(account.get("role").asText());
   
                                         householdUsers.add(user);
@@ -280,6 +282,7 @@ public class UserHelper {
                             temp.setFirstName(element.path("firstName").asText(null));
                             temp.setLastName(element.path("lastName").asText(null));
                             temp.setUsername(element.path("username").asText(null));
+                            temp.setGuardianId(uid);
                             userDeps.add(temp);
                         }
                     }

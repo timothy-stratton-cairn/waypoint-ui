@@ -56,7 +56,7 @@
                     <div>
                         <label>Dependent Name:</label>
                         <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
-                        <button class="btn btn-danger btn-sm ml-2" type="button" th:onclick="'removeDependent(' + ${dependent.id} + ')'">Remove Dependent</button>
+                        <button class="btn btn-default btn-sm ml-2" type="button" th:onclick="'removeDependent(' + ${dependent.id} + ')'">Remove Dependent</button>
 
                     </div>
                 </div>
@@ -100,6 +100,7 @@
                             <span th:text="${member.firstName} + ' ' + ${member.lastName}"></span>
                         </div>
                     </div>
+                    <a class="btn btn-sm btn-default" th:href="${'javascript:removeCoClient(' + myHousehold.id + ');'}">Leave Household</a>
                 </div>
                 <div th:if="${myHousehold == null}">
                     <button class="btn btn-sm btn-secondary" onclick="toggleHouseholdForm()">Add Household</button>
@@ -128,6 +129,8 @@
 
     <script th:inline="javascript">
         const clientId = [[${id}]];
+        const pcId = [[${pcId}]];
+        const householdId = [[${householdId}]];
 
         $(document).ready(function() {
             $('#dependentSelect').change(function() {
@@ -350,6 +353,60 @@
 		    });
 		}
 		}
+		
+	function removeCoClient() {
+	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+	
+	    if (confirm("Are you sure you want to remove this CoClient?")) {
+	        $.ajax({
+	            url: `/removeCoClient/${householdId}/${clientId}`,
+	            type: 'PATCH',
+	            headers: {
+	                'Accept': 'text/plain',
+	                'Content-Type': 'application/json',
+	                [csrfHeader]: csrfToken
+	            },
+	            success: function(response) {
+	                showMessageBanner('CoClient Successfully Removed!', 'success');
+	                if (pcId > 0) {
+	                    updatePrimaryContact().then(function() {
+	                        window.location.reload();
+	                    }).catch(function(error) {
+	                        showMessageBanner('Failed to update the primary contact. Error: ' + error.message, 'danger');
+	                    });
+	                } else {
+	                    window.location.reload();
+	                }
+	            },
+	            error: function(xhr, status, error) {
+	                showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
+	            }
+	        });
+	    }
+	}
+	
+	function updatePrimaryContact() {
+	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+	
+	    $.ajax({
+	        url: `/promoteToPrimaryContact/${householdId}/${pcId}`,
+	        type: 'PATCH',
+	        headers: {
+	            'Accept': 'text/plain',
+	            'Content-Type': 'application/json',
+	            [csrfHeader]: csrfToken
+	        },
+	        success: function(response) {
+	            showMessageBanner('Primary Contact updated successfully', 'success');
+	                location.reload();
+	        },
+	        error: function(xhr, status, error) {
+	            showMessageBanner('Failed to update Primary Contact. Error: ' + xhr.responseText, 'danger');
+	        }
+	    });
+	}
 	
 	loadDependents()
 	

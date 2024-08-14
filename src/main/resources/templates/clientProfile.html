@@ -61,7 +61,7 @@
                                     <td>
 									    <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
 									    <a class="btn btn-sm btn-secondary" th:href="${'javascript:makePrimaryContact(' + coclient.id + ');'}">Make Primary Contact</a>
-									    <a class="btn btn-sm btn-danger" th:href="${'javascript:removeCoClient(' + coclient.id + ');'}">Remove CoClient</a>
+									    <a class="btn btn-sm btn-default" th:href="${'javascript:removeCoClient(' + coclient.id + ');'}">Remove CoClient</a>
 									</td>
 
                                 </tr>
@@ -141,6 +141,7 @@
                         <div>
                             <label>Name:</label>
                             <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
+                            <button class="btn btn-default btn-sm ml-2" type="button" th:onclick="'removeDependent(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">Remove Dependent</button>
                         </div>
                     </div>
                 </div>
@@ -412,6 +413,7 @@
             const top = (screen.height - popupHeight) / 2;
             window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
             if (protocolId) {
+				makePrimaryContact(pcId);
                 console.log(`confirmProtocol: Selected protocol ID is ${protocolId}.`);
             } else {
                 console.error("confirmProtocol: No protocol ID selected.");
@@ -527,6 +529,7 @@
 	            success: function(response) {
 	                console.log('Response:', response); // Debugging line
                     showMessageBanner(response.message, 'success');
+                    makePrimaryContact(pcId);
                     console.log('Reloading page...'); // Debugging line
                     window.location.reload();
 
@@ -591,6 +594,7 @@
 	            },
 	            success: function(response) {
 	                showMessageBanner('CoClient Successfully Added!', 'success');
+	                makePrimaryContact(pcId);
 	                window.location.reload();
 	            },
 	            error: function(xhr) {
@@ -626,7 +630,8 @@
 		        data: JSON.stringify(dependent),
 		        success: function(response) {
 		            showMessageBanner('Dependent Successfully Created and Assigned', 'success');
-		             window.location.reload();
+		            makePrimaryContact(pcId);
+		            window.location.reload();
 		        },
 		        error: function(xhr, status, error) {
 		            showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
@@ -649,6 +654,7 @@
 	            success: function(response) {
 	                if (response.includes("Successfully Added")) {
 	                    showMessageBanner(response, 'success');
+	                    makePrimaryContact(pcId);
 	                    window.location.reload(); // Reload the page upon successful response
 	                } else {
 	                    showMessageBanner(response, 'danger');
@@ -761,8 +767,7 @@
             fetchHomework(protocolId);
         }
     }
-    
-    function removeCoClient(coClientId) {
+	function removeCoClient(coClientId) {
 	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 	
@@ -777,7 +782,11 @@
 	            },
 	            success: function(response) {
 	                showMessageBanner('CoClient Successfully Removed!', 'success');
-	                window.location.reload();
+	                makePrimaryContact(pcId).then(function() {
+	                    window.location.reload();
+	                }).catch(function(error) {
+	                    showMessageBanner('Failed to make primary contact. Error: ' + error.message, 'danger');
+	                });
 	            },
 	            error: function(xhr, status, error) {
 	                showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
@@ -785,6 +794,37 @@
 	        });
 	    }
 	}
+	
+	function removeDependent(guardId,depId) {
+		    console.log("removeDependent: Function called with depId:", depId);
+		
+		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+		
+		    var requestUrl = `/removeDependent/${guardId}/${depId}`;
+			if (confirm("Are you sure you want to remove this CoClient?")) {
+		    fetch(requestUrl, {
+		        method: 'PATCH',
+		        headers: {
+		            'Accept': 'text/plain',
+		            'Content-Type': 'application/json',
+		            [csrfHeader]: csrfToken
+		        }
+		    })
+		    .then(response => {
+		        if (response.ok) {
+		            showMessageBanner('Dependent successfully removed.', 'success');
+		            loadDependents();  // Reload the dependents list
+		        } else {
+		            response.text().then(text => { throw new Error(text); });
+		        }
+		    })
+		    .catch(error => {
+		        console.error('Error:', error);
+		        showMessageBanner('Error removing dependent.', 'danger');
+		    });
+		}
+		}
 
        
         

@@ -16,6 +16,7 @@ public class User {
 	private String phoneNumber;
 	private User coclient;
 	private int householdId;
+	private int guardianId;
 	private ArrayList<String> roles = new ArrayList<String>();
 	private ArrayList<User> dependents = new ArrayList<User>();	
 	private ArrayList<String> permissions = new ArrayList<String>();
@@ -281,5 +282,13 @@ public class User {
 
 	public void setHouseholdId(int householdId) {
 		this.householdId = householdId;
+	}
+
+	public int getGuardianId() {
+		return guardianId;
+	}
+
+	public void setGuardianId(int guardianId) {
+		this.guardianId = guardianId;
 	}
 }

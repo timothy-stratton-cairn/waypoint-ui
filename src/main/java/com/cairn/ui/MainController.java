@@ -881,6 +881,13 @@ logger.info("Empty List");
 			}
 		}
 		
+		int pcId = 0;
+		int householdId = 0;
+		
+		if (myHousehold != null) {
+			pcId = myHousehold.getPrimaryContactsIds().get(0);
+			householdId = myHousehold.getId();
+		}
 		
 		ArrayList<Household> allHouseholds = userHelper.getHouseholdList(usr);
 	    ArrayList<Integer> householdUserIds = new ArrayList<Integer>();
@@ -929,8 +936,11 @@ logger.info("Empty List");
 	            .collect(Collectors.joining(","));
 	
 	    logger.info("User List after filtering: " + listPostFilter);
+	   
 		model.addAttribute("userList", userList);
 		model.addAttribute("myHousehold", myHousehold);
+		model.addAttribute("pcId", pcId);
+		model.addAttribute("householdId", householdId);
 		model.addAttribute("householdList",householdList);
 	    model.addAttribute("dependents", dependents);
 	    model.addAttribute("roles", roles);
@@ -2265,6 +2275,8 @@ logger.info("Empty List");
     
     @PatchMapping("/promoteToPrimaryContact/{householdId}/{clientId}")
     public ResponseEntity<String> promoteToPrimaryContact(@PathVariable int householdId, @PathVariable int clientId) {
+    	
+    	logger.info("Promote User: "+ clientId + "To Primary Contact of Household: " + householdId);
         User currentUser = userDAO.getUser();
         try {
             String call = userHelper.promoteToPrimaryContact(currentUser, householdId, clientId);
