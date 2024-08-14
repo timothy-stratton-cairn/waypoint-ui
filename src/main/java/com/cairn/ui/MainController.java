@@ -870,23 +870,21 @@ logger.info("Empty List");
 		
 		
 		
-		
-		for (Household household: householdList) {
-			if (household.getHouseholdAccountsIds().contains(id)) {
-				myHousehold = household;
-				logger.info("My Household: "+ myHousehold.getName());
-			}
-			else {
-				logger.info("No Household");
-			}
-		}
+
 		
 		int pcId = 0;
 		int householdId = 0;
-		
+
 		if (myHousehold != null) {
-			pcId = myHousehold.getPrimaryContactsIds().get(0);
-			householdId = myHousehold.getId();
+		    householdId = myHousehold.getId();
+		    
+		    // Check if the primary contacts list is not empty
+		    if (!myHousehold.getPrimaryContacts().isEmpty()) {
+		    	logger.info("Get Primary Contacts is Not Empty");
+		        pcId = myHousehold.getPrimaryContacts().get(0).getId();
+		    } else {
+		        logger.info("Get Primary Contacts is Emptry");
+		    }
 		}
 		
 		ArrayList<Household> allHouseholds = userHelper.getHouseholdList(usr);
@@ -896,7 +894,7 @@ logger.info("Empty List");
 	        for (User user : currentClient.getHouseholdAccounts()) {
 	            int userId = user.getId();
 	            householdUserIds.add(userId);
-	            logger.info("Adding Household: " + userId + "to list" );
+	           
 	        }
 	    }
 
@@ -916,10 +914,8 @@ logger.info("Empty List");
 
 	    for (User user : userList) {
 	        if (householdUserIds.contains(user.getId())) {
-	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they are part of a household.");
 	            usersToRemove.add(user);
 	        } else if (!clientRoleUserIds.contains(user.getId())) {
-	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they do not have the CLIENT role.");
 	            usersToRemove.add(user);
 	        }
 	    }
@@ -936,6 +932,7 @@ logger.info("Empty List");
 	            .collect(Collectors.joining(","));
 	
 	    logger.info("User List after filtering: " + listPostFilter);
+	    logger.info(" Household ID: " + householdId + " PC ID: "+ pcId);
 	   
 		model.addAttribute("userList", userList);
 		model.addAttribute("myHousehold", myHousehold);
