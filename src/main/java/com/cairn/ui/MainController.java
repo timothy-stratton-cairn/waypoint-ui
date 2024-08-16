@@ -1259,7 +1259,7 @@ logger.info("Empty List");
 	        }
 	    }*/
 	   
-
+	    ArrayList<User> legalCoClients = new ArrayList<>(validUsers); 
 	    
 	    for (Iterator<User> iterator = validUsers.iterator(); iterator.hasNext(); ) {
 	        User usr = iterator.next();
@@ -1283,6 +1283,7 @@ logger.info("Empty List");
 	    model.addAttribute("pcId", pcId);
 	    model.addAttribute("primaryContactUser", primaryContactUser); // Fixed duplicate attribute key
 	    model.addAttribute("userList", validUsers);
+	    model.addAttribute("dependentUsers", legalCoClients);
 	    model.addAttribute("coClientList", clientList);
 	    model.addAttribute("userId", userId);
 	    model.addAttribute("client", household);
