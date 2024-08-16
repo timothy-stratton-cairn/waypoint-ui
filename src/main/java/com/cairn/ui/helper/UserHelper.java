@@ -732,4 +732,42 @@ public class UserHelper {
 	    }
 	}
 	
+	public ArrayList<Integer> getDependentIds(User usr) {
+	    ArrayList<Integer> associatedAccountIds = new ArrayList<>();
+
+	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get;
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+	    if (!jsonResponse.isEmpty()) {
+	        ObjectMapper objectMapper = new ObjectMapper();
+
+	        try {
+	            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode accountsNode = jsonNode.get("accounts");
+
+	            if (accountsNode.isArray()) {
+	                for (JsonNode element : accountsNode) {
+	                    if (element != null) {
+	                        // Parse associated accounts
+	                        JsonNode associatedAccountsNode = element.get("associatedAccounts").get("accounts");
+	                        if (associatedAccountsNode != null && associatedAccountsNode.isArray()) {
+	                            for (JsonNode account : associatedAccountsNode) {
+	                                associatedAccountIds.add(account.get("id").asInt());
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        } catch (JsonMappingException e) {
+	            e.printStackTrace();
+	        } catch (JsonProcessingException e) {
+	            e.printStackTrace();
+	        }
+	    } else {
+	        logger.info("Failed to fetch getUserList data.");
+	    }
+
+	    return associatedAccountIds;
+	}
+
+	
 }

@@ -186,18 +186,28 @@ public class APIHelper {
         headers.add("Authorization", "Bearer " + usr.getToken());
         headers.add("Content-Type", "application/json");
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
         try {
             ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
             if (response.getStatusCode().is2xxSuccessful()) {
                 String responseBody = response.getBody();
                 logger.info("Server Response: " + responseBody);
+
                 if (responseBody != null) {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode jsonResponse = objectMapper.readTree(responseBody);
-                    if (jsonResponse.has("id")) {
-                        result = jsonResponse.get("id").asInt();
+                    MediaType contentType = response.getHeaders().getContentType();
+
+                    if (contentType != null && contentType.includes(MediaType.APPLICATION_JSON)) {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode jsonResponse = objectMapper.readTree(responseBody);
+                        if (jsonResponse.has("id")) {
+                            result = jsonResponse.get("id").asInt();
+                        } else {
+                            result = 1; // Success but no ID in the response
+                        }
                     } else {
-                        result = 1; // Success but no ID in the response
+                        // Handle as plain text
+                        logger.info("Plain text response received");
+                        result = 1; // Treat as success without ID
                     }
                 }
             } else {
@@ -206,14 +216,14 @@ public class APIHelper {
             }
 
         } catch (Exception e) {
+            result = -1;
             logger.info("Error in updating note");
             e.printStackTrace();
         }
-        String resultMsg = "Result Id: "+result;
+        String resultMsg = "Result Id: " + result;
         logger.info(resultMsg);
         return result;
     }
-    
     public int postFileAPI(String apiUrl, MultipartFile file, User usr) {
         int result = 0;
         HttpHeaders headers = new HttpHeaders();

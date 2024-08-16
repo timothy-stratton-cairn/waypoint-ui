@@ -229,27 +229,33 @@
 
 
     function updateProgress(stepId) {
-        const container = document.querySelector(`#stepContainer_${stepId}`);
-        if (!container) {
-            console.error(`Container not found for step ID: ${stepId}`);
-            return;
-        }
-        container.innerHTML = `<select id="statusDropdown_${stepId}">
-                                    <option value="TODO">To Do</option>
-                                    <option value="IN_PROGRESS">In Progress</option>
-                                    <option value="DONE">Done</option>
-                                    <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
-                                </select>
-                                <button onclick="confirmStatus(${stepId})">Confirm Status</button>`;
-    }
+	    const container = document.querySelector(`#stepContainer_${stepId}`);
+	    if (container.innerHTML.trim() === "") {
+	        container.innerHTML = `<select id="statusDropdown_${stepId}">
+	                                    <option value="TODO">To Do</option>
+	                                    <option value="IN_PROGRESS">In Progress</option>
+	                                    <option value="DONE">Done</option>
+	                                    <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
+	                                </select>
+	                                <button onclick="confirmStatus(${stepId})">Confirm Status</button>`;
+	    } else {
+	        container.innerHTML = "";  // Hide the progress container if it's already visible
+	    }
+	}
+
     
     
 
     function addNote(stepId) {
-        const container = document.querySelector(`#noteContainer_${stepId}`);
-        container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
-                               <button onclick="confirmNote(${stepId})">Confirm Note</button>`;
-    }
+	    const container = document.querySelector(`#noteContainer_${stepId}`);
+	    if (container.innerHTML.trim() === "") {
+	        container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
+	                               <button onclick="confirmNote(${stepId})">Confirm Note</button>`;
+	    } else {
+	        container.innerHTML = "";  // Hide the note container if it's already visible
+	    }
+	}
+
 
     function camel(str) {
 		if (str == 'todo') {
@@ -399,11 +405,16 @@
     
     function showFileUploadForm(stepId) {
 	    const container = document.querySelector(`#fileUploadContainer_${stepId}`);
-	    container.innerHTML = `<form id="fileUploadForm_${stepId}" enctype="multipart/form-data">
-	                               <input type="file" id="fileInput_${stepId}" name="files" class="form-control">
-	                               <button type="button" onclick="uploadFile(${stepId})" class="btn btn-sm btn-primary">Upload</button>
-	                           </form>`;
+	    if (container.innerHTML.trim() === "") {
+	        container.innerHTML = `<form id="fileUploadForm_${stepId}" enctype="multipart/form-data">
+	                                   <input type="file" id="fileInput_${stepId}" name="files" class="form-control">
+	                                   <button type="button" onclick="uploadFile(${stepId})" class="btn btn-sm btn-primary">Upload</button>
+	                               </form>`;
+	    } else {
+	        container.innerHTML = "";  // Hide the file upload container if it's already visible
+	    }
 	}
+
 	
 	function uploadFile(stepId) {
 	    const form = document.querySelector(`#fileUploadForm_${stepId}`);

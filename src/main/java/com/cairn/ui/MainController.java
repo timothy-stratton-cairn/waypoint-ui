@@ -1249,49 +1249,40 @@ logger.info("Empty List");
 
 	    // Retrieve all users to find those with CLIENT in roles
 	    ArrayList<User> allUsers = userHelper.getUserList(currentUser);
-	    ArrayList<Integer> clientRoleUserIds = new ArrayList<>();
+	    ArrayList<Integer> depIds = userHelper.getDependentIds(currentUser);
+	    ArrayList<User> validUsers = getValidCoClientList(depIds,allUsers);
 
-	    for (User user : allUsers) {
+	    /*for (User user : allUsers) {
 	        if (user.getRoles().contains("CLIENT")) {
 	            clientRoleUserIds.add(user.getId());
 
 	        }
-	    }
+	    }*/
+	   
 
-	    String listPreFilter = userList.stream()
-	            .map(usr -> usr.getFirstName() + " " + usr.getLastName())
-	            .collect(Collectors.joining(","));
 	    
-	    ArrayList<User> usersToRemove = new ArrayList<>();
-
-	    for (User usr : userList) {
+	    for (Iterator<User> iterator = validUsers.iterator(); iterator.hasNext(); ) {
+	        User usr = iterator.next();
 	        if (householdUserIds.contains(usr.getId())) {
-	            //logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they are part of a household.");
-	            usersToRemove.add(usr);
-	            
-	        } else if (!clientRoleUserIds.contains(usr.getId())) {
-	            //logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " because they do not have the CLIENT role.");
-	            usersToRemove.add(usr);
-	        } else if(dependantIds.contains(usr.getId())) {
-	        	usersToRemove.add(usr);
-	        	
+	            logger.info("Removing user: " + usr.getFirstName() + " " + usr.getLastName() + " ID: " + usr.getId() + " because they are part of a household.");
+	            iterator.remove();
 	        }
 	    }
 
-	    userList.removeAll(usersToRemove);
-
-	    String listPostFilter = userList.stream()
+	    String listPostFilter = validUsers.stream()
 	            .map(usr -> usr.getFirstName() + " " + usr.getLastName())
 	            .collect(Collectors.joining(","));
-	
 	    logger.info("User List after filtering: " + listPostFilter);
+
+	   
+	    //logger.info("User List after filtering: " + listPostFilter);
 	    
 	    
 	    model.addAttribute("dependants", dependantList);
 	    model.addAttribute("primaryContact", pcUser);
 	    model.addAttribute("pcId", pcId);
 	    model.addAttribute("primaryContactUser", primaryContactUser); // Fixed duplicate attribute key
-	    model.addAttribute("userList", userList);
+	    model.addAttribute("userList", validUsers);
 	    model.addAttribute("coClientList", clientList);
 	    model.addAttribute("userId", userId);
 	    model.addAttribute("client", household);
@@ -2487,5 +2478,48 @@ logger.info("Empty List");
     	
     }
     }
+    @PatchMapping("/assignGuardiant/{userId}/{depId}")
+    public ResponseEntity<String>assignGuardian(@PathVariable int userId, @PathVariable int depId){
+    	User currentUser = userDAO.getUser();
+    	User primaryClient = userHelper.getUser(currentUser, userId);
+    	ArrayList<User> dependents = primaryClient.getDependents();
+    	String updatedDependentString = addUserId(dependents,depId);
+    	logger.info(updatedDependentString);
+    	try {
+    		
+    		String call = userHelper.updateDependents(currentUser, userId, updatedDependentString);
+    		if (call.contains("success")) {
+    			return ResponseEntity.ok().body("Dependent Successfully Updated");
+    		}
+    		else {
+    			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    					.body("Error updating Dependent");
+    		}
+
+		} catch (Exception e) {
+			System.err.println("Error Updating Dependent: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error updating Dependent");
+    	
+    }
+ 
+    }
+    
+    
+    public ArrayList<User> getValidCoClientList(ArrayList<Integer> depIds, ArrayList<User> coclients) {
+        ArrayList<User> validCoClients = new ArrayList<>();
+
+        for (User user : coclients) {
+            if (depIds.contains(user.getId())) {
+                continue; 
+            }
+            if (!user.getRoles().contains("CLIENT")) {
+                continue; 
+            }
+            validCoClients.add(user);
+        }
+        return validCoClients;
+    }
+
 
 }
