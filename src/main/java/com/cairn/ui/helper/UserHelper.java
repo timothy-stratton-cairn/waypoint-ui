@@ -36,7 +36,6 @@ public class UserHelper {
 	 * @return
 	 */
 	
-	
 	public ArrayList<User> getUserList(User usr) {
 	    ArrayList<User> results = new ArrayList<User>();
 
@@ -58,7 +57,7 @@ public class UserHelper {
 	                        entry.setLastName(element.get("lastName").asText());
 	                        entry.setEmail(element.get("email").asText());
 
-	                        // Set the role
+	                        // Set the role (if needed, but it's being phased out)
 	                        JsonNode accountRolesNode = element.get("accountRoles").get("roles");
 	                        ArrayList<String> userRoles = new ArrayList<>();
 	                        if (accountRolesNode != null && accountRolesNode.isArray()) {
@@ -68,16 +67,16 @@ public class UserHelper {
 	                        }
 	                        entry.setRoles(userRoles);
 
-	                        // Parse and set dependents
-	                        JsonNode dependentsNode = element.get("dependents");
-	                        if (dependentsNode != null && dependentsNode.isArray()) {
+	                        // Parse and set dependents from associatedAccounts
+	                        JsonNode associatedAccountsNode = element.get("associatedAccounts").get("accounts");
+	                        if (associatedAccountsNode != null && associatedAccountsNode.isArray()) {
 	                            ArrayList<User> dependents = new ArrayList<>();
-	                            for (JsonNode dep : dependentsNode) {
+	                            for (JsonNode associatedAccount : associatedAccountsNode) {
 	                                User dependent = new User();
-	                                dependent.setId(dep.get("id").asInt());
-	                                dependent.setFirstName(dep.get("firstName").asText());
-	                                dependent.setLastName(dep.get("lastName").asText());
-	                                dependent.setUsername(dep.get("username").asText());
+	                                dependent.setId(associatedAccount.get("id").asInt());
+	                                dependent.setFirstName(associatedAccount.get("firstName").asText());
+	                                dependent.setLastName(associatedAccount.get("lastName").asText());
+	                                dependent.setUsername(associatedAccount.get("username").asText());
 	                                dependent.setGuardianId(entry.getId());
 	                                dependents.add(dependent);
 	                            }

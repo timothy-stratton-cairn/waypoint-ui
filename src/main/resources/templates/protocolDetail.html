@@ -149,7 +149,7 @@
 						<button type="button" class="btn btn-sm btn-secondary" th:onclick="'showFileUploadForm(' + ${step.id} + ');'">Add File</button>
 					</div>
 					<div th:if="${step != null}" th:id="'fileUploadContainer_' + ${step.id}"></div>
-					<div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}"></div>
+					<div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}" class="col-md-12 mt-2"></div>
                     <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
  
                     </div>
@@ -249,8 +249,15 @@
     function addNote(stepId) {
 	    const container = document.querySelector(`#noteContainer_${stepId}`);
 	    if (container.innerHTML.trim() === "") {
-	        container.innerHTML = `<input type="text" id="noteInput_${stepId}" placeholder="Add a note...">
-	                               <button onclick="confirmNote(${stepId})">Confirm Note</button>`;
+	        container.innerHTML = `
+            <div class="form-row align-items-center">
+                <div class="col">
+                    <input type="text" id="noteInput_${stepId}" class="form-control form-control-sm" placeholder="Add a note..." style="border-radius: 0;">
+                </div>
+                <div class="col-auto">
+                    <button onclick="confirmNote(${stepId})" class="btn btn-secondary btn-sm" style="border-radius: 0;">Confirm Note</button>
+                </div>
+            </div>`;
 	    } else {
 	        container.innerHTML = "";  // Hide the note container if it's already visible
 	    }

@@ -46,7 +46,7 @@
         </div>
     </div>
     
-    <div class="container" id="dependentSection">
+	<div th:if="${!isDependent}" class="container" id="dependentSection">
 		 <div th:insert="fragments/dependents :: dependentsFragment"></div>
         <!-- Dependents Information -->
         <div class="note_card">

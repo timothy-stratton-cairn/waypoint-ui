@@ -136,21 +136,46 @@
                     </button>
                 </li>
             </ul>
+		<div class="tab-content" id="dependentTabsContent">
+		    <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade"
+		         th:classappend="${iterStat.index == 0} ? ' show active' : ''"
+		         th:id="'dependent' + ${iterStat.index}" role="tabpanel">
+		        <div>
+		            <label>Name:</label>
+		            <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
+		            
+		            <!-- Assign to Household Button -->
+		            <button class="btn btn-sm btn-secondary ml-2" type="button"
+		                    th:onclick="'toggleHouseholdDropdown(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
+		                Assign to Household
+		            </button>
+		            
+		            <!-- Remove Dependent Button -->
+		            <button class="btn btn-default btn-sm ml-2" type="button"
+		                    th:onclick="'removeDependent(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
+		                Remove Dependent
+		            </button>
+		            
+		            <!-- Dropdown Section for Household Assignment -->
+		            <div id="householdDropdownSection" th:id="'householdDropdownSection_' + ${dependent.id}" style="display: none; margin-top: 10px;">
+		                <div class="row">
+		                    <div class="col-md-6">
+		                        <select class="form-select" th:id="'householdSelect_' + ${dependent.id}">
+		                            <option value="">Select Household</option>
+		                            <option th:each="household : ${householdList}" th:value="${household.id}"
+		                                    th:text="${household.name}"></option>
+		                        </select>
+		                        <button class="btn btn-secondary" type="button"
+		                                th:onclick="'assignDependentToHousehold(' + ${dependent.guardianId} + ',' + ${dependent.id} + ', this)'">
+		                            Confirm
+		                        </button>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
 
-            <div class="tab-content" id="dependentTabsContent">
-                <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade"
-                     th:classappend="${iterStat.index == 0} ? ' show active' : ''"
-                     th:id="'dependent' + ${iterStat.index}" role="tabpanel">
-                    <div>
-                        <label>Name:</label>
-                        <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
-                        <button class="btn btn-default btn-sm ml-2" type="button"
-                                th:onclick="'removeDependent(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
-                            Remove Dependent
-                        </button>
-                    </div>
-                </div>
-            </div>
 
             <div class="row mb-3">
                 <div class="col-md-12">
@@ -162,7 +187,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <select class="form-select" id="dependentSelect">
-							<option value="">Select Depenedent</option>
+							<option value="">Select Dependent</option>
                             <option value="new">Create Dependent</option>
                             <option th:each="dependant : ${userList}" th:value="${dependant.id}"
                                     th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
@@ -189,7 +214,6 @@
                 </div>
             </div>
 
-            <!-- New Assign To Client Button and Dropdown -->
             <div class="row mb-3">
                 <div class="col-md-12">
                     <button class="btn btn-primary" type="button" id="showAssignToClientBtn">Assign To Client</button>
@@ -278,9 +302,7 @@
 			                    </div>
 			                    <div class="flip-card-back" id="back_2" style="display: none">
 			                        <div class="container">
-
 			                            <p>Homework:</p>
-			                            <div th:text="${pcol.id}"></div>
 			                            <ul th:id="'homeworkList_' + ${pcol.id}"></ul>
 			                        </div>
 			                    </div>
@@ -835,7 +857,7 @@
 	            success: function(response) {
 	                showMessageBanner('CoClient Successfully Removed!', 'success');
 	                makePrimaryContact(pcId).then(function() {
-	                    window.location.reload();
+	                    window.location.reload(); // Reload the page upon successful response
 	                }).catch(function(error) {
 	                    showMessageBanner('Failed to make primary contact. Error: ' + error.message, 'danger');
 	                });
@@ -854,7 +876,7 @@
 		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 		
 		    var requestUrl = `/removeDependent/${guardId}/${depId}`;
-			if (confirm("Are you sure you want to remove this CoClient?")) {
+			if (confirm("Are you sure you want to remove this Dependent?")) {
 		    fetch(requestUrl, {
 		        method: 'PATCH',
 		        headers: {
@@ -866,7 +888,7 @@
 		    .then(response => {
 		        if (response.ok) {
 		            showMessageBanner('Dependent successfully removed.', 'success');
-		            loadDependents();  // Reload the dependents list
+		            window.location.reload();
 		        } else {
 		            response.text().then(text => { throw new Error(text); });
 		        }
@@ -882,7 +904,7 @@
 	        $('#assignToClientSection').toggle();
 	    });
 	});
-	f
+	
 	function assignDependentToClient() {
 	    const selectedClientId = document.getElementById('assignToClientSelect').value;
 	    const dependentId = $('.nav-link-dep.active').data('dependent-id'); // Assuming each tab has data-dependent-id attribute
@@ -923,8 +945,46 @@
 	    document.getElementById('dependentFirstName').value = '';
 	    document.getElementById('dependentLastName').value = '';
 	}
+	
+	function toggleHouseholdDropdown(guardianId, dependentId) {
+	    const dropdownSection = document.getElementById(`householdDropdownSection_${dependentId}`);
+	    if (dropdownSection) {
+	        dropdownSection.style.display = dropdownSection.style.display === 'none' ? 'block' : 'none';
+	    }
+	}
+	
+	function assignDependentToHousehold(guardianId, dependentId, button) {
+	    const householdSelect = document.getElementById(`householdSelect_${dependentId}`);
+	    const selectedHouseholdId = householdSelect ? householdSelect.value : null;
+	
+	    if (!selectedHouseholdId) {
+	        showMessageBanner('Please select a household first.', 'warning');
+	        return;
+	    }
+	
+	    removeDependent(guardianId, dependentId)
+	        .then(() => {
+	            return $.ajax({
+	                url: `/addCoClient/${selectedHouseholdId}/${dependentId}`,
+	                type: 'PATCH',
+	                headers: {
+	                    'Accept': 'text/plain',
+	                    'Content-Type': 'application/json',
+	                    'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+	                }
+	            });
+	        })
+	        .then(response => {
+	            showMessageBanner('Dependent successfully assigned to the new household.', 'success');
+	            window.location.reload(); // Reload the page upon successful response
+	        })
+	        .catch(error => {
+	            console.error('Error assigning dependent:', error);
+	            showMessageBanner('Failed to assign the dependent. Error: ' + error.message, 'danger');
+	        });
+	}
 
-       
+
         
     </script>
     <div th:insert="~{footer :: main}">...</div>

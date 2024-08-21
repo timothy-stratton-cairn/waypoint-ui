@@ -87,6 +87,14 @@
     let primaryContactAdded = false;
     const primaryContactsIds = [];
     const coClientsIds = [];
+    
+	window.addEventListener('beforeunload', function (e) {
+	    const confirmationMessage = 'Are you sure you want to leave the page? All progress will be lost.';
+	    e.returnValue = confirmationMessage; 
+	    return confirmationMessage; 
+	});
+	
+	
 
     function togglePrimaryContactFields() {
         document.getElementById('primaryContactFields').classList.toggle('d-none');
@@ -305,51 +313,67 @@
         }
     }
 
-    function saveHousehold() {
-        const name = document.getElementById('name').value;
-        const description = document.getElementById('description').value;
+	function saveHousehold() {
+	    const name = document.getElementById('name').value;
+	    const description = document.getElementById('description').value;
+	
+	    if (!name || !description) {
+	        showError('Both Household Name and Description are required.');
+	        return;
+	    }
+	
+	    if (!primaryContactsIds.length) {
+	        showError('A primary contact must be added.');
+	        return;
+	    }
+	
+	    // Remove the beforeunload event listener before submitting the form
+	    window.removeEventListener('beforeunload', handleBeforeUnload);
+	
+	    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+	    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+	
+	    const householdData = JSON.stringify({
+	        name: name,
+	        description: description,
+	        primaryContactsIds: primaryContactsIds,
+	        householdAccountsIds: coClientsIds
+	    });
+	
+	    fetch('/addHousehold/', {
+	        method: 'POST',
+	        headers: {
+	            'Content-Type': 'application/json',
+	            'Accept': 'application/json',
+	            [csrfHeader]: csrfToken
+	        },
+	        body: householdData
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        if (data.message) {
+	            window.location.href = '/clients'; // Redirect on success
+	        } else {
+	            showError(data.error || 'Unknown error occurred.');
+	            // Re-attach the beforeunload event listener if the submission fails
+	            window.addEventListener('beforeunload', handleBeforeUnload);
+	        }
+	    })
+	    .catch(error => {
+	        showError('Error adding household: ' + error.message);
+	        // Re-attach the beforeunload event listener if the submission fails
+	        window.addEventListener('beforeunload', handleBeforeUnload);
+	    });
+	}
 
-        if (!name || !description) {
-            showError('Both Household Name and Description are required.');
-            return;
-        }
+	function handleBeforeUnload(e) {
+	    const confirmationMessage = 'Are you sure you want to leave the page? All progress will be lost.';
+	    e.returnValue = confirmationMessage; // Standard way of showing confirmation dialog
+	    return confirmationMessage; // Some browsers may require this
+	}
+	
+	window.addEventListener('beforeunload', handleBeforeUnload);
 
-        if (!primaryContactsIds.length) {
-            showError('A primary contact must be added.');
-            return;
-        }
-
-        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-        const householdData = JSON.stringify({
-            name: name,
-            description: description,
-            primaryContactsIds: primaryContactsIds,
-            householdAccountsIds: coClientsIds
-        });
-
-        fetch('/addHousehold/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            body: householdData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                window.location.href = '/clients'; // Redirect on success
-            } else {
-                showError(data.error || 'Unknown error occurred.');
-            }
-        })
-        .catch(error => {
-            showError('Error adding household: ' + error.message);
-        });
-    }
 
     function showError(message) {
         const errorBanner = document.getElementById('errorBanner');

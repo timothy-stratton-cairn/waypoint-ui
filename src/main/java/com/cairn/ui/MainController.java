@@ -33,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.config.web.server.ServerHttpSecurity.AnonymousSpec;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -857,6 +858,7 @@ logger.info("Empty List");
 	    User usr = userDAO.getUser();
 	    User client = userHelper.getUser(usr, id);
 	    int clientId = client.getId();
+	    boolean status = isDependent(id);
 	    String roles = String.join(",", client.getRoles());
 	    logger.info(roles);
 	    
@@ -935,6 +937,7 @@ logger.info("Empty List");
 	    logger.info(" Household ID: " + householdId + " PC ID: "+ pcId);
 	   
 		model.addAttribute("userList", userList);
+		model.addAttribute("isDependent",status);
 		model.addAttribute("myHousehold", myHousehold);
 		model.addAttribute("pcId", pcId);
 		model.addAttribute("householdId", householdId);
@@ -1273,12 +1276,17 @@ logger.info("Empty List");
 	            .map(usr -> usr.getFirstName() + " " + usr.getLastName())
 	            .collect(Collectors.joining(","));
 	    logger.info("User List after filtering: " + listPostFilter);
-
+	    
+	    ArrayList<Household> householdList = userHelper.getHouseholdList(currentUser);
+	    
+	    householdList.remove(household);
+	    
 	   
 	    //logger.info("User List after filtering: " + listPostFilter);
 	    
 	    
 	    model.addAttribute("dependants", dependantList);
+	    model.addAttribute("householdList",householdList);
 	    model.addAttribute("primaryContact", pcUser);
 	    model.addAttribute("pcId", pcId);
 	    model.addAttribute("primaryContactUser", primaryContactUser); // Fixed duplicate attribute key
@@ -2521,6 +2529,35 @@ logger.info("Empty List");
         }
         return validCoClients;
     }
-
+    
+    
+    public String removeDependentFromAllUsers (int id) {
+    	String status = "Starting";
+    	User currentUser = userDAO.getUser();
+    	
+    	ArrayList<User> allUsers = userHelper.getUserList(currentUser);
+    	for(User usr: allUsers) {
+    		for(User dep: usr.getDependents()) {
+    			if( id == dep.getId()) {
+    				removeDependent(id,usr.getId());
+    			}
+    		}
+    	}
+    	status = "done";
+    	return status;
+    }
+    
+    public boolean isDependent(int id) {
+    	boolean answer = false;
+    	User currentUser = userDAO.getUser();
+    	ArrayList<Integer> depIds = userHelper.getDependentIds(currentUser);
+    	for (int depId: depIds) {
+    		if (id == depId) {
+    			answer = true;
+    		}
+    	}	
+    	return answer;
+    	
+    }
 
 }
