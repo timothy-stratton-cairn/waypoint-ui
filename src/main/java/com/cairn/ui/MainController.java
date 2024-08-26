@@ -133,8 +133,8 @@ public class MainController {
 		}
 
 		ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, userHelper.getHouseholdId(usr));
-
-		logger.info("Household Id: "+ userHelper.getHouseholdId(usr));
+		int householdId =userHelper.getHouseholdId(usr);
+		logger.info("Household Id: "+ householdId );
 		ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date currentDate = new Date();
@@ -163,13 +163,14 @@ public class MainController {
 			}
 		}
 		ArrayList<ProtocolStats> stats = helper.getDashboard(usr);
-logger.info("Empty List");
+
 			
 			// logger.info("Temp ID: " + stat.getTemplateId() + " Number Of Steps: "+
 			// stat.getNumSteps() + " Progress: " + stat.getProgress());
 	
 
 		session.setAttribute("me", usr);
+		model.addAttribute("householdId",householdId);
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", stats);
@@ -280,6 +281,16 @@ logger.info("Empty List");
 
 		return "protocolDetail";
 	}
+	
+    @GetMapping("/protocol/steps/{protocolId}")
+    public String getProtocolSteps(@PathVariable int protocolId, Model model) {
+    	User currentUser = userDAO.getUser();
+        ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser, protocolId);
+        model.addAttribute("steps", steps);
+
+        // Return the HTML snippet for the steps portion
+        return "protocolDetail :: #stepsContent";
+    }
 
 	@GetMapping("/analysis/{id}")
 	public String analysis(@PathVariable int id, Model model) {
@@ -1143,7 +1154,9 @@ logger.info("Empty List");
 		
 		try {
 			userHelper.addHouseholdAccount(currentUser, household, householdIds);
+			removeDependentFromAllUsers(coClientId); //when we add a coClient to a household, ensure that if it is a dependent of any other user, it is removed.
 			return ResponseEntity.ok().body("Success: Client Profile Added");
+			
 
 		} catch (Exception e) {
 			System.err.println("Error updating client: " + e.getMessage());

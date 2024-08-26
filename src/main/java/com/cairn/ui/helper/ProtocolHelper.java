@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -496,45 +497,79 @@ public class ProtocolHelper {
 	
 	
 	public ArrayList<ProtocolStep> getStepList(User usr, int id) {
-		ArrayList<ProtocolStep> results = new ArrayList<ProtocolStep>();
+	    ArrayList<ProtocolStep> results = new ArrayList<>();
 
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + id;
-		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
-		if (!jsonResponse.isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
+	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + '/' + id;
+	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+	    if (!jsonResponse.isEmpty()) {
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				JsonNode temp = jsonNode.get("associatedSteps");
-				JsonNode prots = temp.get("steps");
-				// Iterate through the array elements
-				ProtocolStep entry = null;
-				if (prots.isArray()) {
-					for (JsonNode element : prots) {
-						// Access and print array elements
-						if (element != null) {
-							entry = new ProtocolStep();
-							entry.setDescription(element.get("description").asText());
-							entry.setName(element.get("name").asText());
-							entry.setStatus(element.path("status").asText());
-							entry.setId(Integer.valueOf(element.get("id").toString()));
-							entry.setCategoryName(element.path("category").asText());
-							results.add(entry);
-						}
-					}
-				}
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-		} else {
-			logger.info("Failed to fetch data. getStepList");
-		}
+	        try {
+	            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode temp = jsonNode.get("associatedSteps");
+	            JsonNode prots = temp.get("steps");
 
-		return results;
+	            if (prots.isArray()) {
+	                for (JsonNode element : prots) {
+	                    if (element != null) {
+	                        ProtocolStep entry = new ProtocolStep();
+	                        entry.setDescription(element.get("description").asText());
+	                        entry.setName(element.get("name").asText());
+	                        entry.setStatus(element.path("status").asText());
+	                        entry.setId(element.get("id").asInt());
+	                        entry.setCategoryName(element.path("category").asText());
+
+	                        // Extract step notes
+	                        JsonNode stepNotesNode = element.path("stepNotes").path("notes");
+	                        if (stepNotesNode.isArray() && stepNotesNode.size() > 0) {
+	                            ArrayList<ProtocolStepNote> stepNotes = new ArrayList<>();
+	                            ProtocolStepNote mostRecentNote = null;
+
+	                            for (JsonNode noteNode : stepNotesNode) {
+	                                ProtocolStepNote stepNote = new ProtocolStepNote();
+	                                stepNote.setTakenBy(noteNode.get("takenBy").asText());
+	                                stepNote.setNote(noteNode.get("note").asText());
+
+	                                // Parse takenAt as Date
+	                                Date takenAtDate = dateFormat.parse(noteNode.get("takenAt").asText());
+	                                stepNote.setTakenAt(takenAtDate);
+	                                stepNote.setNoteId(noteNode.get("noteId").asInt());
+
+	                                stepNotes.add(stepNote);
+
+	                                // Determine the note with the greatest noteId
+	                                if (mostRecentNote == null || stepNote.getNoteId() > mostRecentNote.getNoteId()) {
+	                                    mostRecentNote = stepNote;
+	                                }
+	                            }
+
+	                            entry.setStepNotes(stepNotes);
+
+	                            // Set the most recent note based on the greatest noteId
+	                            if (mostRecentNote != null) {
+	                                entry.setMostRecentNote(mostRecentNote.getNote());
+	                            }
+	                        }
+
+	                        results.add(entry);
+	                    }
+	                }
+	            }
+	        } catch (JsonMappingException e) {
+	            e.printStackTrace();
+	        } catch (ParseException e) {
+	            e.printStackTrace();
+	        } catch (JsonProcessingException e) {
+	            e.printStackTrace();
+	        }
+	    } else {
+	        logger.info("Failed to fetch data. getStepList");
+	    }
+
+	    return results;
 	}
+
 
 	/*
 	 * Assigns a clientId to a protocol

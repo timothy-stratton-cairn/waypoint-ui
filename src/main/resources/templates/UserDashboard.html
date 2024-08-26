@@ -103,6 +103,7 @@
 	<br />
 	<br />
 	<script>
+		const householdID = [[${householdId}]];
         function selectClient(id) {
             window.location = 'workClient/' + id;
         }
@@ -110,7 +111,7 @@
             window.location = '/protocolsByTemplate/' + id + '/'
         }
         function viewProtocol(pcolId) {
-            window.location = '/viewProtocol/' + pcolId;
+            window.location = '/viewProtocol/' + pcolId + '/'+householdID;
         }
         function toggleAssignedHouseholds(templateId) {
             var householdList = document.getElementById('assignedHouseholds_' + templateId);

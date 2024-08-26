@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class ProtocolStepNote {
+	private int noteId;
 	private String note;
 	private String takenBy;
 	private String type;
@@ -33,6 +34,12 @@ public class ProtocolStepNote {
 	}
 	public void setTakenAt(Date takenAt) {
 		this.takenAt = takenAt;
+	}
+	public int getNoteId() {
+		return noteId;
+	}
+	public void setNoteId(int noteId) {
+		this.noteId = noteId;
 	}
 	
 }

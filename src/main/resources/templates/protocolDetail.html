@@ -139,10 +139,10 @@
                      th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" 
                      th:data-type="${step.categoryName}">
                     
-                    <div class="col-md-3" th:text="${step.name}">[Step Name]</div>
+                    <div class="col-md-2" th:text="${step.name}">[Step Name]</div>
                     <div class="col-md-3" th:text="${step.description}">[Description]</div>
-                    <div class="col-md-3" th:text="${step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}">[Status]</div>
-
+                    <div class="col-md-1" th:text="${step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}">[Status]</div>
+					<div class="col-md-3" th:text="${step.mostRecentNote}"></div>
                     <div class="col-md-3">
                         <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
                         <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
@@ -288,6 +288,7 @@
             },
             success: function(response) {
                 $(`#row_${stepId} .col-md-3:nth-child(3)`).text(camel(status.toLowerCase().replace(/_/g, ' ')));
+                reloadStepsContent(protocolId);
                 showMessageBanner('Status updated successfully.', 'success');
             },
             error: function(xhr, status, error) {
@@ -312,6 +313,7 @@
             },
             success: function(response) {
                 showMessageBanner('Note added successfully.', 'success');
+                reloadStepsContent(protocolId);
                 document.querySelector(`#noteContainer_${stepId}`).innerHTML = '';
             },
             error: function(xhr, status, error) {
@@ -443,6 +445,7 @@
 	        contentType: false,
 	        success: function(response) {
 	            showMessageBanner('File uploaded successfully.', 'success');
+	            reloadStepsContent(protocolId);
 	        },
 	        error: function(xhr, status, error) {
 	            console.error('Error uploading file:', error);
@@ -450,6 +453,22 @@
 	        }
 	    });
 	}
+	
+	function reloadStepsContent(protocolId) {
+    $.ajax({
+        url: '/protocol/steps/' + protocolId,
+        type: 'GET',
+        success: function(response) {
+            $('#stepsContent').html(response); // Replace the steps content
+            showMessageBanner('Steps reloaded successfully.', 'success');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error reloading steps:', error);
+            showMessageBanner('Failed to reload steps. Error: ' + xhr.responseText, 'danger');
+        }
+    });
+}
+
 
 </script>
 <div th:insert="~{footer :: main}">...</div>

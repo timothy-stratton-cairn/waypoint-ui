@@ -20,6 +20,8 @@ public class ProtocolStep {
 	private int daysToComplete;
 	
 	private ArrayList<ProtocolStepNote> stepNotes;
+	
+	private String mostRecentNote;
 
 	public int getId() {
 		return id;
@@ -101,4 +103,12 @@ public class ProtocolStep {
 	public void setTemplateId(int templateId) {
 		this.templateId = templateId;
 	}
+	public String getMostRecentNote() {
+		return mostRecentNote;
+	}
+	public void setMostRecentNote(String mostRecentNote) {
+		this.mostRecentNote = mostRecentNote;
+	}
+	
+	
 }
