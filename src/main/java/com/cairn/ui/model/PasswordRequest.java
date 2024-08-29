@@ -1,7 +1,5 @@
 package com.cairn.ui.model;
 
-import org.springframework.web.multipart.MultipartFile;
-
 public class PasswordRequest {
     private String username;
     private String password;

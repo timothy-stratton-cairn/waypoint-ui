@@ -1,7 +1,6 @@
 package com.cairn.ui.model;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class ProtocolStepNote {
 	private int noteId;

@@ -17,7 +17,6 @@ public class ProtocolStep {
 	private String categoryDescription;
 	private Date startDate;
 	private Date completionDate;
-	private int daysToComplete;
 	
 	private ArrayList<ProtocolStepNote> stepNotes;
 	
