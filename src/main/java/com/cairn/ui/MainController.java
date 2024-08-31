@@ -844,11 +844,14 @@ public class MainController {
 		int id = userHelper.getUserId(usr);
 		User currentUser = userHelper.getUser(usr, id);
 		ArrayList<User> dependants = currentUser.getDependents();
+		ArrayList<String> roles = currentUser.getRoles();
 		// ArrayList<Household> householdList = userHelper.getHouseholdList(usr);
 
 		model.addAttribute(dependants);
 		model.addAttribute("user", currentUser);// Adds the object to the model to be accessed by the form
 		model.addAttribute("id", id);
+		model.addAttribute("roles", roles.get(0));
+		model.addAttribute("isDependent", false);
 		return "changeUserInfo";
 	}
 
@@ -867,7 +870,7 @@ public class MainController {
 		User client = userHelper.getUser(usr, id);
 		int clientId = client.getId();
 		boolean status = isDependent(id);
-		String roles = String.join(",", client.getRoles());
+		String roles = client.getRoles().get(0);
 		logger.info(roles);
 
 		ArrayList<User> dependents = client.getDependents();

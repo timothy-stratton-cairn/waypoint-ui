@@ -17,5 +17,4 @@ public class HomeworkUserListDto {
 	public void setUserIds(List<Long> userIds) {
 		this.userIds = userIds;
 	}
-
 }

@@ -245,9 +245,9 @@ public class UserHelper {
                 	result.setHouseholdId(0);
                 }
 
-                JsonNode accountRoles = jsonNode.path("accountRoles").path("roles");
-                JsonNode deps = jsonNode.path("dependents");
-                JsonNode coclient = jsonNode.path("coClient");
+                JsonNode accountRoles = jsonNode.get("roles");
+                JsonNode deps = jsonNode.get("dependents");
+                JsonNode coclient = jsonNode.get("coClient");
 
                 // Handle coClient
                 if (coclient != null && !coclient.isNull()) {
