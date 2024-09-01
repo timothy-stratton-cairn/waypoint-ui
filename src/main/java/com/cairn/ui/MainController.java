@@ -132,7 +132,7 @@ public class MainController {
 			return "home";
 		}
 
-		ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, userHelper.getHouseholdId(usr));
+		ArrayList<Protocol> pcolList = protocolHelper.getList(usr);
 		int householdId =userHelper.getHouseholdId(usr);
 		logger.info("Household Id: "+ householdId );
 		ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
@@ -151,9 +151,11 @@ public class MainController {
 		}
 		for (Protocol pcol : pcolList) {
 			String dueDateStr = pcol.getDueDate();
-			if (dueDateStr != null) {
+			if (dueDateStr != null && (dueDateStr!= "No Due Date")) {
 				try {
+					
 					Date dueDate = dateFormat.parse(dueDateStr);
+					
 					if (dueDate.after(currentDate) && dueDate.before(upcomingWeek)) {
 						upcomingPcol.add(pcol);
 					}
@@ -161,9 +163,12 @@ public class MainController {
 					e.printStackTrace(); // Handle parse exception
 				}
 			}
+			else {
+				logger.info("Protocol: " + pcol.getName() + " id: "+ pcol.getId() + " Has no due Date " );
+			}
 		}
 		ArrayList<ProtocolStats> stats = helper.getDashboard(usr);
-
+		ArrayList<Household> households = userHelper.getHouseholdList(usr);
 			
 			// logger.info("Temp ID: " + stat.getTemplateId() + " Number Of Steps: "+
 			// stat.getNumSteps() + " Progress: " + stat.getProgress());
@@ -171,6 +176,7 @@ public class MainController {
 
 		session.setAttribute("me", usr);
 		model.addAttribute("householdId",householdId);
+		model.addAttribute("households",households);
 		model.addAttribute("msg", msg);
 		model.addAttribute("user", usr);
 		model.addAttribute("stats", stats);

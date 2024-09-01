@@ -60,45 +60,55 @@ public class ProtocolHelper {
 	 * @return
 	 */
 	public ArrayList<Protocol> getList(User usr) {
-		ArrayList<Protocol> results = new ArrayList<Protocol>();
-		String jsonResponse = apiHelper.callAPI(this.dashboardApiBaseUrl + Constants.api_ep_protocol, usr);
-		if (!jsonResponse.isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
+	    ArrayList<Protocol> results = new ArrayList<Protocol>();
+	    String jsonResponse = apiHelper.callAPI(this.dashboardApiBaseUrl + Constants.api_ep_protocol, usr);
+	    if (!jsonResponse.isEmpty()) {
+	        ObjectMapper objectMapper = new ObjectMapper();
 
-			JsonNode jsonNode;
-			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
-				JsonNode prots = jsonNode.get("protocols");
-				// Iterate through the array elements
-				Protocol entry = null;
-				if (prots.isArray()) {
-					for (JsonNode element : prots) {
-						// Access and print array elements
-						if (element != null) {
-							entry = new Protocol();
-							entry.setName(element.get("name").asText());
-							entry.setId(Integer.valueOf(element.get("id").toString()));
-							entry.setStartDate(
-									new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
-							if (element.has("completedOn") && !element.get("completedOn").isNull()) {
-								entry.setCompletionDate(
-										new SimpleDateFormat("yyyy-MM-dd").parse(element.get("completedOn").asText()));
-							} else {
-								entry.setCompletionDate(null);
-							}
+	        try {
+	            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+	            JsonNode prots = jsonNode.get("protocols");
 
-							results.add(entry);
-						}
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	            if (prots != null && prots.isArray()) {
+	                for (JsonNode element : prots) {
+	                    if (element != null) {
+	                        Protocol entry = new Protocol();
+	                        entry.setName(element.get("name").asText());
+	                        entry.setDescription(element.get("description").asText());
+	                        entry.setUserId(element.get("assignedHouseholdId").asInt());
+	                        // Safely accessing the "dueBy" field
+	                        JsonNode dueByNode = element.get("dueBy");
+	                        if (dueByNode != null && !dueByNode.isNull()) {
+	                            entry.setDueDate(dueByNode.asText());
+	                        } else {
+	                            entry.setDueDate("No Due Date");
+	                        }
+	                        entry.setCompletionPercent(element.get("completionPercentage").asText());
+	                        entry.setId(element.get("id").asInt());
+	                        entry.setStartDate(
+	                            new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
 
-		return results;
+	                        // Safely accessing the "completedOn" field
+	                        JsonNode completedOnNode = element.get("completedOn");
+	                        if (completedOnNode != null && !completedOnNode.isNull()) {
+	                            entry.setCompletionDate(
+	                                new SimpleDateFormat("yyyy-MM-dd").parse(completedOnNode.asText()));
+	                        } else {
+	                            entry.setCompletionDate(null);
+	                        }
 
+	                        results.add(entry);
+	                    }
+	                }
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    return results;
 	}
+
 
 	public ArrayList<Protocol> getListbyTemplateId(User usr, int tempId) {
 	    ArrayList<Protocol> results = new ArrayList<>();

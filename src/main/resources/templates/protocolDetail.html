@@ -133,32 +133,60 @@
                 <li class="nav-item tab"><a class="nav-link" href="#" onclick="filterStepsByCategory('Share Education'); return false;">Share Education</a></li>
             </ul>
 
-            <div id="stepsContent">
-                <div th:each="step, iterStat : ${steps}" 
-                     th:id ="'row_' + ${step.id}" 
-                     th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" 
-                     th:data-type="${step.categoryName}">
-                    
-                    <div class="col-md-2" th:text="${step.name}">[Step Name]</div>
-                    <div class="col-md-3" th:text="${step.description}">[Description]</div>
-                    <div class="col-md-1" th:text="${step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}">[Status]</div>
-					<div class="col-md-3" th:text="${step.mostRecentNote}"></div>
-                    <div class="col-md-3">
-                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="'updateProgress(' + ${step.id} + ');'">Update Progress</button>
-                        <button type="button" class="btn btn-sm btn-secondary" th:onclick="'addNote(' + ${step.id} + ');'">Add Note</button>
-						<button type="button" class="btn btn-sm btn-secondary" th:onclick="'showFileUploadForm(' + ${step.id} + ');'">Add File</button>
-					</div>
-					<div th:if="${step != null}" th:id="'fileUploadContainer_' + ${step.id}"></div>
-					<div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}" class="col-md-12 mt-2"></div>
-                    <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
- 
-                    </div>
-                    
-                   
-                </div>
-            </div>
+		<div id="stepsContent">
+		    <div th:each="step, iterStat : ${steps}" 
+		         th:id ="'row_' + ${step.id}" 
+		         th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" 
+		         th:data-type="${step.categoryName}">
+		        
+		        <div class="col-md-4" th:text="${step.name}">[Step Name]</div>
+		        <div class="col-md-3" th:text="${step.description}">[Description]</div>
+		        <div class="col-md-1" th:text="${step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}">[Status]</div>
+		        <div class="col-md-2" th:text="${step.mostRecentNote}"></div>
+		        <div class="col-md-2">
+		            <select th:id="'actionDropdown_' + ${step.id}" class="form-control form-control-sm">
+					    <option value="" selected disabled>Select Action</option>
+					    <option value="updateProgress">Update Progress</option>
+					    <option value="addNote">Add Note</option>
+					    <option value="showFileUploadForm">Add File</option>
+					    <option value="toggleComments">See All Notes</option>
+					</select>
+					<button type="button" class="btn btn-sm btn-primary mt-2" th:onclick="'confirmAction(' + ${step.id} + ')'" >Confirm</button>
+
+		       
+
+		        </div>
+		
+		        <!-- Comments table -->
+		        <div th:if="${step.stepNotes != null && !step.stepNotes.isEmpty()}" th:id="'commentsTable_' + ${step.id}" class="col-md-12 mt-2 d-none">
+		            <table class="table table-striped">
+		                <thead>
+		                    <tr>
+		                        <th>Note</th>
+		                        <th>Date</th>
+		                        <th>Author</th>
+		                    </tr>
+		                </thead>
+		                <tbody>
+		                    <tr th:each="note : ${step.stepNotes}">
+		                        <td th:text="${note.note}">[Note]</td>
+		                        <td th:text="${#dates.format(note.takenAt, 'yyyy-MM-dd HH:mm')}">[Taken At]</td>
+		                        <td th:text="${note.takenBy}">[Taken By]</td>
+		                    </tr>
+		                </tbody>
+		            </table>
+		        </div>
+		
+		        <!-- Additional containers -->
+		        <div th:if="${step != null}" th:id="'fileUploadContainer_' + ${step.id}"></div>
+		        <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}" class="col-md-12 mt-2"></div>
+		        <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
+		    </div>
+		</div>
+
         </fieldset>
     </div>
+</div>
 </div>
 
 <script>
@@ -468,6 +496,47 @@
         }
     });
 }
+    function toggleComments(stepId) {
+        const commentsTable = document.getElementById('commentsTable_' + stepId);
+        if (commentsTable.classList.contains('d-none')) {
+            commentsTable.classList.remove('d-none');
+        } else {
+            commentsTable.classList.add('d-none');
+        }
+    }
+    function confirmAction(stepId) {
+	    const actionDropdown = document.querySelector(`#actionDropdown_${stepId}`);
+	    
+	    if (!actionDropdown) {
+	        console.error(`Element with id actionDropdown_${stepId} not found.`);
+	        showMessageBanner('Action dropdown not found. Please try again.', 'danger');
+	        return;
+	    }
+	    
+	    const selectedAction = actionDropdown.value;
+	
+	    if (!selectedAction) {
+	        showMessageBanner('Please select an action before confirming.', 'warning');
+	        return;
+	    }
+	
+	    switch (selectedAction) {
+	        case 'updateProgress':
+	            updateProgress(stepId);
+	            break;
+	        case 'addNote':
+	            addNote(stepId);
+	            break;
+	        case 'showFileUploadForm':
+	            showFileUploadForm(stepId);
+	            break;
+	        case 'toggleComments':
+	            toggleComments(stepId);
+	            break;
+	        default:
+	            showMessageBanner('Invalid action selected.', 'danger');
+	    }
+	}
 
 
 </script>

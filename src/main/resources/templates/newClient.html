@@ -44,8 +44,9 @@
                             <button type="button" class="btn btn-primary" onclick="togglePrimaryContactFields()">Add Primary Contact</button>
                             <div id="primaryContactFields" class="d-none mt-3">
                                 <select id="primaryContactSelect" class="form-control" onchange="checkNewPrimaryContact()">
+									<option value="new">Add New Primary Contact</option>
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
-                                    <option value="new">Add New Primary Contact</option>
+                                    
                                 </select>
                                 <button id="confirmPrimaryContactBtn" type="button" class="btn btn-success mt-2" onclick="addPrimaryContact('primaryContactSelect')">Confirm Primary Contact</button>
                             </div>
@@ -64,8 +65,9 @@
                             <button type="button" class="btn btn-primary" onclick="toggleCoClientFields()">Add CoClient</button>
                             <div id="coClientFields" class="d-none mt-3">
                                 <select id="coClientSelect" class="form-control" onchange="checkNewCoClient()">
+									<option value="new">Add New CoClient</option>
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
-                                    <option value="new">Add New CoClient</option>
+                                    
                                 </select>
                                 <button id="confirmCoClientBtn" type="button" class="btn btn-success mt-2" onclick="addCoClient('coClientSelect')">Confirm CoClient</button>
                             </div>
@@ -88,13 +90,13 @@
     const primaryContactsIds = [];
     const coClientsIds = [];
     
-	window.addEventListener('beforeunload', function (e) {
-	    const confirmationMessage = 'Are you sure you want to leave the page? All progress will be lost.';
-	    e.returnValue = confirmationMessage; 
-	    return confirmationMessage; 
-	});
-	
-	
+    function handleBeforeUnload(e) {
+        const confirmationMessage = 'Are you sure you want to leave the page? All progress will be lost.';
+        e.returnValue = confirmationMessage; // Standard way of showing confirmation dialog
+        return confirmationMessage; // Some browsers may require this
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     function togglePrimaryContactFields() {
         document.getElementById('primaryContactFields').classList.toggle('d-none');
@@ -150,11 +152,6 @@
                 <input type="text" id="${type}Username" name="username" class="form-control">
             </div>
 
-            <div class="form-group">
-                <label for="${type}Password">Password:</label>
-                <input type="password" id="${type}Password" name="password" class="form-control">
-            </div>
-
             <button type="button" class="btn btn-success mt-2" onclick="saveNewClient('${type}')">Create ${type === 'primary' ? 'Primary Contact' : 'CoClient'}</button>
         `;
     }
@@ -164,10 +161,6 @@
         return re.test(String(email).toLowerCase());
     }
 
-    function validatePassword(password) {
-        const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
-        return re.test(password);
-    }
 
     function showValidationError(message) {
         const errorBanner = document.getElementById('errorBanner');
@@ -177,7 +170,6 @@
 
     function saveNewClient(type) {
         const email = document.getElementById(`${type}Email`).value;
-        const password = document.getElementById(`${type}Password`).value;
 		const lastName = document.getElementById(`${type}LastName`).value;
 
         if (!validateEmail(email)) {
@@ -185,10 +177,6 @@
             return;
         }
 
-        if (password && !validatePassword(password)) {
-            showValidationError('Password must contain at least one number, one special character, one uppercase letter, one lowercase letter, and be at least 8 characters long.');
-            return;
-        }
 
         const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
@@ -198,7 +186,7 @@
             firstName: document.getElementById(`${type}FirstName`).value,
             lastName: lastName,
             email: email,
-            password: password || null, // Set password to null if it's not provided
+            password: null, 
             roles: [2]
         };
 
@@ -313,67 +301,60 @@
         }
     }
 
-	function saveHousehold() {
-	    const name = document.getElementById('name').value;
-	    const description = document.getElementById('description').value;
-	
-	    if (!name || !description) {
-	        showError('Both Household Name and Description are required.');
-	        return;
-	    }
-	
-	    if (!primaryContactsIds.length) {
-	        showError('A primary contact must be added.');
-	        return;
-	    }
-	
-	    // Remove the beforeunload event listener before submitting the form
-	    window.removeEventListener('beforeunload', handleBeforeUnload);
-	
-	    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	
-	    const householdData = JSON.stringify({
-	        name: name,
-	        description: description,
-	        primaryContactsIds: primaryContactsIds,
-	        householdAccountsIds: coClientsIds
-	    });
-	
-	    fetch('/addHousehold/', {
-	        method: 'POST',
-	        headers: {
-	            'Content-Type': 'application/json',
-	            'Accept': 'application/json',
-	            [csrfHeader]: csrfToken
-	        },
-	        body: householdData
-	    })
-	    .then(response => response.json())
-	    .then(data => {
-	        if (data.message) {
-	            window.location.href = '/clients'; // Redirect on success
-	        } else {
-	            showError(data.error || 'Unknown error occurred.');
-	            // Re-attach the beforeunload event listener if the submission fails
-	            window.addEventListener('beforeunload', handleBeforeUnload);
-	        }
-	    })
-	    .catch(error => {
-	        showError('Error adding household: ' + error.message);
-	        // Re-attach the beforeunload event listener if the submission fails
-	        window.addEventListener('beforeunload', handleBeforeUnload);
-	    });
-	}
+    function saveHousehold() {
 
-	function handleBeforeUnload(e) {
-	    const confirmationMessage = 'Are you sure you want to leave the page? All progress will be lost.';
-	    e.returnValue = confirmationMessage; // Standard way of showing confirmation dialog
-	    return confirmationMessage; // Some browsers may require this
-	}
-	
-	window.addEventListener('beforeunload', handleBeforeUnload);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
 
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value;
+
+        if (!name || !description) {
+            showError('Both Household Name and Description are required.');
+            return; 
+        }
+
+        if (!primaryContactsIds.length) {
+            showError('A primary contact must be added.');
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        const householdData = JSON.stringify({
+            name: name,
+            description: description,
+            primaryContactsIds: primaryContactsIds,
+            householdAccountsIds: coClientsIds
+        });
+
+        fetch('/addHousehold/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: householdData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                window.location.href = '/clients';
+            } else {
+                showError(data.error || 'Unknown error occurred.');
+                // Re-attach the beforeunload event listener if the submission fails
+                window.addEventListener('beforeunload', handleBeforeUnload);
+            }
+        })
+        .catch(error => {
+            showError('Error adding household: ' + error.message);
+            // Re-attach the beforeunload event listener if the submission fails
+            window.addEventListener('beforeunload', handleBeforeUnload);
+        });
+
+        return; 
+    }
 
     function showError(message) {
         const errorBanner = document.getElementById('errorBanner');
@@ -384,6 +365,5 @@
 <div th:insert="~{footer :: main}">...</div>
 </body>
 </html>
-
 
 

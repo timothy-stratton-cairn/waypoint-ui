@@ -79,9 +79,12 @@
                         Completion Percent
                     </div>
                     <div class="col-md-2">
+						Household
+					</div>
+                    <div class="col-md-1">
                         Status
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         Due Date
                     </div>
                 </div>
@@ -89,8 +92,15 @@
                     <div class="col-md-2" th:text="${pcol.name}"></div>
                     <div class="col-md-3" th:text="${pcol.description}"></div>
                     <div class="col-md-2" th:text="|${pcol.completionPercent}%|"></div>
-                    <div class="col-md-2" th:text="${pcol.status == 'IN_PROGRESS' ? 'In Progress' : (pcol.status == 'COMPLETED' ? 'Completed' : 'Archived')}"></div>
-                    <div class="col-md-3" th:text="${pcol.dueDate}"></div>
+                     <div class="col-md-2">
+				        <span th:each="household : ${households}" 
+				              th:if="${household.id} == ${pcol.userId}" 
+				              th:text="${household.name}">
+				        </span>
+				    </div>
+
+                    <div class="col-md-1" th:text="${pcol.status == 'IN_PROGRESS' ? 'In Progress' : (pcol.status == 'COMPLETED' ? 'Completed' : 'Archived')}"></div>
+                    <div class="col-md-2" th:text="${pcol.dueDate}"></div>
                 </div>
                 <div class="row ">&nbsp;</div>
             </fieldset>
@@ -121,6 +131,16 @@
                 householdList.style.display = 'none';
             }
         }
+        function getHouseholdName(id) {
+	    const households = [[${households}]]; // Get the households from the model
+	    for (let i = 0; i < households.length; i++) {
+	        if (households[i].id === id) {
+	            return households[i].name;
+	        }
+	    }
+    return "Unknown Household";
+}
+
     </script>
 </body>
 <div th:insert="~{footer :: main}">...</div>
