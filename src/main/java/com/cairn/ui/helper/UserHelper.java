@@ -2,7 +2,6 @@ package com.cairn.ui.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -246,9 +245,9 @@ public class UserHelper {
                 	result.setHouseholdId(0);
                 }
 
-                JsonNode accountRoles = jsonNode.path("accountRoles").path("roles");
-                JsonNode deps = jsonNode.path("dependents");
-                JsonNode coclient = jsonNode.path("coClient");
+                JsonNode accountRoles = jsonNode.get("roles");
+                JsonNode deps = jsonNode.get("dependents");
+                JsonNode coclient = jsonNode.get("coClient");
 
                 // Handle coClient
                 if (coclient != null && !coclient.isNull()) {
@@ -652,7 +651,7 @@ public class UserHelper {
     
 	public String newUserPassword(String username, String passwordResetToken ,String newPassword) {
 		HttpHeaders headers = new HttpHeaders();
-		User usr  = new User();
+		//User usr  = new User();
 	    headers.add("Authorization", "Bearer " + passwordResetToken);
 	    headers.add("Content-Type", "application/json");
 	    String requestBody = "{\"username\":\"" + username + "\", \"passwordResetToken\":\"" + passwordResetToken + "\", \"newPassword\":\"" + newPassword + "\"}";
@@ -660,7 +659,7 @@ public class UserHelper {
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/password/reset";
 	    logger.info(requestBody);
 	    logger.info(apiUrl);
-		String result = apiHelper.postAPICurl(apiUrl, requestBody);
+		String result = APIHelper.postAPICurl(apiUrl, requestBody);
 		logger.info(result);
 		return result;
 	}

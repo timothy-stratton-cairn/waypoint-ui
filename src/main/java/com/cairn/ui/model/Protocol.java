@@ -21,7 +21,6 @@ public class Protocol {
 	private Date startDate;
 	private String dueDate;
 	private Date completionDate;
-	private int daysToComplete;
 	private String completionPercent;
 	private int stepCount;
 	private int completedSteps;

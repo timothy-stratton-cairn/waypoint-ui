@@ -29,7 +29,6 @@ public class DashboardHelper {
 	private String dashboardApiBaseUrl;
 
 	private final RestTemplate restTemplate = new RestTemplate();
-	private final ObjectMapper mapper = new ObjectMapper();
 
 	/**
 	 * Get the dashboard stats

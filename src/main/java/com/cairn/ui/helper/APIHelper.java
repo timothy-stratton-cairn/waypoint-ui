@@ -50,7 +50,6 @@ public class APIHelper {
 		try {
 			ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.GET, entity, String.class);
 			jsonResponse = response.getBody();
-			String statuscode = "Code: "+response.getStatusCode();
 
 			// Process the response
 			if (response.getStatusCode().is2xxSuccessful()) {
