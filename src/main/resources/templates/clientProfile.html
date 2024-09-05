@@ -983,6 +983,31 @@
 	            showMessageBanner('Failed to assign the dependent. Error: ' + error.message, 'danger');
 	        });
 	}
+	
+	function reloadHouseholdSection(clientId) {
+	    $.ajax({
+	        url: `/clientProfile/household/` + clientId,
+	        type: 'GET',
+	        success: function (response) {
+	            $('#householdSection').html(response);
+	        },
+	        error: function () {
+	            alert("Failed to reload household section.");
+	        }
+	    });
+	}
+	
+	function reloadProtocolSection(clientId) {
+	    $.ajax({
+	        url: `/clientProfile/protocols/` + clientId,
+	        type: 'GET',
+	        success: function (response) {
+	            $('#protocolSection').html(response);
+	        },
+	        error: function () {
+	            alert("Failed to reload protocol section.");
+	        }
+	    });
 
 
         

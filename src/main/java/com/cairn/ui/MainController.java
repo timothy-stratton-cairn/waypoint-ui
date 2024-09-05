@@ -294,6 +294,50 @@ public class MainController {
 		// Return the HTML snippet for the steps portion
 		return "protocolDetail :: #stepsContent";
 	}
+	
+    @GetMapping("/clientProfile/household/{clientId}")
+    public String getHouseholdSection(@PathVariable int clientId, Model model) {
+        // Add necessary model attributes for household section
+    	User currentUser = userDAO.getUser();
+        model.addAttribute("household", userHelper.getHouseholdById(currentUser,clientId));
+        return "protocolDetail :: #householdSection";
+    }
+
+    @GetMapping("/clientProfile/protocols/{clientId}")
+    public String getProtocolSection(@PathVariable int clientId, Model model) {
+        // Add necessary model attributes for protocol section
+    	User currentUser = userDAO.getUser();
+        model.addAttribute("protocolList", protocolHelper.getAssignedProtocols(currentUser, clientId));
+        return "protocolDetail :: #protocolSection";
+    }
+    
+    @GetMapping("/fragments/protocolDetails/{protocolId}")
+    public String getProtocolDetailsFragment(Model model, @PathVariable int protocolId) {
+    	User currentUser = userDAO.getUser(); 
+        Protocol protocol = protocolHelper.getProtocol(currentUser, protocolId);
+        ArrayList<ProtocolComments> mostRecentComment = protocol.getComments();
+
+        model.addAttribute("protocol", protocol);
+        model.addAttribute("mostRecentComment", mostRecentComment.getLast());
+        return "fragments :: protocolDetails";
+    }
+
+    @GetMapping("/fragments/homework/{protocolId}")
+    public String getHomeworkFragment(Model model, @PathVariable int protocolId) {
+    	
+    	User currentUser = userDAO.getUser();
+        List<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser , protocolId);
+        model.addAttribute("homeworks", homeworks);
+        return "fragments :: homework";
+    }
+
+    @GetMapping("/fragments/steps/{protocolId}")
+    public String getStepsFragment(Model model, @PathVariable int protocolId) {
+    	User currentUser = userDAO.getUser();
+        List<ProtocolStep> steps = protocolHelper.getStepList(currentUser, protocolId);
+        model.addAttribute("steps", steps);
+        return "fragments :: steps";
+    }
 
 	@GetMapping("/analysis/{id}")
 	public String analysis(@PathVariable int id, Model model) {

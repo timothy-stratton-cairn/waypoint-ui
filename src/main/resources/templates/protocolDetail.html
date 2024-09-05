@@ -537,6 +537,45 @@
 	            showMessageBanner('Invalid action selected.', 'danger');
 	    }
 	}
+	
+	function reloadProtocolDetails(protocolId) {
+    $.ajax({
+        url: '/fragments/protocolDetails/' + protocolId,
+        type: 'GET',
+        success: function(fragment) {
+            $('#protocolDetailsContainer').html(fragment);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error reloading protocol details:', error);
+        }
+    });
+}
+
+	function reloadHomework(protocolId) {
+	    $.ajax({
+	        url: '/fragments/homework/' + protocolId,
+	        type: 'GET',
+	        success: function(fragment) {
+	            $('#homeworkContainer').html(fragment);
+	        },
+	        error: function(xhr, status, error) {
+	            console.error('Error reloading homework:', error);
+	        }
+	    });
+	}
+	
+	function reloadSteps(protocolId) {
+	    $.ajax({
+	        url: '/fragments/steps/' + protocolId,
+	        type: 'GET',
+	        success: function(fragment) {
+	            $('#stepsContent').html(fragment);
+	        },
+	        error: function(xhr, status, error) {
+	            console.error('Error reloading steps:', error);
+	        }
+	    });
+	}
 
 
 </script>
