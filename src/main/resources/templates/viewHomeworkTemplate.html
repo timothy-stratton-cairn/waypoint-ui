@@ -14,7 +14,7 @@
     <div id="messageBanner" class="alert d-none" role="alert"></div>
 </div>
 
-<div class="container">
+<div class="container" id="editHomeworkSection">>
     <div class="row note_card">
         <fieldset>
             <legend>Edit Homework Template</legend>
@@ -222,6 +222,40 @@
             }
         });
     }
+    
+    
+
+	function reloadEditHomeworkSection(tempId) {
+	    $.ajax({
+	        url: '/reloadHomeworkTemplate/' + tempId,
+	        type: 'GET',
+	        success: function(response) {
+	            $('#editHomeworkSection').html(response); // Replace the content of the section
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("Failed to reload Edit Homework section: " + error);
+	        }
+	    });
+	}
+
+	function reloadHomeworkQuestionsSection(tempId) {
+	    $.ajax({
+	        url: '/reloadHomeworkQuestions/' + tempId,
+	        type: 'GET',
+	        success: function(response) {
+	            $('#questionsContainer').html(response); // Replace the content of the section
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("Failed to reload Homework Questions section: " + error);
+	        }
+	    });
+	}
+	
+	function reloadBothSections(tempId) {
+	    reloadEditHomeworkSection(tempId);
+	    reloadHomeworkQuestionsSection(tempId);
+	}
+
 </script>
 <div th:insert="~{footer :: main}">...</div>
 </body>

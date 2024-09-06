@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+</head>
+<body>
+
+    <!-- Protocol Details Fragment -->
+    <th:block th:fragment="protocolDetails(protocol, mostRecentComment)">
+        <fieldset>
+            <legend>Protocol Details</legend>
+            <div class="row">
+                <div class="col-md-1">
+                    <label>Name:</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="nameInput" th:value="${protocol.name}" class="form-control"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                    <label>Due Date:</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" id="dueDateInput" th:value="${protocol.dueDate}" class="form-control"/>
+                </div>
+                <div class="col-md-2">
+                    <label>Needs Attention:</label>
+                    <input type="checkbox" id="needsAttentionCheckbox" th:checked="${protocol.needsAttention}"/>
+                    <span id="needsAttentionText" th:text="${protocol.needsAttention} ? 'Yes' : 'No'"></span>
+                </div>
+                <div class="col-md-1">
+                    <label>Status:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="statusDropdown" class="form-control">
+                        <option value="IN_PROGRESS" th:selected="${protocol.status == 'IN_PROGRESS'}">In Progress</option>
+                        <option value="COMPLETED" th:selected="${protocol.status == 'COMPLETED'}">Completed</option>
+                        <option value="ARCHIVED" th:selected="${protocol.status == 'ARCHIVED'}">Archived</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label>Last Status Update:</label>
+                    <span th:text="${protocol.lastStatus}"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <label>Completion:</label>
+                    <span th:text="|${protocol.completionPercent}%|"></span>
+                </div>
+                <div class="col-md-2">
+                    <label>Number of Steps:</label>
+                    <span th:text="${protocol.stepCount}"></span>
+                </div>
+                <div class="col-md-1">
+                    <label>Progress:</label>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" id="progressInput" th:value="${protocol.progress}" class="form-control"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Description:</label>
+                    <span th:text="${protocol.description}"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                    <label>Goal:</label>
+                </div>
+                <div class="col-md-11">
+                    <input type="text" id="goalInput" th:value="${protocol.goal}" class="form-control"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                    <label>Comments:</label>
+                </div>
+                <div class="col-md-11">
+                    <input type="text" id="commentInput" th:value="${mostRecentComment}" class="form-control"/>
+                </div>
+            </div>
+        </fieldset>
+    </th:block>
+
+    <!-- Homework Fragment -->
+    <th:block th:fragment="homework(homeworks)">
+        <fieldset>
+            <legend>Homework</legend>
+            <div class="rowheader row">
+                <div class="col">Name</div>
+                <div class="col">Description</div>
+                <div class="col">Action</div>
+            </div>
+            <div th:each="homework, stat : ${homeworks}" th:id="|row_${stat.index}|"
+                 th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
+                <div class="col" th:text="${homework.name}">Default Name</div>
+                <div class="col" th:text="${homework.description}">Default Description</div>
+                <div class="col">
+                    <button type="button" class="btn btn-sm btn-secondary" 
+                            th:onclick="'viewHomeworkDetails(' + ${homework.id} + ');'">Details</button>
+                </div>
+            </div>
+        </fieldset>
+    </th:block>
+
+    <!-- Steps Fragment -->
+    <th:block th:fragment="steps(steps)">
+        <fieldset>
+            <legend>Steps</legend>
+            <ul class="nav nav-tabs">
+                <li class="nav-item tab"><a class="nav-link active" href="#" 
+                                            onclick="filterStepsByCategory('all'); return false;">All</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" 
+                                            onclick="filterStepsByCategory('Gather Data'); return false;">Gather Data</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" 
+                                            onclick="filterStepsByCategory('Run Analysis'); return false;">Run Analysis</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" 
+                                            onclick="filterStepsByCategory('Craft Recommendations'); return false;">Craft Recommendations</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" 
+                                            onclick="filterStepsByCategory('Share Education'); return false;">Share Education</a></li>
+            </ul>
+
+            <div id="stepsContent">
+                <div th:each="step, iterStat : ${steps}" 
+                     th:id="'row_' + ${step.id}" 
+                     th:class="${iterStat.index % 2 == 0 ? 'row even' : 'row odd'}" 
+                     th:data-type="${step.categoryName}">
+                    <div class="col-md-4" th:text="${step.name}">[Step Name]</div>
+                    <div class="col-md-3" th:text="${step.description}">[Description]</div>
+                    <div class="col-md-1" th:text="${step.status == 'TODO' ? 'To Do' : 
+                                                    (step.status == 'IN_PROGRESS' ? 'In Progress' : 
+                                                    (step.status == 'DONE' ? 'Done' : 
+                                                    (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}">
+                        [Status]
+                    </div>
+                    <div class="col-md-2" th:text="${step.mostRecentNote}"></div>
+                    <div class="col-md-2">
+                        <select th:id="'actionDropdown_' + ${step.id}" class="form-control form-control-sm">
+                            <option value="" selected disabled>Select Action</option>
+                            <option value="updateProgress">Update Progress</option>
+                            <option value="addNote">Add Note</option>
+                            <option value="showFileUploadForm">Add File</option>
+                            <option value="toggleComments">See All Notes</option>
+                        </select>
+                        <button type="button" class="btn btn-sm btn-primary mt-2" 
+                                th:onclick="'confirmAction(' + ${step.id} + ')'" >Confirm</button>
+                    </div>
+
+                    <!-- Comments table -->
+                    <div th:if="${step.stepNotes != null && !step.stepNotes.isEmpty()}" 
+                         th:id="'commentsTable_' + ${step.id}" 
+                         class="col-md-12 mt-2 d-none">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Note</th>
+                                    <th>Date</th>
+                                    <th>Author</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="note : ${step.stepNotes}">
+                                    <td th:text="${note.note}">[Note]</td>
+                                    <td th:text="${#dates.format(note.takenAt, 'yyyy-MM-dd HH:mm')}">[Taken At]</td>
+                                    <td th:text="${note.takenBy}">[Taken By]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            
+        </fieldset>
+    </th:block>
+    
+        <!-- Household Section Fragment -->
+    <th:block th:fragment="household(client, primaryContact, coClientList, userList)">
+        <fieldset>
+            <legend>Household</legend>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label>Name:</label>
+                    <span th:text="${client.name}"></span>
+                </div>
+            </div>
+            <div class="row mb-3" th:if="${primaryContact != null}">
+                <div class="col-md-3">
+                    <label>Primary Contact:</label>
+                    <span th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
+                </div>
+                <div class="col-md-3">
+                    <label>Email:</label>
+                    <span th:text="${primaryContact.email}"></span>
+                </div>
+                <div class="col-md-3">
+                    <a class="btn btn-sm btn-secondary" th:href="javascript:editClient(${primaryContact.id})">Edit</a>
+                </div>
+            </div>
+            <div class="row mb-3" th:if="${primaryContact == null}">
+                <div class="col-md-12">
+                    <p>No primary contact available</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>CoClients</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="coclient : ${coClientList}">
+                                <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
+                                <td>
+                                    <a class="btn btn-sm btn-secondary" th:href="javascript:editClient(${coclient.id})">Edit</a>
+                                    <a class="btn btn-sm btn-secondary" th:href="javascript:makePrimaryContact(${coclient.id})">Make Primary Contact</a>
+                                    <a class="btn btn-sm btn-default" th:href="javascript:removeCoClient(${coclient.id})">Remove CoClient</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+    </th:block>
+
+    <!-- Dependent Section Fragment -->
+    <th:block th:fragment="dependents(dependants, householdList)">
+        <fieldset>
+            <legend>Dependents</legend>
+            <ul class="nav nav-tabs" id="dependentTabs" role="tablist">
+                <li class="nav-item" th:each="dependent, iterStat : ${dependants}" role="presentation">
+                    <button class="nav-link nav-link-dep" th:id="'dependent-tab' + ${iterStat.index}"
+                            th:classappend="${iterStat.index == 0} ? ' active' : ''"
+                            data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}"
+                            type="button" role="tab" th:text="${dependent.firstName + ' ' + dependent.lastName}">
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content" id="dependentTabsContent">
+                <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade"
+                     th:classappend="${iterStat.index == 0} ? ' show active' : ''"
+                     th:id="'dependent' + ${iterStat.index}" role="tabpanel">
+                    <div>
+                        <label>Name:</label>
+                        <span th:text="${dependent.firstName + ' ' + dependent.lastName}"></span>
+                        <button class="btn btn-sm btn-secondary ml-2" type="button"
+                                th:onclick="'toggleHouseholdDropdown(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
+                            Assign to Household
+                        </button>
+                        <button class="btn btn-default btn-sm ml-2" type="button"
+                                th:onclick="'removeDependent(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
+                            Remove Dependent
+                        </button>
+                        <div id="householdDropdownSection" th:id="'householdDropdownSection_' + ${dependent.id}" style="display: none;">
+                            <select class="form-select" th:id="'householdSelect_' + ${dependent.id}">
+                                <option value="">Select Household</option>
+                                <option th:each="household : ${householdList}" th:value="${household.id}"
+                                        th:text="${household.name}"></option>
+                            </select>
+                            <button class="btn btn-secondary" type="button"
+                                    th:onclick="'assignDependentToHousehold(' + ${dependent.guardianId} + ',' + ${dependent.id} + ', this)'">
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </th:block>
+
+    <!-- Assigned Protocols Section Fragment -->
+    <th:block th:fragment="assignedProtocols(assignedProtocols)">
+        <fieldset>
+            <legend>Assigned Protocols</legend>
+            <div class="row">
+                <div class="col-3">
+                    <button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+                    <button type="button" class="btn btn-primary" onclick="viewHistory();">View All Protocols</button>
+                </div>
+            </div>
+            <ul class="nav nav-tabs">
+                <li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
+            </ul>
+            <div id="protocolContent" class="row">
+                <div th:each="pcol, status: ${assignedProtocols}" class="note_card col-md-5">
+                    <a href="javascript:viewProtocol(${pcol.id});">
+                        <div class="container">
+                            <div class="row" th:text="${pcol.name}"></div>
+                            <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
+                            <div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
+                            <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
+                            <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </fieldset>
+    </th:block>
+    
+    <th:block th:fragment="editStep(step, stepId)">
+    <fieldset class="col-12">
+        <legend>Edit Step Template</legend>
+        <form th:action="@{/saveStep}" method="post">
+            <input type="hidden" name="stepId" th:value="${step.id}">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="stepName">Name:</label>
+                    <input type="text" id="stepName" name="stepName" class="form-control" th:value="${step.name}">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="status" class="mr-md-3"><strong>Status:</strong></label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="LIVE" th:selected="${step.status == 'LIVE'}">Live</option>
+                        <option value="INACTIVE" th:selected="${step.status == 'INACTIVE'}">Inactive</option>
+                        <option value="ARCHIVED" th:selected="${step.status == 'ARCHIVED'}">Archived</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="stepCategory">Category:</label>
+                    <select class="form-control" id="stepCategory" name="stepCategory">
+                        <option value="1" th:selected="${step.categoryId == 1}">Gather Data</option>
+                        <option value="2" th:selected="${step.categoryId == 2}">Run Analysis</option>
+                        <option value="3" th:selected="${step.categoryId == 3}">Craft Recommendations</option>
+                        <option value="4" th:selected="${step.categoryId == 4}">Share Education</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="stepDetails">Description:</label>
+                <textarea id="stepDetails" name="stepDetails" class="form-control" rows="3" th:text="${step.description}"></textarea>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="window.history.back();">Back</button> 
+            <button type="button" class="btn btn-primary" th:attr="onclick='deleteStepTemplate(' + ${stepId} + ');'">Delete</button>  
+            <button type="button" class="btn btn-success" th:attr="onclick='saveStep(' + ${stepId} + ');'">Save Step</button>
+        </form>
+    </fieldset>
+</th:block>
+
+<th:block th:fragment="assignedHomework(step)">
+    <fieldset class="col-12">
+        <legend>Assigned Homework</legend>
+        <div class="table-responsive">
+            <table class="table" id="homeworkTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="homework : ${step.homework}" th:data-homework-id="${homework.id}">
+                        <td th:text="${homework.name}">Homework Name</td>
+                        <td>
+                            <button type="button" class="btn btn-secondary" th:attr="onclick='deleteHomework(' + ${homework.id} + ');'">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <select class="form-control mt-2" id="homeworkTemplateDropdown">
+            <option value="">Select Homework Template</option>
+            <option th:each="homework : ${homeworkList}" th:value="${homework.id}" th:text="${homework.name}"></option>
+        </select>
+        <button type="button" class="btn btn-primary mt-2" onclick="confirmHomeworkTemplate();">Add Homework</button>
+    </fieldset>
+</th:block>
+
+
+
+</body>
+</html>

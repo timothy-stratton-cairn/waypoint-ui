@@ -285,59 +285,9 @@ public class MainController {
 		return "protocolDetail";
 	}
 
-	@GetMapping("/protocol/steps/{protocolId}")
-	public String getProtocolSteps(@PathVariable int protocolId, Model model) {
-		User currentUser = userDAO.getUser();
-		ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser, protocolId);
-		model.addAttribute("steps", steps);
 
-		// Return the HTML snippet for the steps portion
-		return "protocolDetail :: #stepsContent";
-	}
-	
-    @GetMapping("/clientProfile/household/{clientId}")
-    public String getHouseholdSection(@PathVariable int clientId, Model model) {
-        // Add necessary model attributes for household section
-    	User currentUser = userDAO.getUser();
-        model.addAttribute("household", userHelper.getHouseholdById(currentUser,clientId));
-        return "protocolDetail :: #householdSection";
-    }
-
-    @GetMapping("/clientProfile/protocols/{clientId}")
-    public String getProtocolSection(@PathVariable int clientId, Model model) {
-        // Add necessary model attributes for protocol section
-    	User currentUser = userDAO.getUser();
-        model.addAttribute("protocolList", protocolHelper.getAssignedProtocols(currentUser, clientId));
-        return "protocolDetail :: #protocolSection";
-    }
     
-    @GetMapping("/fragments/protocolDetails/{protocolId}")
-    public String getProtocolDetailsFragment(Model model, @PathVariable int protocolId) {
-    	User currentUser = userDAO.getUser(); 
-        Protocol protocol = protocolHelper.getProtocol(currentUser, protocolId);
-        ArrayList<ProtocolComments> mostRecentComment = protocol.getComments();
 
-        model.addAttribute("protocol", protocol);
-        model.addAttribute("mostRecentComment", mostRecentComment.getLast());
-        return "fragments :: protocolDetails";
-    }
-
-    @GetMapping("/fragments/homework/{protocolId}")
-    public String getHomeworkFragment(Model model, @PathVariable int protocolId) {
-    	
-    	User currentUser = userDAO.getUser();
-        List<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser , protocolId);
-        model.addAttribute("homeworks", homeworks);
-        return "fragments :: homework";
-    }
-
-    @GetMapping("/fragments/steps/{protocolId}")
-    public String getStepsFragment(Model model, @PathVariable int protocolId) {
-    	User currentUser = userDAO.getUser();
-        List<ProtocolStep> steps = protocolHelper.getStepList(currentUser, protocolId);
-        model.addAttribute("steps", steps);
-        return "fragments :: steps";
-    }
 
 	@GetMapping("/analysis/{id}")
 	public String analysis(@PathVariable int id, Model model) {
@@ -608,6 +558,10 @@ public class MainController {
 		model.addAttribute("allSteps", allSteps);
 		return "displayProtocol";
 	}
+	
+	
+
+	
 
 	// Place holders for creating new and saving changes to steps and protocols
 	@GetMapping("/newStep/")
@@ -878,6 +832,7 @@ public class MainController {
 		model.addAttribute("stepId", stepId);
 		return "edit_step";
 	}
+
 
 	@GetMapping("/profile")
 	public String userProfile(Model model) {
@@ -1357,32 +1312,9 @@ public class MainController {
 	 * model.addAttribute("homeworks", homeworks); return
 	 * "fragments/homeworkList :: homeworkListFragment"; }
 	 */
+	
 
-	@GetMapping("/getAllClientProtocols/{clientId}")
-	public String getAllClientProtocols(@PathVariable int clientId, Model model) {
-		User currentUser = userDAO.getUser();
-		ArrayList<Protocol> listProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
-		model.addAttribute("listProtocols", listProtocols);
-		return "fragments/allClientProtocols :: allClientProtocolsFragment";
-	}
 
-	@GetMapping("/getAnalysis/{id}")
-	public String getAnalysis(@PathVariable int id, Model model) {
-		User currentUser = userDAO.getUser();
-		ArrayList<ProtocolStep> stepList = protocolHelper.getStepList(currentUser, id);
-		stepList.removeIf(step -> !step.getCategoryName().equals("Run Analysis"));
-		model.addAttribute("steps", stepList);
-		return "fragments/analysis :: analysisFragment";
-	}
-
-	@GetMapping("/getEducation/{id}")
-	public String getEducation(@PathVariable int id, Model model) {
-		User currentUser = userDAO.getUser();
-		ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser, id);
-		model.addAttribute("steps", steps);
-		model.addAttribute("protocolId", id);
-		return "fragments/education :: educationFragment";
-	}
 
 	@PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
 	public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolTemplateId,
@@ -1637,6 +1569,8 @@ public class MainController {
 
 		return "viewHomeworkTemplate";
 	}
+
+
 
 	@PostMapping("/newHomeworkTemplate")
 	public String saveHomeworkTemplate(@RequestBody String templateBody, RedirectAttributes redirectAttributes) {
@@ -2584,5 +2518,91 @@ public class MainController {
 		return answer;
 
 	}
+	
+	
+    @GetMapping("/fragments/protocolDetails/{protocolId}")
+    public String getProtocolDetailsFragment(Model model, @PathVariable int protocolId) {
+    	User currentUser = userDAO.getUser();
+        Protocol protocol = protocolHelper.getProtocol(currentUser, protocolId);
+        ProtocolComments mostRecentComment = protocol.getComments().stream()
+				.filter(comment -> "COMMENT".equals(comment.getCommentType()))
+				.max(Comparator.comparing(ProtocolComments::getTakenAt)).orElse(null);
+		if (mostRecentComment == null) {
+			mostRecentComment = new ProtocolComments();
+			mostRecentComment.setComment("No Comments Have been made");
+		}
+        
+        model.addAttribute("protocol", protocol);
+        model.addAttribute("mostRecentComment", mostRecentComment.getComment());
+        return "fragments :: protocolDetails";
+    }
+
+    @GetMapping("/fragments/homework/{protocolId}")
+    public String getHomeworkFragment(Model model, @PathVariable int protocolId) {
+    	User currentUser = userDAO.getUser();
+        List<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, protocolId);
+        model.addAttribute("homeworks", homeworks);
+        return "fragments :: homework";
+    }
+
+    @GetMapping("/fragments/steps/{protocolId}")
+    public String getStepsFragment(Model model, @PathVariable int protocolId) {
+    	User currentUser = userDAO.getUser();
+        List<ProtocolStep> steps = protocolHelper.getStepList(currentUser, protocolId);
+        model.addAttribute("steps", steps);
+        return "fragments :: steps";
+    }
+    
+    @GetMapping("/reloadHomeworkTemplate/{templateId}")
+    public String reloadHomeworkTemplate(@PathVariable int templateId, Model model) {
+    	User currentUser = userDAO.getUser();
+        HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, templateId);
+        model.addAttribute("template", template);
+        return "fragments :: editHomework";
+    }
+
+    @GetMapping("/reloadHomeworkQuestions/{templateId}")
+    public String reloadHomeworkQuestions(@PathVariable int templateId, Model model) {
+    	User currentUser = userDAO.getUser();
+    	HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, templateId);
+        List<HomeworkQuestionsTemplate> questions = template.getQuestions();
+        model.addAttribute("questions", questions);
+        return "fragments :: homeworkQuestions";
+    }
+    
+    @GetMapping("/reloadHousehold/{clientId}")
+    public String reloadHousehold(@PathVariable int clientId, Model model) {
+    	User currentUser = userDAO.getUser();
+        Household household = userHelper.getHouseholdById(currentUser, clientId);
+        ArrayList<User> coClientList= household.getHouseholdAccounts();
+        User primaryContact = household.getPrimaryContacts().getFirst();
+        List<User> userList = userHelper.getUserList(currentUser);
+        model.addAttribute("client", household);
+        model.addAttribute("primaryContact", primaryContact);
+        model.addAttribute("coClientList", coClientList);
+        model.addAttribute("userList", userList);
+        return "fragments :: household";
+    }
+
+
+    @GetMapping("/reloadProtocols/{clientId}")
+    public String reloadProtocols(@PathVariable int clientId, Model model) {
+    	User currentUser = userDAO.getUser();
+        List<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
+        model.addAttribute("assignedProtocols", assignedProtocols);
+        return "fragments :: assignedProtocols";
+    }
+
+    
+    @GetMapping("/reloadAssignedHomework/{stepId}")
+    public String reloadAssignedHomework(@PathVariable int stepId, Model model) {
+        User usr = (User) userDAO.getUser();
+        ProtocolStepTemplate step = protocolTemplateHelper.getStep(usr, stepId);
+        ArrayList<HomeworkTemplate> homeworkList = homeworkTemplateHelper.getList(usr);
+        model.addAttribute("step", step);
+        model.addAttribute("homeworkList", homeworkList);
+        return "fragments :: assignedHomework(step)"; // Return the assignedHomework fragment
+    }
+
 
 }

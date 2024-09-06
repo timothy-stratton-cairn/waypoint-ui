@@ -743,7 +743,51 @@
             console.error("confirmProtocol: No Client ID selected.");
             return;
         }
+        
     }
+    
+	 
+	function reloadProtocolDetails(protocolId) {
+	    $.ajax({
+	        url: `/protocol/${protocolId}/details`,
+	        type: 'GET',
+	        success: function(response) {
+	            $('#protocol-details').html(response); 
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("Error reloading protocol details: ", error);
+	        }
+	    });
+	}
+	
+
+	function reloadAssignedHomework(protocolId) {
+	    $.ajax({
+	        url: `/protocol/${protocolId}/homework`,
+	        type: 'GET',
+	        success: function(response) {
+	            $('#assigned-homework').html(response); 
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("Error reloading homework section: ", error);
+	        }
+	    });
+	}
+	
+
+	function reloadSteps(protocolId) {
+	    $.ajax({
+	        url: `/protocol/${protocolId}/steps`,
+	        type: 'GET',
+	        success: function(response) {
+	            $('#steps-section').html(response);  
+	        },
+	        error: function(xhr, status, error) {
+	            console.error("Error reloading steps section: ", error);
+	        }
+	    });
+	}
+
 </script>
 
 <div th:insert="~{footer :: main}">...</div>
