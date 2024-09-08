@@ -88,7 +88,8 @@
                         Due Date
                     </div>
                 </div>
-                <div th:each="pcol, status : ${upcomingProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}" th:onclick="'viewProtocol(' + ${pcol.id} + ')'">
+               <div th:each="pcol, status : ${upcomingProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}"
+                     th:style="${pcol.isLate} ? 'color: red;' : ''" th:onclick="'viewProtocol(' + ${pcol.id} + ')'">
                     <div class="col-md-2" th:text="${pcol.name}"></div>
                     <div class="col-md-3" th:text="${pcol.description}"></div>
                     <div class="col-md-2" th:text="|${pcol.completionPercent}%|"></div>
@@ -99,7 +100,7 @@
 				        </span>
 				    </div>
 
-                    <div class="col-md-1" th:text="${pcol.status == 'IN_PROGRESS' ? 'In Progress' : (pcol.status == 'COMPLETED' ? 'Completed' : 'Archived')}"></div>
+                    <div class="col-md-1" th:text="${(pcol.status == 'IN_PROGRESS') ? 'In Progress' : (pcol.status == 'COMPLETED' ? 'Completed' : (pcol.status == 'ARCHIVED' ? 'Archived' : ''))}"></div>
                     <div class="col-md-2" th:text="${pcol.dueDate}"></div>
                 </div>
                 <div class="row ">&nbsp;</div>
@@ -131,15 +132,7 @@
                 householdList.style.display = 'none';
             }
         }
-        function getHouseholdName(id) {
-	    const households = [[${households}]]; // Get the households from the model
-	    for (let i = 0; i < households.length; i++) {
-	        if (households[i].id === id) {
-	            return households[i].name;
-	        }
-	    }
-    return "Unknown Household";
-}
+
 
     </script>
 </body>

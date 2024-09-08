@@ -129,41 +129,49 @@ public class MainController {
 			return "home";
 		}
 
-		ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, userHelper.getHouseholdId(usr));
+		ArrayList<Protocol> pcolList = protocolHelper.getList(usr);
 		int householdId = userHelper.getHouseholdId(usr);
 		logger.info("Household Id: " + householdId);
 		ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
+		ArrayList<Protocol> pastDuePcol = new ArrayList<Protocol>();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date currentDate = new Date();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(currentDate);
 		calendar.add(Calendar.DAY_OF_YEAR, 7);
 		Date upcomingWeek = calendar.getTime();
+
 		if (pcolList.isEmpty()) {
-			logger.warn("No Protocols Returned");
-			// logger.info("No Protocols Returned");
+		    logger.warn("No Protocols Returned");
 		} else {
-			logger.info("Returned " + pcolList.size() + " protocols.");
-			// logger.info(pcolList.size());
+		    logger.info("Returned " + pcolList.size() + " protocols.");
 		}
+
 		for (Protocol pcol : pcolList) {
-			String dueDateStr = pcol.getDueDate();
-			if (dueDateStr != null && (dueDateStr!= "No Due Date")) {
-				try {
-					
-					Date dueDate = dateFormat.parse(dueDateStr);
-					
-					if (dueDate.after(currentDate) && dueDate.before(upcomingWeek)) {
-						upcomingPcol.add(pcol);
-					}
-				} catch (ParseException e) {
-					e.printStackTrace(); // Handle parse exception
-				}
-			}
-			else {
-				logger.info("Protocol: " + pcol.getName() + " id: "+ pcol.getId() + " Has no due Date " );
-			}
+		    String dueDateStr = pcol.getDueDate();
+		    if (dueDateStr != null && !dueDateStr.equals("No Due Date")) {
+		        try {
+		            Date dueDate = dateFormat.parse(dueDateStr);
+		            int completionPercent = Integer.parseInt(pcol.getCompletionPercent());
+		            
+		            if (dueDate.after(currentDate) && dueDate.before(upcomingWeek) && completionPercent < 100) {
+		                upcomingPcol.add(pcol);
+		            }
+		           
+		            if (dueDate.before(currentDate) && completionPercent < 100 && pcol.getStatus().contains("IN_PROGRESS")) {
+		                logger.info("Protocol: " + pcol.getName() + " is past due with a completion percentage of: " + completionPercent);
+		                upcomingPcol.add(pcol);
+
+		            }
+		        } catch (ParseException e) {
+		            logger.error("Error parsing due date for protocol: " + pcol.getName(), e);
+		        }
+		    } else {
+		        logger.info("Protocol: " + pcol.getName() + " id: " + pcol.getId() + " has no due date.");
+		    }
 		}
+
+
 		ArrayList<ProtocolStats> stats = helper.getDashboard(usr);
 		ArrayList<Household> households = userHelper.getHouseholdList(usr);
 			
@@ -172,6 +180,7 @@ public class MainController {
 	
 
 		session.setAttribute("me", usr);
+		model.addAttribute("lateProtocols",pastDuePcol);
 		model.addAttribute("householdId",householdId);
 		model.addAttribute("households",households);
 		model.addAttribute("msg", msg);
@@ -882,9 +891,11 @@ public class MainController {
 
 		ArrayList<User> dependents = client.getDependents();
 		ArrayList<User> userList = userHelper.getUserList(usr);
+		ArrayList<User> usersToRemove = new ArrayList<>();
 		for (User dependent : dependents) {
 			logger.info(
 					"Id: " + dependent.getId() + " Name: " + dependent.getFirstName() + " " + dependent.getLastName());
+			usersToRemove.add(dependent);
 		}
 		ArrayList<Household> householdList = userHelper.getHouseholdList(usr);
 		Household myHousehold = userHelper.getHouseholdById(usr, client.getHouseholdId());
@@ -926,7 +937,7 @@ public class MainController {
 			}
 		}
 
-		ArrayList<User> usersToRemove = new ArrayList<>();
+		
 
 		for (User user : userList) {
 			if (householdUserIds.contains(user.getId())) {
@@ -944,7 +955,14 @@ public class MainController {
 
 		String listPostFilter = userList.stream().map(user -> user.getFirstName() + " " + user.getLastName())
 				.collect(Collectors.joining(","));
-
+		
+		if( userList.isEmpty()){
+			logger.info("userList is Empty");
+			
+		}
+		else {
+			logger.info("userList is NOT empty");
+		}
 		logger.info("User List after filtering: " + listPostFilter);
 		logger.info(" Household ID: " + householdId + " PC ID: " + pcId);
 
@@ -2522,86 +2540,109 @@ public class MainController {
 	
     @GetMapping("/fragments/protocolDetails/{protocolId}")
     public String getProtocolDetailsFragment(Model model, @PathVariable int protocolId) {
-    	User currentUser = userDAO.getUser();
+        User currentUser = userDAO.getUser();
         Protocol protocol = protocolHelper.getProtocol(currentUser, protocolId);
         ProtocolComments mostRecentComment = protocol.getComments().stream()
-				.filter(comment -> "COMMENT".equals(comment.getCommentType()))
-				.max(Comparator.comparing(ProtocolComments::getTakenAt)).orElse(null);
-		if (mostRecentComment == null) {
-			mostRecentComment = new ProtocolComments();
-			mostRecentComment.setComment("No Comments Have been made");
-		}
-        
+                .filter(comment -> "COMMENT".equals(comment.getCommentType()))
+                .max(Comparator.comparing(ProtocolComments::getTakenAt)).orElse(null);
+        if (mostRecentComment == null) {
+            mostRecentComment = new ProtocolComments();
+            mostRecentComment.setComment("No Comments Have been made");
+        }
+
         model.addAttribute("protocol", protocol);
         model.addAttribute("mostRecentComment", mostRecentComment.getComment());
-        return "fragments :: protocolDetails";
+        return "fragments :: protocolDetails(protocol=${protocol}, mostRecentComment=${mostRecentComment})";
     }
 
     @GetMapping("/fragments/homework/{protocolId}")
     public String getHomeworkFragment(Model model, @PathVariable int protocolId) {
-    	User currentUser = userDAO.getUser();
+        User currentUser = userDAO.getUser();
         List<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, protocolId);
         model.addAttribute("homeworks", homeworks);
-        return "fragments :: homework";
+        return "fragments :: homework(homeworks=${homeworks})";
     }
 
     @GetMapping("/fragments/steps/{protocolId}")
     public String getStepsFragment(Model model, @PathVariable int protocolId) {
-    	User currentUser = userDAO.getUser();
+        User currentUser = userDAO.getUser();
         List<ProtocolStep> steps = protocolHelper.getStepList(currentUser, protocolId);
         model.addAttribute("steps", steps);
-        return "fragments :: steps";
+        return "fragments :: steps(steps=${steps})";
     }
-    
+
     @GetMapping("/reloadHomeworkTemplate/{templateId}")
     public String reloadHomeworkTemplate(@PathVariable int templateId, Model model) {
-    	User currentUser = userDAO.getUser();
+        User currentUser = userDAO.getUser();
         HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, templateId);
         model.addAttribute("template", template);
-        return "fragments :: editHomework";
+        return "fragments :: editHomework(template=${template})";
     }
 
     @GetMapping("/reloadHomeworkQuestions/{templateId}")
     public String reloadHomeworkQuestions(@PathVariable int templateId, Model model) {
-    	User currentUser = userDAO.getUser();
-    	HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, templateId);
+        User currentUser = userDAO.getUser();
+        HomeworkTemplate template = homeworkTemplateHelper.getTemplate(currentUser, templateId);
         List<HomeworkQuestionsTemplate> questions = template.getQuestions();
         model.addAttribute("questions", questions);
-        return "fragments :: homeworkQuestions";
+        return "fragments :: homeworkQuestions(questions=${questions})";
     }
-    
+
     @GetMapping("/reloadHousehold/{clientId}")
     public String reloadHousehold(@PathVariable int clientId, Model model) {
-    	User currentUser = userDAO.getUser();
+        User currentUser = userDAO.getUser();
         Household household = userHelper.getHouseholdById(currentUser, clientId);
-        ArrayList<User> coClientList= household.getHouseholdAccounts();
-        User primaryContact = household.getPrimaryContacts().getFirst();
+        ArrayList<User> coClientList = household.getHouseholdAccounts();
+        User primaryContact = household.getPrimaryContacts().get(0);
         List<User> userList = userHelper.getUserList(currentUser);
+        
         model.addAttribute("client", household);
         model.addAttribute("primaryContact", primaryContact);
         model.addAttribute("coClientList", coClientList);
         model.addAttribute("userList", userList);
-        return "fragments :: household";
+        return "fragments :: household(client=${client}, primaryContact=${primaryContact}, coClientList=${coClientList}, userList=${userList})";
     }
-
 
     @GetMapping("/reloadProtocols/{clientId}")
     public String reloadProtocols(@PathVariable int clientId, Model model) {
-    	User currentUser = userDAO.getUser();
+        User currentUser = userDAO.getUser();
         List<Protocol> assignedProtocols = protocolHelper.getAssignedProtocols(currentUser, clientId);
         model.addAttribute("assignedProtocols", assignedProtocols);
-        return "fragments :: assignedProtocols";
+        return "fragments :: assignedProtocols(assignedProtocols=${assignedProtocols})";
     }
 
-    
     @GetMapping("/reloadAssignedHomework/{stepId}")
     public String reloadAssignedHomework(@PathVariable int stepId, Model model) {
-        User usr = (User) userDAO.getUser();
-        ProtocolStepTemplate step = protocolTemplateHelper.getStep(usr, stepId);
-        ArrayList<HomeworkTemplate> homeworkList = homeworkTemplateHelper.getList(usr);
+        User currentUser = userDAO.getUser();
+        ProtocolStepTemplate step = protocolTemplateHelper.getStep(currentUser, stepId);
+        ArrayList<HomeworkTemplate> homeworkList = homeworkTemplateHelper.getList(currentUser);
         model.addAttribute("step", step);
         model.addAttribute("homeworkList", homeworkList);
-        return "fragments :: assignedHomework(step)"; // Return the assignedHomework fragment
+        return "fragments :: assignedHomework(step=${step}, homeworkList=${homeworkList})";
+    }
+
+    @GetMapping("/householdFragment/{clientId}")
+    public String getHouseholdFragment(@PathVariable int clientId, Model model) {
+        User currentUser = userDAO.getUser();
+        User client= userHelper.getUser(currentUser, clientId);
+        Household household = userHelper.getHouseholdById(currentUser, client.getHouseholdId());
+        ArrayList<Household> householdList = userHelper.getHouseholdList(currentUser);
+
+        model.addAttribute("household", household);
+        model.addAttribute("householdList", householdList);
+        return "fragments :: householdFragment(household=${household}, householdList=${householdList})";
+    }
+
+    @GetMapping("/dependentFragment/{clientId}")
+    public String getDependentFragment(@PathVariable int clientId, Model model) {
+        User currentUser = userDAO.getUser();
+        User client = userHelper.getUser(currentUser, clientId);
+        ArrayList<User> dependents = client.getDependents();
+        ArrayList<User> userList = userHelper.getUserList(currentUser);
+
+        model.addAttribute("dependents", dependents);
+        model.addAttribute("userList", userList);
+        return "fragments :: dependentFragment(dependents=${dependents}, userList=${userList})";
     }
 
 
