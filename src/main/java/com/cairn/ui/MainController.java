@@ -2261,7 +2261,7 @@ public class MainController {
 
 	@PatchMapping("/promoteToPrimaryContact/{householdId}/{clientId}")
 	public ResponseEntity<String> promoteToPrimaryContact(@PathVariable int householdId, @PathVariable int clientId) {
-
+		if(clientId > 0) {
 		logger.info("Promote User: " + clientId + "To Primary Contact of Household: " + householdId);
 		User currentUser = userDAO.getUser();
 		try {
@@ -2272,7 +2272,12 @@ public class MainController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
 		}
+		
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Unknown error occurred");
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User with ID of 0 does not exist and can't be promoted");
+		}
 	}
 
 	@PatchMapping("/changeStatus/{type}/{id}/{status}")

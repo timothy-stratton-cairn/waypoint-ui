@@ -589,34 +589,45 @@
             }
         }
         
-	function addCoClient() {
-	    const selectedCoClientId = document.getElementById('coClientSelect').value;
-	    if (selectedCoClientId) {
-	        $.ajax({
-	            url: `/addCoClient/${clientId}/${selectedCoClientId}`,
-	            type: 'PATCH',
-	            headers: {
-	                'Accept': 'text/plain',
-	                'Content-Type': 'application/json',
-	                'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
-	            },
-	            success: function(response) {
-	                console.log('Response:', response); // Debugging line
-                    showMessageBanner(response.message, 'success');
+function addCoClient() {
+    const selectedCoClientId = document.getElementById('coClientSelect').value;
+    const primaryContactIdElement = document.getElementById('primaryContactId');
+    const primaryContactExists = primaryContactIdElement && primaryContactIdElement.textContent.trim() !== '';
+
+    if (selectedCoClientId) {
+        $.ajax({
+            url: `/addCoClient/${clientId}/${selectedCoClientId}`,
+            type: 'PATCH',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+            },
+            success: function(response) {
+                console.log('Response:', response); // Debugging line
+                showMessageBanner('Coclient Added Successfully!', 'success');
+                
+                // Check if a primary contact exists before calling makePrimaryContact
+                if (!primaryContactExists) {
+                    console.log('Reloading page...'); // Debugging line
+               		window.location.reload();
+                } else {
+                    console.log('Primary contact already exists.');
                     makePrimaryContact(pcId);
                     console.log('Reloading page...'); // Debugging line
-                    window.location.reload();
+               		window.location.reload();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding CoClient:', error);
+                showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
+            }
+        });
+    } else {
+        showMessageBanner('Please select a CoClient first.', 'warning');
+    }
+}
 
-	            },
-	            error: function(xhr, status, error) {
-	                console.error('Error adding CoClient:', error);
-	                showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
-	            }
-	        });
-	    } else {
-	        showMessageBanner('Please select a CoClient first.', 'warning');
-	    }
-	}
 
         
 
@@ -844,7 +855,11 @@
 	function removeCoClient(coClientId) {
 	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	
+	    
+	    // Define the primaryContactIdElement and check if primary contact exists
+	    const primaryContactIdElement = document.getElementById('primaryContactId');
+	    const primaryContactExists = primaryContactIdElement && primaryContactIdElement.textContent.trim() !== '';
+	    
 	    if (confirm("Are you sure you want to remove this CoClient?")) {
 	        $.ajax({
 	            url: `/removeCoClient/${clientId}/${coClientId}`,
@@ -856,11 +871,16 @@
 	            },
 	            success: function(response) {
 	                showMessageBanner('CoClient Successfully Removed!', 'success');
-	                makePrimaryContact(pcId).then(function() {
-	                    window.location.reload(); // Reload the page upon successful response
-	                }).catch(function(error) {
-	                    showMessageBanner('Failed to make primary contact. Error: ' + error.message, 'danger');
-	                });
+	                
+	                if (primaryContactExists) { //if primary contact exists, make the current pcId the primary contact again 
+		                    makePrimaryContact(pcId).then(function() {
+		                    window.location.reload(); 
+	                    }).catch(function(error) {
+	                        showMessageBanner('Failed to make primary contact. Error: ' + error.message, 'danger');
+	                    });
+	                } else {
+	                    window.location.reload(); // if it doesn't don't worry about it. 
+	                }
 	            },
 	            error: function(xhr, status, error) {
 	                showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
@@ -868,7 +888,7 @@
 	        });
 	    }
 	}
-	
+
 	function removeDependent(guardId,depId) {
 		    console.log("removeDependent: Function called with depId:", depId);
 		
