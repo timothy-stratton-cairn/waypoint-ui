@@ -499,36 +499,9 @@ public class MainController {
 	public String protocolsByTemplate(HttpSession session, @PathVariable int tempId, Model model) {
 		User usr = (User) userDAO.getUser();
 		List<Protocol> listProtocols = protocolHelper.getListbyTemplateId(usr, tempId);
-		Map<Integer, String> userNames = new HashMap<>();
-		Map<Integer, Integer> userIds = new HashMap<>();
-
-		for (Protocol protocol : listProtocols) {
-			ArrayList<Integer> userList = protocol.getUsers();
-			// Check if the user list is not empty before accessing it
-			if (!userList.isEmpty()) {
-				User user = userHelper.getUser(usr, userList.get(0));
-				if (user != null) {
-					userNames.put(protocol.getId(), user.getFirstName() + " " + user.getLastName());
-					userIds.put(protocol.getId(), user.getId());
-				} else {
-					userNames.put(protocol.getId(), "user is null");
-					userIds.put(protocol.getId(), 0);
-				}
-			} else {
-				User user = userHelper.getUser(usr, protocol.getId());
-				if (user != null) {
-					userNames.put(protocol.getId(), user.getFirstName() + " " + user.getLastName());
-					userIds.put(protocol.getId(), user.getId());
-				} else {
-					userNames.put(protocol.getId(), "user is null");
-					userIds.put(protocol.getId(), 0);
-				}
-			}
-		}
-
+		ArrayList<Household> households = userHelper.getHouseholdList(usr);
 		model.addAttribute("listProtocols", listProtocols);
-		model.addAttribute("userNames", userNames);
-		model.addAttribute("userIds", userIds);
+		model.addAttribute("householdList", households);
 		return "protocolList";
 	}
 
