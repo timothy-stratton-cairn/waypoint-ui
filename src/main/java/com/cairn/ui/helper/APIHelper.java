@@ -317,7 +317,7 @@ public class APIHelper {
 			}
 
 		} catch (Exception e) {
-			logger.info("Error in updating progress" + e);
+			logger.info("Error in Patch PAI Call: " + apiUrl + e);
 			e.printStackTrace();
 		}
 		return result;
