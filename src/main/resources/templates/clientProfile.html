@@ -2,1019 +2,1050 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Client Profile</title>
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-    <!-- Include jQuery library -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<title>Client Profile</title>
+	<meta name="_csrf" th:content="${_csrf.token}" />
+	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+	<!-- Include jQuery library -->
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 
 <body data-client-id="${clientId}">
-    <div th:insert="~{header :: main}">...</div>
+	<div th:insert="~{header :: main}">...</div>
 
-    <div class="container">
-        <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
-        <!-- Client Information -->
-         <div id="householdSection" class="note_card">
-            <fieldset>
-                <legend>Household</legend>
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <label>Name:</label>
-                        <span th:text="${client.name}"></span>
-                    </div>
-                </div>
-                <!-- CoClients -->
-                <div class="row mb-3" th:if="${primaryContact != null}">
-					<div class="col-md-3 "style="display: none;" id ="primaryContactId"  >
-                        <span th:each="client : ${primaryContact}" th:text="${client.id}" th:value = "${client.id}" ></span>
-                    </div>
-                    <div class="col-md-3">
-                        <label>Primary Contact:</label>
-                        <span th:each="client : ${primaryContact}" th:text="${client.firstName + ' ' + client.lastName}"></span>
-                    </div>
-                    <div class="col-md-3">
-                        <label>Email:</label>
-                        <span th:each="client : ${primaryContact}" th:text="${client.email}"></span>
-                    </div>
-                    <div class="col-md-3">
-                        <a class="btn btn-sm btn-secondary" th:each="client : ${primaryContact}" th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
-                    </div>
-                </div>
-                <div class="row mb-3" th:if="${primaryContact == null}">
-                    <div class="col-md-12">
-                        <p>No primary contact available</p>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>CoClients</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="coclient : ${coClientList}">
-                                    <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
-                                    <td>
-									    <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
-									    <a class="btn btn-sm btn-secondary" th:href="${'javascript:makePrimaryContact(' + coclient.id + ');'}">Make Primary Contact</a>
-									    <a class="btn btn-sm btn-default" th:href="${'javascript:removeCoClient(' + coclient.id + ');'}">Remove CoClient</a>
+	<div class="container">
+		<div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
+		<!-- Client Information -->
+		<div id="householdSection" class="note_card">
+			<fieldset>
+				<legend>Household</legend>
+				<div class="row mb-3">
+					<div class="col-md-3">
+						<label>Name:</label>
+						<span th:text="${client.name}"></span>
+					</div>
+				</div>
+				<!-- CoClients -->
+				<div class="row mb-3" th:if="${primaryContact != null}">
+					<div class="col-md-3 " style="display: none;" id="primaryContactId">
+						<span th:each="client : ${primaryContact}" th:text="${client.id}"
+							th:value="${client.id}"></span>
+					</div>
+					<div class="col-md-3">
+						<label>Primary Contact:</label>
+						<span th:each="client : ${primaryContact}"
+							th:text="${client.firstName + ' ' + client.lastName}"></span>
+					</div>
+					<div class="col-md-3">
+						<label>Email:</label>
+						<span th:each="client : ${primaryContact}" th:text="${client.email}"></span>
+					</div>
+					<div class="col-md-3">
+						<a class="btn btn-sm btn-secondary" th:each="client : ${primaryContact}"
+							th:href="${'javascript:editClient(' + client.id + ');'}">Edit</a>
+					</div>
+				</div>
+				<div class="row mb-3" th:if="${primaryContact == null}">
+					<div class="col-md-12">
+						<p>No primary contact available</p>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-md-12">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>CoClients</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="coclient : ${coClientList}">
+									<td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
+									<td>
+										<a class="btn btn-sm btn-secondary"
+											th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
+										<a class="btn btn-sm btn-secondary"
+											th:href="${'javascript:makePrimaryContact(' + coclient.id + ');'}">Make
+											Primary Contact</a>
+										<a class="btn btn-sm btn-default"
+											th:href="${'javascript:removeCoClient(' + coclient.id + ');'}">Remove
+											CoClient</a>
 									</td>
 
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 
-                <div id="coClientSection" style="display: none;">
-                    <div class="col-3">
-                        <div class="input-group">
-                            <select class="form-select" id="coClientSelect">
-                                <option value="">Select CoClient</option>
-                                <!-- Populate dropdown menu with CoClient list -->
-                                <option value="new">Create New Client</option>
-                                <option th:each="coClient : ${userList}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
-                            </select>
-                            <button class="btn btn-secondary" type="button" onclick="addCoClient()">Confirm</button>
-                        </div>
-                    </div>
+				<div id="coClientSection" style="display: none;">
+					<div class="col-3">
+						<div class="input-group">
+							<select class="form-select" id="coClientSelect">
+								<option value="">Select CoClient</option>
+								<!-- Populate dropdown menu with CoClient list -->
+								<option value="new">Create New Client</option>
+								<option th:each="coClient : ${userList}" th:value="${coClient.id}"
+									th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
+							</select>
+							<button class="btn btn-secondary" type="button" onclick="addCoClient()">Confirm</button>
+						</div>
+					</div>
 
-                    <div id="newCoClientForm" style="display: none;">
-                        <div class="form-group">
-                            <label for="newEmail">Email:</label>
-                            <input type="text" id="newEmail" name="email" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="newFirstName">First Name:</label>
-                            <input type="text" id="newFirstName" name="firstName" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="newLastName">Last Name:</label>
-                            <input type="text" id="newLastName" name="lastName" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="newUsername">Username:</label>
-                            <input type="text" id="newUsername" name="username" class="form-control">
-                        </div>
+					<div id="newCoClientForm" style="display: none;">
+						<div class="form-group">
+							<label for="newEmail">Email:</label>
+							<input type="text" id="newEmail" name="email" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="newFirstName">First Name:</label>
+							<input type="text" id="newFirstName" name="firstName" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="newLastName">Last Name:</label>
+							<input type="text" id="newLastName" name="lastName" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="newUsername">Username:</label>
+							<input type="text" id="newUsername" name="username" class="form-control">
+						</div>
 
-                        <button class="btn btn-secondary" type="button" onclick="createAndAddClient()">Confirm</button>
-                        <button class="btn btn-default" type="button" onclick="clearNewCoClientForm()">Clear</button>
-                    </div>
-                </div>
-                
-                
-                 <button onclick="history.back()" class="btn btn-primary">Back</button>
-                 <button class="btn btn-primary" type="button" id="showCoClientBtn">Add CoClient</button>
-                 <br>
-                 
-                 
-                </div>
-
-               
+						<button class="btn btn-secondary" type="button" onclick="createAndAddClient()">Confirm</button>
+						<button class="btn btn-default" type="button" onclick="clearNewCoClientForm()">Clear</button>
+					</div>
+				</div>
 
 
-            </fieldset>
+				<button onclick="history.back()" class="btn btn-primary">Back</button>
+				<button class="btn btn-primary" type="button" id="showCoClientBtn">Add CoClient</button>
+				<br>
 
-        </div>
-    </div>
-<div class="container" id="dependentSection">
-    <!-- Dependents Information -->
-    <div class="note_card">
-        <fieldset>
-            <legend>Dependents</legend>
-            <ul class="nav nav-tabs" id="dependentTabs" role="tablist">
-                <li class="nav-item" th:each="dependent, iterStat : ${dependants}" role="presentation">
-                    <button class="nav-link nav-link-dep" th:id="'dependent-tab' + ${iterStat.index}"
-                            th:classappend="${iterStat.index == 0} ? ' active' : ''"
-                            data-bs-toggle="tab" th:data-bs-target="'#dependent' + ${iterStat.index}"
-                            type="button" role="tab" th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"
-                            th:data-dependent-id="${dependent.id}">
-                    </button>
-                </li>
-            </ul>
-		<div class="tab-content" id="dependentTabsContent">
-		    <div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade"
-		         th:classappend="${iterStat.index == 0} ? ' show active' : ''"
-		         th:id="'dependent' + ${iterStat.index}" role="tabpanel">
-		        <div>
-		            <label>Name:</label>
-		            <span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
-		            
-		            <!-- Assign to Household Button -->
-		            <button class="btn btn-sm btn-secondary ml-2" type="button"
-		                    th:onclick="'toggleHouseholdDropdown(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
-		                Assign to Household
-		            </button>
-		            
-		            <!-- Remove Dependent Button -->
-		            <button class="btn btn-default btn-sm ml-2" type="button"
-		                    th:onclick="'removeDependent(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
-		                Remove Dependent
-		            </button>
-		            
-		            <!-- Dropdown Section for Household Assignment -->
-		            <div id="householdDropdownSection" th:id="'householdDropdownSection_' + ${dependent.id}" style="display: none; margin-top: 10px;">
-		                <div class="row">
-		                    <div class="col-md-6">
-		                        <select class="form-select" th:id="'householdSelect_' + ${dependent.id}">
-		                            <option value="">Select Household</option>
-		                            <option th:each="household : ${householdList}" th:value="${household.id}"
-		                                    th:text="${household.name}"></option>
-		                        </select>
-		                        <button class="btn btn-secondary" type="button"
-		                                th:onclick="'assignDependentToHousehold(' + ${dependent.guardianId} + ',' + ${dependent.id} + ', this)'">
-		                            Confirm
-		                        </button>
-		                    </div>
-		                </div>
-		            </div>
-		        </div>
-		    </div>
+
 		</div>
 
 
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <button class="btn btn-primary" type="button" id="showDependentBtn">Add Dependent</button>
-                </div>
-            </div>
 
-            <div id="dependentDropdownSection" style="display: none;">
-                <div class="row">
-                    <div class="col-md-6">
-                        <select class="form-select" id="dependentSelect">
-							<option value="">Select Dependent</option>
-                            <option value="new">Create Dependent</option>
-                            <option th:each="dependant : ${userList}" th:value="${dependant.id}"
-                                    th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
-                        </select>
-                        <button class="btn btn-secondary" type="button" onclick="addDependent()">Add Dependent</button>
-                    </div>
-                </div>
 
-                <div id="dependentFormContainer" style="display: none;">
-                    <div class="form-group">
-                        <label>Email Address:</label>
-                        <input type="email" id="dependentEmail" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>First Name:</label>
-                        <input type="text" id="dependentFirstName" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name:</label>
-                        <input type="text" id="dependentLastName" class="form-control">
-                    </div>
-                    <button class="btn btn-secondary" onclick="confirmAddDependent()">Confirm</button>
-                    <button class="btn btn-default" type="button" onclick="clearNewDependentForm()">Clear</button>
-                </div>
-            </div>
+		</fieldset>
 
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <button class="btn btn-primary" type="button" id="showAssignToClientBtn">Assign To Client</button>
-                </div>
-            </div>
+	</div>
+	</div>
+	<div class="container" id="dependentSection">
+		<!-- Dependents Information -->
+		<div class="note_card">
+			<fieldset>
+				<legend>Dependents</legend>
+				<ul class="nav nav-tabs" id="dependentTabs" role="tablist">
+					<li class="nav-item" th:each="dependent, iterStat : ${dependants}" role="presentation">
+						<button class="nav-link nav-link-dep" th:id="'dependent-tab' + ${iterStat.index}"
+							th:classappend="${iterStat.index == 0} ? ' active' : ''" data-bs-toggle="tab"
+							th:data-bs-target="'#dependent' + ${iterStat.index}" type="button" role="tab"
+							th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"
+							th:data-dependent-id="${dependent.id}">
+						</button>
+					</li>
+				</ul>
+				<div class="tab-content" id="dependentTabsContent">
+					<div th:each="dependent, iterStat : ${dependants}" class="tab-pane fade"
+						th:classappend="${iterStat.index == 0} ? ' show active' : ''"
+						th:id="'dependent' + ${iterStat.index}" role="tabpanel">
+						<div>
+							<label>Name:</label>
+							<span th:text="${dependent.firstName} + ' ' + ${dependent.lastName}"></span>
 
-            <div id="assignToClientSection" style="display: none;">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <select class="form-select" id="assignToClientSelect">
-                                <option value="">Select Client</option>
-                                <option th:each="coClient : ${dependentUsers}" th:value="${coClient.id}" th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
-                            </select>
-                            <button class="btn btn-secondary" type="button" onclick="assignDependentToClient()">Confirm</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+							<!-- Assign to Household Button -->
+							<button class="btn btn-sm btn-secondary ml-2" type="button"
+								th:onclick="'toggleHouseholdDropdown(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
+								Assign to Household
+							</button>
 
-        </fieldset>
-    </div>
-</div>
+							<!-- Remove Dependent Button -->
+							<button class="btn btn-default btn-sm ml-2" type="button"
+								th:onclick="'removeDependent(' + ${dependent.guardianId} + ',' + ${dependent.id} + ')'">
+								Remove Dependent
+							</button>
 
-    <div class="container">
-        <div class="note_card">
-            <fieldset>
-                <legend>Assigned Protocols</legend>
-                <div class="row">
-                    <div class="col-3">
-                        <button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
-                        <button type="button" class="btn btn-primary" onclick="viewHistory();">View All Protocols</button>
-                    </div>
-                    <div id="protocolContainer"></div>
-                </div><br />
-                <ul class="nav nav-tabs">
-                    <li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#" onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
-                    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
-                    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
-                    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
-                </ul>
-                <div class="row">
-                    <div class="col-2">
-                        <input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
-                    </div>
-                </div>
-                <div class="row" id="protocolContent">
-                    <!-- Display Assigned Protocols -->
-                    <div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|" class="note_card col-md-5" th:data-type="${pcol.status}" data-current-back="back_1">
-                        <a href="#" th:onclick="'viewProtocol(' + ${pcol.id} + ');'">
+							<!-- Dropdown Section for Household Assignment -->
+							<div id="householdDropdownSection" th:id="'householdDropdownSection_' + ${dependent.id}"
+								style="display: none; margin-top: 10px;">
+								<div class="row">
+									<div class="col-md-6">
+										<select class="form-select" th:id="'householdSelect_' + ${dependent.id}">
+											<option value="">Select Household</option>
+											<option th:each="household : ${householdList}" th:value="${household.id}"
+												th:text="${household.name}"></option>
+										</select>
+										<button class="btn btn-secondary" type="button"
+											th:onclick="'assignDependentToHousehold(' + ${dependent.guardianId} + ',' + ${dependent.id} + ', this)'">
+											Confirm
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
-						<div class="flip-card">
-			                <div class="flip-card-inner">
-			                    <div class="flip-card-front" id="front">
-			                        <div class="container">
-			                            <div class="row" th:text="${pcol.name}"></div>
-			                            <hr />
-			                            <div class="row">
-			                                <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
-			                                <div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
-			                            </div>
-			                            <div class="row">
-			                                <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|"></div>
-			                                <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|"></div>
-			                            </div>
-			                            <div class='row' th:text="|Description: ${pcol.description}"></div>
-			                            <hr />
-			                            <!-- Actionable Items Section -->
-			                            <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}" th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}"></li>
-			                        </div>
-			                    </div>
-			
-			                    <div class="flip-card-back" id="back_1">
-			                        <div class="container">
-			      
-			                            <p>Education:</p>
-			                            <ul id="ed_${pcol.id}">
-			                                <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
-			                                    <span th:text="${step.name + ' - ' + 
+
+				<div class="row mb-3">
+					<div class="col-md-12">
+						<button class="btn btn-primary" type="button" id="showDependentBtn">Add Dependent</button>
+					</div>
+				</div>
+
+				<div id="dependentDropdownSection" style="display: none;">
+					<div class="row">
+						<div class="col-md-6">
+							<select class="form-select" id="dependentSelect">
+								<option value="">Select Dependent</option>
+								<option value="new">Create Dependent</option>
+								<option th:each="dependant : ${userList}" th:value="${dependant.id}"
+									th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
+							</select>
+							<button class="btn btn-secondary" type="button" onclick="addDependent()">Add
+								Dependent</button>
+						</div>
+					</div>
+
+					<div id="dependentFormContainer" style="display: none;">
+						<div class="form-group">
+							<label>Email Address:</label>
+							<input type="email" id="dependentEmail" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>First Name:</label>
+							<input type="text" id="dependentFirstName" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Last Name:</label>
+							<input type="text" id="dependentLastName" class="form-control">
+						</div>
+						<button class="btn btn-secondary" onclick="confirmAddDependent()">Confirm</button>
+						<button class="btn btn-default" type="button" onclick="clearNewDependentForm()">Clear</button>
+					</div>
+				</div>
+
+				<div class="row mb-3">
+					<div class="col-md-12">
+						<button class="btn btn-primary" type="button" id="showAssignToClientBtn">Assign To
+							Client</button>
+					</div>
+				</div>
+
+				<div id="assignToClientSection" style="display: none;">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="input-group">
+								<select class="form-select" id="assignToClientSelect">
+									<option value="">Select Client</option>
+									<option th:each="coClient : ${dependentUsers}" th:value="${coClient.id}"
+										th:text="${coClient.firstName} + ' ' + ${coClient.lastName}"></option>
+								</select>
+								<button class="btn btn-secondary" type="button"
+									onclick="assignDependentToClient()">Confirm</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</fieldset>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="note_card">
+			<fieldset>
+				<legend>Assigned Protocols</legend>
+				<div class="row">
+					<div class="col-3">
+						<button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+						<button type="button" class="btn btn-primary" onclick="viewHistory();">View All
+							Protocols</button>
+					</div>
+					<div id="protocolContainer"></div>
+				</div><br />
+				<ul class="nav nav-tabs">
+					<li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#"
+							onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
+					<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+							onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
+					<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+							onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
+					<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+							onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
+				</ul>
+				<div class="row">
+					<div class="col-2">
+						<input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
+					</div>
+				</div>
+				<div class="row" id="protocolContent">
+					<!-- Display Assigned Protocols -->
+					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
+						class="note_card col-md-5" th:data-type="${pcol.status}" data-current-back="back_1">
+						<a href="#" th:onclick="'viewProtocol(' + ${pcol.id} + ');'">
+
+							<div class="flip-card">
+								<div class="flip-card-inner">
+									<div class="flip-card-front" id="front">
+										<div class="container">
+											<div class="row" th:text="${pcol.name}"></div>
+											<hr />
+											<div class="row">
+												<div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
+												<div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
+											</div>
+											<div class="row">
+												<div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|">
+												</div>
+												<div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|">
+												</div>
+											</div>
+											<div class='row' th:text="|Description: ${pcol.description}"></div>
+											<hr />
+											<!-- Actionable Items Section -->
+											<li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}"
+												th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}">
+											</li>
+										</div>
+									</div>
+
+									<div class="flip-card-back" id="back_1">
+										<div class="container">
+
+											<p>Education:</p>
+											<ul id="ed_${pcol.id}">
+												<li th:each="step : ${pcol.steps}"
+													th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
+													<span
+														th:text="${step.name + ' - ' + 
 			                                        (step.status == 'TODO' ? 'To Do' : 
 			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' : 
 			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
-			                                </li>
-			                            </ul>
-			                        </div>
-			                    </div>
-			                    <div class="flip-card-back" id="back_2" style="display: none">
-			                        <div class="container">
-			                            <p>Homework:</p>
-			                            <ul th:id="'homeworkList_' + ${pcol.id}"></ul>
-			                        </div>
-			                    </div>
-			                    <div class="flip-card-back" id="back_3" style="display: none">
-			                        <div class="container">
-			    
-			                            <p>Analysis:</p>
-			                            <ul id="ed_${pcol.id}">
-			                                <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE' && step.categoryName == 'Run Analysis'}">
-			                                    <span th:text="${step.name + ' - ' + 
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="flip-card-back" id="back_2" style="display: none">
+										<div class="container">
+											<p>Homework:</p>
+											<ul th:id="'homeworkList_' + ${pcol.id}"></ul>
+										</div>
+									</div>
+									<div class="flip-card-back" id="back_3" style="display: none">
+										<div class="container">
+
+											<p>Analysis:</p>
+											<ul id="ed_${pcol.id}">
+												<li th:each="step : ${pcol.steps}"
+													th:if="${step.status != 'DONE' && step.categoryName == 'Run Analysis'}">
+													<span
+														th:text="${step.name + ' - ' + 
 			                                        (step.status == 'TODO' ? 'To Do' : 
 			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' : 
 			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
-			                                </li>
-			                            </ul>
-			                        </div>
-			                    </div>
-			                </div>
-			            </div>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
 						</a>
-			            <div class="col-md-12">
-			                <button type="button" class="btn btn-secondary" onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
-			                <button type="button" class="btn btn-secondary" th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_1\', ' + ${pcol.id} + ')'">Education</button>
-			                <button type="button" class="btn btn-secondary" th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_2\', ' + ${pcol.id} + ')'">Homework</button>
-			                <button type="button" class="btn btn-secondary" th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_3\', ' + ${pcol.id} + ')'">Analysis</button>
-			            </div>
-                    </div>
-                    
-                </div>
-            </fieldset>
-        </div>
-    </div>
+						<div class="col-md-12">
+							<button type="button" class="btn btn-secondary"
+								onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
+							<button type="button" class="btn btn-secondary"
+								th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_1\', ' + ${pcol.id} + ')'">Education</button>
+							<button type="button" class="btn btn-secondary"
+								th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_2\', ' + ${pcol.id} + ')'">Homework</button>
+							<button type="button" class="btn btn-secondary"
+								th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_3\', ' + ${pcol.id} + ')'">Analysis</button>
+						</div>
+					</div>
 
-    <!--template for new protocol drop down -->
-    <template id="protocolTemplate">
-        <div class="new-protocol-row mb-3">
-            <select class="form-control" name="newProtocolId">
-                <option value="">Select Protocol</option>
-                <option th:each="protocol : ${protocolList}" th:value="${protocol.id}" th:text="${protocol.name}"></option>
-            </select>
-            <button type="button" class="btn btn-secondary" onclick="confirmProtocol(this);">Confirm</button>
-        </div>
-    </template>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+
+	<!--template for new protocol drop down -->
+	<template id="protocolTemplate">
+		<div class="new-protocol-row mb-3">
+			<select class="form-control" name="newProtocolId">
+				<option value="">Select Protocol</option>
+				<option th:each="protocol : ${protocolList}" th:value="${protocol.id}" th:text="${protocol.name}">
+				</option>
+			</select>
+			<button type="button" class="btn btn-secondary" onclick="confirmProtocol(this);">Confirm</button>
+		</div>
+	</template>
 
 
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <script th:inline="javascript">
-        var clientId = [[${clientId}]];
-        const pcId = [[${pcId}]];
+	<script th:inline="javascript">
+		var clientId = [[${clientId}]];
+		const pcId = [[${pcId}]];
 		filterProtocolsByStatus('IN_PROGRESS');
 
-        function showMessageBanner(message, type) {
-            const banner = document.getElementById('messageBanner');
-            banner.className = 'alert alert-' + type;
-            banner.textContent = message;
-            banner.style.display = 'block';
-        }
+		function showMessageBanner(message, type) {
+			const banner = document.getElementById('messageBanner');
+			banner.className = 'alert alert-' + type;
+			banner.textContent = message;
+			banner.style.display = 'block';
+		}
 
-        function viewProtocol(id){
-            window.location = '/viewProtocol/'+id+ '/'+ clientId;
-        }
+		function viewProtocol(id) {
+			window.location = '/viewProtocol/' + id + '/' + clientId;
+		}
 
-        //function addDependant(id){
-        //    window.location = '/createDependant/'+id;
-        //}
+		//function addDependant(id){
+		//    window.location = '/createDependant/'+id;
+		//}
 
-        function viewAnalysis(id){
-            window.location= '/analysis/'+id;
-        }
+		function viewAnalysis(id) {
+			window.location = '/analysis/' + id;
+		}
 
-        function viewHistory(){
-            window.location='/allClientProtocols/'+clientId;
-        }
+		function viewHistory() {
+			window.location = '/allClientProtocols/' + clientId;
+		}
 
-        function protocolHistory(name){
-            window.location='/protocolHistory/'+clientId+'/'+name;
-        }
+		function protocolHistory(name) {
+			window.location = '/protocolHistory/' + clientId + '/' + name;
+		}
 
-        function viewRecommendations(id){
-            window.location= '/protocolRecommendations/'+id +'/'+clientId;
-        }
+		function viewRecommendations(id) {
+			window.location = '/protocolRecommendations/' + id + '/' + clientId;
+		}
 
-        function goToHomeworkTemplates() {
-            window.location.href = '/homeworkList/';
-        }
+		function goToHomeworkTemplates() {
+			window.location.href = '/homeworkList/';
+		}
 
-        function goToHomeworks(id) {
-            window.location.href = '/homeworkList/'+id;
-        }
+		function goToHomeworks(id) {
+			window.location.href = '/homeworkList/' + id;
+		}
 
-        function editClient(id){
-            window.location.href= '/changeClientInfo/'+id;
-        }
+		function editClient(id) {
+			window.location.href = '/changeClientInfo/' + id;
+		}
 
-        var firstTabEl = document.querySelector('#dependentTabs .nav-link-dep');
+		var firstTabEl = document.querySelector('#dependentTabs .nav-link-dep');
 		var firstTab = new bootstrap.Tab(firstTabEl);
-		var apTracker = true; 
-		
+		var apTracker = true;
+
 		if (firstTabEl) {
-		    firstTab.show();
+			firstTab.show();
 		}
 		document.addEventListener('DOMContentLoaded', function () {
-		    var firstTabEl = document.querySelector('#dependentTabs .nav-link-dep');
-		    if (firstTabEl) {
-		        var firstTab = new bootstrap.Tab(firstTabEl);
-		        firstTab.show();
-		    }
-		});
-
-        
-       $(document).ready(function() {
-		    $('#coClientSelect').change(function() {
-		        if ($(this).val() === 'new') {
-		            $('#newCoClientForm').show();
-		            $('button[onclick="addCoClient()"]').hide();
-		        } else {
-		            $('#newCoClientForm').hide();
-		            $('button[onclick="addCoClient()"]').show();
-		        }
-		    });
-		    
-		    $('#dependentSelect').change(function() {
-		        if ($(this).val() === 'new') {
-		            $('#dependentFormContainer').show();
-		            $('button[onclick="addDependent()"]').hide();
-		        } else {
-		            $('#dependentFormContainer').hide();
-		            $('button[onclick="addDependent()"]').show();
-		        }
-		    });
-		
-		    $('#showCoClientBtn').click(function() {
-		        $('#coClientSection').toggle();
-		    });
-		
-		    $('#showDependentBtn').click(function() {
-		        $('#dependentDropdownSection').toggle();
-		    });
+			var firstTabEl = document.querySelector('#dependentTabs .nav-link-dep');
+			if (firstTabEl) {
+				var firstTab = new bootstrap.Tab(firstTabEl);
+				firstTab.show();
+			}
 		});
 
 
-        function addProtocol() {
-            if (!apTracker) {
-                console.log("addProtocol: Prevented from spawning multiple lines.");
-                return; 
-            }
-            
-            console.log("addProtocol: Function called.");
-            const container = document.querySelector("#protocolContainer");
-            if (container) {
-                console.log("addProtocol: Container found.");
-            } else {
-                console.error("addProtocol: #protocolContainer not found.");
-                return; 
-            }
-            const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
-            container.appendChild(template);
-            console.log("addProtocol: Protocol added to container.");
-            apTracker = false; 
-        }
+		$(document).ready(function () {
+			$('#coClientSelect').change(function () {
+				if ($(this).val() === 'new') {
+					$('#newCoClientForm').show();
+					$('button[onclick="addCoClient()"]').hide();
+				} else {
+					$('#newCoClientForm').hide();
+					$('button[onclick="addCoClient()"]').show();
+				}
+			});
 
-        function confirmProtocol(buttonElement) {
-            console.log("confirmProtocol: Function called.");
+			$('#dependentSelect').change(function () {
+				if ($(this).val() === 'new') {
+					$('#dependentFormContainer').show();
+					$('button[onclick="addDependent()"]').hide();
+				} else {
+					$('#dependentFormContainer').hide();
+					$('button[onclick="addDependent()"]').show();
+				}
+			});
 
-            var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-            var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-            var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-            var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-            if (csrfTokenElement && csrfHeaderElement) {
-                console.log("confirmProtocol: CSRF elements found.");
-            } else {
-                console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
-            }
+			$('#showCoClientBtn').click(function () {
+				$('#coClientSection').toggle();
+			});
 
-            var selectElement = buttonElement.previousElementSibling;
-            var protocolId = selectElement ? selectElement.value : null;
-            const popupWidth = 800;
-            const popupHeight = 400;
-            const left = (screen.width - popupWidth) / 2;
-            const top = (screen.height - popupHeight) / 2;
-            window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
-            if (protocolId) {
+			$('#showDependentBtn').click(function () {
+				$('#dependentDropdownSection').toggle();
+			});
+		});
+
+
+		function addProtocol() {
+			if (!apTracker) {
+				console.log("addProtocol: Prevented from spawning multiple lines.");
+				return;
+			}
+
+			console.log("addProtocol: Function called.");
+			const container = document.querySelector("#protocolContainer");
+			if (container) {
+				console.log("addProtocol: Container found.");
+			} else {
+				console.error("addProtocol: #protocolContainer not found.");
+				return;
+			}
+			const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
+			container.appendChild(template);
+			console.log("addProtocol: Protocol added to container.");
+			apTracker = false;
+		}
+
+		function confirmProtocol(buttonElement) {
+			console.log("confirmProtocol: Function called.");
+
+			var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+			var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+			var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+			var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+			if (csrfTokenElement && csrfHeaderElement) {
+				console.log("confirmProtocol: CSRF elements found.");
+			} else {
+				console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
+			}
+
+			var selectElement = buttonElement.previousElementSibling;
+			var protocolId = selectElement ? selectElement.value : null;
+			const popupWidth = 800;
+			const popupHeight = 400;
+			const left = (screen.width - popupWidth) / 2;
+			const top = (screen.height - popupHeight) / 2;
+			window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+			if (protocolId) {
 				makePrimaryContact(pcId);
-                console.log(`confirmProtocol: Selected protocol ID is ${protocolId}.`);
-            } else {
-                console.error("confirmProtocol: No protocol ID selected.");
-                return;
-            }
+				console.log(`confirmProtocol: Selected protocol ID is ${protocolId}.`);
+			} else {
+				console.error("confirmProtocol: No protocol ID selected.");
+				return;
+			}
 
-            /*$.ajax({
-                url: `/addClientToProtocol/[[${clientId}]]/` + protocolId,
-                type: 'POST',
-                headers: {
-                    'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                success: function(response) {
-                    apTracker = true;
-                    window.location.reload(); // Reload page if successful
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error adding step:', error);
-                    alert('Failed to add the Protocol. Error: ' + xhr.responseText);
-                }
-            });*/
-        }
+			/*$.ajax({
+				url: `/addClientToProtocol/[[${clientId}]]/` + protocolId,
+				type: 'POST',
+				headers: {
+					'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': csrfToken
+				},
+				success: function(response) {
+					apTracker = true;
+					window.location.reload(); // Reload page if successful
+				},
+				error: function(xhr, status, error) {
+					console.error('Error adding step:', error);
+					alert('Failed to add the Protocol. Error: ' + xhr.responseText);
+				}
+			});*/
+		}
 
-        document.addEventListener('DOMContentLoaded', function () {
-            var searchField = document.getElementById('protocolSearch');
+		document.addEventListener('DOMContentLoaded', function () {
+			var searchField = document.getElementById('protocolSearch');
 
-            searchField.addEventListener('input', function () {
-                var searchTerm = this.value.toLowerCase();
+			searchField.addEventListener('input', function () {
+				var searchTerm = this.value.toLowerCase();
 
-                var protocols = document.querySelectorAll('.note_card.col-md-5');
+				var protocols = document.querySelectorAll('.note_card.col-md-5');
 
-                protocols.forEach(function (protocol) {
-                    var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
-                    var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
-                    var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
-                    var descriptionElement = protocol.querySelector('.flip-card-front .container .row:nth-child(5)');
+				protocols.forEach(function (protocol) {
+					var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
+					var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
+					var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
+					var descriptionElement = protocol.querySelector('.flip-card-front .container .row:nth-child(5)');
 
-                    var name = nameElement ? nameElement.textContent.toLowerCase() : '';
-                    var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
-                    var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
-                    var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
+					var name = nameElement ? nameElement.textContent.toLowerCase() : '';
+					var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
+					var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
+					var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
 
-                    var isMatch = name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm) || description.includes(searchTerm);
+					var isMatch = name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm) || description.includes(searchTerm);
 
-                    var steps = protocol.querySelectorAll('.flip-card-back li');
-                    steps.forEach(function (step) {
-                        var stepName = step.textContent.toLowerCase();
-                        if (stepName.includes(searchTerm)) {
-                            isMatch = true;
-                        }
-                    });
+					var steps = protocol.querySelectorAll('.flip-card-back li');
+					steps.forEach(function (step) {
+						var stepName = step.textContent.toLowerCase();
+						if (stepName.includes(searchTerm)) {
+							isMatch = true;
+						}
+					});
 
-                    protocol.style.display = isMatch ? '' : 'none';
-                });
-            });
-        });
+					protocol.style.display = isMatch ? '' : 'none';
+				});
+			});
+		});
 
-        function filterProtocolsByStatus(status) {
-            const protocols = document.querySelectorAll('#protocolContent > div');
-            let visibleProtocolsCount = 0;
+		function filterProtocolsByStatus(status) {
+			const protocols = document.querySelectorAll('#protocolContent > div');
+			let visibleProtocolsCount = 0;
 
-            console.log(`Filtering protocols by status: ${status}`);
+			console.log(`Filtering protocols by status: ${status}`);
 
-            protocols.forEach(protocol => {
-                console.log(`Protocol status: ${protocol.getAttribute('data-type')}`);
-                if (status === 'all' || protocol.getAttribute('data-type') === status) {
-                    protocol.style.display = '';
-                    visibleProtocolsCount++;
-                } else {
-                    protocol.style.display = 'none';
-                }
-            });
+			protocols.forEach(protocol => {
+				console.log(`Protocol status: ${protocol.getAttribute('data-type')}`);
+				if (status === 'all' || protocol.getAttribute('data-type') === status) {
+					protocol.style.display = '';
+					visibleProtocolsCount++;
+				} else {
+					protocol.style.display = 'none';
+				}
+			});
 
-            console.log(`Total visible protocols: ${visibleProtocolsCount}`);
+			console.log(`Total visible protocols: ${visibleProtocolsCount}`);
 
-            const noProtocolsMessage = document.getElementById('noProtocolsMessage');
-            if (visibleProtocolsCount === 0) {
-                if (!noProtocolsMessage) {
-                    const message = document.createElement('div');
-                    message.id = 'noProtocolsMessage';
-                    message.className = 'alert alert-warning';
-                    message.textContent = 'No protocols found for this status';
-                    document.getElementById('protocolContent').appendChild(message);
-                } else {
-                    noProtocolsMessage.style.display = '';
-                }
-            } else if (noProtocolsMessage) {
-                noProtocolsMessage.style.display = 'none';
-            }
-        }
+			const noProtocolsMessage = document.getElementById('noProtocolsMessage');
+			if (visibleProtocolsCount === 0) {
+				if (!noProtocolsMessage) {
+					const message = document.createElement('div');
+					message.id = 'noProtocolsMessage';
+					message.className = 'alert alert-warning';
+					message.textContent = 'No protocols found for this status';
+					document.getElementById('protocolContent').appendChild(message);
+				} else {
+					noProtocolsMessage.style.display = '';
+				}
+			} else if (noProtocolsMessage) {
+				noProtocolsMessage.style.display = 'none';
+			}
+		}
 
-        function flipCard(card) {
-            if (card) {
-                card.classList.toggle('do-flip');
-            } else {
-                console.error("No card element found");
-            }
-        }
-        
-	function addCoClient() {
-	    const selectedCoClientId = document.getElementById('coClientSelect').value;
-	    if (selectedCoClientId) {
-	        $.ajax({
-	            url: `/addCoClient/${clientId}/${selectedCoClientId}`,
-	            type: 'PATCH',
-	            headers: {
-	                'Accept': 'text/plain',
-	                'Content-Type': 'application/json',
-	                'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
-	            },
-	            success: function(response) {
-	                console.log('Response:', response); // Debugging line
-                    showMessageBanner(response.message, 'success');
-                    makePrimaryContact(pcId);
-                    console.log('Reloading page...'); // Debugging line
-                    window.location.reload();
+		function flipCard(card) {
+			if (card) {
+				card.classList.toggle('do-flip');
+			} else {
+				console.error("No card element found");
+			}
+		}
 
-	            },
-	            error: function(xhr, status, error) {
-	                console.error('Error adding CoClient:', error);
-	                showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
-	            }
-	        });
-	    } else {
-	        showMessageBanner('Please select a CoClient first.', 'warning');
-	    }
-	}
+		function addCoClient() {
+			const selectedCoClientId = document.getElementById('coClientSelect').value;
+			if (selectedCoClientId) {
+				$.ajax({
+					url: `/addCoClient/${clientId}/${selectedCoClientId}`,
+					type: 'PATCH',
+					headers: {
+						'Accept': 'text/plain',
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+					},
+					success: function (response) {
+						console.log('Response:', response); // Debugging line
+						showMessageBanner(response.message, 'success');
+						makePrimaryContact(pcId);
+						console.log('Reloading page...'); // Debugging line
+						window.location.reload();
 
-        
+					},
+					error: function (xhr, status, error) {
+						console.error('Error adding CoClient:', error);
+						showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
+					}
+				});
+			} else {
+				showMessageBanner('Please select a CoClient first.', 'warning');
+			}
+		}
 
-    function createAndAddClient() {
-        var newClient = {
-            email: $('#newEmail').val(),
-            firstName: $('#newFirstName').val(),
-            lastName: $('#newLastName').val(),
-            username: $('#newUsername').val(),
-            password: $('#newPassword').val(),
-            roles: [2] 
-        };
 
-        var csrfToken = $('meta[name="_csrf"]').attr('content');
-        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
-        $.ajax({
-            url: '/addClient/',
-            type: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            data: JSON.stringify(newClient),
-            success: function(response) {
-                if (response.clientId) {
-                    addCoClientWithId(response.clientId);
-                } else {
-                    showMessageBanner(response.error || 'Error adding client', 'danger');
-                }
-            },
-            error: function(xhr) {
-                showMessageBanner('Error adding client: ' + xhr.responseText, 'danger');
-            }
-        });
-    }
+		function createAndAddClient() {
+			var newClient = {
+				email: $('#newEmail').val(),
+				firstName: $('#newFirstName').val(),
+				lastName: $('#newLastName').val(),
+				username: $('#newUsername').val(),
+				password: $('#newPassword').val(),
+				roles: [2]
+			};
 
-	    function addCoClientWithId(coClientId) {
-	        var csrfToken = $('meta[name="_csrf"]').attr('content');
-	        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-	
-	        $.ajax({
-	            url: `/addCoClient/${clientId}/${coClientId}`,
-	            type: 'PATCH',
-	            headers: {
-	                'Accept': 'text/plain',
-	                'Content-Type': 'application/json',
-	                [csrfHeader]: csrfToken
-	            },
-	            success: function(response) {
-	                showMessageBanner('CoClient Successfully Added!', 'success');
-	                makePrimaryContact(pcId);
-	                window.location.reload();
-	            },
-	            error: function(xhr) {
-	                showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
-	            }
-	        });
-	    }
+			var csrfToken = $('meta[name="_csrf"]').attr('content');
+			var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+			$.ajax({
+				url: '/addClient/',
+				type: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					[csrfHeader]: csrfToken
+				},
+				data: JSON.stringify(newClient),
+				success: function (response) {
+					if (response.clientId) {
+						addCoClientWithId(response.clientId);
+					} else {
+						showMessageBanner(response.error || 'Error adding client', 'danger');
+					}
+				},
+				error: function (xhr) {
+					showMessageBanner('Error adding client: ' + xhr.responseText, 'danger');
+				}
+			});
+		}
+
+		function addCoClientWithId(coClientId) {
+			var csrfToken = $('meta[name="_csrf"]').attr('content');
+			var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+			$.ajax({
+				url: `/addCoClient/${clientId}/${coClientId}`,
+				type: 'PATCH',
+				headers: {
+					'Accept': 'text/plain',
+					'Content-Type': 'application/json',
+					[csrfHeader]: csrfToken
+				},
+				success: function (response) {
+					showMessageBanner('CoClient Successfully Added!', 'success');
+					makePrimaryContact(pcId);
+					window.location.reload();
+				},
+				error: function (xhr) {
+					showMessageBanner('Failed to add the CoClient. Error: ' + xhr.responseText, 'danger');
+				}
+			});
+		}
 
 		function confirmAddDependent() {
-		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-		    
-		    if (pcId <= 0) {
-		        showMessageBanner('Household must have a Primary Contact in order to assign a Dependent', 'danger');
-		        return;
-		    }
-		
-		    const dependent = {
-		        email: document.getElementById('dependentEmail').value,
-		        firstName: document.getElementById('dependentFirstName').value,
-		        lastName: document.getElementById('dependentLastName').value,
-		        roles: [2]
-		    };
-		
-		    $.ajax({
-		        url: `/createAndAssignDependent/${pcId}`,
-		        type: 'POST',
-		        headers: {
-		            'Accept': 'text/plain',
-		            'Content-Type': 'application/json',
-		            [csrfHeader]: csrfToken
-		        },
-		        data: JSON.stringify(dependent),
-		        success: function(response) {
-		            showMessageBanner('Dependent Successfully Created and Assigned', 'success');
-		            makePrimaryContact(pcId);
-		            window.location.reload();
-		        },
-		        error: function(xhr, status, error) {
-		            showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
-		        }
-		    });
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			if (pcId <= 0) {
+				showMessageBanner('Household must have a Primary Contact in order to assign a Dependent', 'danger');
+				return;
+			}
+
+			const dependent = {
+				email: document.getElementById('dependentEmail').value,
+				firstName: document.getElementById('dependentFirstName').value,
+				lastName: document.getElementById('dependentLastName').value,
+				roles: [2]
+			};
+
+			$.ajax({
+				url: `/createAndAssignDependent/${pcId}`,
+				type: 'POST',
+				headers: {
+					'Accept': 'text/plain',
+					'Content-Type': 'application/json',
+					[csrfHeader]: csrfToken
+				},
+				data: JSON.stringify(dependent),
+				success: function (response) {
+					showMessageBanner('Dependent Successfully Created and Assigned', 'success');
+					makePrimaryContact(pcId);
+					window.location.reload();
+				},
+				error: function (xhr, status, error) {
+					showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
+				}
+			});
 		}
-		
-	function addDependent() {
-	    const selectedDependent = document.getElementById('dependentSelect').value;
-	    var primaryContactId = document.getElementById('primaryContactId').value;
-	    if (selectedDependent) {
-	        $.ajax({
-	            url: `/assignDependentToPrimaryContact/${clientId}/${selectedDependent}`,
-	            type: 'PATCH',
-	            headers: {
-	                'Accept': 'text/plain',
-	                'Content-Type': 'application/json',
-	                'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
-	            },
-	            success: function(response) {
-	                if (response.includes("Successfully Added")) {
-	                    showMessageBanner(response, 'success');
-	                    makePrimaryContact(pcId);
-	                    window.location.reload(); // Reload the page upon successful response
-	                } else {
-	                    showMessageBanner(response, 'danger');
-	                }
-	            },
-	            error: function(xhr, status, error) {
-	                console.error('Error adding Dependent:', error);
-	                showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
-	            }
-	        });
-	    } else {
-	        showMessageBanner('Please select a Dependent first.', 'warning');
-	    }
-	}
+
+		function addDependent() {
+			const selectedDependent = document.getElementById('dependentSelect').value;
+			var primaryContactId = document.getElementById('primaryContactId').value;
+			if (selectedDependent) {
+				$.ajax({
+					url: `/assignDependentToPrimaryContact/${clientId}/${selectedDependent}`,
+					type: 'PATCH',
+					headers: {
+						'Accept': 'text/plain',
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+					},
+					success: function (response) {
+						if (response.includes("Successfully Added")) {
+							showMessageBanner(response, 'success');
+							makePrimaryContact(pcId);
+							window.location.reload(); // Reload the page upon successful response
+						} else {
+							showMessageBanner(response, 'danger');
+						}
+					},
+					error: function (xhr, status, error) {
+						console.error('Error adding Dependent:', error);
+						showMessageBanner('Failed to add the Dependent. Error: ' + xhr.responseText, 'danger');
+					}
+				});
+			} else {
+				showMessageBanner('Please select a Dependent first.', 'warning');
+			}
+		}
 
 
 
 
-        function loadDependents() {
-            $.ajax({
-                url: `/getDependents/${clientId}`,
-                type: 'GET',
-                success: function(response) {
-                    $('#dependentSection').html(response);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error loading dependents:', error);
-                }
-            });
-        }
-        
-	function makePrimaryContact(coClientId) {
-	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	
-	    $.ajax({
-	        url: `/promoteToPrimaryContact/${clientId}/${coClientId}`,
-	        type: 'PATCH',
-	        headers: {
-	            'Accept': 'text/plain',
-	            'Content-Type': 'application/json',
-	            [csrfHeader]: csrfToken
-	        },
-	        success: function(response) {
-	            showMessageBanner('Primary Contact updated successfully', 'success');
-	                location.reload();
-	        },
-	        error: function(xhr, status, error) {
-	            showMessageBanner('Failed to update Primary Contact. Error: ' + xhr.responseText, 'danger');
-	        }
-	    });
-	}
-	
-	    function fetchHomework(protocolId) {
-        console.log('Fetching homework for protocol ID:', protocolId); // Log protocolId
-        $.ajax({
-            url: '/getHomeworkList/' + protocolId,
-            method: 'GET',
-            success: function(data) {
-                var homeworkList = document.querySelector('#homeworkList_' + protocolId);
-                if (homeworkList) {
-                    homeworkList.innerHTML = ''; // Clear any existing items
+		function loadDependents() {
+			$.ajax({
+				url: `/getDependents/${clientId}`,
+				type: 'GET',
+				success: function (response) {
+					$('#dependentSection').html(response);
+				},
+				error: function (xhr, status, error) {
+					console.error('Error loading dependents:', error);
+				}
+			});
+		}
 
-                    // Add the fetched homework items to the list
-                    data.forEach(function(homework) {
-                        var listItem = document.createElement('li');
-                        listItem.textContent = homework.name;
-                        homeworkList.appendChild(listItem);
-                    });
-                } else {
-                    console.error('Homework list element not found for protocol ID:', protocolId);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching homework data:', {
-                    status: status,
-                    error: error,
-                    responseText: xhr.responseText,
-                    statusCode: xhr.status
-                });
-            }
-        });
-    }
+		function makePrimaryContact(coClientId) {
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-    function changeBackAndFlip(noteCard, newBackId, protocolId) {
-        var card = noteCard.querySelector('.flip-card');
-        var front = card.querySelector(".flip-card-front");
-        var currentBackId = noteCard.getAttribute('data-current-back');
-        var currentBack = card.querySelector("#" + currentBackId);
-        var newBack = card.querySelector("#" + newBackId);
+			$.ajax({
+				url: `/promoteToPrimaryContact/${clientId}/${coClientId}`,
+				type: 'PATCH',
+				headers: {
+					'Accept': 'text/plain',
+					'Content-Type': 'application/json',
+					[csrfHeader]: csrfToken
+				},
+				success: function (response) {
+					showMessageBanner('Primary Contact updated successfully', 'success');
+					location.reload();
+				},
+				error: function (xhr, status, error) {
+					showMessageBanner('Failed to update Primary Contact. Error: ' + xhr.responseText, 'danger');
+				}
+			});
+		}
 
-        if (currentBack) {
-            currentBack.style.display = "none"; // hide current back
-        }
-        if (newBack) {
-            newBack.style.display = "block"; // show new back
-        } else {
-            console.error('New back element not found:', newBackId);
-        }
+		function fetchHomework(protocolId) {
+			console.log('Fetching homework for protocol ID:', protocolId); // Log protocolId
+			$.ajax({
+				url: '/getHomeworkList/' + protocolId,
+				method: 'GET',
+				success: function (data) {
+					var homeworkList = document.querySelector('#homeworkList_' + protocolId);
+					if (homeworkList) {
+						homeworkList.innerHTML = ''; // Clear any existing items
 
-    
+						// Add the fetched homework items to the list
+						data.forEach(function (homework) {
+							var listItem = document.createElement('li');
+							listItem.textContent = homework.name;
+							homeworkList.appendChild(listItem);
+						});
+					} else {
+						console.error('Homework list element not found for protocol ID:', protocolId);
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error('Error fetching homework data:', {
+						status: status,
+						error: error,
+						responseText: xhr.responseText,
+						statusCode: xhr.status
+					});
+				}
+			});
+		}
 
-        front.style.display = "block"; // show the front
+		function changeBackAndFlip(noteCard, newBackId, protocolId) {
+			var card = noteCard.querySelector('.flip-card');
+			var front = card.querySelector(".flip-card-front");
+			var currentBackId = noteCard.getAttribute('data-current-back');
+			var currentBack = card.querySelector("#" + currentBackId);
+			var newBack = card.querySelector("#" + newBackId);
 
-        // Update the current back
-        noteCard.setAttribute('data-current-back', newBackId);
+			if (currentBack) {
+				currentBack.style.display = "none"; // hide current back
+			}
+			if (newBack) {
+				newBack.style.display = "block"; // show new back
+			} else {
+				console.error('New back element not found:', newBackId);
+			}
 
-        // Fetch homework data if switching to back_2
-        if (newBackId === 'back_2') {
-            fetchHomework(protocolId);
-        }
-    }
-	function removeCoClient(coClientId) {
-	    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-	    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-	
-	    if (confirm("Are you sure you want to remove this CoClient?")) {
-	        $.ajax({
-	            url: `/removeCoClient/${clientId}/${coClientId}`,
-	            type: 'PATCH',
-	            headers: {
-	                'Accept': 'text/plain',
-	                'Content-Type': 'application/json',
-	                [csrfHeader]: csrfToken
-	            },
-	            success: function(response) {
-	                showMessageBanner('CoClient Successfully Removed!', 'success');
-	                makePrimaryContact(pcId).then(function() {
-	                    window.location.reload(); // Reload the page upon successful response
-	                }).catch(function(error) {
-	                    showMessageBanner('Failed to make primary contact. Error: ' + error.message, 'danger');
-	                });
-	            },
-	            error: function(xhr, status, error) {
-	                showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
-	            }
-	        });
-	    }
-	}
-	
-	function removeDependent(guardId,depId) {
-		    console.log("removeDependent: Function called with depId:", depId);
-		
-		    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-		    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-		
-		    var requestUrl = `/removeDependent/${guardId}/${depId}`;
+
+
+			front.style.display = "block"; // show the front
+
+			// Update the current back
+			noteCard.setAttribute('data-current-back', newBackId);
+
+			// Fetch homework data if switching to back_2
+			if (newBackId === 'back_2') {
+				fetchHomework(protocolId);
+			}
+		}
+		function removeCoClient(coClientId) {
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			if (confirm("Are you sure you want to remove this CoClient?")) {
+				$.ajax({
+					url: `/removeCoClient/${clientId}/${coClientId}`,
+					type: 'PATCH',
+					headers: {
+						'Accept': 'text/plain',
+						'Content-Type': 'application/json',
+						[csrfHeader]: csrfToken
+					},
+					success: function (response) {
+						showMessageBanner('CoClient Successfully Removed!', 'success');
+						makePrimaryContact(pcId).then(function () {
+							window.location.reload(); // Reload the page upon successful response
+						}).catch(function (error) {
+							showMessageBanner('Failed to make primary contact. Error: ' + error.message, 'danger');
+						});
+					},
+					error: function (xhr, status, error) {
+						showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
+					}
+				});
+			}
+		}
+
+		function removeDependent(guardId, depId) {
+			console.log("removeDependent: Function called with depId:", depId);
+
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			var requestUrl = `/removeDependent/${guardId}/${depId}`;
 			if (confirm("Are you sure you want to remove this Dependent?")) {
-		    fetch(requestUrl, {
-		        method: 'PATCH',
-		        headers: {
-		            'Accept': 'text/plain',
-		            'Content-Type': 'application/json',
-		            [csrfHeader]: csrfToken
-		        }
-		    })
-		    .then(response => {
-		        if (response.ok) {
-		            showMessageBanner('Dependent successfully removed.', 'success');
-		            window.location.reload();
-		        } else {
-		            response.text().then(text => { throw new Error(text); });
-		        }
-		    })
-		    .catch(error => {
-		        console.error('Error:', error);
-		        showMessageBanner('Error removing dependent.', 'danger');
-		    });
+				fetch(requestUrl, {
+					method: 'PATCH',
+					headers: {
+						'Accept': 'text/plain',
+						'Content-Type': 'application/json',
+						[csrfHeader]: csrfToken
+					}
+				})
+					.then(response => {
+						if (response.ok) {
+							showMessageBanner('Dependent successfully removed.', 'success');
+							window.location.reload();
+						} else {
+							response.text().then(text => {throw new Error(text);});
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						showMessageBanner('Error removing dependent.', 'danger');
+					});
+			}
 		}
+		$(document).ready(function () {
+			$('#showAssignToClientBtn').click(function () {
+				$('#assignToClientSection').toggle();
+			});
+		});
+
+		function assignDependentToClient() {
+			const selectedClientId = document.getElementById('assignToClientSelect').value;
+			const dependentId = $('.nav-link-dep.active').data('dependent-id'); // Assuming each tab has data-dependent-id attribute
+
+			if (selectedClientId && dependentId) {
+				$.ajax({
+					url: `/assignGuardiant/${selectedClientId}/${dependentId}`,
+					type: 'PATCH',
+					headers: {
+						'Accept': 'text/plain',
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+					},
+					success: function (response) {
+						showMessageBanner(response, 'success');
+						window.location.reload(); // Reload the page upon successful response
+					},
+					error: function (xhr, status, error) {
+						console.error('Error assigning dependent:', error);
+						showMessageBanner('Failed to assign the dependent. Error: ' + xhr.responseText, 'danger');
+					}
+				});
+			} else {
+				showMessageBanner('Please select a client first.', 'warning');
+			}
 		}
-	$(document).ready(function() {
-	    $('#showAssignToClientBtn').click(function() {
-	        $('#assignToClientSection').toggle();
-	    });
-	});
-	
-	function assignDependentToClient() {
-	    const selectedClientId = document.getElementById('assignToClientSelect').value;
-	    const dependentId = $('.nav-link-dep.active').data('dependent-id'); // Assuming each tab has data-dependent-id attribute
-	
-	    if (selectedClientId && dependentId) {
-	        $.ajax({
-	            url: `/assignGuardiant/${selectedClientId}/${dependentId}`,
-	            type: 'PATCH',
-	            headers: {
-	                'Accept': 'text/plain',
-	                'Content-Type': 'application/json',
-	                'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
-	            },
-	            success: function(response) {
-	                showMessageBanner(response, 'success');
-	                window.location.reload(); // Reload the page upon successful response
-	            },
-	            error: function(xhr, status, error) {
-	                console.error('Error assigning dependent:', error);
-	                showMessageBanner('Failed to assign the dependent. Error: ' + xhr.responseText, 'danger');
-	            }
-	        });
-	    } else {
-	        showMessageBanner('Please select a client first.', 'warning');
-	    }
-	}
-	
-	function clearNewCoClientForm() {
-	    document.getElementById('newEmail').value = '';
-	    document.getElementById('newFirstName').value = '';
-	    document.getElementById('newLastName').value = '';
-	    document.getElementById('newUsername').value = '';
-	    document.getElementById('newPassword').value = '';
-	}
-	
-	function clearNewDependentForm() {
-	    document.getElementById('dependentEmail').value = '';
-	    document.getElementById('dependentFirstName').value = '';
-	    document.getElementById('dependentLastName').value = '';
-	}
-	
-	function toggleHouseholdDropdown(guardianId, dependentId) {
-	    const dropdownSection = document.getElementById(`householdDropdownSection_${dependentId}`);
-	    if (dropdownSection) {
-	        dropdownSection.style.display = dropdownSection.style.display === 'none' ? 'block' : 'none';
-	    }
-	}
-	
-	function assignDependentToHousehold(guardianId, dependentId, button) {
-	    const householdSelect = document.getElementById(`householdSelect_${dependentId}`);
-	    const selectedHouseholdId = householdSelect ? householdSelect.value : null;
-	
-	    if (!selectedHouseholdId) {
-	        showMessageBanner('Please select a household first.', 'warning');
-	        return;
-	    }
-	
-	    removeDependent(guardianId, dependentId)
-	        .then(() => {
-	            return $.ajax({
-	                url: `/addCoClient/${selectedHouseholdId}/${dependentId}`,
-	                type: 'PATCH',
-	                headers: {
-	                    'Accept': 'text/plain',
-	                    'Content-Type': 'application/json',
-	                    'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
-	                }
-	            });
-	        })
-	        .then(response => {
-	            showMessageBanner('Dependent successfully assigned to the new household.', 'success');
-	            window.location.reload(); // Reload the page upon successful response
-	        })
-	        .catch(error => {
-	            console.error('Error assigning dependent:', error);
-	            showMessageBanner('Failed to assign the dependent. Error: ' + error.message, 'danger');
-	        });
-	}
-	
-	function reloadHouseholdSection(clientId) {
-	    $.ajax({
-	        url: `/clientProfile/household/` + clientId,
-	        type: 'GET',
-	        success: function (response) {
-	            $('#householdSection').html(response);
-	        },
-	        error: function () {
-	            alert("Failed to reload household section.");
-	        }
-	    });
-	}
-	
-	function reloadProtocolSection(clientId) {
-	    $.ajax({
-	        url: `/clientProfile/protocols/` + clientId,
-	        type: 'GET',
-	        success: function (response) {
-	            $('#protocolSection').html(response);
-	        },
-	        error: function () {
-	            alert("Failed to reload protocol section.");
-	        }
-	    });
+
+		function clearNewCoClientForm() {
+			document.getElementById('newEmail').value = '';
+			document.getElementById('newFirstName').value = '';
+			document.getElementById('newLastName').value = '';
+			document.getElementById('newUsername').value = '';
+			document.getElementById('newPassword').value = '';
+		}
+
+		function clearNewDependentForm() {
+			document.getElementById('dependentEmail').value = '';
+			document.getElementById('dependentFirstName').value = '';
+			document.getElementById('dependentLastName').value = '';
+		}
+
+		function toggleHouseholdDropdown(guardianId, dependentId) {
+			const dropdownSection = document.getElementById(`householdDropdownSection_${dependentId}`);
+			if (dropdownSection) {
+				dropdownSection.style.display = dropdownSection.style.display === 'none' ? 'block' : 'none';
+			}
+		}
+
+		function assignDependentToHousehold(guardianId, dependentId, button) {
+			const householdSelect = document.getElementById(`householdSelect_${dependentId}`);
+			const selectedHouseholdId = householdSelect ? householdSelect.value : null;
+
+			if (!selectedHouseholdId) {
+				showMessageBanner('Please select a household first.', 'warning');
+				return;
+			}
+
+			removeDependent(guardianId, dependentId)
+				.then(() => {
+					return $.ajax({
+						url: `/addCoClient/${selectedHouseholdId}/${dependentId}`,
+						type: 'PATCH',
+						headers: {
+							'Accept': 'text/plain',
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+						}
+					});
+				})
+				.then(response => {
+					showMessageBanner('Dependent successfully assigned to the new household.', 'success');
+					window.location.reload(); // Reload the page upon successful response
+				})
+				.catch(error => {
+					console.error('Error assigning dependent:', error);
+					showMessageBanner('Failed to assign the dependent. Error: ' + error.message, 'danger');
+				});
+		}
+
+		function reloadHouseholdSection(clientId) {
+			$.ajax({
+				url: `/clientProfile/household/` + clientId,
+				type: 'GET',
+				success: function (response) {
+					$('#householdSection').html(response);
+				},
+				error: function () {
+					alert("Failed to reload household section.");
+				}
+			});
+		}
+
+		function reloadProtocolSection(clientId) {
+			$.ajax({
+				url: `/clientProfile/protocols/` + clientId,
+				type: 'GET',
+				success: function (response) {
+					$('#protocolSection').html(response);
+				},
+				error: function () {
+					alert("Failed to reload protocol section.");
+				}
+			});
+		}
 
 
-        
-    </script>
-    <div th:insert="~{footer :: main}">...</div>
+	</script>
+	<div th:insert="~{footer :: main}">...</div>
 </body>
 
 </html>
-
-

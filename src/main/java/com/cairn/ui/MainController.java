@@ -318,7 +318,7 @@ public class MainController {
         ArrayList<ProtocolComments> mostRecentComment = protocol.getComments();
 
         model.addAttribute("protocol", protocol);
-        model.addAttribute("mostRecentComment", mostRecentComment.getLast());
+        model.addAttribute("mostRecentComment", mostRecentComment.get(mostRecentComment.size() - 1));
         return "fragments :: protocolDetails";
     }
 

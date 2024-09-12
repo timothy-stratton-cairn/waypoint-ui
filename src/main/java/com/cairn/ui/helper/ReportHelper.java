@@ -246,7 +246,7 @@ public class ReportHelper {
 	                                             .filter(step -> step.getDaysToComplete() >= 0)
 	                                             .collect(Collectors.toList());
 
-	        logger.info("Filtered valid steps count: " + validSteps.size() + " for Household ID: " + householdId);
+	        // logger.info("Filtered valid steps count: " + validSteps.size() + " for Household ID: " + householdId);
 
 	        if (validSteps.isEmpty()) {
 	            //logger.info("No valid steps found for Household ID: " + householdId);
@@ -338,7 +338,7 @@ public class ReportHelper {
 	                                             .filter(step -> step.getDaysToComplete() >= 0)
 	                                             .collect(Collectors.toList());
 
-	        logger.info("Filtered valid steps count: " + validSteps.size() + " for Template ID: " + templateId);
+	        // logger.info("Filtered valid steps count: " + validSteps.size() + " for Template ID: " + templateId);
 
 	        if (validSteps.isEmpty()) {
 	            //logger.info("No valid steps found for Template ID: " + templateId);
