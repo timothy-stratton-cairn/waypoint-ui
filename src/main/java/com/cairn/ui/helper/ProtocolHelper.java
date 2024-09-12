@@ -63,6 +63,7 @@ public class ProtocolHelper {
 	                        }
 	                        entry.setCompletionPercent(element.get("completionPercentage").asText());
 	                        entry.setId(element.get("id").asInt());
+	                        entry.setStatus(element.get("status").asText());
 	                        entry.setStartDate(
 	                            new SimpleDateFormat("yyyy-MM-dd").parse(element.get("createdAt").asText()));
 

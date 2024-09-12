@@ -15,7 +15,7 @@
         <div id="messageBanner" class="alert" style="display: none;" role="alert"></div>
     </div>
 
-    <div class="container">
+    <div class="container" id="editStepSection">
         <div class="row note_card">
             <fieldset class="col-12">
                 <legend>Edit Step Template</legend>
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Homework Form -->
-    <div class="container">
+    <div class="container" id="homeworkContainer" >
         <div class="row note_card">
             <fieldset class="col-12">
                 <legend>Assigned Homework</legend>
@@ -247,6 +247,36 @@
                 }
             });
         }
+        
+        
+        
+		function reloadEditStepSection(stepId) {
+		    $.ajax({
+		        url: '/reloadEditStep/' + stepId,
+		        type: 'GET',
+		        success: function(response) {
+		            $('#editStepSection').html(response); 
+		        },
+		        error: function(xhr, status, error) {
+		            console.error("Failed to reload Edit Step section: " + error);
+		        }
+		    });
+		}
+		
+
+		function reloadAssignedHomeworkSection(stepId) {
+		    $.ajax({
+		        url: '/reloadAssignedHomework/' + stepId,
+		        type: 'GET',
+		        success: function(response) {
+		            $('#homeworkContainer').html(response); 
+		        },
+		        error: function(xhr, status, error) {
+		            console.error("Failed to reload Assigned Homework section: " + error);
+		        }
+		    });
+		}
+
     </script>
 </body>
 <div th:insert="~{footer :: main}">...</div>

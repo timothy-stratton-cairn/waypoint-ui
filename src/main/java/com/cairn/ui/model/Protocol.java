@@ -1,6 +1,8 @@
 package com.cairn.ui.model;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +30,10 @@ public class Protocol {
 	private ArrayList<ProtocolStep> steps = new ArrayList<ProtocolStep>();
 	private ArrayList<Integer> users = new ArrayList<Integer>();
 	private int userId;
+	
+	private Date parsedDueDate;
+    private boolean isLate;
+
 
 	public int getUserId() {
 		return this.userId;
@@ -177,8 +183,31 @@ public class Protocol {
 	public String getDueDate() {
 		return dueDate;
 	}
+	
+	
 	public void setDueDate(String dueDate) {
 		this.dueDate = dueDate;
 	}
+	
+	public Date getParsedDueDate() {
+        if (this.dueDate != null && !this.dueDate.equals("No Due Date")) {
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                this.parsedDueDate = dateFormat.parse(this.dueDate);
+            } catch (ParseException e) {
+                e.printStackTrace(); // Handle parsing error
+            }
+        }
+        return this.parsedDueDate;
+    }
+
+    // Getter for isLate flag
+    public boolean isLate() {
+        if (this.getParsedDueDate() != null) {
+            Date currentDate = new Date();
+            this.isLate = this.getParsedDueDate().before(currentDate);
+        }
+        return this.isLate;
+    }
 
 }

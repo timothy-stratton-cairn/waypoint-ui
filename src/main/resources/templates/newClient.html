@@ -44,6 +44,7 @@
                             <button type="button" class="btn btn-primary" onclick="togglePrimaryContactFields()">Add Primary Contact</button>
                             <div id="primaryContactFields" class="d-none mt-3">
                                 <select id="primaryContactSelect" class="form-control" onchange="checkNewPrimaryContact()">
+									<option value="" selected disabled>Select Primary Contact</option>
 									<option value="new">Add New Primary Contact</option>
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
                                     
@@ -65,6 +66,7 @@
                             <button type="button" class="btn btn-primary" onclick="toggleCoClientFields()">Add CoClient</button>
                             <div id="coClientFields" class="d-none mt-3">
                                 <select id="coClientSelect" class="form-control" onchange="checkNewCoClient()">
+									<option value="" selected disabled>Select CoClient</option>
 									<option value="new">Add New CoClient</option>
                                     <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
                                     
@@ -246,6 +248,10 @@
             showError('Primary contact already added.');
             return;
         }
+        if (userId === 'none') {
+        showError('Please select a valid Primary Contact.');
+        return;
+    	}
 
         const select = document.getElementById(id);
         const userId = select.value;
@@ -273,6 +279,10 @@
         const select = document.getElementById(id);
         const userId = select.value;
         const userName = select.options[select.selectedIndex].text;
+        if (userId === 'none') {
+        showError('Please select a valid co-client.');
+        return;
+    	}
 
         coClientsIds.push(parseInt(userId));
 

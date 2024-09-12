@@ -144,18 +144,16 @@
 		        <div class="col-md-1" th:text="${step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}">[Status]</div>
 		        <div class="col-md-2" th:text="${step.mostRecentNote}"></div>
 		        <div class="col-md-2">
-		            <select th:id="'actionDropdown_' + ${step.id}" class="form-control form-control-sm">
-					    <option value="" selected disabled>Select Action</option>
-					    <option value="updateProgress">Update Progress</option>
-					    <option value="addNote">Add Note</option>
-					    <option value="showFileUploadForm">Add File</option>
-					    <option value="toggleComments">See All Notes</option>
-					</select>
-					<button type="button" class="btn btn-sm btn-primary mt-2" th:onclick="'confirmAction(' + ${step.id} + ')'" >Confirm</button>
+		        <select th:id="'actionDropdown_' + ${step.id}" class="form-control form-control-sm" 
+				        th:onchange="|handleActionChange(${step.id}, this.value)|">
+				    <option value="" selected disabled>Select Action</option>
+				    <option value="updateProgress">Update Progress</option>
+				    <option value="addNote">Add Note</option>
+				    <option value="showFileUploadForm">Add File</option>
+				    <option value="toggleComments">See All Notes</option>
+				</select>
+				</div>
 
-		       
-
-		        </div>
 		
 		        <!-- Comments table -->
 		        <div th:if="${step.stepNotes != null && !step.stepNotes.isEmpty()}" th:id="'commentsTable_' + ${step.id}" class="col-md-12 mt-2 d-none">
@@ -178,6 +176,7 @@
 		        </div>
 		
 		        <!-- Additional containers -->
+		        <div th:if="${step != null}" th:id="'progressContainer_' + ${step.id}" class="col-md-12 mt-2"></div> 
 		        <div th:if="${step != null}" th:id="'fileUploadContainer_' + ${step.id}"></div>
 		        <div th:if="${step != null}" th:id="'noteContainer_' + ${step.id}" class="col-md-12 mt-2"></div>
 		        <div th:if="${step != null}" th:id="'stepContainer_' + ${step.id}"></div>
@@ -257,19 +256,31 @@
 
 
     function updateProgress(stepId) {
-	    const container = document.querySelector(`#stepContainer_${stepId}`);
-	    if (container.innerHTML.trim() === "") {
-	        container.innerHTML = `<select id="statusDropdown_${stepId}">
-	                                    <option value="TODO">To Do</option>
-	                                    <option value="IN_PROGRESS">In Progress</option>
-	                                    <option value="DONE">Done</option>
-	                                    <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
-	                                </select>
-	                                <button onclick="confirmStatus(${stepId})">Confirm Status</button>`;
-	    } else {
-	        container.innerHTML = "";  // Hide the progress container if it's already visible
-	    }
-	}
+ 
+    const progressContainer = document.querySelector(`#progressContainer_${stepId}`);
+
+    if (progressContainer.innerHTML.trim() === "") {
+
+        progressContainer.innerHTML = `
+            <div class="form-row align-items-center col-md-3">
+                <div class="col">
+                    <select id="statusDropdown_${stepId}" class="form-control form-control-sm">
+                        <option value="TODO">To Do</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="DONE">Done</option>
+                        <option value="CONDITIONAL_COMPLETION">Conditional Completion</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button onclick="confirmStatus(${stepId})" class="btn btn-sm btn-secondary">Confirm Status</button>
+                </div>
+            </div>`;
+    } else {
+  
+        progressContainer.innerHTML = ""; 
+    }
+}
+
 
     
     
@@ -316,7 +327,7 @@
             },
             success: function(response) {
                 $(`#row_${stepId} .col-md-3:nth-child(3)`).text(camel(status.toLowerCase().replace(/_/g, ' ')));
-                reloadStepsContent(protocolId);
+                reloadSteps();
                 showMessageBanner('Status updated successfully.', 'success');
             },
             error: function(xhr, status, error) {
@@ -341,7 +352,7 @@
             },
             success: function(response) {
                 showMessageBanner('Note added successfully.', 'success');
-                reloadStepsContent(protocolId);
+                reloadSteps();
                 document.querySelector(`#noteContainer_${stepId}`).innerHTML = '';
             },
             error: function(xhr, status, error) {
@@ -473,7 +484,7 @@
 	        contentType: false,
 	        success: function(response) {
 	            showMessageBanner('File uploaded successfully.', 'success');
-	            reloadStepsContent(protocolId);
+	            reloadSteps();
 	        },
 	        error: function(xhr, status, error) {
 	            console.error('Error uploading file:', error);
@@ -504,39 +515,95 @@
             commentsTable.classList.add('d-none');
         }
     }
-    function confirmAction(stepId) {
-	    const actionDropdown = document.querySelector(`#actionDropdown_${stepId}`);
-	    
-	    if (!actionDropdown) {
-	        console.error(`Element with id actionDropdown_${stepId} not found.`);
-	        showMessageBanner('Action dropdown not found. Please try again.', 'danger');
-	        return;
-	    }
-	    
-	    const selectedAction = actionDropdown.value;
-	
-	    if (!selectedAction) {
-	        showMessageBanner('Please select an action before confirming.', 'warning');
-	        return;
-	    }
-	
-	    switch (selectedAction) {
-	        case 'updateProgress':
-	            updateProgress(stepId);
-	            break;
-	        case 'addNote':
-	            addNote(stepId);
-	            break;
-	        case 'showFileUploadForm':
-	            showFileUploadForm(stepId);
-	            break;
-	        case 'toggleComments':
-	            toggleComments(stepId);
-	            break;
-	        default:
-	            showMessageBanner('Invalid action selected.', 'danger');
-	    }
-	}
+
+
+function handleActionChange(stepId, selectedAction) {
+    // Check if there's text in the note bar or if a file has been uploaded
+    const noteInput = document.querySelector(`#noteInput_${stepId}`);
+    const fileInput = document.querySelector(`#fileInput_${stepId}`);
+    
+    const noteHasText = noteInput && noteInput.value.trim() !== '';
+    const fileHasBeenSelected = fileInput && fileInput.files.length > 0;
+
+    // If there's unsaved data, ask the user if they want to save
+    if (noteHasText || fileHasBeenSelected) {
+        const userConfirmed = confirm('You have unsaved changes. Do you want to save them before proceeding?');
+
+        if (userConfirmed) {
+            // If the user wants to save, handle saving logic
+            if (noteHasText) {
+                confirmNote(stepId);
+            }
+            if (fileHasBeenSelected) {
+                uploadFile(stepId);
+            }
+            // After saving, hide and clear the containers
+            clearContainers(stepId);
+            return;
+        } else {
+            // If the user does not want to save, hide and clear the containers
+            clearContainers(stepId);
+        }
+    } else {
+        // If no unsaved data, just hide and clear the containers
+        clearContainers(stepId);
+    }
+
+    // Proceed with the selected action
+    switch (selectedAction) {
+        case 'updateProgress':
+            updateProgress(stepId);
+            break;
+        case 'addNote':
+            addNote(stepId);
+            break;
+        case 'showFileUploadForm':
+            showFileUploadForm(stepId);
+            break;
+        case 'toggleComments':
+            toggleComments(stepId);
+            break;
+        default:
+            showMessageBanner('Invalid action selected.', 'danger');
+    }
+}
+
+// Utility function to hide and clear forms inside the container
+function clearContainers(stepId) {
+    const noteInput = document.querySelector(`#noteInput_${stepId}`);
+    const fileInput = document.querySelector(`#fileInput_${stepId}`);
+    const progressDropdown = document.querySelector(`#statusDropdown_${stepId}`);
+    const noteContainer = document.querySelector(`#noteContainer_${stepId}`);
+    const fileUploadContainer = document.querySelector(`#fileUploadContainer_${stepId}`);
+    const progressContainer = document.querySelector(`#progressContainer_${stepId}`); // New: Progress container
+
+    // Clear the note input field if it exists
+    if (noteInput) {
+        noteInput.value = '';  // Clear note input field
+        noteInput.closest('.form-row').style.display = 'none';  // Hide the note input form
+    }
+
+    // Clear the file input field if it exists
+    if (fileInput) {
+        fileInput.value = '';  // Clear file input field
+        fileInput.closest('form').style.display = 'none';  // Hide the file upload form
+    }
+
+    // Clear and hide the progress container if it exists
+    if (progressContainer) {
+        progressContainer.innerHTML = '';  // Clear the progress container content
+    }
+
+    // Optionally, clear the note and file upload containers if needed
+    if (noteContainer) {
+        noteContainer.innerHTML = '';  // Clear note container content
+    }
+    if (fileUploadContainer) {
+        fileUploadContainer.innerHTML = '';  // Clear file upload container content
+    }
+}
+
+
 	
 	function reloadProtocolDetails(protocolId) {
     $.ajax({
@@ -564,18 +631,34 @@
 	    });
 	}
 	
-	function reloadSteps(protocolId) {
+	function reloadSteps() {
 	    $.ajax({
 	        url: '/fragments/steps/' + protocolId,
 	        type: 'GET',
 	        success: function(fragment) {
-	            $('#stepsContent').html(fragment);
+	            $('#stepsContent').html(fragment);  // Replace the steps content
+	            attachActionChangeHandlers();       // Reattach event handlers after reload
+	            showMessageBanner('Steps reloaded successfully.', 'success');
 	        },
 	        error: function(xhr, status, error) {
 	            console.error('Error reloading steps:', error);
+	            showMessageBanner('Failed to reload steps. Error: ' + xhr.responseText, 'danger');
 	        }
 	    });
 	}
+	
+	
+	function attachActionChangeHandlers() {
+	    const dropdowns = document.querySelectorAll('[id^="actionDropdown_"]');
+	    dropdowns.forEach(dropdown => {
+	        dropdown.addEventListener('change', function() {
+	            const stepId = this.id.split('_')[1];  // Extract stepId from the dropdown's id
+	            handleActionChange(stepId, this.value);  // Call the action change handler
+	        });
+	    });
+	}
+	
+
 
 
 </script>

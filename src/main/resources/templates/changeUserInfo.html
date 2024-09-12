@@ -47,7 +47,7 @@
     </div>
     
 	<div th:if="${!isDependent}" class="container" id="dependentSection">
-		 <div th:insert="fragments/dependents :: dependentsFragment"></div>
+
         <!-- Dependents Information -->
         <div class="note_card">
             <fieldset>
@@ -66,8 +66,11 @@
                 <div id="dependentFields" style="display: none;">
                     <select class="form-control mt-3" id="dependentSelect">
                         <option value="" selected disabled>Select Dependent</option>
+                        <p th:each="user : ${userList}" th:text="${user.firstName + ' ' + user.lastName}"></p>
+
+                        <option th:each="dependant : ${userList}" th:value="${dependant.id}" th:text="${dependant.firstName + ' ' + dependant.lastName}"></option>
+
                         <option value="new">Create New Dependent</option>
-                        <option th:each="dependant : ${userList}" th:value="${dependant.id}" th:text="${dependant.firstName} + ' ' + ${dependant.lastName}"></option>
                     </select>
                     <button id="confirmDependentBtn" class="btn btn-primary mt-2" type="button" onclick="addDependent()">Confirm</button>
                 </div>
@@ -133,16 +136,20 @@
         const householdId = [[${householdId}]];
 
         $(document).ready(function() {
-            $('#dependentSelect').change(function() {
-                if ($(this).val() === 'new') {
-                    $('#dependentFormContainer').show();
-                    $('#confirmDependentBtn').hide();
-                } else {
-                    $('#dependentFormContainer').hide();
-                    $('#confirmDependentBtn').show();
-                }
-            });
-        });
+		    $('#dependentSelect').change(function() {
+		        const selectedValue = $(this).val();
+		        console.log("Selected Value:", selectedValue); // Debugging line
+		
+		        if (selectedValue === 'new') {
+		            $('#dependentFormContainer').show();
+		            $('#confirmDependentBtn').hide();
+		        } else {
+		            $('#dependentFormContainer').hide();
+		            $('#confirmDependentBtn').show();
+		        }
+		    });
+		});
+
 
         function showMessageBanner(message, type) {
             const banner = document.getElementById('messageBanner');
@@ -283,7 +290,7 @@
             .then(response => {
                 if (response.ok) {
                     showMessageBanner('CoClient Successfully Added!', 'success');
-                    window.location.reload();
+                    reloadHouseholdSection();
                 } else {
                     response.text().then(text => { throw new Error(text); });
                 }
@@ -371,7 +378,7 @@
 	                showMessageBanner('CoClient Successfully Removed!', 'success');
 	                if (pcId > 0) {
 	                    updatePrimaryContact().then(function() {
-	                        window.location.reload();
+	                        reloadHouseholdSection();
 	                    }).catch(function(error) {
 	                        showMessageBanner('Failed to update the primary contact. Error: ' + error.message, 'danger');
 	                    });
@@ -408,7 +415,24 @@
 	    });
 	}
 	
-	loadDependents()
+	
+	function reloadHouseholdSection() {
+	    $.ajax({
+	        url: '/householdFragment/' + clientId,
+	        type: 'GET',
+	        success: function(fragment) {
+	            $('#householdSection').html(fragment); // Replace household section content
+	        },
+	        error: function(xhr, status, error) {
+	            console.error('Error reloading household section:', error);
+	        }
+	    });
+	}
+	
+
+
+
+
 	
 	
     </script>
