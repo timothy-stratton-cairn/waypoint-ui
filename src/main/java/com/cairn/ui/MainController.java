@@ -539,11 +539,12 @@ public class MainController {
 	@GetMapping("/protocolsByTemplate/{tempId}/")
 	public String protocolsByTemplate(HttpSession session, @PathVariable int tempId, Model model) {
 		User usr = (User) userDAO.getUser();
-		List<Protocol> listProtocols = protocolHelper.getListbyTemplateId(usr, tempId);
+		List<Protocol> listProtocolsInit = protocolHelper.getListbyTemplateId(usr, tempId);
 		Map<Integer, String> userNames = new HashMap<>();
 		Map<Integer, Integer> userIds = new HashMap<>();
+		List<Protocol> listProtocols = new ArrayList<Protocol>();
 
-		for (Protocol protocol : listProtocols) {
+		for (Protocol protocol : listProtocolsInit) {
 			ArrayList<Integer> userList = protocol.getUsers();
 			// Check if the user list is not empty before accessing it
 			if (!userList.isEmpty()) {
@@ -565,8 +566,13 @@ public class MainController {
 					userIds.put(protocol.getId(), 0);
 				}
 			}
+			if (protocol.getStatus().equals("In Progress")) {
+				listProtocols.add(protocol);
+			}
 		}
 
+		ArrayList<Household> households = userHelper.getHouseholdList(usr);
+		model.addAttribute("householdList", households);
 		model.addAttribute("listProtocols", listProtocols);
 		model.addAttribute("userNames", userNames);
 		model.addAttribute("userIds", userIds);
@@ -945,7 +951,7 @@ public class MainController {
 				logger.info("Get Primary Contacts is Not Empty");
 				pcId = myHousehold.getPrimaryContacts().get(0).getId();
 			} else {
-				logger.info("Get Primary Contacts is Emptry");
+				logger.info("Get Primary Contacts is Empty");
 			}
 		}
 
