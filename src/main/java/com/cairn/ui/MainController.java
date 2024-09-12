@@ -2624,4 +2624,18 @@ public class MainController {
     }
 
 
+	@GetMapping("/newProtocol/")
+	public String newProtocolDemo(Model model) {
+		User usr = (User) userDAO.getUser();
+		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
+		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
+		for (HomeworkTemplate hw : templatelist) {
+			logger.info("Homework ID: " + hw.getId() + " Homework Name: " + hw.getName());
+		}
+		ArrayList<HomeworkQuestion> questions = questionHelper.getHomeworkQuestions(usr);
+		model.addAttribute("questions", questions);
+		model.addAttribute("homework", templatelist);
+		model.addAttribute("allSteps", allSteps);
+		return "newProtocolTemplateDemo";
+	}
 }
