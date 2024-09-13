@@ -190,16 +190,21 @@ public class Protocol {
 	}
 	
 	public Date getParsedDueDate() {
-        if (this.dueDate != null && !this.dueDate.equals("No Due Date")) {
-            try {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                this.parsedDueDate = dateFormat.parse(this.dueDate);
-            } catch (ParseException e) {
-                e.printStackTrace(); // Handle parsing error
-            }
-        }
-        return this.parsedDueDate;
-    }
+	    if (this.dueDate != null && !this.dueDate.equals("No Due Date")) {
+	        try {
+	            // Parse the dueDate string in "yyyy-MM-dd" format
+	            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	            dateFormat.setLenient(false);  // Ensures strict date parsing
+	            
+	            // Parse the due date string
+	            this.parsedDueDate = dateFormat.parse(this.dueDate);
+	        } catch (ParseException e) {
+	            e.printStackTrace(); // Handle parsing error
+	        }
+	    }
+	    return this.parsedDueDate;
+	}
+
 
     // Getter for isLate flag
     public boolean isLate() {

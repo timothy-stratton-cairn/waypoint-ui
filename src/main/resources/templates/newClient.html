@@ -243,37 +243,39 @@
         });
     }
 
-    function addPrimaryContact(id) {
-        if (primaryContactAdded) {
-            showError('Primary contact already added.');
-            return;
-        }
-        if (userId === 'none') {
+function addPrimaryContact(id) {
+    if (primaryContactAdded) {
+        showError('Primary contact already added.');
+        return;
+    }
+    
+    const select = document.getElementById(id);
+    const userId = select.value;  // Move this declaration here
+    const userName = select.options[select.selectedIndex].text;
+
+    if (userId === 'none') {
         showError('Please select a valid Primary Contact.');
         return;
-    	}
-
-        const select = document.getElementById(id);
-        const userId = select.value;
-        const userName = select.options[select.selectedIndex].text;
-
-        primaryContactsIds.push(parseInt(userId));
-        primaryContactAdded = true;
-
-        const li = document.createElement('li');
-        li.className = 'list-group-item d-flex justify-content-between align-items-center';
-        li.textContent = userName;
-
-        const removeButton = document.createElement('button');
-        removeButton.className = 'btn btn-danger btn-sm';
-        removeButton.textContent = 'Remove';
-        removeButton.onclick = () => removeElement(removeButton, userId, primaryContactsIds, () => primaryContactAdded = false);
-        li.appendChild(removeButton);
-
-        document.getElementById('primaryContactList').appendChild(li);
-
-        togglePrimaryContactFields();
     }
+
+    primaryContactsIds.push(parseInt(userId));
+    primaryContactAdded = true;
+
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+    li.textContent = userName;
+
+    const removeButton = document.createElement('button');
+    removeButton.className = 'btn btn-danger btn-sm';
+    removeButton.textContent = 'Remove';
+    removeButton.onclick = () => removeElement(removeButton, userId, primaryContactsIds, () => primaryContactAdded = false);
+    li.appendChild(removeButton);
+
+    document.getElementById('primaryContactList').appendChild(li);
+
+    togglePrimaryContactFields();
+}
+
 
     function addCoClient(id) {
         const select = document.getElementById(id);

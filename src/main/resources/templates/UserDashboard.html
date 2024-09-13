@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
-<div th:insert="~{header :: main}">...</div>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Protocols Dashboard</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+</head>
+
 <body>
-	<div class="container">
-		<div>
+    <div th:insert="~{header :: main}">...</div>
+    <div class="container">
 			<fieldset>
 				<legend> Active Protocols </legend>
 				<div th:if="${msg}">
@@ -62,68 +70,68 @@
 				</div>
 				<div class="row ">&nbsp;</div>
 			</fieldset>
-			<div class="row ">&nbsp;</div>
-		</div>
-		
-		<div>
-            <fieldset>
-                <legend> Protocols Coming Due </legend>
-                <div class="row rowheader">
-                    <div class="col-md-2">
-                        Name
-                    </div>
-                    <div class="col-md-3">
-                        Description
-                    </div>
-                    <div class="col-md-2">
-                        Completion Percent
-                    </div>
-                    <div class="col-md-2">
-						Household
-					</div>
-                    <div class="col-md-1">
-                        Status
-                    </div>
-                    <div class="col-md-2">
-                        Due Date
-                    </div>
-                </div>
-               <div th:each="pcol, status : ${upcomingProtocols}" th:id="|row_${pcol.id}|" th:class="${status.index % 2 == 0 ? 'row even' : 'row odd'}"
-                     th:style="${pcol.isLate} ? 'color: red;' : ''" th:onclick="'viewProtocol(' + ${pcol.id} + ')'">
-                    <div class="col-md-2" th:text="${pcol.name}"></div>
-                    <div class="col-md-3" th:text="${pcol.description}"></div>
-                    <div class="col-md-2" th:text="|${pcol.completionPercent}%|"></div>
-                     <div class="col-md-2">
-				        <span th:each="household : ${households}" 
-				              th:if="${household.id} == ${pcol.userId}" 
-				              th:text="${household.name}">
-				        </span>
-				    </div>
 
-                    <div class="col-md-1" th:text="${(pcol.status == 'IN_PROGRESS') ? 'In Progress' : (pcol.status == 'COMPLETED' ? 'Completed' : (pcol.status == 'ARCHIVED' ? 'Archived' : ''))}"></div>
-                    <div class="col-md-2" th:text="${pcol.dueDate}"></div>
-                </div>
-                <div class="row ">&nbsp;</div>
-            </fieldset>
-            <div class="row ">&nbsp;</div>
-        </div>
+        <fieldset>
+            <legend>Protocols Coming Due</legend>
+            <table id="upcomingProtocolsTable" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Completion Percent</th>
+                        <th>Household</th>
+
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pcol, status : ${upcomingProtocols}" th:style="${pcol.isLate} ? 'color: red;' : ''">
+                        <td th:text="${pcol.name}"></td>
+                        <td th:text="${pcol.description}"></td>
+                        <td th:text="|${pcol.completionPercent}%|"></td>
+                        <td>
+                            <span th:each="household : ${households}" th:if="${household.id} == ${pcol.userId}" th:text="${household.name}"></span>
+                        </td>
+                        
+                        <td th:text="${#dates.format(pcol.parsedDueDate, 'MM-dd-yy')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
     </div>
-	</div>
 
-	<br />
-	<br />
-	<br />
-	<script>
-		const householdID = [[${householdId}]];
-        function selectClient(id) {
-            window.location = 'workClient/' + id;
-        }
-        function getProtocols(id) {
-            window.location = '/protocolsByTemplate/' + id + '/'
-        }
-        function viewProtocol(pcolId) {
-            window.location = '/viewProtocol/' + pcolId + '/'+householdID;
-        }
+    <div th:insert="~{footer :: main}">...</div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#activeProtocolsTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "pageLength": 25,
+                "lengthMenu": [
+                    [10, 25, 100, -1],
+                    [10, 25, 100, "All"]
+                ],
+                "dom": '<"top">rt<"bottom"lpi><"clear">',
+                "info": true
+            });
+
+            $('#upcomingProtocolsTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "pageLength": 25,
+                "lengthMenu": [
+                    [10, 25, 100, -1],
+                    [10, 25, 100, "All"]
+                ],
+                "dom": '<"top">rt<"bottom"lpi><"clear">',
+                "info": true
+            });
+        });
+
         function toggleAssignedHouseholds(templateId) {
             var householdList = document.getElementById('assignedHouseholds_' + templateId);
             if (householdList.style.display === 'none') {
@@ -132,10 +140,9 @@
                 householdList.style.display = 'none';
             }
         }
-
-
     </script>
 </body>
-<div th:insert="~{footer :: main}">...</div>
 
 </html>
+
+
