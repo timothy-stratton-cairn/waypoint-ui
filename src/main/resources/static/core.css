@@ -194,7 +194,7 @@ a {
 }
 
 .navbar-default {
-	background-color: #413F3D;
+	background-color: #413F3D!important;
 	border-color: #D8CFD0;
 	z-index: 100;
 }
@@ -538,10 +538,10 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 .navbar {
-	background-color: #413F3D;
+	background-color: #413F3D!important;
 	position: fixed;
 	width: 100%;
-	top: 75pt;
+	top: 40pt;
 	left: 0pt;
 }
 
@@ -680,7 +680,7 @@ fieldset {
 }
 
 .container {
-	max-width: 85%;
+	max-width: 95%;
 }
 
 .form-control {
