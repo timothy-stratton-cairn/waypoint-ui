@@ -129,7 +129,7 @@ public class MainController {
 			return "home";
 		}
 
-		ArrayList<Protocol> pcolList = protocolHelper.getAssignedProtocols(usr, userHelper.getHouseholdId(usr));
+		ArrayList<Protocol> pcolList = protocolHelper.getList(usr);
 		int householdId = userHelper.getHouseholdId(usr);
 		logger.info("Household Id: " + householdId);
 		ArrayList<Protocol> upcomingPcol = new ArrayList<Protocol>();
@@ -141,28 +141,33 @@ public class MainController {
 		Date upcomingWeek = calendar.getTime();
 		if (pcolList.isEmpty()) {
 			logger.warn("No Protocols Returned");
-			// logger.info("No Protocols Returned");
+			//logger.info("No Protocols Returned");
 		} else {
 			logger.info("Returned " + pcolList.size() + " protocols.");
-			// logger.info(pcolList.size());
+			 //logger.info(pcolList.size());
 		}
 		for (Protocol pcol : pcolList) {
-			String dueDateStr = pcol.getDueDate();
-			if (dueDateStr != null && (dueDateStr!= "No Due Date")) {
-				try {
-					
-					Date dueDate = dateFormat.parse(dueDateStr);
-					
-					if (dueDate.after(currentDate) && dueDate.before(upcomingWeek)) {
-						upcomingPcol.add(pcol);
-					}
-				} catch (ParseException e) {
-					e.printStackTrace(); // Handle parse exception
-				}
-			}
-			else {
-				logger.info("Protocol: " + pcol.getName() + " id: "+ pcol.getId() + " Has no due Date " );
-			}
+		    String dueDateStr = pcol.getDueDate();
+		    if (dueDateStr != null && !dueDateStr.equals("No Due Date")) {
+		        try {
+		            Date dueDate = dateFormat.parse(dueDateStr);
+		            int completionPercent = Integer.parseInt(pcol.getCompletionPercent());
+		            
+		            if (dueDate.after(currentDate) && dueDate.before(upcomingWeek) && completionPercent < 100) {
+		                upcomingPcol.add(pcol);
+		            }
+		           
+		            if (dueDate.before(currentDate) && completionPercent < 100 && pcol.getStatus().contains("IN_PROGRESS")) {
+		                logger.info("Protocol: " + pcol.getName() + " is past due with a completion percentage of: " + completionPercent);
+		                upcomingPcol.add(pcol);
+
+		            }
+		        } catch (ParseException e) {
+		            logger.error("Error parsing due date for protocol: " + pcol.getName(), e);
+		        }
+		    } else {
+		        logger.info("Protocol: " + pcol.getName() + " id: " + pcol.getId() + " has no due date.");
+		    }
 		}
 		ArrayList<ProtocolStats> stats = helper.getDashboard(usr);
 		ArrayList<Household> households = userHelper.getHouseholdList(usr);

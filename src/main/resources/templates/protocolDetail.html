@@ -146,7 +146,8 @@
 		        <div class="col-md-2">
 		        <select th:id="'actionDropdown_' + ${step.id}" class="form-control form-control-sm" 
 				        th:onchange="|handleActionChange(${step.id}, this.value)|">
-				    <option value="" selected disabled>Select Action</option>
+				    <option value="" selected>Select Action</option>
+
 				    <option value="updateProgress">Update Progress</option>
 				    <option value="addNote">Add Note</option>
 				    <option value="showFileUploadForm">Add File</option>
@@ -549,6 +550,12 @@ function handleActionChange(stepId, selectedAction) {
         clearContainers(stepId);
     }
 
+    // If "Select Action" is chosen, just clear the containers and exit the function
+    if (selectedAction === "") {
+        clearContainers(stepId);
+        return;
+    }
+
     // Proceed with the selected action
     switch (selectedAction) {
         case 'updateProgress':
@@ -602,7 +609,6 @@ function clearContainers(stepId) {
         fileUploadContainer.innerHTML = '';  // Clear file upload container content
     }
 }
-
 
 	
 	function reloadProtocolDetails(protocolId) {
