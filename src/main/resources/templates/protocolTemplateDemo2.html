@@ -105,6 +105,8 @@
 	<fieldset>
  	<legend>Homework Questions</legend>
 
+    <div id="questionContainer" class="mt-4"></div>
+    
     <!-- Button to create a new question form -->
     <button class="btn btn-primary mb-4" onclick="openQuestionForm()">Add Question</button>
 
@@ -112,7 +114,6 @@
     <div id="formContainer"></div>
 
 
-    <div id="questionContainer" class="mt-4"></div>
 	</fieldset>
 	</div>
 </div>
@@ -169,51 +170,54 @@
     }
 
     // Update the displayed list of questions
-    function updateQuestionList() {
-        const questionContainer = document.getElementById('questionContainer');
-        questionContainer.innerHTML = '';  // Clear the container
+function updateQuestionList() {
+    const questionContainer = document.getElementById('questionContainer');
+    questionContainer.innerHTML = '';  // Clear the container
 
-        // Dynamically generate the question list items
-        questionList.forEach((question, index) => {
-            const rowClass = index % 2 === 0 ? 'even' : 'odd';  // Alternating classes for styling
+    // Dynamically generate the question list items
+    questionList.forEach((question, index) => {
+        const rowClass = index % 2 === 0 ? 'even' : 'odd';  // Alternating classes for styling
 
-            const questionItem = `
-                <div id="row_${index}" class="row ${rowClass} mb-3" data-type="${question.type}">
-                    <div class="col-10">
-                        ${question.questionAbbr}
+        const questionItem = `
+            <div id="row_${index}" class="row ${rowClass} mb-1" data-type="${question.type}" style="margin-bottom: 0; padding-bottom: 0;">
+                <!-- Display Question Abbreviation and Buttons -->
+                <div class="col-10">
+                    ${question.questionAbbr}
+                </div>
+                <div class="col-2 text-right">
+                    <button class="btn btn-sm btn-secondary" onclick="toggleDetails(${index})">Details</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteQuestion(${index})">Delete</button>
+                </div>
+
+                <!-- Collapsible Section (Details) -->
+                <div id="details-${index}" class="col-12 collapse mt-1">
+                    <div class="row">
+                        <!-- Question, Type, and Response Type in the same row -->
+                        <div class="col-8">
+                            ${question.question}
+                        </div>
+                        <div class="col-2">
+                            ${question.type}
+                        </div>
+                        <div class="col-2">
+                            ${question.responseType}
+                        </div>
                     </div>
-                    <div class="col-2 text-right">
-                        <button class="btn btn-info btn-sm" onclick="toggleDetails(${index})">Details</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteQuestion(${index})">Delete</button>
-                    </div>
 
-                    <div id="details-${index}" class="col-12 collapse mt-2">
-                        <div class="row">
-                            <div class="col-8">
-                                <input type="text" class="form-control" id="editQuestion-${index}" value="${question.question}">
-                            </div>
-                            <div class="col-2">
-                                <select class="form-control" id="editType-${index}">
-                                    <option value="String" ${question.type === 'String' ? 'selected' : ''}>String</option>
-                                    <option value="Value" ${question.type === 'Value' ? 'selected' : ''}>Value</option>
-                                    <option value="Select Choice" ${question.type === 'Select Choice' ? 'selected' : ''}>Select Choice</option>
-                                </select>
-                            </div>
-                            <div class="col-2">
-                                <select class="form-control" id="editResponseType-${index}">
-                                    <option value="String" ${question.responseType === 'String' ? 'selected' : ''}>String</option>
-                                    <option value="Number" ${question.responseType === 'Number' ? 'selected' : ''}>Number</option>
-                                    <option value="Multiple Choice" ${question.responseType === 'Multiple Choice' ? 'selected' : ''}>Multiple Choice</option>
-                                </select>
-                            </div>
+                    <!-- Tags in a separate row -->
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            Tags: ${question.tags.join(', ')}
                         </div>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
 
-            questionContainer.insertAdjacentHTML('beforeend', questionItem);
-        });
-    }
+        // Append the generated HTML to the question container
+        questionContainer.insertAdjacentHTML('beforeend', questionItem);
+    });
+}
 
     // Function to toggle the display of question details
     function toggleDetails(index) {
@@ -317,70 +321,6 @@
     }
 
     function saveProtocolTemplate() {
-        const name = document.getElementById('protocolName').value;
-        const description = document.getElementById('protocolDescription').value;
-        const yearDue = parseInt(document.getElementById('dueDateYear').value) || 0;
-        const monthDue = parseInt(document.getElementById('dueDateMonth').value) || 0;
-        const dayDue = parseInt(document.getElementById('dueDateDay').value) || 0;
-		const type = document.getElementById('protocolType').value;
-        const yearSchedule = parseInt(document.getElementById('year').value) || 0;
-        const monthSchedule = parseInt(document.getElementById('month').value) || 0;
-        const daySchedule = parseInt(document.getElementById('day').value) || 0;
-
-        if (!name || !description) {
-            showMessageBanner('Please fill out all required fields.', 'danger');
-            return;
-        }
-
-        const dueDate = calculateTotalDays(yearDue, monthDue, dayDue);
-        const schedule = calculateTotalDays(yearSchedule, monthSchedule, daySchedule);
-
-        const steps = Array.from(document.querySelectorAll('#stepsContent > .row')).map(row => ({
-            id: parseInt(row.getAttribute('data-step-id')),
-            name: row.querySelector('.col-md-9').textContent.trim()
-        }));
-
-        const protocolData = {
-            name: name,
-            description: description,
-            dueByDay:dayDue ,
-            dueByMonth: monthDue,
-            dueByYear: yearDue,
-            daySchedule: daySchedule,
-            monthSchedule: monthSchedule,
-            yearSchedule:yearSchedule,
-            steps: steps,
-            type:type
-        };
-
-        fetch('/createNewProtocolTemplate/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
-            },
-            body: JSON.stringify(protocolData)
-        })
-        .then(response => {
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-                return response.json();
-            } else {
-                return response.text().then(text => ({ message: text }));
-            }
-        })
-        .then(data => {
-            if (data.message) {
-                showMessageBanner(data.message, 'success');
-                window.location.href = '/protocolTemplates'; // Redirect to protocol templates page
-            } else if (data.error) {
-                showMessageBanner(data.error, 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Fetch error:', error);
-            showMessageBanner('Error creating protocol template: ' + error.message, 'danger');
-        });
     }
     
     function addHomeworkTemplate() {
