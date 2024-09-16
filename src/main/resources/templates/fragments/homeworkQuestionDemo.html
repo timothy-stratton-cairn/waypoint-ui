@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>homeworkQuestionDemoFrag</title>
+</head>
+
+<body>
+
+<!-- fragments/homeworkQuestionDemo.html -->
+<div th:fragment="questionForm">
+    <form onsubmit="addQuestion(event)">
+        <div class="form-group">
+            <label for="questionAbbr">Question Abbreviation</label>
+            <input type="text" class="form-control" id="questionAbbr" name="questionAbbr" required>
+        </div>
+        <div class="form-group">
+            <label for="question">Question</label>
+            <input type="text" class="form-control" id="question" name="question" required>
+        </div>
+                <div class="form-row">
+            <div class="form-group col-6">
+                <label for="type">Type</label>
+                <select class="form-control" id="type" name="type" required>
+                    <option value="String">String</option>
+                    <option value="Value">Value</option>
+                    <option value="Select Choice">Select Choice</option>
+                </select>
+            </div>
+            <div class="form-group col-6">
+                <label for="responseType">Response Type</label>
+                <select class="form-control" id="responseType" name="responseType" required>
+                    <option value="String">String</option>
+                    <option value="Number">Number</option>
+                    <option value="Multiple Choice">Multiple Choice</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="tags">Selected Tags</label>
+            <input type="hidden" class="form-control" id="tags" name="tags">
+            <ul id="selectedTagsList" class="list-unstyled">
+                <!-- Dynamically added selected tags will appear here -->
+            </ul>
+        </div>
+
+        <!-- Tag Bank -->
+        <div class="form-group">
+            <h5>Select Tags</h5>
+            <div id="tagButtonsContainer"></div>
+        </div>
+
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+
+
+</div>
+
+
+</body>
+</html>

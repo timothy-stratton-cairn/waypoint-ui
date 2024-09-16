@@ -2595,5 +2595,43 @@ public class MainController {
 		return answer;
 
 	}
+	
+	@GetMapping("/newProtocolTemplateDemo")
+    public String newProtocolTemplateDemo(Model model) {
+		User usr = (User) userDAO.getUser();
+		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
+		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
+		for (HomeworkTemplate hw : templatelist) {
+			logger.info("Homework ID: " + hw.getId() + " Homework Name: " + hw.getName());
+		}
+
+		model.addAttribute("homework", templatelist);
+		model.addAttribute("allSteps", allSteps);
+        return "protocolTemplateDemo";
+    }
+	@GetMapping("/newProtocolTemplateDemo2")
+    public String newProtocolTemplateDemo2(Model model) {
+		User usr = (User) userDAO.getUser();
+		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
+		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
+		for (HomeworkTemplate hw : templatelist) {
+			logger.info("Homework ID: " + hw.getId() + " Homework Name: " + hw.getName());
+		}
+
+		model.addAttribute("homework", templatelist);
+		model.addAttribute("allSteps", allSteps);
+        return "protocolTemplateDemo2";
+    }
+	
+	@GetMapping("/getQuestionForm")
+    public String getQuestionForm(Model model) {
+        // Return only the question form fragment
+		return "fragments/homeworkQuestionDemo :: questionForm";
+    }
+	
+	@GetMapping("/questionFormPopup")
+	public String showQuestionFormPopup() {
+	    return "homeworkDemoPopout";  // This will load the `questionFormPopup.html`
+	}
 
 }

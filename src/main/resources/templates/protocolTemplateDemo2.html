@@ -106,7 +106,7 @@
  	<legend>Homework Questions</legend>
 
     <!-- Button to create a new question form -->
-    <button class="btn btn-primary mb-4" onclick="createQuestionForm()">Add Question</button>
+    <button class="btn btn-primary mb-4" onclick="openQuestionForm()">Add Question</button>
 
     <!-- Container to dynamically add question forms -->
     <div id="formContainer"></div>
@@ -157,83 +157,15 @@
     let formCount = 0;  // To track the forms
     let questionList = [];
 
-    // Function to add a new question form
-    function createQuestionForm() {
-        const formContainer = document.getElementById('formContainer');
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', '/getQuestionForm', true);  // Fetch the form fragment
-
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                const formId = `form-${formCount++}`;
-                const formWrapper = document.createElement('div');
-                formWrapper.id = formId;
-                formWrapper.innerHTML = xhr.responseText;
-
-                formContainer.appendChild(formWrapper);
-
-                attachTagLogic(formWrapper, formId);  // Attach tag logic to each form
-            }
-        };
-        xhr.send();
+    // Function to open the question form in a pop-up window
+    function openQuestionForm() {
+        const popupWindow = window.open('/questionFormPopup', 'Question Form', 'width=600,height=600');
     }
 
-    // Function to attach the tag logic to each form
-    function attachTagLogic(formWrapper, formId) {
-        const tagList = ['6 Months', '1 Year', '2 Years', '5 Years', '10 Years', 'Savings Goal', 'Debt Goal', 'Percentage', 'Financial', 'Strategy'];
-        const tagButtonsContainer = formWrapper.querySelector('#tagButtonsContainer');
-        const selectedTags = [];
-        const tagsField = formWrapper.querySelector('#tags');  // Find the hidden input in this form
-
-        // Create buttons for each tag and append them
-        tagList.forEach((tag) => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'btn btn-outline-primary tag-button';
-            button.textContent = tag;
-            button.dataset.tag = tag;
-            button.onclick = function () {
-                addTagToField(tag, selectedTags, tagsField);
-                button.remove();  // Remove the button after selection
-            };
-            tagButtonsContainer.appendChild(button);
-        });
-    }
-
-    // Function to add the tag to the selected list
-   function addTagToField(tagValue, selectedTags, tagsField) {
-	    selectedTags.push(tagValue);  // Add tag to the selectedTags array
-	    tagsField.value = JSON.stringify(selectedTags);  // Update the hidden input field
-	
-	    const selectedTagsList = tagsField.closest('form').querySelector('#selectedTagsList');  // Find the selected tags list
-	    const newTagItem = document.createElement('li');
-	    newTagItem.textContent = tagValue;
-	    newTagItem.classList.add('d-inline', 'mr-2');  // Add Bootstrap inline classes for horizontal display
-	    selectedTagsList.appendChild(newTagItem);
-	}
-
-    // Handle the question form submission and add it to the question list
-    function addQuestion(event) {
-        event.preventDefault();
-
-        const form = event.target;
-        const questionAbbr = form.querySelector('#questionAbbr').value;
-        const question = form.querySelector('#question').value;
-        const type = form.querySelector('#type').value;
-        const responseType = form.querySelector('#responseType').value;
-        const tags = JSON.parse(form.querySelector('#tags').value);
-
-        const questionObj = {
-            questionAbbr,
-            question,
-            type,
-            responseType,
-            tags
-        };
-
-        questionList.push(questionObj);
+    // Function to receive question data from the pop-up window
+    function receiveQuestionData(questionData) {
+        questionList.push(questionData);
         updateQuestionList();
-        form.remove();  // Remove the form after submission
     }
 
     // Update the displayed list of questions
@@ -245,46 +177,48 @@
         questionList.forEach((question, index) => {
             const rowClass = index % 2 === 0 ? 'even' : 'odd';  // Alternating classes for styling
 
-
             const questionItem = `
-                            <div id="row_${index}" class="row ${rowClass} mb-3" data-type="${question.type}">
-                <!-- Display Question Abbreviation and Buttons -->
-                <div class="col-10">
-                    ${question.questionAbbr}
-                </div>
-                <div class="col-2 text-right">
-                    <button class="btn btn-info btn-sm" onclick="toggleDetails(${index})">Details</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteQuestion(${index})">Delete</button>
-                </div>
-
-                <!-- Collapsible Section (Details) -->
-                <div id="details-${index}" class="col-12 collapse mt-2">
-                    <div class="row">
-                        <!-- Question, Type, and Response Type in the same row -->
-                        <div class="col-8">
-                            ${question.question}
-                        </div>
-                        <div class="col-2">
-                            ${question.type}
-                        </div>
-                        <div class="col-2">
-                            ${question.responseType}
-                        </div>
+                <div id="row_${index}" class="row ${rowClass} mb-3" data-type="${question.type}">
+                    <div class="col-10">
+                        ${question.questionAbbr}
+                    </div>
+                    <div class="col-2 text-right">
+                        <button class="btn btn-info btn-sm" onclick="toggleDetails(${index})">Details</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteQuestion(${index})">Delete</button>
                     </div>
 
-                    <!-- Tags in a separate row -->
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            Tags: ${question.tags.join(', ')}
+                    <div id="details-${index}" class="col-12 collapse mt-2">
+                        <div class="row">
+                            <div class="col-8">
+                                <input type="text" class="form-control" id="editQuestion-${index}" value="${question.question}">
+                            </div>
+                            <div class="col-2">
+                                <select class="form-control" id="editType-${index}">
+                                    <option value="String" ${question.type === 'String' ? 'selected' : ''}>String</option>
+                                    <option value="Value" ${question.type === 'Value' ? 'selected' : ''}>Value</option>
+                                    <option value="Select Choice" ${question.type === 'Select Choice' ? 'selected' : ''}>Select Choice</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <select class="form-control" id="editResponseType-${index}">
+                                    <option value="String" ${question.responseType === 'String' ? 'selected' : ''}>String</option>
+                                    <option value="Number" ${question.responseType === 'Number' ? 'selected' : ''}>Number</option>
+                                    <option value="Multiple Choice" ${question.responseType === 'Multiple Choice' ? 'selected' : ''}>Multiple Choice</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             `;
 
-            // Append the generated HTML to the question container
             questionContainer.insertAdjacentHTML('beforeend', questionItem);
         });
+    }
+
+    // Function to toggle the display of question details
+    function toggleDetails(index) {
+        const detailsElement = document.getElementById(`details-${index}`);
+        detailsElement.classList.toggle('collapse');
     }
 
     // Function to delete a question from the list
@@ -293,11 +227,12 @@
         updateQuestionList();
     }
 
-    // Function to toggle the display of question details
-    function toggleDetails(index) {
-        const detailsElement = document.getElementById(`details-${index}`);
-        detailsElement.classList.toggle('collapse');
-    }
+    // This function will receive the question data from the pop-up window and continue as before
+    window.addEventListener("message", (event) => {
+        if (event.origin === window.location.origin) {
+            receiveQuestionData(event.data);
+        }
+    });
 	
     function editProtocol(id) {
         window.location = '/editStep/' + id;
@@ -591,4 +526,3 @@ function saveStep() {
 
 </body>
 </html>
-

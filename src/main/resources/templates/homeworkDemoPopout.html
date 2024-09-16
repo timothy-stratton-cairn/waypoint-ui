@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Question</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+
+<div class="container mt-5">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Add a New Question</legend>
+
+            <form id="questionForm" onsubmit="submitQuestionForm(event)">
+                <div class="form-group">
+                    <label for="questionAbbr">Q Abbr</label>
+                    <input type="text" class="form-control" id="questionAbbr" name="questionAbbr" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="question">Question</label>
+                    <input type="text" class="form-control" id="question" name="question" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="type">Type</label>
+                        <select class="form-control" id="type" name="type" required>
+                            <option value="String">String</option>
+                            <option value="Value">Value</option>
+                            <option value="Select Choice">Select Choice</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="responseType">Response Type</label>
+                        <select class="form-control" id="responseType" name="responseType" required>
+                            <option value="String">String</option>
+                            <option value="Number">Number</option>
+                            <option value="Multiple Choice">Multiple Choice</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tags">Selected Tags</label>
+                    <ul id="selectedTagsList" class="list-unstyled">
+                        <!-- Dynamically added selected tags will appear here -->
+                    </ul>
+                </div>
+
+                <!-- Tag Bank -->
+                <div class="form-group">
+                    <h5>Select Tags</h5>
+                    <div id="tagButtonsContainer"></div>
+                </div>
+
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+        </fieldset>
+    </div>
+</div>
+
+<script>
+    // List of predefined tags
+    const tagList = ['6 Months', '1 Year', '2 Years', '5 Years', '10 Years', 'Savings Goal', 'Debt Goal', 'Percentage', 'Financial', 'Strategy'];
+    const selectedTags = [];  // Array to hold selected tags
+
+    // Function to dynamically create buttons for each tag
+    function loadTagButtons() {
+        const tagButtonsContainer = document.getElementById('tagButtonsContainer');
+        tagList.forEach(tag => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-outline-primary tag-button mr-2 mb-2';  // Button styles
+            button.textContent = tag;
+            button.dataset.tag = tag;
+            button.onclick = function () {
+                addTagToField(tag);  // Add tag when clicked
+                button.remove();  // Remove the button after it is clicked
+            };
+            tagButtonsContainer.appendChild(button);  // Append button to container
+        });
+    }
+
+    // Function to add the tag to the selected tags list and display it
+    function addTagToField(tagValue) {
+        selectedTags.push(tagValue);  // Add to selected tags array
+        const selectedTagsList = document.getElementById('selectedTagsList');
+        const newTagItem = document.createElement('li');
+        newTagItem.textContent = tagValue;
+        newTagItem.classList.add('d-inline', 'mr-2');  // Add Bootstrap inline classes
+        selectedTagsList.appendChild(newTagItem);  // Add to the displayed list
+    }
+
+    // Function to submit the question form and send the data back to the parent window
+    function submitQuestionForm(event) {
+        event.preventDefault();
+
+        const questionAbbr = document.getElementById('questionAbbr').value;
+        const question = document.getElementById('question').value;
+        const type = document.getElementById('type').value;
+        const responseType = document.getElementById('responseType').value;
+
+        const questionData = {
+            questionAbbr,
+            question,
+            type,
+            responseType,
+            tags: selectedTags  // Use selected tags array
+        };
+
+        // Send data back to the parent window
+        window.opener.postMessage(questionData, window.location.origin);
+
+        // Close the pop-up window
+        window.close();
+    }
+
+    // Load tag buttons when the page loads
+    window.onload = loadTagButtons;
+</script>
+
+</body>
+</html>
+
