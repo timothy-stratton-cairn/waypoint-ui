@@ -262,24 +262,24 @@
 						<button type="button" class="btn btn-primary" onclick="viewHistory();">View All
 							Protocols</button>
 					</div>
-					<div id="protocolContainer"></div>
+					<div id="protocolContainer" class="container"></div>
 				</div><br />
 				<ul class="nav nav-tabs">
 					<li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#"
-							onclick="filterProtocolsByStatus('IN_PROGRESS'); return false;">Active Protocols</a></li>
+							onclick="filterProtocolsByStatus('IN_PROGRESS'); setActive(this);return false;">Active Protocols</a></li>
 					<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
-							onclick="filterProtocolsByStatus('COMPLETED'); return false;">Completed Protocols</a></li>
+							onclick="filterProtocolsByStatus('COMPLETED'); setActive(this); return false;">Completed Protocols</a></li>
 					<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
-							onclick="filterProtocolsByStatus('ARCHIVED'); return false;">Archived Protocols</a></li>
+							onclick="filterProtocolsByStatus('ARCHIVED'); setActive(this); return false;">Archived Protocols</a></li>
 					<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
-							onclick="filterProtocolsByStatus('all'); return false;">All</a></li>
+							onclick="filterProtocolsByStatus('all'); setActive(this); return false;">All</a></li>
 				</ul>
 				<div class="row">
 					<div class="col-2">
-						<input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols...">
+						<input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols..."><br/>
 					</div>
 				</div>
-				<div class="row" id="protocolContent">
+				<div class="row container" id="protocolContent">
 					<!-- Display Assigned Protocols -->
 					<div th:each="pcol, status: ${assignedProtocols}" th:id="|row_${pcol.id}|"
 						class="note_card col-md-5" th:data-type="${pcol.status}" data-current-back="back_1">
@@ -410,6 +410,12 @@
 
 		function viewHistory() {
 			window.location = '/allClientProtocols/' + clientId;
+		}
+
+		function setActive(ctrl) {
+			el = document.getElementsByClassName('nav-link nav-tab-link active')[0];
+			el.className = 'nav-link nav-tab-link';
+			ctrl.className = 'nav-link nav-tab-link active';
 		}
 
 		function protocolHistory(name) {
@@ -588,14 +594,13 @@
 
 			protocols.forEach(protocol => {
 				console.log(`Protocol status: ${protocol.getAttribute('data-type')}`);
-				if (status === 'all' || protocol.getAttribute('data-type') === status) {
+				if (protocol.getAttribute('data-type') != null && status === 'all' || protocol.getAttribute('data-type') === status) {
 					protocol.style.display = '';
 					visibleProtocolsCount++;
 				} else {
 					protocol.style.display = 'none';
 				}
 			});
-
 			console.log(`Total visible protocols: ${visibleProtocolsCount}`);
 
 			const noProtocolsMessage = document.getElementById('noProtocolsMessage');
