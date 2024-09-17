@@ -85,7 +85,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="pcol, status : ${upcomingProtocols}" th:style="${pcol.isLate} ? 'color: red;' : ''">
+                    <tr th:each="pcol, status : ${upcomingProtocols}" th:style="${pcol.isLate} ? 'color: red;' : ''" th:onclick="'viewProtocol(' + ${pcol.id} + ',' + ${pcol.userId} + ')'">
+>
                         <td th:text="${pcol.name}"></td>
                         <td th:text="${pcol.description}"></td>
                         <td th:text="|${pcol.completionPercent}%|"></td>
@@ -106,6 +107,10 @@
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
     <script>
+		
+
+            
+            
         $(document).ready(function() {
             $('#activeProtocolsTable').DataTable({
                 "paging": true,
@@ -140,6 +145,10 @@
                 householdList.style.display = 'none';
             }
         }
+        
+        function viewProtocol(pcolId, householdId) {
+            window.location = '/viewProtocol/' + pcolId + '/'+householdId;
+            }
     </script>
 </body>
 
