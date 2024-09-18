@@ -86,7 +86,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="pcol, status : ${upcomingProtocols}" th:style="${pcol.isLate} ? 'color: red;' : ''" th:onclick="'viewProtocol(' + ${pcol.id} + ',' + ${pcol.userId} + ')'">
->
+
                         <td th:text="${pcol.name}"></td>
                         <td th:text="${pcol.description}"></td>
                         <td th:text="|${pcol.completionPercent}%|"></td>
