@@ -50,7 +50,24 @@
             <div class="col-md-4 column">
                 <div class="note_card mb-3">
                     <fieldset>
-                        <legend>Client Info</legend>
+						<legend>Client Info
+						<button class="btn btn-sm btn-secondary collapse-btn" data-toggle="collapse" data-target="#clientInfo" aria-expanded="true" aria-controls="clientInfo">
+                                Collapse
+                            </button>	
+						</legend>
+						<div id="clientInfo" class="collapse show">
+						 <ul class="nav nav-tabs" id="clientTabs" role="tablist">
+							 <li class="nav-item">
+	                            <a class="nav-link active" id="all-tab" data-toggle="tab" href="#" role="tab" data-filter="contact" aria-selected="true">Contact</a>
+	                        </li>
+	                        <li class="nav-item">
+	                            <a class="nav-link" id="financial-tab" data-toggle="tab" href="#" role="tab" data-filter="financial" aria-selected="false">Financial</a>
+	                        </li>
+	                        <li class="nav-item">
+	                            <a class="nav-link" id="events-tab" data-toggle="tab" href="#" role="tab" data-filter="upcomingEvents" aria-selected="false">Upcoming Events</a>
+	                        </li>
+						 </ul>
+                        
                         <p><strong>Name:</strong> John Generico</p>
                         <p><strong>Birthday:</strong> 01/01/1980</p>
                         <p><strong>Address:</strong> 123 Main St, Cityville, 12345, Country</p>
@@ -58,37 +75,40 @@
                         <p><strong>Email Address:</strong> john.doe@example.com</p>
                         <p><strong>Status:</strong> Employed</p>
                         <button class="btn btn-sm btn-primary">Edit</button>
+						</div>
                     </fieldset>
                 </div>
 
                 <div class="note_card mb-3">
                     <fieldset>
                         <legend>
-                            <strong>Client Info</strong>
-                            <button class="btn btn-sm btn-secondary collapse-btn" data-toggle="collapse" data-target="#clientInfo" aria-expanded="true" aria-controls="clientInfo">
+                            Generico Household
+                        </legend>
+                            <button class="btn btn-sm btn-secondary collapse-btn" data-toggle="collapse" data-target="#householdInfo" aria-expanded="true" aria-controls="clientInfo">
                                 Collapse
                             </button>
-                        </legend>
-                        <button class="btn btn-sm btn-primary mt-2">Go To</button>
-                        <div class="form-group row even" onclick="alert('This takes you to a new page containing the User Details');">
-                            <div class="col-md-5"><strong>Name:</strong>Jane Generico</div>
-                            <div class="col-md-2"><strong>Age:</strong>40</div>
-                            <div class="col-md-5"><strong>Status:</strong> Married</div>
-                        </div>
-                        <div class="form-group row odd" onclick="alert('This takes you to a new page containing the User Details');">
-                            <div class="col-md-5"><strong>Name:</strong>Sam Generico</div>
-                            <div class="col-md-2"><strong>Age:</strong>10</div>
-                            <div class="col-md-5"><strong>Status:</strong> Dependent</div>
-                        </div>
-                        <div class="form-group row even" onclick="alert('This takes you to a new page containing the User Details');">
-                            <div class="col-md-5"><strong>Name:</strong>Lisa Generico</div>
-                            <div class="col-md-2"><strong>Age:</strong>8</div>
-                            <div class="col-md-5"><strong>Status:</strong> Dependent</div>
-                        </div>
-                        <div class="form-group row odd" onclick="alert('This takes you to a new page containing the User Details');">
-                            <div class="col-md-5"><strong>Name:</strong>John Sr. Generico</div>
-                            <div class="col-md-2"><strong>Age:</strong>65</div>
-                            <div class="col-md-5"><strong>Status:</strong> Other</div>
+                        <div id="householdInfo" class="collapse show">
+	                        <button class="btn btn-sm btn-primary mt-2">Go To</button>
+	                        <div class="form-group row even" onclick="alert('This takes you to a new page containing the User Details');">
+	                            <div class="col-md-5"><strong>Name:</strong>Jane Generico</div>
+	                            <div class="col-md-2"><strong>Age:</strong>40</div>
+	                            <div class="col-md-5"><strong>Status:</strong> Married</div>
+	                        </div>
+	                        <div class="form-group row odd" onclick="alert('This takes you to a new page containing the User Details');">
+	                            <div class="col-md-5"><strong>Name:</strong>Sam Generico</div>
+	                            <div class="col-md-2"><strong>Age:</strong>10</div>
+	                            <div class="col-md-5"><strong>Status:</strong> Dependent</div>
+	                        </div>
+	                        <div class="form-group row even" onclick="alert('This takes you to a new page containing the User Details');">
+	                            <div class="col-md-5"><strong>Name:</strong>Lisa Generico</div>
+	                            <div class="col-md-2"><strong>Age:</strong>8</div>
+	                            <div class="col-md-5"><strong>Status:</strong> Dependent</div>
+	                        </div>
+	                        <div class="form-group row odd" onclick="alert('This takes you to a new page containing the User Details');">
+	                            <div class="col-md-5"><strong>Name:</strong>John Sr. Generico</div>
+	                            <div class="col-md-2"><strong>Age:</strong>65</div>
+	                            <div class="col-md-5"><strong>Status:</strong> Other</div>
+	                        </div>
                         </div>
                        
                     </fieldset>
@@ -96,23 +116,29 @@
 
                 <div class="note_card">
                     <fieldset>
-                        <legend>Active Protocols</legend>
-                        <div class="form-group row even" onclick="alert('This takes you to a new page containing detailed Protocol Information');">
-                            <div class="col-md-8"><strong>Protocol Name:</strong> New Client On-boarding</div>
-                            <div class="col-md-4"><strong>Completion:</strong> 93%</div>
-                        </div>
-                        <div class="form-group row odd" onclick="alert('This takes you to a new page containing detailed Protocol Information');">
-                            <div class="col-md-8"><strong>Protocol Name:</strong> Inheritance + Capital Influx</div>
-                            <div class="col-md-4"><strong>Completion:</strong> 72%</div>
-                        </div>
-                        <div class="form-group row even" onclick="alert('This takes you to a new page containing detailed Protocol Information');">
-                            <div class="col-md-8"><strong>Protocol Name:</strong> Pre-Purchase House</div>
-                            <div class="col-md-4"><strong>Completion:</strong> 85%</div>
-                        </div>
-                        <div class="form-group row odd" onclick="alert('This takes you to a new page containing detailed Protocol Information');">
-                            <div class="col-md-8"><strong>Protocol Name:</strong> Job Change + Retirement</div>
-                            <div class="col-md-4"><strong>Completion:</strong> 66%</div>
-                        </div>
+                        <legend>Active Protocols
+						<button class="btn btn-sm btn-secondary collapse-btn" data-toggle="collapse" data-target="#activeProtocols" aria-expanded="true" aria-controls="clientInfo">
+                                Collapse
+                            </button>
+						</legend>
+						<div id="activeProtocols" class="collapse show">
+	                        <div class="form-group row even" onclick="alert('This takes you to a new page containing detailed Protocol Information');">
+	                            <div class="col-md-8"><strong>Protocol Name:</strong> New Client On-boarding</div>
+	                            <div class="col-md-4"><strong>Completion:</strong> 93%</div>
+	                        </div>
+	                        <div class="form-group row odd" onclick="alert('This takes you to a new page containing detailed Protocol Information');">
+	                            <div class="col-md-8"><strong>Protocol Name:</strong> Inheritance + Capital Influx</div>
+	                            <div class="col-md-4"><strong>Completion:</strong> 72%</div>
+	                        </div>
+	                        <div class="form-group row even" onclick="alert('This takes you to a new page containing detailed Protocol Information');">
+	                            <div class="col-md-8"><strong>Protocol Name:</strong> Pre-Purchase House</div>
+	                            <div class="col-md-4"><strong>Completion:</strong> 85%</div>
+	                        </div>
+	                        <div class="form-group row odd" onclick="alert('This takes you to a new page containing detailed Protocol Information');">
+	                            <div class="col-md-8"><strong>Protocol Name:</strong> Job Change + Retirement</div>
+	                            <div class="col-md-4"><strong>Completion:</strong> 66%</div>
+	                        </div>
+						</div>
                     </fieldset>
                 </div>
             </div>
@@ -154,150 +180,178 @@
                 <div class="note_card">
                     <fieldset>
                         <legend>Questions</legend>
-                        <div class="form-group row even clickable-div" data-target="#question1">
-                            <div class="col-md-12">
-                                <strong>What is your planned retirement age?</strong>
-                            </div>
-                            <div class="collapse col-md-12" id="question1">
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" value="65">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <button class="btn btn-sm btn-success">Save</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row odd clickable-div" data-target="#question2">
-                            <div class="col-md-12">
-                                <strong>How much credit card debt do you have?</strong>
-                            </div>
-                            <div class="collapse col-md-12" id="question2">
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" value="None">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <button class="btn btn-sm btn-success">Save</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row even clickable-div" data-target="#question3">
-                            <div class="col-md-12">
-                                <strong>Are you planning to buy a house soon?</strong>
-                            </div>
-                            <div class="collapse col-md-12" id="question3">
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" value="Yes">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <button class="btn btn-sm btn-success">Save</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row odd clickable-div" data-target="#question4">
-                            <div class="col-md-12">
-                                <strong>Will you be getting a mortgage?</strong>
-                            </div>
-                            <div class="collapse col-md-12" id="question4">
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" value="Yes">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <button class="btn btn-sm btn-success">Save</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         
-                        <div class="form-group row even clickable-div" data-target="#question5">
-				            <div class="col-md-12">
-				                <strong>How much do you think you will need to save for a down payment?</strong>
-				            </div>
-				            <div class="collapse col-md-12" id="question5">
-				                <div class="row mt-2">
-				                    <div class="col-md-6">
-				                        <input type="text" class="form-control" value="66,000$">
-				                    </div>
-				                    <div class="col-md-3">
-				                        <button class="btn btn-sm btn-success">Save</button>
-				                    </div>
-				                </div>
-				            </div>
-				        </div>
-				
-				        <div class="form-group row odd clickable-div" data-target="#question6">
-				            <div class="col-md-12">
-				                <strong>How much have you saved for a down payment?</strong>
-				            </div>
-				            <div class="collapse col-md-12" id="question6">
-				                <div class="row mt-2">
-				                    <div class="col-md-6">
-				                        <input type="text" class="form-control" value="35,000$">
-				                    </div>
-				                    <div class="col-md-3">
-				                        <button class="btn btn-sm btn-success">Save</button>
-				                    </div>
-				                </div>
-				            </div>
-				        </div>
-				
-				        <div class="form-group row even clickable-div" data-target="#question7">
-				            <div class="col-md-12">
-				                <strong>Do you have an employer sponsored retirement plan?</strong>
-				            </div>
-				            <div class="collapse col-md-12" id="question7">
-				                <div class="row mt-2">
-				                    <div class="col-md-6">
-				                        <input type="text" class="form-control" value="Yes">
-				                    </div>
-				                    <div class="col-md-3">
-				                        <button class="btn btn-sm btn-success">Save</button>
-				                    </div>
-				                </div>
-				            </div>
-				        </div>
-				
-				        <div class="form-group row odd clickable-div" data-target="#question8">
-				            <div class="col-md-12">
-				                <strong>What kind of plan is it?</strong>
-				            </div>
-				            <div class="collapse col-md-12" id="question8">
-				                <div class="row mt-2">
-				                    <div class="col-md-6">
-				                        <input type="text" class="form-control" value="401k">
-				                    </div>
-				                    <div class="col-md-3">
-				                        <button class="btn btn-sm btn-success">Save</button>
-				                    </div>
-				                </div>
-				            </div>
-				        </div>
-				
-				        <div class="form-group row even clickable-div" data-target="#question9">
-				            <div class="col-md-12">
-				                <strong>What is the Employee's Match %?</strong>
-				            </div>
-				            <div class="collapse col-md-12" id="question9">
-				                <div class="row mt-2">
-				                    <div class="col-md-6">
-				                        <input type="text" class="form-control" value="3%">
-				                    </div>
-				                    <div class="col-md-3">
-				                        <button class="btn btn-sm btn-success">Save</button>
-				                    </div>
-				                </div>
-				            </div>
-				        </div>
-
+		                    <ul class="nav nav-tabs" id="questionTabs" role="tablist">
+		                        <li class="nav-item">
+		                            <a class="nav-link active" id="all-tab" data-toggle="tab" href="#" role="tab" data-filter="all" aria-selected="true">All</a>
+		                        </li>
+		                        <li class="nav-item">
+		                            <a class="nav-link" id="personal-tab" data-toggle="tab" href="#" role="tab" data-filter="personal" aria-selected="false">Personal</a>
+		                        </li>
+		                        <li class="nav-item">
+		                            <a class="nav-link" id="family-tab" data-toggle="tab" href="#" role="tab" data-filter="family" aria-selected="false">Family</a>
+		                        </li>
+		                        <li class="nav-item">
+		                            <a class="nav-link" id="goals-tab" data-toggle="tab" href="#" role="tab" data-filter="goals" aria-selected="false">Goals</a>
+		                        </li>
+		                        <li class="nav-item">
+		                            <a class="nav-link" id="insurance-tab" data-toggle="tab" href="#" role="tab" data-filter="insurance" aria-selected="false">Insurance</a>
+		                        </li>
+		                        <li class="nav-item">
+		                            <a class="nav-link" id="investments-tab" data-toggle="tab" href="#" role="tab" data-filter="investments" aria-selected="false">Investments</a>
+		                        </li>
+		                        <li class="nav-item">
+		                            <a class="nav-link" id="assets-tab" data-toggle="tab" href="#" role="tab" data-filter="assets" aria-selected="false">Assets</a>
+		                        </li>
+		                        <li class="nav-item">
+		                            <a class="nav-link" id="liabilities-tab" data-toggle="tab" href="#" role="tab" data-filter="liabilities" aria-selected="false">Liabilities</a>
+		                        </li>
+		                    </ul>
+		                        
+		                        
+		                        <div id="questions" class="collapse show">
+		                            <div class="form-group row even clickable-div" data-type="" data-target="#question1">
+		                                <div class="col-md-12">
+		                                    <strong>What is your planned retirement age?</strong>
+		                                </div>
+		                                <div class="collapse col-md-12" id="question1">
+		                                    <div class="row mt-2">
+		                                        <div class="col-md-6">
+		                                            <input type="text" class="form-control" value="65">
+		                                        </div>
+		                                        <div class="col-md-3">
+		                                            <button class="btn btn-sm btn-success">Save</button>
+		                                        </div>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                        <div class="form-group row odd clickable-div" data-type="" data-target="#question2">
+		                            <div class="col-md-12">
+		                                <strong>How much credit card debt do you have?</strong>
+		                            </div>
+		                            <div class="collapse col-md-12" id="question2">
+		                                <div class="row mt-2">
+		                                    <div class="col-md-6">
+		                                        <input type="text" class="form-control" value="None">
+		                                    </div>
+		                                    <div class="col-md-3">
+		                                        <button class="btn btn-sm btn-success">Save</button>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                        </div>
+		
+		                        <div class="form-group row even clickable-div" data-type="" data-target="#question3">
+		                            <div class="col-md-12">
+		                                <strong>Are you planning to buy a house soon?</strong>
+		                            </div>
+		                            <div class="collapse col-md-12" id="question3">
+		                                <div class="row mt-2">
+		                                    <div class="col-md-6">
+		                                        <input type="text" class="form-control" value="Yes">
+		                                    </div>
+		                                    <div class="col-md-3">
+		                                        <button class="btn btn-sm btn-success">Save</button>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                        </div>
+		
+		                        <div class="form-group row odd clickable-div" data-type="" data-target="#question4">
+		                            <div class="col-md-12">
+		                                <strong>Will you be getting a mortgage?</strong>
+		                            </div>
+		                            <div class="collapse col-md-12" id="question4">
+		                                <div class="row mt-2">
+		                                    <div class="col-md-6">
+		                                        <input type="text" class="form-control" value="Yes">
+		                                    </div>
+		                                    <div class="col-md-3">
+		                                        <button class="btn btn-sm btn-success">Save</button>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                        </div>
+		                        
+		                        <div class="form-group row even clickable-div" data-type="" data-target="#question5">
+						            <div class="col-md-12">
+						                <strong>How much do you think you will need to save for a down payment?</strong>
+						            </div>
+						            <div class="collapse col-md-12" id="question5">
+						                <div class="row mt-2">
+						                    <div class="col-md-6">
+						                        <input type="text" class="form-control" value="66,000$">
+						                    </div>
+						                    <div class="col-md-3">
+						                        <button class="btn btn-sm btn-success">Save</button>
+						                    </div>
+						                </div>
+						            </div>
+						        </div>
+						
+						        <div class="form-group row odd clickable-div" data-type="" data-target="#question6">
+						            <div class="col-md-12">
+						                <strong>How much have you saved for a down payment?</strong>
+						            </div>
+						            <div class="collapse col-md-12" id="question6">
+						                <div class="row mt-2">
+						                    <div class="col-md-6">
+						                        <input type="text" class="form-control" value="35,000$">
+						                    </div>
+						                    <div class="col-md-3">
+						                        <button class="btn btn-sm btn-success">Save</button>
+						                    </div>
+						                </div>
+						            </div>
+						        </div>
+						
+						        <div class="form-group row even clickable-div" data-type="" data-target="#question7">
+						            <div class="col-md-12">
+						                <strong>Do you have an employer sponsored retirement plan?</strong>
+						            </div>
+						            <div class="collapse col-md-12" id="question7">
+						                <div class="row mt-2">
+						                    <div class="col-md-6">
+						                        <input type="text" class="form-control" value="Yes">
+						                    </div>
+						                    <div class="col-md-3">
+						                        <button class="btn btn-sm btn-success">Save</button>
+						                    </div>
+						                </div>
+						            </div>
+						        </div>
+						
+						        <div class="form-group row odd clickable-div" data-type="" data-target="#question8">
+						            <div class="col-md-12">
+						                <strong>What kind of plan is it?</strong>
+						            </div>
+						            <div class="collapse col-md-12" id="question8">
+						                <div class="row mt-2">
+						                    <div class="col-md-6">
+						                        <input type="text" class="form-control" value="401k">
+						                    </div>
+						                    <div class="col-md-3">
+						                        <button class="btn btn-sm btn-success">Save</button>
+						                    </div>
+						                </div>
+						            </div>
+						        </div>
+						
+						        <div class="form-group row even clickable-div" data-type="" data-target="#question9">
+						            <div class="col-md-12">
+						                <strong>What is the Employee's Match %?</strong>
+						            </div>
+						            <div class="collapse col-md-12" id="question9">
+						                <div class="row mt-2">
+						                    <div class="col-md-6">
+						                        <input type="text" class="form-control" value="3%">
+						                    </div>
+						                    <div class="col-md-3">
+						                        <button class="btn btn-sm btn-success">Save</button>
+						                    </div>
+						                </div>
+						            </div>
+						        </div>
                     </fieldset>
                 </div>
             </div>
@@ -314,6 +368,22 @@
                 $(target).collapse('toggle');
             });
         });
+        
+       	$(document).ready(function () {
+        $('#questionTabs a').click(function (e) {
+            e.preventDefault();
+            var filter = $(this).data('filter');
+
+            if (filter === "all") {
+                $('[data-type]').show();
+            } else {
+                $('[data-type]').hide();
+                $('[data-type="' + filter + '"]').show();
+            }
+            $('#questionTabs a').removeClass('active');
+            $(this).addClass('active');
+        });
+    });
         
         
     </script>
