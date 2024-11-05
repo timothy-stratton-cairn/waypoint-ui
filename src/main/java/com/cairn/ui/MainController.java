@@ -898,23 +898,31 @@ public class MainController {
 	public String demoHouseholdView(Model model,@PathVariable int id) {
 		User currentUser = userDAO.getUser();
 		Household household = userHelper.getHouseholdById(currentUser, id);
+		User primaryContact = household.getPrimaryContacts().get(0);
 		ArrayList<Protocol> householdProtocols = new ArrayList<Protocol>();
-		
-		//TODO need a helperfunction to get all questions and answers by household I think. 
         ArrayList<User> coclients = household.getHouseholdAccounts();
-        for (User client: coclients) {
-        	ArrayList<Protocol> clientProtocols = protocolHelper.getAssignedProtocols(currentUser, client.getId());
-        	for(Protocol pcol: clientProtocols) {
-        		householdProtocols.add(pcol);
-        	}
-        }
+		int firstCoClientId = coclients.get(0).getId();
         ArrayList<User> dependents = new ArrayList<User>(); //Pretty Sure I have and endpoint for this specifically will need to go back and look
         model.addAttribute("householdProtocols",householdProtocols);
+		model.addAttribute("primaryContact",primaryContact);
+		model.addAttribute("coclients",coclients);
         model.addAttribute("depedents",dependents);
-        model.addAttribute("Household",household);
-		return "demoHouseholdView";
+        model.addAttribute("household",household);
+		model.addAttribute("firstCoClientId",firstCoClientId);
+		return "newClientProfileView";
 	}
-	
+	@GetMapping("/getCoClientQuestionsAndProtocols/{id}")
+	public ResponseEntity<?> getCoClientQuestionsAndProtocols(@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		User coclient = userHelper.getUser(currentUser, id);
+		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, id);
+		Map<String, Object> response = new HashMap<>();
+		response.put("coclient", coclient);
+		response.put("Questions", questionsAndAnswers);
+		return ResponseEntity.ok(response);
+	}
+
+
 	@GetMapping("/demoProtocolView/{id}")
 	public String demoProtocolView(Model model,@PathVariable int id) {
 		User currentUser = userDAO.getUser();
@@ -1300,10 +1308,7 @@ public class MainController {
 			} else {
 				for (User dependant : detailedUser.getDependents()) {
 					logger.info("Dependant Id:" + dependant.getId());
-					if (!dependantIds.contains(dependant.getId()) && !clientList.contains(dependant)) { // Check if the
-																										// dependent is
-																										// not already
-																										// in the list
+					if (!dependantIds.contains(dependant.getId()) && !clientList.contains(dependant)) {
 						dependantIds.add(dependant.getId());
 						dependantList.add(dependant);
 					}
@@ -1313,13 +1318,6 @@ public class MainController {
 
 		String dependantIdString = dependantIds.stream().map(String::valueOf).collect(Collectors.joining(","));
 		logger.info(dependantIdString);
-
-		/*
-		 * Iterator<User> clientIterator = clientList.iterator(); while
-		 * (clientIterator.hasNext()) { User client = clientIterator.next(); if
-		 * (dependantIds.contains(client.getId()) && !dependantList.contains(client)) {
-		 * dependantList.add(client); clientIterator.remove(); } }
-		 */
 
 		String dependantListString = dependantList.stream()
 				.map(dependant -> dependant.getFirstName() + " " + dependant.getLastName())
@@ -1336,17 +1334,9 @@ public class MainController {
 			}
 		}
 
-		// Retrieve all users to find those with CLIENT in roles
 		ArrayList<User> allUsers = userHelper.getUserList(currentUser);
 		ArrayList<Integer> depIds = userHelper.getDependentIds(currentUser);
 		ArrayList<User> validUsers = getValidCoClientList(depIds, allUsers);
-
-		/*
-		 * for (User user : allUsers) { if (user.getRoles().contains("CLIENT")) {
-		 * clientRoleUserIds.add(user.getId());
-		 * 
-		 * } }
-		 */
 
 		ArrayList<User> legalCoClients = new ArrayList<>(validUsers);
 
@@ -2660,17 +2650,6 @@ public class MainController {
 	    return "homeworkDemoPopout";  // This will load the `questionFormPopup.html`
 	}
 	
-	@GetMapping("/demoUserView")
-	public String demoUserView(Model model) {
-		return "demoUserView";
-		
-	}
-	
-	@GetMapping("/demoUserView2")
-	public String demoUserView2(Model model) {
-		return "demoUserView2";
-		
-	}
-	
+
 
 }
