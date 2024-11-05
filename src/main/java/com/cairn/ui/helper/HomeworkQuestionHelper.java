@@ -5,16 +5,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cairn.ui.model.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.model.ExpectedHomeworkResponses;
-import com.cairn.ui.model.HomeworkQuestion;
-import com.cairn.ui.model.HomeworkResponse;
-import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -395,44 +393,22 @@ public class HomeworkQuestionHelper{
 	    return result;
     	
     }
-    
-    
-    public ArrayList<HomeworkQuestion> getHomeworkQuestionResponsePairsByUser(User usr, int userId) {
-        ArrayList<HomeworkQuestion> results = new ArrayList<>();
+
+
+    public QuestionResponsePairListDto getHomeworkQuestionResponsePairsByUser(User usr, int userId) {
+        QuestionResponsePairListDto results = null;
 
         String apiUrl = this.dashboardApiBaseUrl + "/api/homework-question-response/user/" + userId;
         logger.info("URL: " + apiUrl);
         String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+
         if (!jsonResponse.isEmpty()) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-                JsonNode questionsArray = jsonNode.get("responses");
-
-                if (questionsArray != null && questionsArray.isArray()) {
-                    for (JsonNode element : questionsArray) {
-                        if (element != null) {
-                            HomeworkQuestion entry = new HomeworkQuestion();
-                            entry.setQuestionId(element.get("questionId").asInt());
-                            entry.setQuestionAbbreviation(element.get("questionAbbr").asText());
-                            entry.setQuestion(element.get("questionText").asText());
-                            entry.setStatus(element.get("status").asText());
-                            entry.setUserResponse(element.get("response").asText(null));
-                            entry.setCategoryId(element.get("categoryId").asInt()); 
-                            String updatedTimestamp = element.get("updated").asText();
-                            entry.setLastModified(LocalDateTime.parse(updatedTimestamp, DateTimeFormatter.ISO_DATE_TIME));
-                            if (element.has("file")) {
- 
-                            }
-
-                            results.add(entry);
-                        }
-                    }
-                }
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
+                // Map JSON response to QuestionResponsePairListDto
+                results = objectMapper.readValue(jsonResponse, QuestionResponsePairListDto.class);
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                logger.error("Failed to parse JSON response", e);
             }
         } else {
             logger.info("Failed to fetch homework questions data.");
@@ -440,6 +416,4 @@ public class HomeworkQuestionHelper{
 
         return results;
     }
-
-
 }

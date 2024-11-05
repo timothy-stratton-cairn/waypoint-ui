@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.cairn.ui.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,26 +58,6 @@ import com.cairn.ui.helper.ProtocolStepTemplateHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
-import com.cairn.ui.model.AssignedHomeworkResponse;
-import com.cairn.ui.model.AssignedHomeworkResponseList;
-import com.cairn.ui.model.ExpectedHomeworkResponses;
-import com.cairn.ui.model.Homework;
-import com.cairn.ui.model.HomeworkQuestion;
-import com.cairn.ui.model.HomeworkQuestionsTemplate;
-import com.cairn.ui.model.HomeworkResponse;
-import com.cairn.ui.model.HomeworkTemplate;
-import com.cairn.ui.model.Household;
-import com.cairn.ui.model.PasswordRequest;
-import com.cairn.ui.model.Protocol;
-import com.cairn.ui.model.ProtocolComments;
-import com.cairn.ui.model.ProtocolReport;
-import com.cairn.ui.model.ProtocolStats;
-import com.cairn.ui.model.ProtocolStep;
-import com.cairn.ui.model.ProtocolStepTemplate;
-import com.cairn.ui.model.ProtocolTemplate;
-import com.cairn.ui.model.ReportStat;
-import com.cairn.ui.model.User;
-import com.cairn.ui.model.UserDAO;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -900,14 +881,14 @@ public class MainController {
 		return "userProfile";
 	}
 	
-	@GetMapping("/demoUserProfileView/{user_id}")
-	public String demoUserProfileView(Model model, @PathVariable int userId) {
+	@GetMapping("/demoUserProfileView/{user_Id}")
+	public String demoUserProfileView(Model model, @PathVariable int user_Id) {
 		User currentUser = userDAO.getUser();
-		User profileUser = userHelper.getUser(currentUser, userId);
-		ArrayList<HomeworkQuestion> questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, userId);
-		ArrayList<Protocol> userProtocols = protocolHelper.getAssignedProtocols(currentUser, userId); // TODO add getAllProtocolsByUser Endpoint to the helper. 
+		User profileUser = userHelper.getUser(currentUser, user_Id);
+		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, user_Id);
+		ArrayList<Protocol> userProtocols = protocolHelper.getAssignedProtocols(currentUser, user_Id); // TODO add getAllProtocolsByUser Endpoint to the helper.
 		model.addAttribute("user",profileUser);
-		model.addAttribute("questionList",questionsAndAnswers);
+		model.addAttribute("Questions",questionsAndAnswers);
 		model.addAttribute("userProtocols",userProtocols);
 		return "demoUserProfileView";
 		
@@ -938,8 +919,8 @@ public class MainController {
 	public String demoProtocolView(Model model,@PathVariable int id) {
 		User currentUser = userDAO.getUser();
 		Protocol protocol = protocolHelper.getProtocol(currentUser, id);
-		ArrayList<HomeworkQuestion> assignedQuestions = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, id);
-		
+		QuestionResponsePairListDto assignedQuestions = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, id);
+		System.out.println("Assigned Questions: ");
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("Questions",assignedQuestions);
 		return "demoProtolView";
