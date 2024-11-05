@@ -2649,7 +2649,19 @@ public class MainController {
 	public String showQuestionFormPopup() {
 	    return "homeworkDemoPopout";  // This will load the `questionFormPopup.html`
 	}
-	
+
+
+	@GetMapping("/demoUserView")
+	public String demoUserView(Model model) {
+		return "demoUserView";
+
+	}
+
+	@GetMapping("/demoUserView2")
+	public String demoUserView2(Model model) {
+		return "demoUserView2";
+
+	}
 
 
 }
