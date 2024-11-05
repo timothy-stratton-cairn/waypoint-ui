@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>DemoUserProfile View</title>
+	<meta name="_csrf" th:content="${_csrf.token}" />
+	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<div th:insert="~{header :: main}"></div>
+
+<div class="container mt-4">
+	<div class="note_card mb-3">
+		<div class="card">
+			<div class="card-body">
+				<h5 class="card-title">User Information</h5>
+				<p><strong>First Name:</strong> <span th:text="${user.firstName}">First Name</span></p>
+				<p><strong>Last Name:</strong> <span th:text="${user.lastName}">Last Name</span></p>
+				<p><strong>Phone:</strong> <span th:text="${user.phoneNumber}">Phone Number</span></p>
+				<p><strong>Email:</strong> <span th:text="${user.email}">Email Address</span></p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Homework Questions Card -->
+	<div class="note_card mb-3">
+		<div class="card">
+			<div class="card-body">
+				<h5 class="card-title">Homework Questions</h5>
+				<ul class="nav nav-tabs" id="questionTabs" role="tablist">
+					<li class="nav-item">
+						<a class="nav-link active" id="all-tab" data-toggle="tab" href="#category-all" role="tab" aria-controls="category-all" aria-selected="true">All</a>
+					</li>
+					<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#category-personal" data-category="1">1. Personal</a></li>
+					<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#category-family" data-category="2">2. Family</a></li>
+					<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#category-goals" data-category="3">3. Goals</a></li>
+					<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#category-insurance" data-category="4">4. Insurance</a></li>
+					<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#category-investments" data-category="5">5. Investments</a></li>
+					<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#category-assets" data-category="6">6. Assets</a></li>
+					<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#category-liabilities" data-category="7">7. Liabilities</a></li>
+				</ul>
+
+				<div class="tab-content mt-3" id="questionListContainer">
+					<div class="tab-pane fade show active" id="category-all" role="tabpanel" aria-labelledby="all-tab">
+						<ul class="list-group">
+							<li class="list-group-item question-item" th:each="question : ${questionList}" th:data-category-id="${question.categoryId}">
+								<div class="row">
+									<div class="col-md-4"><strong th:text="${question.question}">Question Text</strong></div>
+									<div class="col-md-4">
+										<span th:text="${question.userResponse != null ? question.userResponse : 'NEEDS ATTENTION'}">Response</span>
+									</div>
+									<div class="col-md-4">
+										<span th:text="${#dates.format(question.lastModified, 'yyyy-MM-dd HH:mm')}">Last Updated</span>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<!-- Empty containers for category-specific questions, populated dynamically -->
+					<div class="tab-pane fade" id="category-personal" role="tabpanel"></div>
+					<div class="tab-pane fade" id="category-family" role="tabpanel"></div>
+					<div class="tab-pane fade" id="category-goals" role="tabpanel"></div>
+					<div class="tab-pane fade" id="category-insurance" role="tabpanel"></div>
+					<div class="tab-pane fade" id="category-investments" role="tabpanel"></div>
+					<div class="tab-pane fade" id="category-assets" role="tabpanel"></div>
+					<div class="tab-pane fade" id="category-liabilities" role="tabpanel"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div th:insert="~{footer :: main}"></div>
+
+<script th:inline="javascript">
+	$(document).ready(function() {
+		$('.question-item').each(function() {
+			const categoryId = $(this).data('category-id');
+			$(this).clone().appendTo(`#category-${getCategoryName(categoryId)}`);
+		});
+
+		function getCategoryName(id) {
+			switch(id) {
+				case 1: return 'personal';
+				case 2: return 'family';
+				case 3: return 'goals';
+				case 4: return 'insurance';
+				case 5: return 'investments';
+				case 6: return 'assets';
+				case 7: return 'liabilities';
+				default: return 'all';
+			}
+		}
+	});
+</script>
+</body>
+</html>

@@ -899,6 +899,51 @@ public class MainController {
 		model.addAttribute("user", currentUser);
 		return "userProfile";
 	}
+	
+	@GetMapping("/demoUserProfileView/{user_id}")
+	public String demoUserProfileView(Model model, @PathVariable int userId) {
+		User currentUser = userDAO.getUser();
+		User profileUser = userHelper.getUser(currentUser, userId);
+		ArrayList<HomeworkQuestion> questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, userId);
+		ArrayList<Protocol> userProtocols = protocolHelper.getAssignedProtocols(currentUser, userId); // TODO add getAllProtocolsByUser Endpoint to the helper. 
+		model.addAttribute("user",profileUser);
+		model.addAttribute("questionList",questionsAndAnswers);
+		model.addAttribute("userProtocols",userProtocols);
+		return "demoUserProfileView";
+		
+	}
+	
+	@GetMapping("/demoHouseholdView/{id}")
+	public String demoHouseholdView(Model model,@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		Household household = userHelper.getHouseholdById(currentUser, id);
+		ArrayList<Protocol> householdProtocols = new ArrayList<Protocol>();
+		
+		//TODO need a helperfunction to get all questions and answers by household I think. 
+        ArrayList<User> coclients = household.getHouseholdAccounts();
+        for (User client: coclients) {
+        	ArrayList<Protocol> clientProtocols = protocolHelper.getAssignedProtocols(currentUser, client.getId());
+        	for(Protocol pcol: clientProtocols) {
+        		householdProtocols.add(pcol);
+        	}
+        }
+        ArrayList<User> dependents = new ArrayList<User>(); //Pretty Sure I have and endpoint for this specifically will need to go back and look
+        model.addAttribute("householdProtocols",householdProtocols);
+        model.addAttribute("depedents",dependents);
+        model.addAttribute("Household",household);
+		return "demoHouseholdView";
+	}
+	
+	@GetMapping("/demoProtocolView/{id}")
+	public String demoProtocolView(Model model,@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		Protocol protocol = protocolHelper.getProtocol(currentUser, id);
+		ArrayList<HomeworkQuestion> assignedQuestions = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, id);
+		
+		model.addAttribute("protocol", protocol);
+		model.addAttribute("Questions",assignedQuestions);
+		return "demoProtolView";
+	}
 
 	@GetMapping("/changeUserInfo")
 	public String showChangeUserInfoForm(Model model) {
@@ -2645,5 +2690,6 @@ public class MainController {
 		return "demoUserView2";
 		
 	}
+	
 
 }

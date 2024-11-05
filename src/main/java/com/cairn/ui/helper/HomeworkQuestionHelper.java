@@ -1,5 +1,7 @@
 package com.cairn.ui.helper;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,6 +107,7 @@ public class HomeworkQuestionHelper{
 								entry.setQuestionId(element.get("questionId").asInt());
 								entry.setQuestionAbbreviation(element.get("questionAbbr").asText());
 								entry.setQuestion(element.get("question").asText());
+								entry.setCategoryId(element.get("categoryId").asInt());
 								entry.setStatus(element.get("status").asText());
 								results.add(entry);
 							}
@@ -122,6 +125,117 @@ public class HomeworkQuestionHelper{
     	
     	return results;
     	
+    }
+    
+    public ArrayList<HomeworkQuestion> getHomeworkQuestionsByCategoryId(User usr, int categoryId) {
+        ArrayList<HomeworkQuestion> results = new ArrayList<>();
+
+        String apiUrl = this.dashboardApiBaseUrl + "/api/homework-question-response/category/" + categoryId;
+        logger.info("URL: " + apiUrl);
+
+        String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+        if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+                JsonNode responsesNode = jsonNode.get("responses");
+
+                if (responsesNode != null && responsesNode.isArray()) {
+                    for (JsonNode element : responsesNode) {
+                        HomeworkQuestion question = new HomeworkQuestion();
+                      
+                        question.setQuestionId(element.get("questionId").asInt());
+                        question.setQuestionAbbreviation(element.get("questionAbbr").asText());
+                        question.setQuestion(element.get("question").asText());
+                        question.setStatus(element.get("status").asText());
+
+                        results.add(question);
+                    }
+                }
+            } catch (JsonMappingException e) {
+                logger.error("Error mapping JSON", e);
+            } catch (JsonProcessingException e) {
+                logger.error("Error processing JSON", e);
+            }
+        } else {
+            logger.info("Failed to fetch homework questions by category.");
+        }
+
+        return results;
+    }
+    
+    public ArrayList<HomeworkQuestion> getHomeworkQuestionsByProtocolId(User usr, int protocolId) {
+        ArrayList<HomeworkQuestion> results = new ArrayList<>();
+
+        String apiUrl = this.dashboardApiBaseUrl + "homework-question/protocol/" + protocolId;
+        logger.info("URL: " + apiUrl);
+
+        String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+        if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+                JsonNode responsesNode = jsonNode.get("responses");
+
+                if (responsesNode != null && responsesNode.isArray()) {
+                    for (JsonNode element : responsesNode) {
+                        HomeworkQuestion question = new HomeworkQuestion();
+                      
+                        question.setQuestionId(element.get("questionId").asInt());
+                        question.setQuestionAbbreviation(element.get("questionAbbr").asText());
+                        question.setQuestion(element.get("question").asText());
+                        question.setStatus(element.get("status").asText());
+
+                        results.add(question);
+                    }
+                }
+            } catch (JsonMappingException e) {
+                logger.error("Error mapping JSON", e);
+            } catch (JsonProcessingException e) {
+                logger.error("Error processing JSON", e);
+            }
+        } else {
+            logger.info("Failed to fetch homework questions by category.");
+        }
+
+        return results;
+    }
+    
+    public ArrayList<HomeworkQuestion> getHomeworkQuestionsByProtocolTemplateId(User usr, int templateId) {
+        ArrayList<HomeworkQuestion> results = new ArrayList<>();
+
+        String apiUrl = this.dashboardApiBaseUrl + "homework-question/protocol-template/" + templateId;
+        logger.info("URL: " + apiUrl);
+
+        String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+        if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+                JsonNode responsesNode = jsonNode.get("responses");
+
+                if (responsesNode != null && responsesNode.isArray()) {
+                    for (JsonNode element : responsesNode) {
+                        HomeworkQuestion question = new HomeworkQuestion();
+                      
+                        question.setQuestionId(element.get("questionId").asInt());
+                        question.setQuestionAbbreviation(element.get("questionAbbr").asText());
+                        question.setQuestion(element.get("question").asText());
+                        question.setStatus(element.get("status").asText());
+
+                        results.add(question);
+                    }
+                }
+            } catch (JsonMappingException e) {
+                logger.error("Error mapping JSON", e);
+            } catch (JsonProcessingException e) {
+                logger.error("Error processing JSON", e);
+            }
+        } else {
+            logger.info("Failed to fetch homework questions by category.");
+        }
+
+        return results;
     }
     
     public HomeworkQuestion getQuestion(User usr, int id) {
@@ -153,6 +267,9 @@ public class HomeworkQuestionHelper{
                 
                 JsonNode questionTypeNode = jsonNode.get("questionType");
                 result.setQuestionType(questionTypeNode != null ? questionTypeNode.asText() : null);
+                
+                JsonNode questionCategroryNode = jsonNode.get("categoryId");
+                result.setCategoryId(questionCategroryNode != null ? questionCategroryNode.asInt() : 0);
                 
                 JsonNode triggersProtocolCreationNode = jsonNode.get("triggersProtocolCreation");
                 result.setTriggeringReponse(triggersProtocolCreationNode != null && triggersProtocolCreationNode.asBoolean());
@@ -277,6 +394,51 @@ public class HomeworkQuestionHelper{
 	    
 	    return result;
     	
+    }
+    
+    
+    public ArrayList<HomeworkQuestion> getHomeworkQuestionResponsePairsByUser(User usr, int userId) {
+        ArrayList<HomeworkQuestion> results = new ArrayList<>();
+
+        String apiUrl = this.dashboardApiBaseUrl + "/api/homework-question-response/user/" + userId;
+        logger.info("URL: " + apiUrl);
+        String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+        if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+                JsonNode questionsArray = jsonNode.get("responses");
+
+                if (questionsArray != null && questionsArray.isArray()) {
+                    for (JsonNode element : questionsArray) {
+                        if (element != null) {
+                            HomeworkQuestion entry = new HomeworkQuestion();
+                            entry.setQuestionId(element.get("questionId").asInt());
+                            entry.setQuestionAbbreviation(element.get("questionAbbr").asText());
+                            entry.setQuestion(element.get("questionText").asText());
+                            entry.setStatus(element.get("status").asText());
+                            entry.setUserResponse(element.get("response").asText(null));
+                            entry.setCategoryId(element.get("categoryId").asInt()); 
+                            String updatedTimestamp = element.get("updated").asText();
+                            entry.setLastModified(LocalDateTime.parse(updatedTimestamp, DateTimeFormatter.ISO_DATE_TIME));
+                            if (element.has("file")) {
+ 
+                            }
+
+                            results.add(entry);
+                        }
+                    }
+                }
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        } else {
+            logger.info("Failed to fetch homework questions data.");
+        }
+
+        return results;
     }
 
 

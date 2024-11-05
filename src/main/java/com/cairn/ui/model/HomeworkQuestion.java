@@ -1,5 +1,7 @@
 package com.cairn.ui.model;
 
+import java.time.LocalDateTime;
+
 import org.springframework.web.multipart.MultipartFile;
 
 public class HomeworkQuestion {
@@ -7,12 +9,14 @@ public class HomeworkQuestion {
     private String questionAbbreviation;
     private String question;
     private String questionType;
+    private int categoryId;
     private boolean isRequired;
     private boolean isTriggeringReponse;
     private HomeworkResponse triggerResponse;
     private int triggerProtocolId;
     private String status;
     private String userResponse;
+    private LocalDateTime lastModified;
     private MultipartFile file;
     private ExpectedHomeworkResponses expectedHomeworkResponses;
 
@@ -101,6 +105,18 @@ public class HomeworkQuestion {
 	}
 	public void setTriggerProtocolId(int triggerProtocolId) {
 		this.triggerProtocolId = triggerProtocolId;
+	}
+	public int getCategoryId() {
+		return categoryId;
+	}
+	public void setCategoryId(int categoryId) {
+		this.categoryId = categoryId;
+	}
+	public LocalDateTime getLastModified() {
+		return lastModified;
+	}
+	public void setLastModified(LocalDateTime lastModified) {
+		this.lastModified = lastModified;
 	}
 }
 
