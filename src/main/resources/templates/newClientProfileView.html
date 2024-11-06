@@ -10,30 +10,40 @@
 
 <div class="container">
   <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
+  <div class="container">
+    <div class="row">
+    <!-- Household Note Card -->
+      <div id="householdSection" class="note_card col-md-5 mb-3">
+      <fieldset>
+        <legend th:text="${household.name}">Household</legend>
 
-  <div id="householdSection" class="note_card">
-    <fieldset>
-      <legend>Household</legend>
-      <div class="row mb-3">
-        <div class="col-md-3">
-          <label>Name:</label>
-          <span th:text="${household.name}"></span>
-        </div>
-      </div>
-      <div class="row mb-3" th:if="${primaryContact != null}">
-        <div class="col-md-3">
-          <label>Primary Contact:</label>
-          <span th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
-        </div>
-        <div class="col-md-3">
-          <label>Email:</label>
-          <span th:text="${primaryContact.email}"></span>
-        </div>
-        <div class="row mb-3" th:if="${primaryContact == null}">
-          <div class="col-md-12">
+        <!-- Primary Contact Section -->
+        <div class="row mb-3">
+          <!-- Primary Contact Row -->
+          <div class="col-md-12" th:if="${primaryContact != null}">
+            <label>Primary Contact:</label>
+            <span th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
+          </div>
+
+          <!-- Email Row -->
+          <div class="col-md-12" th:if="${primaryContact != null}">
+            <label>Email:</label>
+            <span th:text="${primaryContact.email}"></span>
+          </div>
+
+          <!-- Phone Number Row -->
+          <div class="col-md-12" th:if="${primaryContact != null}">
+            <label>Phone Number:</label>
+            <span th:text="${primaryContact.phoneNumber}"></span>
+          </div>
+
+          <!-- No Primary Contact Message -->
+          <div class="col-md-12" th:if="${primaryContact == null}">
             <p>No primary contact available</p>
           </div>
         </div>
+
+        <!-- CoClients Table -->
         <div class="row mb-3">
           <div class="col-md-12">
             <table class="table">
@@ -47,28 +57,39 @@
               <tr th:each="coclient : ${coclients}">
                 <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
                 <td>
-                  <a class="btn btn-sm btn-secondary"
-                     th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
-                  <a class="btn btn-sm btn-secondary"
-                     th:href="${'javascript:makePrimaryContact(' + coclient.id + ');'}">Make
-                    Primary Contact</a>
-                  <a class="btn btn-sm btn-default"
-                     th:href="${'javascript:removeCoClient(' + coclient.id + ');'}">Remove
-                    CoClient</a>
+                  <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
+                  <a class="btn btn-sm btn-secondary" th:href="${'javascript:makePrimaryContact(' + coclient.id + ');'}">Make Primary Contact</a>
+                  <a class="btn btn-sm btn-default" th:href="${'javascript:removeCoClient(' + coclient.id + ');'}">Remove CoClient</a>
                 </td>
-
               </tr>
               </tbody>
             </table>
           </div>
         </div>
-        <button onclick="history.back()" class="btn btn-primary">Back</button>
-        <br>
-      </div>
-    </fieldset>
-  </div>
+        <div class="row">
+          <div class="col-md-12">
+            <button onclick="history.back()" class="btn btn-primary">Back</button>
+          </div>
+        </div>
+      </fieldset>
+    </div>
 
-  <div class="note_card" id="coclientSection">
+    <div class="col-md-6 mb-3">
+      <div class="note_card">
+        <fieldset>
+          <legend>Dependents</legend>
+
+        </fieldset>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="container">
+  <div class="note_card " id="coclientSection">
     <fieldset>
       <legend>CoClients</legend>
 
@@ -106,6 +127,125 @@
   </div>
 </div>
 
+  <div class="container">
+    <div class="note_card">
+      <fieldset>
+        <legend>Assigned Protocols</legend>
+        <div class="row">
+          <div class="col-3">
+            <button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
+            <button type="button" class="btn btn-primary" onclick="viewHistory();">View All
+              Protocols</button>
+          </div>
+          <div id="protocolContainer" class="container"></div>
+        </div><br />
+        <ul class="nav nav-tabs">
+          <li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#"
+                                      onclick="filterProtocolsByStatus('IN_PROGRESS'); setActive(this);return false;">Active Protocols</a></li>
+          <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+                                      onclick="filterProtocolsByStatus('COMPLETED'); setActive(this); return false;">Completed Protocols</a></li>
+          <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+                                      onclick="filterProtocolsByStatus('ARCHIVED'); setActive(this); return false;">Archived Protocols</a></li>
+          <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+                                      onclick="filterProtocolsByStatus('all'); setActive(this); return false;">All</a></li>
+        </ul>
+        <div class="row">
+          <div class="col-2">
+            <input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols..."><br/>
+          </div>
+        </div>
+        <div class="row container" id="protocolContent">
+          <!-- Display Assigned Protocols -->
+          <div th:each="pcol, status: ${householdProtocols}" th:id="|row_${pcol.id}|"
+               class="note_card col-md-5" th:data-type="${pcol.status}" data-current-back="back_1">
+            <a href="#" th:onclick="'viewProtocol(' + ${pcol.id} + ');'">
+
+              <div class="flip-card">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front" id="front">
+                    <div class="container">
+                      <div class="row" th:text="${pcol.name}"></div>
+                      <hr />
+                      <div class="row">
+                        <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
+                        <div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
+                      </div>
+                      <div class="row">
+                        <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|">
+                        </div>
+                        <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|">
+                        </div>
+                      </div>
+                      <div class='row' th:text="|Description: ${pcol.description}"></div>
+                      <hr />
+                      <!-- Actionable Items Section -->
+                      <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}"
+                          th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}">
+                      </li>
+                    </div>
+                  </div>
+
+                  <div class="flip-card-back" id="back_1">
+                    <div class="container">
+
+                      <p>Education:</p>
+                      <ul id="ed_${pcol.id}">
+                        <li th:each="step : ${pcol.steps}"
+                            th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
+													<span
+                                                            th:text="${step.name + ' - ' +
+			                                        (step.status == 'TODO' ? 'To Do' :
+			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' :
+			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="flip-card-back" id="back_2" style="display: none">
+                    <div class="container">
+                      <p>Homework:</p>
+                      <ul th:id="'homeworkList_' + ${pcol.id}"></ul>
+                    </div>
+                  </div>
+                  <div class="flip-card-back" id="back_3" style="display: none">
+                    <div class="container">
+
+                      <p>Analysis:</p>
+                      <ul id="ed_${pcol.id}">
+                        <li th:each="step : ${pcol.steps}"
+                            th:if="${step.status != 'DONE' && step.categoryName == 'Run Analysis'}">
+													<span
+                                                            th:text="${step.name + ' - ' +
+			                                        (step.status == 'TODO' ? 'To Do' :
+			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' :
+			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+            <div class="col-md-12">
+              <button type="button" class="btn btn-secondary"
+                      onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
+              <button type="button" class="btn btn-secondary"
+                      th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_1\', ' + ${pcol.id} + ')'">Education</button>
+              <button type="button" class="btn btn-secondary"
+                      th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_2\', ' + ${pcol.id} + ')'">Homework</button>
+              <button type="button" class="btn btn-secondary"
+                      th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_3\', ' + ${pcol.id} + ')'">Analysis</button>
+            </div>
+          </div>
+
+        </div>
+      </fieldset>
+    </div>
+  </div>
+
+</div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script th:inline="javascript">
@@ -114,6 +254,33 @@
   function editClient(id) {
     window.location.href = '/changeClientInfo/' + id;
   }
+  function flipCard(card) {
+    if (card) {
+      card.classList.toggle('do-flip');
+    } else {
+      console.error("No card element found");
+    }
+  }
+  function viewProtocol(id) {
+    window.location = '/viewProtocol/' + id + '/' + clientId;
+  }
+
+  function changeBackAndFlip(noteCard, newBackId, protocolId) {
+    var card = noteCard.querySelector('.flip-card');
+    var front = card.querySelector(".flip-card-front");
+    var currentBackId = noteCard.getAttribute('data-current-back');
+    var currentBack = card.querySelector("#" + currentBackId);
+    var newBack = card.querySelector("#" + newBackId);
+
+    if (currentBack) {
+      currentBack.style.display = "none"; // hide current back
+    }
+    if (newBack) {
+      newBack.style.display = "block"; // show new back
+    } else {
+      console.error('New back element not found:', newBackId);
+    }
+    }
 
   function loadCoClientData(coclientId) {
     $.ajax({

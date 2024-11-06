@@ -14,16 +14,17 @@ public class User {
 	private String authToken;
 	private String role; // this is being phased out 
 	private String phoneNumber;
+	private String address;
 	private User coclient;
 	private int householdId;
 	private int guardianId;
 	private ArrayList<String> roles = new ArrayList<String>();
-	private ArrayList<User> dependents = new ArrayList<User>();	
+	private ArrayList<User> dependents = new ArrayList<User>();
 	private ArrayList<String> permissions = new ArrayList<String>();
 
 	public boolean isAdmin() {
 		boolean returnValue = false;
-		
+
 		for(String role : roles) {
 			if (role.equals("ADMIN")) {
 				returnValue = true;
@@ -31,7 +32,7 @@ public class User {
 		}
 		return returnValue;
 	}
-	
+
 	public String getVerifypassword() {
 		return verifyPwd;
 	}
@@ -43,15 +44,23 @@ public class User {
 	public void addPermission(String perm) {
 		this.permissions.add(perm);
 	}
-	
+
 	public ArrayList<String> getPermissions() {
 		return this.permissions;
 	}
-	
+
 	private Date lastLogin;
 	private Date created;
 	private Date updated;
-	
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+
 	/**
 	 * @return the id
 	 */
