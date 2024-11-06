@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.cairn.ui.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.model.Protocol;
-import com.cairn.ui.model.ProtocolComments;
-import com.cairn.ui.model.ProtocolStep;
-import com.cairn.ui.model.ProtocolStepNote;
-import com.cairn.ui.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,7 +30,7 @@ public class ProtocolHelper {
 
 	/**
 	 * Get a list of available protocols
-	 * 
+	 *
 	 * @return
 	 */
 	public ArrayList<Protocol> getList(User usr) {
@@ -96,7 +92,7 @@ public class ProtocolHelper {
 	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 	    if (!jsonResponse.isEmpty()) {
 	        ObjectMapper objectMapper = new ObjectMapper();
-	        
+
 	        try {
 	            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 	            JsonNode prots = jsonNode.get("protocols");
@@ -187,6 +183,37 @@ public class ProtocolHelper {
 	        }
 	    }
 	    return results;
+	}
+
+	public ArrayList<Protocol> getProtocolsByUserId(User usr, int userId) {
+		ArrayList<Protocol> results = new ArrayList<>();
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/user/" + userId;
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			try {
+				JsonNode rootNode = objectMapper.readTree(jsonResponse);
+				if (rootNode.isArray()) {
+					for (JsonNode element : rootNode) {
+						Protocol protocol = new Protocol();
+						protocol.setId(element.has("id") && !element.get("id").isNull() ? element.get("id").intValue() : -1);
+						protocol.setName(element.has("name") && !element.get("name").isNull() ? element.get("name").asText() : "null");
+						protocol.setDescription(element.has("description") && !element.get("description").isNull() ? element.get("description").asText() : "null");
+						protocol.setGoal(element.has("goal") && !element.get("goal").isNull() ? element.get("goal").asText() : "No Goal Set");
+						protocol.setProgress(element.has("goalProgress") && !element.get("goalProgress").isNull() ? element.get("goalProgress").asText() : "None");
+						protocol.setStatus(element.has("status") && !element.get("status").isNull() ? element.get("status").asText() : "null");
+						results.add(protocol);
+					}
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return results;
 	}
 
 

@@ -238,6 +238,20 @@ public class UserHelper {
                 result.setLastName(jsonNode.path("lastName").asText(null));
                 result.setUsername(jsonNode.path("username").asText(null));
                 result.setEmail(jsonNode.path("email").asText(null));
+                if(jsonNode.has("address")&&!jsonNode.get("address").isNull()) {
+                    result.setAddress(jsonNode.path("address").asText());
+                }
+                else {
+                    result.setAddress("1600 Pennsylvania Avenue");
+                }
+                if(jsonNode.has("phone")&&!jsonNode.get("phone").isNull()) {
+                    result.setPhoneNumber(jsonNode.path("phone").asText());
+                }
+                else {
+                    result.setPhoneNumber("615-867-5309");
+                }
+
+
                 if(jsonNode.has("householdId")&& !jsonNode.get("householdId").isNull()) {
                 	result.setHouseholdId(jsonNode.path("householdId").asInt());
                 }

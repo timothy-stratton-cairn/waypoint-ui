@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.cairn.ui.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,26 +58,6 @@ import com.cairn.ui.helper.ProtocolStepTemplateHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
-import com.cairn.ui.model.AssignedHomeworkResponse;
-import com.cairn.ui.model.AssignedHomeworkResponseList;
-import com.cairn.ui.model.ExpectedHomeworkResponses;
-import com.cairn.ui.model.Homework;
-import com.cairn.ui.model.HomeworkQuestion;
-import com.cairn.ui.model.HomeworkQuestionsTemplate;
-import com.cairn.ui.model.HomeworkResponse;
-import com.cairn.ui.model.HomeworkTemplate;
-import com.cairn.ui.model.Household;
-import com.cairn.ui.model.PasswordRequest;
-import com.cairn.ui.model.Protocol;
-import com.cairn.ui.model.ProtocolComments;
-import com.cairn.ui.model.ProtocolReport;
-import com.cairn.ui.model.ProtocolStats;
-import com.cairn.ui.model.ProtocolStep;
-import com.cairn.ui.model.ProtocolStepTemplate;
-import com.cairn.ui.model.ProtocolTemplate;
-import com.cairn.ui.model.ReportStat;
-import com.cairn.ui.model.User;
-import com.cairn.ui.model.UserDAO;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -152,11 +133,11 @@ public class MainController {
 		        try {
 		            Date dueDate = dateFormat.parse(dueDateStr);
 		            int completionPercent = Integer.parseInt(pcol.getCompletionPercent());
-		            
+
 		            if (dueDate.after(currentDate) && dueDate.before(upcomingWeek) && completionPercent < 100) {
 		                upcomingPcol.add(pcol);
 		            }
-		           
+
 		            if (dueDate.before(currentDate) && completionPercent < 100 && pcol.getStatus().contains("IN_PROGRESS")) {
 		                logger.info("Protocol: " + pcol.getName() + " is past due with a completion percentage of: " + completionPercent);
 		                upcomingPcol.add(pcol);
@@ -171,10 +152,10 @@ public class MainController {
 		}
 		ArrayList<ProtocolStats> stats = helper.getDashboard(usr);
 		ArrayList<Household> households = userHelper.getHouseholdList(usr);
-			
+
 			// logger.info("Temp ID: " + stat.getTemplateId() + " Number Of Steps: "+
 			// stat.getNumSteps() + " Progress: " + stat.getProgress());
-	
+
 
 		session.setAttribute("me", usr);
 		model.addAttribute("householdId",householdId);
@@ -249,7 +230,7 @@ public class MainController {
 
 	/**
 	 * Handle a request to view the Protocol details.
-	 * 
+	 *
 	 * @return
 	 */
 	@GetMapping("/viewProtocol/{pcolId}/{userId}")
@@ -299,7 +280,7 @@ public class MainController {
 		// Return the HTML snippet for the steps portion
 		return "protocolDetail :: #stepsContent";
 	}
-	
+
     @GetMapping("/clientProfile/household/{clientId}")
     public String getHouseholdSection(@PathVariable int clientId, Model model) {
         // Add necessary model attributes for household section
@@ -315,10 +296,10 @@ public class MainController {
         model.addAttribute("protocolList", protocolHelper.getAssignedProtocols(currentUser, clientId));
         return "protocolDetail :: #protocolSection";
     }
-    
+
     @GetMapping("/fragments/protocolDetails/{protocolId}")
     public String getProtocolDetailsFragment(Model model, @PathVariable int protocolId) {
-    	User currentUser = userDAO.getUser(); 
+    	User currentUser = userDAO.getUser();
         Protocol protocol = protocolHelper.getProtocol(currentUser, protocolId);
         ArrayList<ProtocolComments> mostRecentComment = protocol.getComments();
 
@@ -329,7 +310,7 @@ public class MainController {
 
     @GetMapping("/fragments/homework/{protocolId}")
     public String getHomeworkFragment(Model model, @PathVariable int protocolId) {
-    	
+
     	User currentUser = userDAO.getUser();
         List<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser , protocolId);
         model.addAttribute("homeworks", homeworks);
@@ -900,6 +881,89 @@ public class MainController {
 		return "userProfile";
 	}
 
+	@GetMapping("/demoUserProfileView/{user_Id}")
+	public String demoUserProfileView(Model model, @PathVariable int user_Id) {
+		User currentUser = userDAO.getUser();
+		User profileUser = userHelper.getUser(currentUser, user_Id);
+		ArrayList<User> coclients = new ArrayList<User>();
+		if(profileUser.getHouseholdId() > 0) {
+			coclients = userHelper.getHouseholdById(currentUser,profileUser.getHouseholdId()).getHouseholdAccounts();
+		}
+		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, user_Id);
+		ArrayList<Protocol> userProtocols = protocolHelper.getProtocolsByUserId(currentUser, user_Id);
+
+
+		model.addAttribute("coclients", coclients);
+		model.addAttribute("user",profileUser);
+		model.addAttribute("Questions",questionsAndAnswers);
+		model.addAttribute("userProtocols",userProtocols);
+		return "demoUserProfileView";
+
+	}
+
+	@GetMapping("/demoHouseholdView/{id}")
+	public String demoHouseholdView(Model model,@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		Household household = userHelper.getHouseholdById(currentUser, id);
+		User primaryContact = household.getPrimaryContacts().get(0);
+		ArrayList<Protocol> householdProtocols = protocolHelper.getAssignedProtocols(currentUser, id);
+        ArrayList<User> coclients = household.getHouseholdAccounts();
+		int firstCoClientId = coclients.get(0).getId();
+		ArrayList<User> dependents = new ArrayList<>();
+		ArrayList<User> dependantList = new ArrayList<>();
+		ArrayList<Integer> dependantIds = new ArrayList<>();
+		ArrayList<User> clientList = household.getHouseholdAccounts();
+
+		for (User client : clientList) { // Iterate over the copy
+			logger.info("Client: " + client.getFirstName() + " " + client.getLastName() + " Id: " + client.getId());
+			int clientId = client.getId();
+			User detailedUser = userHelper.getUser(currentUser, clientId);
+			if (detailedUser.getDependents().isEmpty()) {
+				logger.info("No dependents");
+			} else {
+				for (User dependant : detailedUser.getDependents()) {
+					logger.info("Dependant Id:" + dependant.getId());
+					if (!dependantIds.contains(dependant.getId()) && !clientList.contains(dependant)) {
+						dependantIds.add(dependant.getId());
+						dependantList.add(dependant);
+					}
+				}
+			}
+		}
+
+		int clientId = household.getId();
+        model.addAttribute("householdProtocols",householdProtocols);
+		model.addAttribute("primaryContact",primaryContact);
+		model.addAttribute("coclients",coclients);
+		model.addAttribute("clientId",clientId);
+        model.addAttribute("dependents",dependantList);
+        model.addAttribute("household",household);
+		model.addAttribute("firstCoClientId",firstCoClientId);
+		return "newClientProfileView";
+	}
+	@GetMapping("/getCoClientQuestionsAndProtocols/{id}")
+	public ResponseEntity<?> getCoClientQuestionsAndProtocols(@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		User coclient = userHelper.getUser(currentUser, id);
+		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, id);
+		Map<String, Object> response = new HashMap<>();
+		response.put("coclient", coclient);
+		response.put("Questions", questionsAndAnswers);
+		return ResponseEntity.ok(response);
+	}
+
+
+	@GetMapping("/demoProtocolView/{id}")
+	public String demoProtocolView(Model model,@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		Protocol protocol = protocolHelper.getProtocol(currentUser, id);
+		QuestionResponsePairListDto assignedQuestions = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, id);
+		System.out.println("Assigned Questions: ");
+		model.addAttribute("protocol", protocol);
+		model.addAttribute("Questions",assignedQuestions);
+		return "demoProtolView";
+	}
+
 	@GetMapping("/changeUserInfo")
 	public String showChangeUserInfoForm(Model model) {
 		User usr = userDAO.getUser();
@@ -1318,7 +1382,7 @@ public class MainController {
 		/*
 		 * for (User user : allUsers) { if (user.getRoles().contains("CLIENT")) {
 		 * clientRoleUserIds.add(user.getId());
-		 * 
+		 *
 		 * } }
 		 */
 
@@ -2595,7 +2659,7 @@ public class MainController {
 		return answer;
 
 	}
-	
+
 	@GetMapping("/newProtocolTemplateDemo")
     public String newProtocolTemplateDemo(Model model) {
 		User usr = (User) userDAO.getUser();
@@ -2622,28 +2686,28 @@ public class MainController {
 		model.addAttribute("allSteps", allSteps);
         return "protocolTemplateDemo2";
     }
-	
+
 	@GetMapping("/getQuestionForm")
     public String getQuestionForm(Model model) {
         // Return only the question form fragment
 		return "fragments/homeworkQuestionDemo :: questionForm";
     }
-	
+
 	@GetMapping("/questionFormPopup")
 	public String showQuestionFormPopup() {
 	    return "homeworkDemoPopout";  // This will load the `questionFormPopup.html`
 	}
-	
+
 	@GetMapping("/demoUserView")
 	public String demoUserView(Model model) {
 		return "demoUserView";
-		
+
 	}
-	
+
 	@GetMapping("/demoUserView2")
 	public String demoUserView2(Model model) {
 		return "demoUserView2";
-		
+
 	}
 
 }
