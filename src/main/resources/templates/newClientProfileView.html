@@ -7,136 +7,161 @@
 </head>
 <body data-client-id="${clientId}">
 <div th:insert="~{header :: main}">...</div>
-
-<div class="container">
+<div class ="container">
+<div class="row">
   <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
-  <div class="container">
-    <div class="row">
-    <!-- Household Note Card -->
-      <div id="householdSection" class="note_card col-md-5 mb-3">
+  <div class="col-md-3">
+    <div id="householdDependentsSection" class="note_card">
       <fieldset>
-        <legend th:text="${household.name}">Household</legend>
+        <legend th:text="${household.name} + ' Summary'">Household Summary</legend>
 
-        <!-- Primary Contact Section -->
-        <div class="row mb-3">
-          <!-- Primary Contact Row -->
-          <div class="col-md-12" th:if="${primaryContact != null}">
-            <label>Primary Contact:</label>
-            <span th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs" id="householdDependentsTabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link nav-tab-link active" id="household-tab" data-toggle="tab" href="#household" role="tab" aria-controls="household" aria-selected="true">Household</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-tab-link" id="dependents-tab" data-toggle="tab" href="#dependents" role="tab" aria-controls="dependents" aria-selected="false">Dependents</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-tab-link" id="coclients-tab" data-toggle="tab" href="#coclients" role="tab" aria-controls="coclients" aria-selected="false">CoClients</a>
+          </li>
+        </ul>
+
+        <!-- Tabs Content -->
+        <div class="tab-content" id="householdDependentsTabContent">
+
+          <!-- Household Tab Pane -->
+          <div class="tab-pane fade show active" id="household" role="tabpanel" aria-labelledby="household-tab">
+            <div class="row mb-3">
+              <div class="col-md-12" th:if="${primaryContact != null}">
+                <label>Primary Contact:</label>
+                <span th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
+              </div>
+              <div class="col-md-12" th:if="${primaryContact != null}">
+                <label>Email:</label>
+                <span th:text="${primaryContact.email}"></span>
+              </div>
+              <div class="col-md-12" th:if="${primaryContact != null}">
+                <label>Phone Number:</label>
+                <span th:text="${primaryContact.phoneNumber}"></span>
+              </div>
+              <div class="col-md-12" th:if="${primaryContact == null}">
+                <p>No primary contact available</p>
+              </div>
+            </div>
           </div>
 
-          <!-- Email Row -->
-          <div class="col-md-12" th:if="${primaryContact != null}">
-            <label>Email:</label>
-            <span th:text="${primaryContact.email}"></span>
+          <!-- Dependents Tab Pane -->
+          <div class="tab-pane fade" id="dependents" role="tabpanel" aria-labelledby="dependents-tab">
+            <div class="list-group">
+              <div th:each="dependent, iterStat : ${dependents}"
+                   th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'"
+                   class="form-group row">
+                <div class="row">
+                  <div class="col-md-6">
+                    <span th:text="${dependent.firstName}">First Name</span>
+                  </div>
+                  <div class="col-md-6">
+                    <span th:text="${dependent.lastName}">Last Name</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Phone Number Row -->
-          <div class="col-md-12" th:if="${primaryContact != null}">
-            <label>Phone Number:</label>
-            <span th:text="${primaryContact.phoneNumber}"></span>
+          <!-- CoClients Tab Pane -->
+          <div class="tab-pane fade" id="coclients" role="tabpanel" aria-labelledby="coclients-tab">
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <table class="table">
+                  <thead>
+                  <tr>
+                    <th>CoClients</th>
+                    <th>Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="coclient : ${coclients}">
+                    <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
+                    <td>
+                      <a class="btn btn-sm btn-secondary" href="javascript:void(0);" th:onclick="|editClient(${coclient.id});|">Edit</a>
+                      <a class="btn btn-sm btn-secondary" href="javascript:void(0);" th:onclick="|makePrimaryContact(${coclient.id});|">Make Primary Contact</a>
+                      <a class="btn btn-sm btn-default" href="javascript:void(0);" th:onclick="|removeCoClient(${coclient.id});|">Remove CoClient</a>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
-          <!-- No Primary Contact Message -->
-          <div class="col-md-12" th:if="${primaryContact == null}">
-            <p>No primary contact available</p>
-          </div>
-        </div>
-
-        <!-- CoClients Table -->
-        <div class="row mb-3">
-          <div class="col-md-12">
-            <table class="table">
-              <thead>
-              <tr>
-                <th>CoClients</th>
-                <th>Action</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr th:each="coclient : ${coclients}">
-                <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
-                <td>
-                  <a class="btn btn-sm btn-secondary" th:href="${'javascript:editClient(' + coclient.id + ');'}">Edit</a>
-                  <a class="btn btn-sm btn-secondary" th:href="${'javascript:makePrimaryContact(' + coclient.id + ');'}">Make Primary Contact</a>
-                  <a class="btn btn-sm btn-default" th:href="${'javascript:removeCoClient(' + coclient.id + ');'}">Remove CoClient</a>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <button onclick="history.back()" class="btn btn-primary">Back</button>
-          </div>
         </div>
       </fieldset>
     </div>
+  </div>
 
-    <div class="col-md-6 mb-3">
-      <div class="note_card">
+
+
+
+  <!-- Column B: CoClients (col-md-8) -->
+    <div class="col-md-8">
+      <div class="note_card mb-3" id="coclientSection">
         <fieldset>
-          <legend>Dependents</legend>
+          <legend>CoClients</legend>
 
+          <!-- CoClient Tabs -->
+          <ul class="nav nav-tabs coclient-tabs" id="coclientTabs">
+            <li class="nav-item" th:each="coclient : ${coclients}">
+              <a class="nav-link nav-tab-link" href="javascript:void(0);"
+                 th:text="${coclient.firstName + ' ' + coclient.lastName}"
+                 th:onclick="|loadCoClientData(${coclient.id});|">CoClient</a>
+            </li>
+          </ul>
+
+          <!-- Question Tabs -->
+          <ul class="nav nav-tabs question-tabs" id="questionTabs">
+            <li class="nav-item"><a class="nav-link  nav-link-dep active" href="#" onclick="loadQuestions(0); return false;">All</a></li>
+            <li class="nav-item"><a class="nav-link  nav-link-dep" href="#" onclick="loadQuestions(1); return false;">Personal</a></li>
+            <li class="nav-item"><a class="nav-link  nav-link-dep" href="#" onclick="loadQuestions(2); return false;">Family</a></li>
+            <li class="nav-item"><a class="nav-link  nav-link-dep" href="#" onclick="loadQuestions(3); return false;">Goals</a></li>
+            <li class="nav-item"><a class="nav-link  nav-link-dep" href="#" onclick="loadQuestions(4); return false;">Insurance</a></li>
+            <li class="nav-item"><a class="nav-link  nav-link-dep" href="#" onclick="loadQuestions(5); return false;">Investments</a></li>
+            <li class="nav-item"><a class="nav-link  nav-link-dep" href="#" onclick="loadQuestions(6); return false;">Assets</a></li>
+            <li class="nav-item"><a class="nav-link  nav-link-dep" href="#" onclick="loadQuestions(7); return false;">Liabilities</a></li>
+          </ul>
+
+
+
+          <!-- Content Section for CoClient Information and Homework Questions -->
+          <div class="tab-content mt-3" id="coclientContent">
+            <div id="coclientInfo" class="mb-3">
+              <p><strong>Name:</strong> <span id="coclientName"></span></p>
+              <p><strong>Email:</strong> <span id="coclientEmail"></span></p>
+            </div>
+
+            <div id="questionListContainer">
+              <ul class="list-group">
+                <li class="list-group-item bg-light font-weight-bold">
+                  <div class="row">
+                    <div class="col-md-6">Question</div>
+                    <div class="col-md-4">Response</div>
+                    <div class="col-md-2">Last Updated</div>
+                  </div>
+                </li>
+                <li class="list-group-item question-item" id="questionsList"></li>
+              </ul>
+            </div>
+          </div>
         </fieldset>
       </div>
     </div>
   </div>
-</div>
-
-
-
-
-<div class="container">
-  <div class="note_card " id="coclientSection">
-    <fieldset>
-      <legend>CoClients</legend>
-
-      <!-- CoClient Tabs -->
-      <ul class="nav nav-tabs" id="coclientTabs" role="tablist">
-        <li class="nav-item" th:each="coclient : ${coclients}">
-          <a class="nav-link" href="javascript:void(0);"
-             th:text="${coclient.firstName + ' ' + coclient.lastName}"
-             th:onclick="|loadCoClientData(${coclient.id});|">CoClient</a>
-        </li>
-      </ul>
-
-      <!-- Content Section for CoClient Information and Homework Questions -->
-      <div class="tab-content mt-3" id="coclientContent">
-        <div id="coclientInfo" class="mb-3">
-          <p><strong>Name:</strong> <span id="coclientName"></span></p>
-          <p><strong>Email:</strong> <span id="coclientEmail"></span></p>
-        </div>
-
-        <div id="questionListContainer">
-          <ul class="list-group">
-            <li class="list-group-item bg-light font-weight-bold">
-              <div class="row">
-                <div class="col-md-6">Question</div>
-                <div class="col-md-3">Response</div>
-                <div class="col-md-2">Protocol</div>
-                <div class="col-md-1">Last Updated</div>
-              </div>
-            </li>
-            <li class="list-group-item question-item" id="questionsList"></li>
-          </ul>
-        </div>
-      </div>
-    </fieldset>
-  </div>
-</div>
-
-  <div class="container">
-    <div class="note_card">
+  <div class="row">
+    <div class="col-md-11 note_card">
       <fieldset>
         <legend>Assigned Protocols</legend>
         <div class="row">
-          <div class="col-3">
-            <button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button>
-            <button type="button" class="btn btn-primary" onclick="viewHistory();">View All
-              Protocols</button>
-          </div>
           <div id="protocolContainer" class="container"></div>
         </div><br />
         <ul class="nav nav-tabs">
@@ -164,7 +189,9 @@
                 <div class="flip-card-inner">
                   <div class="flip-card-front" id="front">
                     <div class="container">
-                      <div class="row" th:text="${pcol.name}"></div>
+                      <div class="row">
+                        <span th:text="${pcol.name}"></span>
+                      </div>
                       <hr />
                       <div class="row">
                         <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
@@ -189,7 +216,7 @@
                     <div class="container">
 
                       <p>Education:</p>
-                      <ul id="ed_${pcol.id}">
+                      <ul eId="ed_${pcol.id}">
                         <li th:each="step : ${pcol.steps}"
                             th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
 													<span
@@ -242,18 +269,21 @@
       </fieldset>
     </div>
   </div>
-
 </div>
 </div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
 <script th:inline="javascript">
   var firstCoClientId = [[${firstCoClientId}]];
+  var clientId = [[${clientId}]];
 
   function editClient(id) {
     window.location.href = '/changeClientInfo/' + id;
   }
+
   function flipCard(card) {
     if (card) {
       card.classList.toggle('do-flip');
@@ -261,8 +291,124 @@
       console.error("No card element found");
     }
   }
+
   function viewProtocol(id) {
     window.location = '/viewProtocol/' + id + '/' + clientId;
+  }
+
+  function changeBackAndFlip(noteCard, newBackId, protocolId) {
+    var card = noteCard.querySelector('.flip-card');
+    var currentBackId = noteCard.getAttribute('data-current-back');
+    var currentBack = card.querySelector("#" + currentBackId);
+    var newBack = card.querySelector("#" + newBackId);
+
+    if (currentBack) {
+      currentBack.style.display = "none"; // hide current back
+    }
+    if (newBack) {
+      newBack.style.display = "block"; // show new back
+    } else {
+      console.error('New back element not found:', newBackId);
+    }
+  }
+
+  function setActive(ctrl) {
+    // Scoped active class within tab-container to avoid conflicts with navbar
+    const activeTab = document.querySelector('.tab-container .nav-tab-link.active');
+    if (activeTab) {
+      activeTab.classList.remove('active');
+    }
+    ctrl.classList.add('active');
+  }
+
+  function filterProtocolsByStatus(status) {
+    const protocols = document.querySelectorAll('#protocolContent > div');
+    let visibleProtocolsCount = 0;
+
+    protocols.forEach(protocol => {
+      if (protocol.getAttribute('data-type') != null && (status === 'all' || protocol.getAttribute('data-type') === status)) {
+        protocol.style.display = '';
+        visibleProtocolsCount++;
+      } else {
+        protocol.style.display = 'none';
+      }
+    });
+
+    const noProtocolsMessage = document.getElementById('noProtocolsMessage');
+    if (visibleProtocolsCount === 0) {
+      if (!noProtocolsMessage) {
+        const message = document.createElement('div');
+        message.id = 'noProtocolsMessage';
+        message.className = 'alert alert-warning';
+        message.textContent = 'No protocols found for this status';
+        document.getElementById('protocolContent').appendChild(message);
+      } else {
+        noProtocolsMessage.style.display = '';
+      }
+    } else if (noProtocolsMessage) {
+      noProtocolsMessage.style.display = 'none';
+    }
+  }
+
+  function loadCoClientData(coclientId) {
+    $.ajax({
+      url: `/getCoClientQuestionsAndProtocols/${coclientId}`,
+      type: "GET",
+      success: function(data) {
+        $('#coclientName').text(data.coclient.firstName + ' ' + data.coclient.lastName);
+        $('#coclientEmail').text(data.coclient.email);
+
+        $('#questionsList').empty();
+        data.Questions.questions.forEach(function(questionResponse) {
+          $('#questionsList').append(`
+            <li class="list-group-item question-item" data-category-id="${questionResponse.question.categoryId}">
+              <div class="row">
+                <div class="col-md-6"><strong>${questionResponse.question.question}</strong></div>
+                <div class="col-md-4">${questionResponse.response ? questionResponse.response.response : 'NEEDS ATTENTION'}</div>
+                <div class="col-md-2">${questionResponse.question.updated || 'N/A'}</div>
+              </div>
+            </li>
+          `);
+        });
+
+        // Automatically load "All" questions by default
+        loadQuestions(0);
+      },
+      error: function() {
+        alert('Failed to load CoClient data.');
+      }
+    });
+  }
+
+  function loadQuestions(categoryId) {
+    $('.question-item').each(function() {
+      const questionCategoryId = $(this).data('category-id');
+      if (questionCategoryId === undefined) {
+        return; // Skip to the next item
+      }
+      $(this).toggle(categoryId === 0 || questionCategoryId == categoryId);
+    });
+  }
+  function makePrimaryContact(coClientId) {
+    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    $.ajax({
+      url: `/promoteToPrimaryContact/${clientId}/${coClientId}`,
+      type: 'PATCH',
+      headers: {
+        'Accept': 'text/plain',
+        'Content-Type': 'application/json',
+        [csrfHeader]: csrfToken
+      },
+      success: function (response) {
+        showMessageBanner('Primary Contact updated successfully', 'success');
+        location.reload();
+      },
+      error: function (xhr, status, error) {
+        showMessageBanner('Failed to update Primary Contact. Error: ' + xhr.responseText, 'danger');
+      }
+    });
   }
 
   function changeBackAndFlip(noteCard, newBackId, protocolId) {
@@ -280,40 +426,54 @@
     } else {
       console.error('New back element not found:', newBackId);
     }
+
+
+
+    front.style.display = "block"; // show the front
+
+    // Update the current back
+    noteCard.setAttribute('data-current-back', newBackId);
+
+    // Fetch homework data if switching to back_2
+    if (newBackId === 'back_2') {
+      fetchHomework(protocolId);
     }
-
-  function loadCoClientData(coclientId) {
-    $.ajax({
-      url: `/getCoClientQuestionsAndProtocols/${coclientId}`,
-      type: "GET",
-      success: function(data) {
-        $('#coclientName').text(data.coclient.firstName + ' ' + data.coclient.lastName);
-        $('#coclientEmail').text(data.coclient.email);
-
-        $('#questionsList').empty();
-        data.Questions.questions.forEach(function(questionResponse) {
-          $('#questionsList').append(`
-            <li class="list-group-item">
-              <div class="row">
-                <div class="col-md-6"><strong>${questionResponse.question.question}</strong></div>
-                <div class="col-md-3">${questionResponse.response ? questionResponse.response.response : 'NEEDS ATTENTION'}</div>
-                <div class="col-md-2">${questionResponse.protocol.name}</div>
-                <div class="col-md-1">${questionResponse.question.updated || 'N/A'}</div>
-              </div>
-            </li>
-          `);
-        });
-      },
-      error: function() {
-        alert('Failed to load CoClient data.');
-      }
-    });
   }
+  function removeCoClient(coClientId) {
+    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
+    if (confirm("Are you sure you want to remove this CoClient?")) {
+      $.ajax({
+        url: `/removeCoClient/${clientId}/${coClientId}`,
+        type: 'PATCH',
+        headers: {
+          'Accept': 'text/plain',
+          'Content-Type': 'application/json',
+          [csrfHeader]: csrfToken
+        },
+        success: function (response) {
+          showMessageBanner('CoClient Successfully Removed!', 'success');
+          makePrimaryContact(pcId).then(function () {
+            window.location.reload(); // Reload the page upon successful response
+          }).catch(function (error) {
+            showMessageBanner('Failed to make primary contact. Error: ' + error.message, 'danger');
+          });
+        },
+        error: function (xhr, status, error) {
+          showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
+        }
+      });
+    }
+  }
   $(document).ready(function() {
+    loadQuestions(0);
+    filterProtocolsByStatus('IN_PROGRESS');
     loadCoClientData(firstCoClientId);
   });
 </script>
+
+
 
 </body>
 </html>

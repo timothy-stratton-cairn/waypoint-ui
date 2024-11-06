@@ -910,12 +910,33 @@ public class MainController {
         ArrayList<User> coclients = household.getHouseholdAccounts();
 		int firstCoClientId = coclients.get(0).getId();
 		ArrayList<User> dependents = new ArrayList<>();
+		ArrayList<User> dependantList = new ArrayList<>();
+		ArrayList<Integer> dependantIds = new ArrayList<>();
+		ArrayList<User> clientList = household.getHouseholdAccounts();
 
+		for (User client : clientList) { // Iterate over the copy
+			logger.info("Client: " + client.getFirstName() + " " + client.getLastName() + " Id: " + client.getId());
+			int clientId = client.getId();
+			User detailedUser = userHelper.getUser(currentUser, clientId);
+			if (detailedUser.getDependents().isEmpty()) {
+				logger.info("No dependents");
+			} else {
+				for (User dependant : detailedUser.getDependents()) {
+					logger.info("Dependant Id:" + dependant.getId());
+					if (!dependantIds.contains(dependant.getId()) && !clientList.contains(dependant)) {
+						dependantIds.add(dependant.getId());
+						dependantList.add(dependant);
+					}
+				}
+			}
+		}
 
+		int clientId = household.getId();
         model.addAttribute("householdProtocols",householdProtocols);
 		model.addAttribute("primaryContact",primaryContact);
 		model.addAttribute("coclients",coclients);
-        //model.addAttribute("depedents",dependants);
+		model.addAttribute("clientId",clientId);
+        model.addAttribute("dependents",dependantList);
         model.addAttribute("household",household);
 		model.addAttribute("firstCoClientId",firstCoClientId);
 		return "newClientProfileView";
