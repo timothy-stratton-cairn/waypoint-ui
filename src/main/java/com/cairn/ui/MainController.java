@@ -962,6 +962,7 @@ public class MainController {
 		model.addAttribute("clientId", profileUser.getHouseholdId());
 		model.addAttribute("coclients", coclients);
 		model.addAttribute("user",profileUser);
+		model.addAttribute("userId",user_Id);
 		model.addAttribute("Questions",questionsAndAnswers);
 		model.addAttribute("userProtocols",userProtocols);
 		return "userProfileView";
@@ -1173,6 +1174,7 @@ public class MainController {
 	public String userAdminList(Model model) {
 		User currentUser = userDAO.getUser();
 		ArrayList<User> userList = userHelper.getUserList(currentUser);
+		logger.info("Number of Total users: "+ userList.size());
 		model.addAttribute("userList", userList);
 		return "userAdminList";
 

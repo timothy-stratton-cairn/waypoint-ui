@@ -44,6 +44,10 @@
 								<span th:text="${user.address}">Address</span>
 							</div>
 						</div>
+						<div>
+							<button onclick="history.back()" class="btn btn-primary">Back</button>
+							<!--<button th:onclick="'editUser(' + ${userId} + ')'" class="btn btn-primary">Edit</button>-->
+						</div>
 					</form>
 				</fieldset>
 			</div>
@@ -61,9 +65,11 @@
 							</div>
 
 						</div>
-						<div>
-						<button type="button" class="btn btn-sm btn-secondary" onclick="goToHousehold()">Go To</button>
-					</div>
+
+							<div th:if="${clientId != null and clientId > 0}">
+								<button type="button" class="btn btn-sm btn-secondary" onclick="goToHousehold()">Go To</button>
+							</div>
+
 					</div>
 				</fieldset>
 			</div>
@@ -159,9 +165,9 @@
 							</li>
 							<!-- Dynamic Question Rows -->
 							<li class="list-group-item question-item"
-								th:each="questionResponse : ${Questions.questions}"
-								th:data-category-id="${questionResponse.question.categoryId}"
-								th:data-question-id="${questionResponse.question.getId()}">
+									th:each="questionResponse : ${Questions != null && Questions.questions != null ? Questions.questions : {}}"
+									th:data-category-id="${questionResponse.question.categoryId}"
+									th:data-question-id="${questionResponse.question.getId()}">
 								<div class="row">
 									<div class="col-md-5">
 										<strong th:text="${questionResponse.question.question}">Question Text</strong>
@@ -189,7 +195,11 @@
 <script th:inline="javascript">
 
 	var clientId = [[${clientId}]];
+	var userId = [[${userId}]];
 
+	function editUser(user){
+		window.location.href = `/changeClientInfo/${user}`;
+	}
 	function goToHousehold() {
 		window.location.href = `/clientProfile/ ${clientId}`;
 	}
