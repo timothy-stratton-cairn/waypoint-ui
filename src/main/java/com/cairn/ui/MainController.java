@@ -97,6 +97,8 @@ public class MainController {
 
 	@Autowired
 	private JavaMailSender mailSender;
+  @Autowired
+  private HomeworkQuestionHelper homeworkQuestionHelper;
 
 	@GetMapping("/")
 	public String startPage() {
@@ -261,6 +263,19 @@ public class MainController {
 			mostRecentComment.setComment("No Comments Have been made");
 		}
 
+		int actualUserId =  protocol.getUserId();
+
+		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, userId);
+		if (questionsAndAnswers == null || questionsAndAnswers.getQuestions() == null) {
+			logger.info("No questions or answers found");
+			questionsAndAnswers = new QuestionResponsePairListDto();
+		} else {
+			questionsAndAnswers.getQuestions().removeIf(
+					question -> question.getProtocol() == null || question.getProtocol().getId() != pcolId
+			);
+		}
+
+		model.addAttribute("Questions",questionsAndAnswers);
 		model.addAttribute("mostRecentComment", mostRecentComment.getComment());
 		model.addAttribute("protocol", protocol);
 		model.addAttribute("steps", steps);
@@ -574,25 +589,18 @@ public class MainController {
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
 		List<Household> clientList = userHelper.getHouseholdList(usr);
-		List<ProtocolStepTemplate> fullStepList = new ArrayList<ProtocolStepTemplate>(); // there's a method to this
-																							// madness. getStepList
-																							// doesn't get homeworks
+		List<ProtocolStepTemplate> fullStepList = protocolStepTemplateHelper.getStepList(usr);
+		logger.info("Total Number of Steps: "+ fullStepList.size());
 		int dueByDays = pcol.getDueByDay();
 
-		for (ProtocolStepTemplate step : listSteps) {
-			int stepId = step.getId();
-			ProtocolStepTemplate fullStep = protocolTemplateHelper.getStep(usr, stepId);
-			if (fullStep.getStatus().equals("LIVE")) {
-				fullStepList.add(fullStep);
-			}
-		}
+
 
 		for (ProtocolStepTemplate step : listSteps) {
 			logger.info("Step: " + step.getName() + " CatagoryID: " + step.getCategoryName());
 		}
-
+		model.addAttribute("homeworkQuestionList", homeworkQuestionHelper.getHomeworkQuestionsByProtocolTemplateId(usr, id));
+		model.addAttribute("allQuestionsList", homeworkQuestionHelper.getHomeworkQuestions(usr));
 		model.addAttribute("clientList", clientList);
-
 		model.addAttribute("dueBy", dueByDays);
 		model.addAttribute("protocolId", id);
 		model.addAttribute("protocol", pcol);
@@ -600,6 +608,11 @@ public class MainController {
 		model.addAttribute("allSteps", allSteps);
 		return "displayProtocol";
 	}
+
+
+
+
+
 
 	// Place holders for creating new and saving changes to steps and protocols
 	@GetMapping("/newStep/")
@@ -669,14 +682,58 @@ public class MainController {
 	public String newProtocol(Model model) {
 		User usr = (User) userDAO.getUser();
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
-		ArrayList<HomeworkTemplate> templatelist = this.homeworkTemplateHelper.getList(usr);
-		for (HomeworkTemplate hw : templatelist) {
-			logger.info("Homework ID: " + hw.getId() + " Homework Name: " + hw.getName());
-		}
 
-		model.addAttribute("homework", templatelist);
+		model.addAttribute("allQuestionsList", homeworkQuestionHelper.getHomeworkQuestions(usr));
 		model.addAttribute("allSteps", allSteps);
 		return "newProtocolTemplate";
+	}
+
+	@RequestMapping("/newProtocolTemplateQuestionList/{catId}")
+	public ArrayList<HomeworkQuestion> newProtocolTemplateQuestionList(
+			@PathVariable int catId,
+			@RequestBody Map<String, List<HomeworkQuestion>> requestBody) {
+
+		logger.info("Calling newProtocolTemplateQuestionList");
+		List<HomeworkQuestion> questionList = requestBody.get("questionList");
+		logger.info("CategoryId: {}", catId);
+
+		if (catId < 0) {
+			logger.warn("Invalid Category ID: {}", catId);
+		} else if (catId > 0) {
+			questionList = questionList.stream()
+					.filter(question -> String.valueOf(catId).equals(question.getCategoryId()))
+					.collect(Collectors.toList());
+		}
+
+		logger.info("Filtered records count: {}", questionList.size());
+		return new ArrayList<HomeworkQuestion>(questionList);
+	}
+
+
+
+	@PostMapping("linkHomeworkQuestionsToProtocolTemplate/")
+	public ResponseEntity<String> linkProtocolTemplateToMultipleQuestion(
+			@RequestParam int id,
+			@RequestBody List<Integer> questionIds) {
+
+		if (id <= 0) {
+			return ResponseEntity.badRequest().body("Invalid protocol template ID");
+		}
+		if (questionIds == null || questionIds.isEmpty()) {
+			return ResponseEntity.badRequest().body("Question IDs list cannot be empty");
+		}
+		User usr = (User) userDAO.getUser();
+		for (Integer questionId : questionIds) {
+			try {
+				protocolTemplateHelper.linkHomeworkQuestionAndProtocolTemplate(usr, id, questionId);
+			} catch (Exception e) {
+				logger.info("Error linking question ID [{}] to protocol template ID [{}]: {}", questionId, id, e.getMessage());
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+						.body("Failed to link some question IDs");
+			}
+		}
+		logger.info("Successfully linked questions [{}] to protocol template ID [{}]", questionIds, id);
+		return ResponseEntity.ok("Request processed successfully");
 	}
 
 	@GetMapping("getStep/{id}")
@@ -698,11 +755,18 @@ public class MainController {
 		try {
 			User usr = (User) userDAO.getUser();
 			// logger.info("Due Date: " + requestBody.getDueDate());
-
+			logger.info("Number of HomeworkQuestions: "+requestBody.getQuestions().size());
 			int call = protocolTemplateHelper.newProtocolTemplate(usr, requestBody);
-			if (call == 1) {
+			if (call > 0) {
 				logger.info("Success!");
+
+				for (HomeworkQuestion question: requestBody.getQuestions()) {
+					protocolTemplateHelper.linkHomeworkQuestionAndProtocolTemplate(usr, call, question.getQuestionId());
+				}
+
 				return ResponseEntity.ok("Template processed successfully");
+
+
 			} else {
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 						.body("An error occurred while creating the protocol.");
@@ -739,25 +803,11 @@ public class MainController {
 		int years = updateRequest.getDueByYear();
 		int months = updateRequest.getDueByMonth();
 		int days = updateRequest.getDueByDay();
-		/*
-		 * String description = updateRequest.getDescription(); String name =
-		 * updateRequest.getName(); int sYears = updateRequest.getYearSchedule(); int
-		 * sMonths = updateRequest.getMonthSchedule(); int sDays =
-		 * updateRequest.getDaySchedule();
-		 */
 
 		logger.info("years: " + years + " months: " + months + " days: " + days);
 		logger.info("Type: " + type);
 		try {
 			protocolTemplateHelper.updateProtocolTemplate(usr, id, updateRequest);
-			// protocolTemplateHelper.updateProtocolTemplateDescription(usr, id,
-			// description);
-			// protocolTemplateHelper.updateProtocolTemplateName(usr, id, name);
-			// protocolTemplateHelper.updateProtocolTemplateDueDate(usr, id, years, months,
-			// days);
-			// protocolTemplateHelper.updateProtocolTemplateStatus(usr, id, status);
-			// protocolTemplateHelper.updateProtocolTemplateScheduleDate(usr, id, sYears,
-			// sMonths, sDays);
 			return ResponseEntity.ok("Protocol updated successfully");
 		} catch (Exception e) {
 			logger.info("Error in updateProtocol:");
@@ -809,6 +859,22 @@ public class MainController {
 		model.addAttribute("steps", associatedSteps);
 		model.addAttribute("allSteps", allSteps);
 		return "displayProtocol";
+	}
+
+	@PostMapping("/linkProtocolTemplateAndHomeworkQuestion/{templateId}/{questionId}")
+	public ResponseEntity<String> linkProtocolTemplateToHomeworkQuestion(
+			@PathVariable int templateId,
+			@PathVariable int questionId)
+	{
+		User usr = (User) userDAO.getUser();
+		if (templateId <= 0) {
+			return ResponseEntity.badRequest().body("Invalid protocol template ID");
+		}
+		if (questionId <= 0){
+			return ResponseEntity.badRequest().body("Question IDs list cannot be empty");
+		}
+		protocolTemplateHelper.linkHomeworkQuestionAndProtocolTemplate(usr, templateId, questionId);
+		return ResponseEntity.ok("Request processed successfully");
 	}
 
 	@GetMapping("/protocolTemplates")
@@ -881,7 +947,7 @@ public class MainController {
 		return "userProfile";
 	}
 
-	@GetMapping("/demoUserProfileView/{user_Id}")
+	@GetMapping("/userProfileView/{user_Id}")
 	public String demoUserProfileView(Model model, @PathVariable int user_Id) {
 		User currentUser = userDAO.getUser();
 		User profileUser = userHelper.getUser(currentUser, user_Id);
@@ -891,17 +957,19 @@ public class MainController {
 		}
 		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, user_Id);
 		ArrayList<Protocol> userProtocols = protocolHelper.getProtocolsByUserId(currentUser, user_Id);
-
-
+		logger.info("User: "+ user_Id +" Number of Protocols " +userProtocols.size());
+		System.out.println(userProtocols.size());
+		model.addAttribute("clientId", profileUser.getHouseholdId());
 		model.addAttribute("coclients", coclients);
 		model.addAttribute("user",profileUser);
+		model.addAttribute("userId",user_Id);
 		model.addAttribute("Questions",questionsAndAnswers);
 		model.addAttribute("userProtocols",userProtocols);
-		return "demoUserProfileView";
+		return "userProfileView";
 
 	}
 
-	@GetMapping("/demoHouseholdView/{id}")
+	@GetMapping("/clientProfile/{id}")
 	public String demoHouseholdView(Model model,@PathVariable int id) {
 		User currentUser = userDAO.getUser();
 		Household household = userHelper.getHouseholdById(currentUser, id);
@@ -939,7 +1007,7 @@ public class MainController {
         model.addAttribute("dependents",dependantList);
         model.addAttribute("household",household);
 		model.addAttribute("firstCoClientId",firstCoClientId);
-		return "newClientProfileView";
+		return "clientProfile";
 	}
 	@GetMapping("/getCoClientQuestionsAndProtocols/{id}")
 	public ResponseEntity<?> getCoClientQuestionsAndProtocols(@PathVariable int id) {
@@ -1106,6 +1174,7 @@ public class MainController {
 	public String userAdminList(Model model) {
 		User currentUser = userDAO.getUser();
 		ArrayList<User> userList = userHelper.getUserList(currentUser);
+		logger.info("Number of Total users: "+ userList.size());
 		model.addAttribute("userList", userList);
 		return "userAdminList";
 
@@ -1297,7 +1366,9 @@ public class MainController {
 		return "ProtocolClients";
 	}
 
-	@GetMapping("clientProfile/{clientId}")
+
+	//TODO this will be deleted keeping it around for now while moving everything over to the new page
+	@GetMapping("oldClientProfile/{clientId}")
 	public String clientProfile(@PathVariable int clientId, Model model) {
 		User currentUser = userDAO.getUser();
 		Household household = userHelper.getHouseholdById(currentUser, clientId);
@@ -1421,7 +1492,7 @@ public class MainController {
 		model.addAttribute("protocolList", pcolList);
 		model.addAttribute("assignedProtocols", assignedProtocols);
 
-		return "clientProfile";
+		return "oldClientProfile";
 	}
 
 	/*
@@ -2504,11 +2575,86 @@ public class MainController {
 		for (ProtocolStepTemplate template : stepList) {
 			logger.info("Step: " + template.getName() + " Type: " + template.getCategoryId() + " Type ID: "
 					+ template.getCategoryId() + " Status: " + template.getStatus());
-
 		}
-
 		return ResponseEntity.ok(stepList);
 	}
+
+
+	@GetMapping("/getQuestionsFiltered/{tempId}/{catId}")
+	public ResponseEntity<?> getQuestionsFiltered(@PathVariable int tempId, @PathVariable int catId) {
+		User currentUser = userDAO.getUser();
+		logger.info("Calling getQuestionsFiltered for template id:  "+ tempId + "category id:"+ catId);
+		if (tempId <= 0) {
+			logger.warn("Invalid Protocol Template ID: {}", tempId);
+			return ResponseEntity.badRequest().body("Invalid Protocol Template ID");
+		}
+		List<HomeworkQuestion> questionlist = homeworkQuestionHelper.getHomeworkQuestionsByProtocolTemplateId(currentUser, tempId);
+
+		if (questionlist == null || questionlist.isEmpty()) {
+			logger.info("No questions found for Protocol Template ID: {}", tempId);
+			return ResponseEntity.ok(Collections.emptyList());
+		}
+
+		List<HomeworkQuestion> result;
+		switch (Integer.compare(catId, 0)) {
+			case -1: // catId < 0
+				logger.warn("Invalid Category ID: {}", catId);
+				return ResponseEntity.badRequest().body("Invalid Category ID");
+
+			case 0: // catId == 0
+				logger.info("Returning full list for Protocol Template ID: {}", tempId);
+				result = questionlist;
+				break;
+
+			case 1: // catId > 0
+				logger.info("TempId: {}", tempId);
+				logger.info("CategoryId: {}", catId);
+
+				result = questionlist.stream()
+						.filter(question -> question.getCategoryId() == catId)
+						.collect(Collectors.toList());
+
+				logger.info("Number of records: {}",result.size());
+				break;
+
+			default:
+				throw new IllegalStateException("Unexpected value: " + Integer.compare(catId, 0));
+		}
+		logger.info(result.toString());
+		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping("/getAllQuestionsByCategoryId/{catId}")
+	public ResponseEntity<?> getAllQuestionsByCategoryId(@PathVariable int catId) {
+		User currentUser = userDAO.getUser();
+		ArrayList<HomeworkQuestion> questionlist = homeworkQuestionHelper.getHomeworkQuestions(currentUser);
+		List<HomeworkQuestion> result;
+		switch (Integer.compare(catId, 0)) {
+			case -1: // catId < 0
+				logger.warn("Invalid Category ID: {}", catId);
+				return ResponseEntity.badRequest().body("Invalid Category ID");
+
+			case 0: // catId == 0
+				result = questionlist;
+				break;
+
+			case 1: // catId > 0
+				logger.info("CategoryId: {}", catId);
+
+				result = questionlist.stream()
+						.filter(question -> question.getCategoryId() == catId)
+						.collect(Collectors.toList());
+
+				logger.info("Number of records: {}",result.size());
+				break;
+
+			default:
+				throw new IllegalStateException("Unexpected value: " + Integer.compare(catId, 0));
+		}
+		logger.info(result.toString());
+		return ResponseEntity.ok(result);
+	}
+
 
 	public static String addUserId(ArrayList<User> users, int id) {
 		List<Integer> userIds = new ArrayList<>();

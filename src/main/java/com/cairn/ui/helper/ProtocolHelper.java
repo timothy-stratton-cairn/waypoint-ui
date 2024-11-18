@@ -188,33 +188,45 @@ public class ProtocolHelper {
 	public ArrayList<Protocol> getProtocolsByUserId(User usr, int userId) {
 		ArrayList<Protocol> results = new ArrayList<>();
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/user/" + userId;
+
+		logger.info("Constructed API URL: {}", apiUrl);
 		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 
-		if (!jsonResponse.isEmpty()) {
-			ObjectMapper objectMapper = new ObjectMapper();
-			try {
-				JsonNode rootNode = objectMapper.readTree(jsonResponse);
-				if (rootNode.isArray()) {
-					for (JsonNode element : rootNode) {
-						Protocol protocol = new Protocol();
-						protocol.setId(element.has("id") && !element.get("id").isNull() ? element.get("id").intValue() : -1);
-						protocol.setName(element.has("name") && !element.get("name").isNull() ? element.get("name").asText() : "null");
-						protocol.setDescription(element.has("description") && !element.get("description").isNull() ? element.get("description").asText() : "null");
-						protocol.setGoal(element.has("goal") && !element.get("goal").isNull() ? element.get("goal").asText() : "No Goal Set");
-						protocol.setProgress(element.has("goalProgress") && !element.get("goalProgress").isNull() ? element.get("goalProgress").asText() : "None");
-						protocol.setStatus(element.has("status") && !element.get("status").isNull() ? element.get("status").asText() : "null");
-						results.add(protocol);
-					}
-				}
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		if (jsonResponse == null || jsonResponse.isEmpty()) {
+			logger.error("Empty response from API");
+			return results;
 		}
 
+		logger.info("Raw JSON Response: {}", jsonResponse);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			JsonNode rootNode = objectMapper.readTree(jsonResponse);
+			JsonNode protocolsNode = rootNode.path("protocols");
+
+			if (protocolsNode.isArray()) {
+				for (JsonNode element : protocolsNode) {
+					Protocol protocol = new Protocol();
+					protocol.setId(element.path("id").asInt());
+					protocol.setName(element.path("name").asText("null"));
+					protocol.setDescription(element.path("description").asText("null"));
+					protocol.setGoal(element.path("goal").asText("No Goal Set"));
+					protocol.setProgress(element.path("goalProgress").asText("None"));
+					protocol.setStatus(element.path("status").asText("null"));
+					results.add(protocol);
+				}
+			} else {
+				logger.warn("No protocols array found in response");
+			}
+		} catch (JsonProcessingException e) {
+			logger.error("Error parsing JSON response", e);
+		}
+
+		logger.info("Number of Protocols: {}", results.size());
 		return results;
 	}
+
+
 
 
 
@@ -236,6 +248,7 @@ public class ProtocolHelper {
 	        JsonNode jsonNode;
 	        try {
 	            jsonNode = objectMapper.readTree(jsonResponse);
+				result.setId(id);
 	            result.setName(jsonNode.get("name").asText());
 	            result.setDescription(jsonNode.get("description").asText());
 	            result.setCompletionPercent(jsonNode.get("completionPercentage").asText());

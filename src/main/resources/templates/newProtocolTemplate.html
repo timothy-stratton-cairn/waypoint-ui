@@ -100,6 +100,44 @@
     </div>
 </div>
 
+<div class="container">
+    <div class="row note_card">
+        <fieldset>
+            <legend>Questions</legend>
+            <ul class="nav nav-tabs" id="questionTabs" role="tablist">
+                <li class="nav-item tab"><a class="nav-link active" href="#" onclick="loadQuestions(0)">All</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="loadQuestions(1); return false;">Personal</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="loadQuestions(2); return false;">Family</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="loadQuestions(3); return false;">Goals</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="loadQuestions(4); return false;">Insurance</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="loadQuestions(5); return false;">Investments</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="loadQuestions(6); return false;">Assets</a></li>
+                <li class="nav-item tab"><a class="nav-link" href="#" onclick="loadQuestions(7); return false;">Liabilities</a></li>
+            </ul>
+
+            <div id="homeworkContents" class="mt-3">
+                <!-- Homework Questions will be dynamically loaded here -->
+            </div>
+
+            <div class="new-step-row col-5" id="addQuestionRow" style="display: none; ">
+                <select class="form-control col-9" id="questionDropdown" name="newQuestionId">
+                    <!--  TODO <option value="new">Create Question </option>. Adding this later. -->
+                </select>
+                <button type="button" class="btn btn-secondary col-3" onclick="confirmQuestion(this);">Confirm</button>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="toggleAddQuestionRow();">Add Question</button>
+
+            <div class="col-5"> <!--This might not be nessesary right this second. -->
+                <div id="newQuestionsContainer">
+                    <!-- New questions rows will be appended here -->
+                </div>
+            </div>
+
+        </fieldset>
+    </div>
+</div>
+
 
 <div class="container">
     <div class="row note_card">
@@ -157,55 +195,178 @@
                 <label for="stepDetails">Description:</label>
                 <textarea id="stepDetails" class="form-control" rows="3"></textarea>
             </div>
-            <!-- Homework Form -->
-
-            <legend>Assigned Homework</legend>
-            <div class="table-responsive">
-                <table class="table" id="homeworkTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Remove</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <select class="form-control mt-2" id="homeworkTemplateDropdown">
-                <option value="">Select Homework Template</option>
-                <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
-            </select>
-            <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate()">Add Homework</button>
-
-            <button type="button" class="btn btn-primary" onclick="hideNewStepTemplate()">Cancel</button>
-            <button type="button" class="btn btn-success" onclick="saveStep()">Save Step</button>
         </fieldset>
     </div>
 </div>
 
 <script>
-	
-	const maxHomeworkItems = 1;
-	
-    function editProtocol(id) {
-        window.location = '/editStep/' + id;
+    var questionFilterValue = 0;
+    var questionList = [];
+
+    // Confirm question and update the list
+    function confirmQuestion(buttonElement) {
+        const select = buttonElement.previousElementSibling;
+        const selectedOption = select.options[select.selectedIndex];
+
+        if (selectedOption.value === "new") {
+            document.getElementById('newQuestionTemplate').style.display = 'block';
+        } else {
+            const questionId = selectedOption.value;
+            const questionName = selectedOption.text;
+            const questionCategoryId = selectedOption.getAttribute('data-category');
+
+            // Check if the question already exists in the list
+            const questionExists = questionList.some(q => q.questionId == questionId);
+            if (questionExists) {
+                showMessageBanner('Question is already added.', 'danger');
+                return;
+            }
+
+            // Add the question to the questionList
+            const newQuestion = {
+                questionId: questionId,
+                question: questionName,
+                categoryId: questionCategoryId
+            };
+            questionList.push(newQuestion);
+
+            // Update the displayed question list
+            updateQuestionsList(questionList);
+
+            // Reload questions with the updated list
+            loadQuestions(questionFilterValue);
+
+            showMessageBanner('Question added successfully.', 'success');
+        }
     }
 
-    function disableProtocol(id) {} // not implemented yet
-    
-    function saveprotocol() {
-        window.location = '/newProtocol/';
+    function updateQuestionsList(questionList) {
+        const questionsContent = $('#homeworkContents');
+        questionsContent.empty();
+
+        if (questionList.length === 0) {
+            questionsContent.append('<p>No questions available.</p>');
+            return;
+        }
+
+        questionList.forEach((question, index) => {
+            const rowClass = index % 2 === 0 ? 'even' : 'odd';
+            const questionHtml = `
+            <div id="row_${question.questionId}" class="row ${rowClass}" data-category-id="${question.categoryId}">
+                <div class="col-md-8">${question.question}</div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-secondary" onclick="viewQuestionDetails(${question.questionId});">Details</button>
+                </div>
+            </div>
+        `;
+            questionsContent.append(questionHtml);
+        });
     }
-    
-    function goToClient(id) {
-        window.location.href = '/clientProfile/' + id;
+
+    function loadQuestions(categoryId) {
+        console.log("Filtering Questions Locally by Category: ", categoryId);
+
+        const questionsContent = document.getElementById('homeworkContents');
+        let visibleQuestionsCount = 0;
+
+        questionsContent.innerHTML = '';
+
+        let filteredQuestions = [];
+        if (categoryId === 0) {
+            filteredQuestions = questionList;
+        } else {
+            filteredQuestions = questionList.filter(question => question.categoryId == categoryId);
+        }
+
+        if (filteredQuestions.length > 0) {
+            filteredQuestions.forEach((question, index) => {
+                const rowClass = index % 2 === 0 ? 'even' : 'odd';
+                const questionHtml = `
+                <div id="row_${question.questionId}" class="row ${rowClass}" data-category-id="${question.categoryId}">
+                    <div class="col-md-8">${question.question}</div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-secondary" onclick="viewQuestionDetails(${question.questionId});">Details</button>
+                    </div>
+                </div>
+            `;
+                questionsContent.insertAdjacentHTML('beforeend', questionHtml);
+                visibleQuestionsCount++;
+            });
+        }
+
+        let noQuestionsMessage = document.getElementById('noQuestionsMessage');
+        if (visibleQuestionsCount === 0) {
+            if (!noQuestionsMessage) {
+                const message = document.createElement('div');
+                message.id = 'noQuestionsMessage';
+                message.className = 'alert alert-warning';
+                message.textContent = 'No questions found for this category';
+                questionsContent.appendChild(message);
+            } else {
+                noQuestionsMessage.style.display = ''; // Show existing message
+            }
+        } else if (noQuestionsMessage) {
+            noQuestionsMessage.style.display = 'none'; // Hide message
+        }
     }
-    
-    function goToHomeworkTemplates() {
-        window.location.href = '/homeworkTemplates/';
+
+
+    <!--          Homework Section          -->
+    function loadAllQuestions(categoryId) {
+      console.log("Loading ALL Questions + CategoryID: ", categoryId);
+      if (categoryId === undefined || categoryId === null) {
+          console.error("Invalid categoryId:", categoryId);
+          showMessageBanner('Error: Invalid category selected.', "danger");
+          return;
+      }
+
+      questionFilterValue = categoryId; // Set the global filter value
+      $.ajax({
+          url: `/getAllQuestionsByCategoryId/${categoryId}`,
+          type: 'GET',
+          success: function(response) {
+              updateQuestionDropdown(response);
+          },
+          error: function(xhr, status, error) {
+              console.error('Error fetching questions:', error);
+              var errorMessage = parseErrorMessage(xhr);
+              showMessageBanner('Failed to fetch questions. Error: ' + errorMessage, "danger");
+          }
+      });
+  }
+
+  <!--Question Dropdown List Section -->
+    function toggleAddQuestionRow() {
+      var addQuestionRow = document.getElementById('addQuestionRow');
+      if (addQuestionRow.style.display === 'none') {
+          addQuestionRow.style.display = 'flex';
+          loadAllQuestions(questionFilterValue); // Load questions when showing the dropdown
+      } else {
+          addQuestionRow.style.display = 'none';
+      }
     }
-    
+    function updateQuestionDropdown(questions) {
+        const questionDropdown = $('#questionDropdown');
+        questionDropdown.empty(); // Clear existing options
+
+        questionDropdown.append('<option value="">Select a Question</option>');
+        if (questions && Array.isArray(questions) && questions.length > 0) {
+            questions.forEach(question => {
+                if (question.questionId && question.question) {
+                    const category = question.categoryId || '0'; // Default to '0' if categoryId is missing
+                    questionDropdown.append(
+                        `<option value="${question.questionId}" data-category="${category}">
+                        ${question.question}
+                    </option>`
+                    );
+                } else {
+                    console.warn("Invalid question data encountered:", question);
+                }
+            });
+        } else {
+            console.warn("No questions available to populate dropdown.");
+        }
+    }
 
 
     function addStep() {
@@ -222,7 +383,6 @@
     function hideNewStepTemplate() {
         document.getElementById('newStepTemplate').style.display = 'none';
     }
-
 
     function filterStepsByCategory(categoryId) {
         const steps = document.querySelectorAll('#stepsContent > div');
@@ -251,11 +411,6 @@
         } else if (noStepsMessage) {
             noStepsMessage.style.display = 'none'; // Hide message
         }
-    }
-
-    function viewHomeworkDetails(homeworkId) {
-        var url = '/homeworkDisplay/' + homeworkId;
-        window.location.href = url;
     }
 
     function calculateTotalDays(years, months, days) {
@@ -291,7 +446,7 @@
 
         const steps = Array.from(document.querySelectorAll('#stepsContent > .row')).map(row => ({
             id: parseInt(row.getAttribute('data-step-id')),
-            name: row.querySelector('.col-md-9').textContent.trim()
+            name: row.querySelector('.col-md-8').textContent.trim()
         }));
 
         const protocolData = {
@@ -304,6 +459,7 @@
             monthSchedule: monthSchedule,
             yearSchedule:yearSchedule,
             steps: steps,
+            questions:questionList,
             type:type
         };
 
@@ -336,46 +492,13 @@
             showMessageBanner('Error creating protocol template: ' + error.message, 'danger');
         });
     }
-    
-    function addHomeworkTemplate() {
-        var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
-        
-        var homeworkSelect = document.getElementById("homeworkTemplateDropdown");
-        var selectedOption = homeworkSelect.options[homeworkSelect.selectedIndex];
-        var homeworkExists = Array.from(tableBody.rows).some(row => row.dataset.homeworkId === selectedOption.value);
-        
-        if (homeworkExists) {
-            showMessageBanner("This homework template is already added.", "warning");
-            return; // Stop the function if the homework already exists
-        }
 
-        if (tableBody.rows.length >= maxHomeworkItems) {
-            showMessageBanner("The maximum number of homework items allowed has been reached, please remove a homework item before trying to add another.", "warning");
-            return; // Stop the function if the max limit is reached
-        }
 
-        if (selectedOption.value !== "") {
-            var newRow = tableBody.insertRow();
-            var cell1 = newRow.insertCell(0);
-            var cell2 = newRow.insertCell(1);
-
-            cell1.textContent = selectedOption.text;
-            cell2.innerHTML = '<button type="button" class="btn btn-danger" onclick="removeHomework(this);">Remove</button>';
-            newRow.dataset.homeworkId = selectedOption.value;
-
-            homeworkSelect.selectedIndex = 0; // Reset the dropdown after adding
-        } else {
-            showMessageBanner("Please select a homework template before adding.", "warning");
-        }
-    }
-
-    function removeHomework(button) {
-        var row = button.parentNode.parentNode;
-        row.parentNode.removeChild(row);
+    function editProtocol(id) {
+        window.location = '/editStep/' + id;
     }
     
-    
-function saveStep() {
+    function saveStep() {
         var stepData = {
             "categoryId": document.getElementById("stepCategory").value,
             "categoryName": document.getElementById("stepCategory").options[document.getElementById("stepCategory").selectedIndex].text,
@@ -433,8 +556,8 @@ function saveStep() {
             type: 'GET',
             success: function(step) {
                 console.log("Retrieved step data:", step); // Logging retrieved step data
-                const stepsContainer = document.getElementById('stepsContent');
-                const stepExists = Array.from(stepsContainer.children).some(child => child.getAttribute('data-step-id') === step.id.toString());
+                const stepsContainer = $('#stepsContent');
+                const stepExists = stepsContainer.children(`[data-step-id="${step.id}"]`).length > 0;
 
                 if (stepExists) {
                     console.warn("Step already exists in protocol.");
@@ -442,12 +565,21 @@ function saveStep() {
                     return;
                 }
 
-                const newRow = document.createElement('div');
-                newRow.className = 'row';
-                newRow.innerHTML = `<div class="col-md-9">${step.name}</div>
-                                    <div class="col-md-3"><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button></div>`;
-                newRow.setAttribute('data-step-id', step.id);
-                stepsContainer.appendChild(newRow);
+                // Determine row class based on existing number of steps
+                const rowClass = stepsContainer.children().length % 2 === 0 ? 'even' : 'odd';
+
+                // Create new step row HTML
+                const stepHtml = `
+                <div class="row ${rowClass}" data-step-id="${step.id}">
+                    <div class="col-md-8">${step.name}</div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove Step</button>
+                    </div>
+                </div>
+            `;
+
+                // Append new step to the container
+                stepsContainer.append(stepHtml);
                 console.log("Step added to protocol.");
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -456,8 +588,7 @@ function saveStep() {
             }
         });
     }
-    
-    
+
 
     function removeStep(button) {
         const row = button.parentNode.parentNode;
@@ -474,6 +605,7 @@ function saveStep() {
             }
         });
     });
+
 </script>
 <div th:insert="~{footer :: main}">...</div>
 </body>

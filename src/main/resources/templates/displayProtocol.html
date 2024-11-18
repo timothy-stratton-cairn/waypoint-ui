@@ -107,14 +107,6 @@
                 </div>
             </div>
             <button onclick="history.back()" class="btn btn-primary">Back</button>
-            <button class="btn btn-sm btn-primary" onclick="toggleHouseholdForm()">Add Household</button>
-                <div id="householdFormContainer" style="display: none;">
-                    <label>Select Household:</label>
-                    <select id="householdSelect" class="form-control">
-                        <option th:each="household : ${clientList}" th:value="${household.id}" th:text="${household.name}"></option>
-                    </select>
-                    <button class="btn btn-primary mt-2" onclick="confirmAddCoClient()">Confirm</button>
-                </div>
             <button type="button" class="btn btn-primary" th:attr="onclick='deleteProtocolTemplate('+${protocol.id}+');'">Delete</button>
             <button type="button" class="btn btn-success" th:attr="onclick='saveProtocol('+${protocol.id}+');'">Save Protocol</button>
 
@@ -123,36 +115,40 @@
         </fieldset>
     </div>
 
-    <div class="row note_card">
+    <div class="note_card mb-3">
         <fieldset>
-            <legend>Assigned Homework</legend>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Homework Name</th>
-                            <th>Step Name</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <th:block th:with="hasHomework=false">
-                            <th:block th:each="step : ${steps}">
-                                <th:block th:each="homework : ${step.homework}">
-                                    <th:block th:if="${not #lists.isEmpty(step.homework)}" th:with="hasHomework=true">
-                                        <tr>
-                                            <td th:text="${homework.name}">[Homework Name]</td>
-                                            <td th:text="${step.name}">[Step Name]</td>
-                                            <td>
-                                                <button type="button" class="btn btn-primary" th:attr="onclick='viewHomeworkDetails('+${homework.id}+');'">Details</button>
-                                            </td>
-                                        </tr>
-                                    </th:block>
-                                </th:block>
-                            </th:block>
-                        </th:block>
-                    </tbody>
-                </table>
+            <legend>
+                Homework Questions
+            </legend>
+
+            <ul class="nav nav-tabs" id="questionTabs" role="tablist">
+                <li class="nav-item tab"><a class="nav-link nav-tab-link question-tab active" href="#"  data-type="0" onclick="loadQuestions(0)">All</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link question-tab" href="#"  data-type="1" onclick="loadQuestions(1)">Personal</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link question-tab" href="#"  data-type="2" onclick="loadQuestions(2)">Family</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link question-tab" href="#"  data-type="3" onclick="loadQuestions(3)">Goals</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link question-tab" href="#"  data-type="4" onclick="loadQuestions(4)">Insurance</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link question-tab" href="#"  data-type="5" onclick="loadQuestions(5)">Investments</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link question-tab" href="#"  data-type="6" onclick="loadQuestions(6)">Assets</a></li>
+                <li class="nav-item tab"><a class="nav-link nav-tab-link question-tab" href="#"  data-type="7" onclick="loadQuestions(7)">Liabilities</a></li>
+            </ul>
+
+            <div id="homeworkContents" class="mt-3">
+                <!-- Homework Questions will be dynamically loaded here -->
+            </div>
+
+            <div class="new-step-row col-5" id="addQuestionRow" style="display: none; ">
+                <select class="form-control col-9" id="questionDropdown" name="newQuestionId">
+                    <!--  TODO <option value="new">Create Question </option>. Adding this later. -->
+                </select>
+                <button type="button" class="btn btn-secondary col-3" onclick="confirmQuestion(this);">Confirm</button>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="toggleAddQuestionRow();">Add Question</button>
+
+            <div class="col-5"> <!--This might not be nessesary right this second. -->
+                <div id="newQuestionsContainer">
+                    <!-- New questions rows will be appended here -->
+                </div>
             </div>
         </fieldset>
     </div>
@@ -164,11 +160,11 @@
             
             <!-- Tabs for filtering steps -->
 			<ul class="nav nav-tabs">
-			    <li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#" data-type="0" onclick="loadSteps('0')">All</a></li>
-			    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" data-type="1" onclick="loadSteps(1)">Gather Data</a></li>
-			    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" data-type="2" onclick="loadSteps(2)">Run Analysis</a></li>
-			    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" data-type="3" onclick="loadSteps(3)">Craft Recommendations</a></li>
-			    <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#" data-type="4" onclick="loadSteps(4)">Share Education</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link step-tab active" href="#" data-type="0" onclick="loadSteps('0')">All</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link step-tab" href="#" data-type="1" onclick="loadSteps(1)">Gather Data</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link step-tab" href="#" data-type="2" onclick="loadSteps(2)">Run Analysis</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link step-tab" href="#" data-type="3" onclick="loadSteps(3)">Craft Recommendations</a></li>
+			    <li class="nav-item tab"><a class="nav-link nav-tab-link step-tab" href="#" data-type="4" onclick="loadSteps(4)">Share Education</a></li>
 			</ul>
 
             <div id="stepsContent">
@@ -198,6 +194,9 @@
     </div>
 </div>
 
+
+
+  </div>
 <div class="container" id="newStepTemplate" style="display:none;">
     <div class="row note_card">
         <fieldset>
@@ -253,33 +252,9 @@
 
 <script>
     var protocolId = [[${protocolId}]];
-    var filterValue = 0;
+    var stepFilterValue = 0;
+    var questionFilterValue = 0;
 
-    function loadSteps(type) {
-        filterValue = type; // Set the global filter value
-        $.ajax({
-            url: `/getStepListFiltered/${type}`,
-            type: 'GET',
-            success: function(response) {
-                updateStepDropdown(response);
-                filterSteps(type);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching steps:', error);
-                var errorMessage = parseErrorMessage(xhr);
-                showMessageBanner('Failed to fetch steps. Error: ' + errorMessage, "danger");
-            }
-        });
-    }
-
-    function updateStepDropdown(steps) {
-        const stepDropdown = $('#stepDropdown');
-        stepDropdown.empty();
-        stepDropdown.append('<option value="new">Create New Step</option>');
-        steps.forEach(step => {
-            stepDropdown.append(`<option value="${step.id}" data-category="${step.categoryId}">${step.name}</option>`);
-        });
-    }
 
     function newStep() {
         window.location = '/newStep/' + protocolId;
@@ -297,15 +272,22 @@
         var banner = $('#banner');
         banner.removeClass().addClass('alert alert-' + type).text(message).show();
     }
-
-    function toggleAddStepRow() {
-        var addStepRow = document.getElementById('addStepRow');
-        if (addStepRow.style.display === 'none') {
-            addStepRow.style.display = 'flex';
-            loadSteps(filterValue); // Load steps when showing the dropdown
-        } else {
-            addStepRow.style.display = 'none';
-        }
+<!--   Step Section      -->
+    function loadSteps(type) {
+        stepFilterValue = type; // Set the global filter value
+        $.ajax({
+            url: `/getStepListFiltered/${type}`,
+            type: 'GET',
+            success: function(response) {
+                updateStepDropdown(response);
+                filterSteps(type);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching steps:', error);
+                var errorMessage = parseErrorMessage(xhr);
+                showMessageBanner('Failed to fetch steps. Error: ' + errorMessage, "danger");
+            }
+        });
     }
 
     function addStep() {
@@ -364,32 +346,6 @@
         });
     }
 
-    function addStepById(stepId) {
-        console.log("Adding step by ID:", stepId); // Logging step ID
-
-        var csrfToken = $('meta[name="_csrf"]').attr('content');
-        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-
-        $.ajax({
-            url: `/addStepToProtocol/` + protocolId + `/` + stepId,
-            type: 'PATCH',
-            headers: {
-                'Accept': 'text/plain',
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            success: function() {
-                showMessageBanner("Step added successfully.", "success");
-                location.reload();
-            },
-            error: function(xhr, status, error) {
-                console.error('Error adding step:', error);
-                var errorMessage = parseErrorMessage(xhr);
-                updateDisplayedSteps();
-                showMessageBanner('Failed to add the step. Error: ' + errorMessage, "danger");
-            }
-        });
-    }
 
     function saveProtocol(id) {
         var name = $('#name').val();
@@ -596,7 +552,7 @@
         });
     }
 
-	function filterSteps(type) {
+	  function filterSteps(type) {
 	    $('#stepsContent > div').each(function() {
 	        var stepType = $(this).data('type');
 	        if (type == 0 || stepType == type) {  // Changed 'all' to 0
@@ -615,8 +571,241 @@
 	    }
 	}
 
+    <!-- Step Dropdown Menu Code -->
+
+    function updateStepDropdown(steps) {
+        const stepDropdown = $('#stepDropdown');
+        stepDropdown.empty();
+        stepDropdown.append('<option value="new">Create New Step</option>');
+        steps.forEach(step => {
+            stepDropdown.append(`<option value="${step.id}" data-category="${step.categoryId}">${step.name}</option>`);
+        });
+    }
+
+    function toggleAddStepRow() {
+        var addStepRow = document.getElementById('addStepRow');
+        if (addStepRow.style.display === 'none') {
+            addStepRow.style.display = 'flex';
+            loadSteps(stepFilterValue); // Load steps when showing the dropdown
+        } else {
+            addStepRow.style.display = 'none';
+        }
+    }
+    function addStepById(stepId) {
+        console.log("Adding step by ID:", stepId); // Logging step ID
+
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+        $.ajax({
+            url: `/addStepToProtocol/` + protocolId + `/` + stepId,
+            type: 'PATCH',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            success: function() {
+                showMessageBanner("Step added successfully.", "success");
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding step:', error);
+                var errorMessage = parseErrorMessage(xhr);
+                updateDisplayedSteps();
+                showMessageBanner('Failed to add the step. Error: ' + errorMessage, "danger");
+            }
+        });
+    }
+
+<!--          Homework Section          -->
+
+    function loadQuestions(categoryId) {
+        console.log("Loading Questions Category: ", categoryId);
+        if (categoryId === undefined || categoryId === null) {
+            console.error("Invalid categoryId:", categoryId);
+            showMessageBanner('Error: Invalid category selected.', "danger");
+            return;
+        }
+
+        questionFilterValue = categoryId; // Set the global filter value
+        $.ajax({
+            url: `/getQuestionsFiltered/${protocolId}/${categoryId}`,
+            type: 'GET',
+            success: function(response) {
+                updateQuestionsList(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching questions:', error);
+                var errorMessage = parseErrorMessage(xhr);
+                showMessageBanner('Failed to fetch questions. Error: ' + errorMessage, "danger");
+            }
+        });
+    }
+    function loadAllQuestions(categoryId) {
+        console.log("Loading Questions Category: ", categoryId);
+        if (categoryId === undefined || categoryId === null) {
+            console.error("Invalid categoryId:", categoryId);
+            showMessageBanner('Error: Invalid category selected.', "danger");
+            return;
+        }
+
+        questionFilterValue = categoryId; // Set the global filter value
+        $.ajax({
+            url: `/getAllQuestionsByCategoryId/${categoryId}`,
+            type: 'GET',
+            success: function(response) {
+                updateQuestionDropdown(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching questions:', error);
+                var errorMessage = parseErrorMessage(xhr);
+                showMessageBanner('Failed to fetch questions. Error: ' + errorMessage, "danger");
+            }
+        });
+    }
+
+    function updateQuestionsList(questions) {
+        const questionsContent = $('#homeworkContents');
+        questionsContent.empty();
+
+        if (questions.length === 0) {
+            questionsContent.append('<p>No questions available.</p>');
+            return;
+        }
+
+        questions.forEach((question, index) => {
+            const rowClass = index % 2 === 0 ? 'even' : 'odd';
+            const questionHtml = `
+            <div id="row_${question.questionId}" class="row ${rowClass}" data-category-id="${question.categoryId}">
+                <div class="col-md-8">${question.question}</div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-secondary" onclick="viewQuestionDetails(${question.questionId});">Details</button>
+                </div>
+            </div>
+        `;
+            questionsContent.append(questionHtml);
+        });
+    }
+
+
+
+    <!--Question Dropdown List Section -->
+
+    function updateQuestionDropdown(questions) {
+        const questionDropdown = $('#questionDropdown');
+        questionDropdown.empty(); // Clear existing options
+
+        questionDropdown.append('<option value="">Select a Question</option>');
+        if (questions && Array.isArray(questions) && questions.length > 0) {
+            questions.forEach(question => {
+                if (question.questionId && question.question) {
+                    questionDropdown.append(
+                        `<option value="${question.questionId}" data-category="${question.categoryId || ''}">
+                        ${question.question}
+                    </option>`
+                    );
+                } else {
+                    console.warn("Invalid question data encountered:", question);
+                }
+            });
+        } else {
+            console.warn("No questions available to populate dropdown.");
+        }
+    }
+
+    function toggleAddQuestionRow() {
+        var addQuestionRow = document.getElementById('addQuestionRow');
+        if (addQuestionRow.style.display === 'none') {
+            addQuestionRow.style.display = 'flex';
+            loadAllQuestions(questionFilterValue); // Load questions when showing the dropdown
+        } else {
+            addQuestionRow.style.display = 'none';
+        }
+    }
+    function confirmQuestion(buttonElement) {
+        const select = buttonElement.previousElementSibling;
+        console.log("Select Element: ", select);
+
+        if (!select) {
+            console.error("No select element found!");
+            showMessageBanner('Error: No dropdown element found.', 'danger');
+            return;
+        }
+
+        const selectedOption = select.options[select.selectedIndex];
+        console.log("Selected Option: ", selectedOption);
+
+        if (!selectedOption || !selectedOption.value) {
+            console.error("No valid option selected!");
+            showMessageBanner('Error: Please select a valid question.', 'danger');
+            return;
+        }
+
+        const questionId = selectedOption.value;
+        console.log("Question ID: ", questionId);
+
+        if (questionId === "new") {
+            document.getElementById('newQuestionTemplate').style.display = 'block';
+            return;
+        }
+
+        var csrfToken = $('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+        var questionExists = $(`#homeworkContents > div#row_${questionId}`).length > 0;
+
+        if (questionExists) {
+            showMessageBanner('Question has already been assigned to template.', 'danger');
+            return;
+        }
+
+        $.ajax({
+            url: `/linkProtocolTemplateAndHomeworkQuestion/` + protocolId + `/` + questionId,
+            type: 'POST',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            success: function() {
+                showMessageBanner("Question added successfully.", "success");
+                loadQuestions(questionFilterValue);
+                //addStepToDOM(questionId, select.options[select.selectedIndex].text);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding Question:', error);
+                var errorMessage = parseErrorMessage(xhr);
+                loadQuestions(questionFilterValue);
+                showMessageBanner('Failed to add the Question. Error: ' + errorMessage, "danger");
+            }
+        });
+    }
+
+
+    function viewQuestionDetails(questionId) {
+        // Navigate to the question details page
+        window.location = `/displayHomeworkQustion/${questionId}`;
+    }
+
+    $(document).ready(function () {
+        $('#questionTabs .nav-tab-link').on('click', function (e) {
+            e.preventDefault();
+            var categoryId = $(this).data('type');
+            questionFilterValue = categoryId; // Set the global filter value
+            loadQuestions(categoryId);
+
+            $('#questionTabs .nav-tab-link').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        loadQuestions(0); // Load all homework questions initially
+    });
+
+
 
 	function showType(type) {
+      console.log("Calling showType")
 	    filterSteps(type);
 	
 	    const stepDropdowns = document.querySelectorAll('.new-step-row select');
@@ -631,31 +820,6 @@
 	        }
 	    });
 	}
-
-
-   /* $(document).ready(function() {
-        $('#schedule-fields').hide();
-        $('#reoccurring').change(function() {
-            if ($(this).is(':checked')) {
-                $('#schedule-fields').show();
-            } else {
-                $('#schedule-fields').hide();
-            }
-        });
-
-        $('.nav-link').on('click', function(e) {
-            //e.preventDefault();
-            var type = $(this).data('type');
-            filterValue = type; // Set the global filter value
-            showType(type);
-
-            $('.nav-link').removeClass('active');
-            $(this).addClass('active');
-        });
-
-        updateDisplayedSteps();
-    }); */
-    
     $(document).ready(function() {
 	    $('#schedule-fields').hide();
 	    $('#reoccurring').change(function() {
@@ -666,10 +830,10 @@
 	        }
 	    });
 	
-	    $('.nav-tab-link').on('click', function(e) {
+	    $('.step-tab').on('click', function(e) {
 	        e.preventDefault(); // Prevent default only for nav-tab-link elements
 	        var type = $(this).data('type');
-	        filterValue = type; // Set the global filter value
+	        stepFilterValue = type; // Set the global filter value
 	        showType(type);
 	
 	        $('.nav-tab-link').removeClass('active');
@@ -745,8 +909,7 @@
         }
         
     }
-    
-	 
+
 	function reloadProtocolDetails(protocolId) {
 	    $.ajax({
 	        url: `/protocol/${protocolId}/details`,
@@ -756,34 +919,6 @@
 	        },
 	        error: function(xhr, status, error) {
 	            console.error("Error reloading protocol details: ", error);
-	        }
-	    });
-	}
-	
-
-	function reloadAssignedHomework(protocolId) {
-	    $.ajax({
-	        url: `/protocol/${protocolId}/homework`,
-	        type: 'GET',
-	        success: function(response) {
-	            $('#assigned-homework').html(response); 
-	        },
-	        error: function(xhr, status, error) {
-	            console.error("Error reloading homework section: ", error);
-	        }
-	    });
-	}
-	
-
-	function reloadSteps(protocolId) {
-	    $.ajax({
-	        url: `/protocol/${protocolId}/steps`,
-	        type: 'GET',
-	        success: function(response) {
-	            $('#steps-section').html(response);  
-	        },
-	        error: function(xhr, status, error) {
-	            console.error("Error reloading steps section: ", error);
 	        }
 	    });
 	}

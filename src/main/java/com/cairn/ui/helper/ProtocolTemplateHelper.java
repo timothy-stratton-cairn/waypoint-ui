@@ -715,20 +715,32 @@ public class ProtocolTemplateHelper {
     
     
     public int changeStatus(User usr, int pcolId, String status) {
-    	int result = -1;
+			int result = -1;
 
-	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + pcolId;
-	    
-	    StringBuilder requestBodyBuilder = new StringBuilder();
-	    requestBodyBuilder.append("{");
-	    requestBodyBuilder.append("\"status\": \"").append(status).append("\"");
-	    requestBodyBuilder.append("}");
-	    String requestBody = requestBodyBuilder.toString();
-	    logger.info("apiUrl: "+ apiUrl);
-	    logger.info("requestBody: " + requestBody);
-	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
-	    
-	    return result;
-    	
-    }
+			String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + pcolId;
+
+			StringBuilder requestBodyBuilder = new StringBuilder();
+			requestBodyBuilder.append("{");
+			requestBodyBuilder.append("\"status\": \"").append(status).append("\"");
+			requestBodyBuilder.append("}");
+			String requestBody = requestBodyBuilder.toString();
+			logger.info("apiUrl: " + apiUrl);
+			logger.info("requestBody: " + requestBody);
+			result = apiHelper.patchAPI(apiUrl, requestBody, usr);
+
+			return result;
+		}
+
+
+			public String linkHomeworkQuestionAndProtocolTemplate(User usr, int templateId, int questionId){
+				String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + templateId+ "/link-question/" + questionId;
+				logger.info("apiUrl: " + apiUrl);
+				String result = apiHelper.postWithoutBodyAPI(apiUrl,usr);
+				return result;
+			}
+
+
+
+
+
 }

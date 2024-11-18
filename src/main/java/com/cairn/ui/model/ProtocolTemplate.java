@@ -18,6 +18,7 @@ public class ProtocolTemplate {
 	private String type;
 	private String status ;
 	private ArrayList<ProtocolStepTemplate> steps = new ArrayList<ProtocolStepTemplate>();
+	private ArrayList<HomeworkQuestion> questions = new ArrayList<>();
 
 	public int getId() {
 		return id;
@@ -107,4 +108,12 @@ public class ProtocolTemplate {
 	public void setDueDate(String dueDate) {
 		this.dueDate = dueDate;
 	}
+
+  public ArrayList<HomeworkQuestion> getQuestions() {
+    return questions;
+  }
+
+  public void setQuestions(ArrayList<HomeworkQuestion> questions) {
+    this.questions = questions;
+  }
 }

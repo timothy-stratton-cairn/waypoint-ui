@@ -26,41 +26,46 @@
 <div class="banner" align="center">
 	<h1 align="center">Waypoints Application</h1>
 </div>
-<nav class="navbar navbar-expand-lg navbar-default bg-dark">
-  <div class="container-fluid">
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-		<li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
-		<li class="nav-item dropdown" th:if="${session.me.isAdmin()}">
-		  <a class="nav-link dropdown-toggle" href="#" id="templatesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-		    Templates
-		  </a>
-		  <ul class="dropdown-menu" aria-labelledby="templatesDropdown">
-		    <li><a class="dropdown-item" href="/protocolTemplates">Protocol Templates</a></li>
-		    <li><a class="dropdown-item" href="/homeworkTemplates/">Homework Templates</a></li>
-		    <li><a class="dropdown-item" href="/protocolStepTemplates">Step Templates</a></li>
-		    <li><a class="dropdown-item" href="/homeworkQuestionList">Homework Questions</a></li>
-		  </ul>
-		</li>
-        <!--<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/homeworkQuestionList">Homework Questions</a></li>-->
-		<li class="nav-item"><a class="nav-link" href="/completionReport">Reports</a></li>
-		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/clients">Households</a></li>
-		<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/userAdminList">Users</a></li>
-		<li class="nav-item"><a class="nav-link" href="/profile">My Admin</a></li>
-		<li class="divider"></li>
-		<li class="nav-item"><form th:action="@{/logout}" method="post">
-	    	<input type="submit" class="btn btn-default" value="Logout" />
-		</form>
-		</li>
-    </ul>
-  </div>
-</nav>
-	  
-	  
+	<nav class="navbar navbar-expand-lg navbar-default bg-dark">
+		<div class="container-fluid">
+			<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarNav">
+					<ul class="navbar-nav">
+						<li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
+						<li class="nav-item dropdown" th:if="${session.me.isAdmin()}">
+							<a class="nav-link dropdown-toggle" href="#" id="templatesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								Templates
+							</a>
+							<ul class="dropdown-menu" aria-labelledby="templatesDropdown">
+								<li><a class="dropdown-item" href="/protocolTemplates">Protocol Templates</a></li>
+								<li><a class="dropdown-item" href="/homeworkTemplates/">Homework Templates</a></li>
+								<li><a class="dropdown-item" href="/protocolStepTemplates">Step Templates</a></li>
+								<li><a class="dropdown-item" href="/homeworkQuestionList">Homework Questions</a></li>
+							</ul>
+						</li>
+						<!--<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/homeworkQuestionList">Homework Questions</a></li>-->
+						<li class="nav-item"><a class="nav-link" href="/completionReport">Reports</a></li>
+						<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/clients">Households</a></li>
+						<li class="nav-item" th:if="${session.me.isAdmin()}"><a class="nav-link" href="/userAdminList">Users</a></li>
+						<li class="nav-item"><a class="nav-link" href="/profile">My Admin</a></li>
+						<li class="divider"></li>
+						<li class="nav-item"><form th:action="@{/logout}" method="post">
+							<input type="submit" class="btn btn-default" value="Logout" />
+						</form>
+						</li>
+					</ul>
+				</div>
+			</nav>
+	</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+
 	</div>
   </div>
 </nav>
