@@ -59,17 +59,13 @@
 					<div class="list-group">
 						<div th:each="coclient, iterStat : ${coclients}"
 							 th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'"
-							 class="form-group row">
+							 class="form-group row"
+							 onclick="goToHousehold()">
 							<div class="col-md-6">
 								<span th:text="${coclient.firstName} + ' ' + ${coclient.lastName}">First Last Name</span>
 							</div>
 
 						</div>
-
-							<div th:if="${clientId != null and clientId > 0}">
-								<button type="button" class="btn btn-sm btn-secondary" onclick="goToHousehold()">Go To</button>
-							</div>
-
 					</div>
 				</fieldset>
 			</div>
@@ -138,14 +134,15 @@
 					</legend>
 
 					<ul class="nav nav-tabs" id="questionTabs" role="tablist">
-						<li class="nav-item"><a class="nav-link active" href="#" onclick="loadQuestions(0)">All</a></li>
-						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(1)">Personal</a></li>
-						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(2)">Family</a></li>
-						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(3)">Goals</a></li>
-						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(4)">Insurance</a></li>
-						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(5)">Investments</a></li>
-						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(6)">Assets</a></li>
-						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(7)">Liabilities</a></li>
+						<li class="nav-item"><a class="nav-link active" href="#" onclick="loadQuestions(0); return false;">All</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(1);return false;">Personal</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(2); return false;">Family</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(3); return false;">Goals</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(4); return false;">Insurance</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(5); return false;">Investments</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(6); return false;">Assets</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(7); return false;">Liabilities</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadUnAnsweredQuestions(); return false;">Unanswered</a></li>
 					</ul>
 
 					<div id="stepsContent" class="mt-3">
@@ -251,6 +248,14 @@
 		$('.question-item').each(function() {
 			const hasResponse = $(this).data('has-response');
 			$(this).toggle(hasResponse);
+		});
+	}
+
+	function loadUnAnsweredQuestions() {
+		$('.question-item').each(function() {
+			loadQuestions(0);
+			const hasResponse = $(this).data('has-response');
+			$(this).toggle(!hasResponse);
 		});
 	}
 
