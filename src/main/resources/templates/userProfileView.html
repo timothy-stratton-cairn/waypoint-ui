@@ -74,7 +74,6 @@
 				</fieldset>
 			</div>
 
-
 			<!-- Active Protocols Card -->
 			<div class="note_card mb-3">
 				<fieldset>
@@ -91,10 +90,6 @@
 					</div>
 				</fieldset>
 			</div>
-
-
-
-
 		</div>
 
 		<!-- Column 2 -->
@@ -164,22 +159,38 @@
 								</div>
 							</li>
 							<!-- Dynamic Question Rows -->
-							<li class="list-group-item question-item"
-									th:each="questionResponse : ${Questions != null && Questions.questions != null ? Questions.questions : {}}"
-									th:data-category-id="${questionResponse.question.categoryId}"
-									th:data-question-id="${questionResponse.question.getId()}">
-								<div class="row">
-									<div class="col-md-5">
-										<strong th:text="${questionResponse.question.question}">Question Text</strong>
+							<div class="question-container" th:each="questionResponse : ${Questions != null && Questions.questions != null ? Questions.questions : {}}">
+								<li class="list-group-item question-item"
+										th:data-category-id="${questionResponse.question.categoryId}"
+										th:data-question-id="${questionResponse.question.getId()}"
+										onclick="toggleResponseForm(this)">
+									<div class="row">
+										<div class="col-md-5">
+											<strong th:text="${questionResponse.question.question}">Question Text</strong>
+										</div>
+										<div class="col-md-5">
+											<span th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
+										</div>
+										<div class="col-md-2">
+											<span th:text="${questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
+										</div>
 									</div>
-									<div class="col-md-5">
-										<span th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
-									</div>
-									<div class="col-md-2">
-										<span th:text="${questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
-									</div>
+								</li>
+								<div class="response-form-container" style="display: none;">
+									<form th:action="@{/submitResponse}" method="post">
+										<input type="hidden" name="questionId" th:value="${questionResponse.question.getId()}" />
+										<div class="row">
+											<div class="col-md-10">
+												<input type="text" name="response" class="form-control" placeholder="Response" />
+											</div>
+											<div class="col-md-2">
+												<button type="submit" class="btn btn-primary">Submit</button>
+											</div>
+										</div>
+									</form>
 								</div>
-							</li>
+							</div>
+
 
 						</ul>
 					</div>
@@ -214,6 +225,27 @@
 			$(this).toggle(categoryId === 0 || questionCategoryId === categoryId);
 		});
 	}
+	function toggleQuestionResponseForm(questionId) {
+		var householdList = document.getElementById('assignedHouseholds_' + questionId);
+		if (householdList.style.display === 'none') {
+			householdList.style.display = 'block';
+		} else {
+			householdList.style.display = 'none';
+		}
+	}
+
+	function toggleResponseForm(element) {
+		const responseFormContainer = element.nextElementSibling;
+
+		if (responseFormContainer && responseFormContainer.classList.contains('response-form-container')) {
+			if (responseFormContainer.style.display === 'none' || responseFormContainer.style.display === '') {
+				responseFormContainer.style.display = 'block';
+			} else {
+				responseFormContainer.style.display = 'none';
+			}
+		}
+	}
+
 
 	function hideUnansweredQuestions() {
 		$('.question-item').each(function() {
