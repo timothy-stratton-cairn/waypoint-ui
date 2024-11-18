@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Demo User Profile</title>
+	<title> User Profile</title>
 	<meta name="_csrf" th:content="${_csrf.token}"/>
 	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -48,7 +48,7 @@
 				</fieldset>
 			</div>
 
-			<!-- Household Summary Card (blank for now) -->
+			<!-- Household Summary Card -->
 			<div class="note_card mb-3">
 				<fieldset>
 					<legend>Household Summary</legend>
@@ -59,7 +59,11 @@
 							<div class="col-md-6">
 								<span th:text="${coclient.firstName} + ' ' + ${coclient.lastName}">First Last Name</span>
 							</div>
+
 						</div>
+						<div>
+						<button type="button" class="btn btn-sm btn-secondary" onclick="goToHousehold()">Go To</button>
+					</div>
 					</div>
 				</fieldset>
 			</div>
@@ -71,20 +75,19 @@
 					<legend>Active Protocols</legend>
 					<div class="list-group">
 						<div th:each="protocol, iterStat : ${userProtocols}"
-							 th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'"
-							 class="form-group row">
-							<div class="row">
-								<div class="col-md-6">
-									<span th:text="${protocol.name}">Protocol Name</span>
-								</div>
-								<div class="col-md-6">
-									<span th:text="${protocol.description}">Protocol Description</span>
-								</div>
+								 class="list-group-item"
+								 th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'"
+								 th:onclick="'goToProtocol(' + ${protocol.id} + ')'">
+							<div class="d-flex justify-content-between align-items-center">
+								<span th:text="${protocol.name}">Protocol Name</span>
 							</div>
 						</div>
 					</div>
 				</fieldset>
 			</div>
+
+
+
 
 		</div>
 
@@ -128,16 +131,20 @@
 			<!-- Homework Questions Card -->
 			<div class="note_card mb-3">
 				<fieldset>
-					<legend>Homework Questions</legend>
+					<legend>
+						Homework Questions.
+						<button class="btn btn-sm btn-secondary" onclick="hideUnansweredQuestions()">Hide Unanswered</button>
+					</legend>
+
 					<ul class="nav nav-tabs" id="questionTabs" role="tablist">
 						<li class="nav-item"><a class="nav-link active" href="#" onclick="loadQuestions(0)">All</a></li>
-						<li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(1)">Personal</a></li>
-						<li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(2)">Family</a></li>
-						<li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(3)">Goals</a></li>
-						<li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(4)">Insurance</a></li>
-						<li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(5)">Investments</a></li>
-						<li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(6)">Assets</a></li>
-						<li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(7)">Liabilities</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(1)">Personal</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(2)">Family</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(3)">Goals</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(4)">Insurance</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(5)">Investments</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(6)">Assets</a></li>
+						<li class="nav-item"><a class="nav-link nav-tab-link" href="#" onclick="loadQuestions(7)">Liabilities</a></li>
 					</ul>
 
 					<div id="stepsContent" class="mt-3">
@@ -153,7 +160,8 @@
 							<!-- Dynamic Question Rows -->
 							<li class="list-group-item question-item"
 								th:each="questionResponse : ${Questions.questions}"
-								th:data-category-id="${questionResponse.question.categoryId}">
+								th:data-category-id="${questionResponse.question.categoryId}"
+								th:data-question-id="${questionResponse.question.getId()}">
 								<div class="row">
 									<div class="col-md-5">
 										<strong th:text="${questionResponse.question.question}">Question Text</strong>
@@ -166,6 +174,7 @@
 									</div>
 								</div>
 							</li>
+
 						</ul>
 					</div>
 				</fieldset>
@@ -178,10 +187,28 @@
 <div th:insert="~{footer :: main}"></div>
 
 <script th:inline="javascript">
+
+	var clientId = [[${clientId}]];
+
+	function goToHousehold() {
+		window.location.href = `/clientProfile/ ${clientId}`;
+	}
+
+	function goToProtocol(protocolId) {
+		window.location.href = `/viewProtocol/${protocolId}/${clientId}`;
+	}
+
 	function loadQuestions(categoryId) {
 		$('.question-item').each(function() {
 			const questionCategoryId = $(this).data('category-id');
 			$(this).toggle(categoryId === 0 || questionCategoryId === categoryId);
+		});
+	}
+
+	function hideUnansweredQuestions() {
+		$('.question-item').each(function() {
+			const hasResponse = $(this).data('has-response');
+			$(this).toggle(hasResponse);
 		});
 	}
 

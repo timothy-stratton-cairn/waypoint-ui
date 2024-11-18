@@ -198,11 +198,11 @@ public class HomeworkQuestionHelper{
 
         return results;
     }
-    
+
     public ArrayList<HomeworkQuestion> getHomeworkQuestionsByProtocolTemplateId(User usr, int templateId) {
         ArrayList<HomeworkQuestion> results = new ArrayList<>();
 
-        String apiUrl = this.dashboardApiBaseUrl + "homework-question/protocol-template/" + templateId;
+        String apiUrl = this.dashboardApiBaseUrl + "/api/homework-question/protocol-template/" + templateId;
         logger.info("URL: " + apiUrl);
 
         String jsonResponse = apiHelper.callAPI(apiUrl, usr);
@@ -210,19 +210,34 @@ public class HomeworkQuestionHelper{
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-                JsonNode responsesNode = jsonNode.get("responses");
+                JsonNode questionsNode = jsonNode.get("questions");
 
-                if (responsesNode != null && responsesNode.isArray()) {
-                    for (JsonNode element : responsesNode) {
+                if (questionsNode != null && questionsNode.isArray()) {
+                    for (JsonNode element : questionsNode) {
                         HomeworkQuestion question = new HomeworkQuestion();
-                      
-                        question.setQuestionId(element.get("questionId").asInt());
-                        question.setQuestionAbbreviation(element.get("questionAbbr").asText());
-                        question.setQuestion(element.get("question").asText());
-                        question.setStatus(element.get("status").asText());
+
+                        JsonNode questionIdNode = element.get("questionId");
+                        JsonNode questionAbbrNode = element.get("questionAbbr");
+                        JsonNode questionNode = element.get("question");
+                        JsonNode activeNode = element.get("active");
+                        JsonNode categoryIdNode = element.get("categoryId");
+
+                        if (questionIdNode != null) {
+                            question.setQuestionId(questionIdNode.asInt());
+                        } else {
+                            logger.warn("Missing 'questionId' in response element: {}", element);
+                            continue; // Skip this question if `questionId` is missing
+                        }
+
+                        question.setQuestionAbbreviation(questionAbbrNode != null ? questionAbbrNode.asText() : null);
+                        question.setQuestion(questionNode != null ? questionNode.asText() : null);
+                        question.setCategoryId(categoryIdNode != null ? categoryIdNode.asInt() : 0); // Default to 0 if missing
+                        question.setStatus(activeNode != null && activeNode.asBoolean() ? "ACTIVE" : "INACTIVE");
 
                         results.add(question);
                     }
+                } else {
+                    logger.info("No 'questions' array found in the API response.");
                 }
             } catch (JsonMappingException e) {
                 logger.error("Error mapping JSON", e);
@@ -230,12 +245,13 @@ public class HomeworkQuestionHelper{
                 logger.error("Error processing JSON", e);
             }
         } else {
-            logger.info("Failed to fetch homework questions by category.");
+            logger.info("Failed to fetch homework questions by template ID.");
         }
 
         return results;
     }
-    
+
+
     public HomeworkQuestion getQuestion(User usr, int id) {
         HomeworkQuestion result = new HomeworkQuestion();
         String apiUrl = this.dashboardApiBaseUrl+ Constants.api_homework_question_get + id;

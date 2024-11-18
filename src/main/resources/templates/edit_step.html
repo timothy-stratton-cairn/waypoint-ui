@@ -57,36 +57,6 @@
     </div>
 
     <!-- Homework Form -->
-    <div class="container" id="homeworkContainer" >
-        <div class="row note_card">
-            <fieldset class="col-12">
-                <legend>Assigned Homework</legend>
-                <div class="table-responsive">
-                    <table class="table" id="homeworkTable">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="homework : ${step.homework}" th:data-homework-id="${homework.id}">
-                                <td th:text="${homework.name}">Homework Name</td>
-                                <td>
-                                    <button type="button" class="btn btn-secondary" th:attr="onclick='deleteHomework(' + ${homework.id} + ');'">Delete</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <select class="form-control mt-2" id="homeworkTemplateDropdown">
-                    <option value="">Select Homework Template</option>
-                    <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
-                </select>
-                <button type="button" class="btn btn-primary mt-2" onclick="confirmHomeworkTemplate();">Add Homework</button>
-            </fieldset>
-        </div>
-    </div>
 
     <script th:inline="javascript">
         var stepId = [[${stepId}]];
@@ -96,93 +66,6 @@
             banner.textContent = message;
             banner.className = 'alert alert-' + type;
             banner.style.display = 'block';
-        }
-
-        function deleteHomework(homeworkId) {
-            var csrfToken = $('meta[name="_csrf"]').attr('content');
-            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-
-            $.ajax({
-                url: '/removeHomeworkFromStepTemplate/' + stepId + '/' + homeworkId,
-                type: 'DELETE',
-                headers: {
-                    'Accept': 'application/json, text/plain', 
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                success: function(response, status, xhr) {
-                    var contentType = xhr.getResponseHeader("Content-Type");
-                    var message = '';
-                    if (contentType && contentType.includes("application/json")) {
-                        message = response.message;
-                    } else {
-                        message = response;
-                    }
-                    showBannerMessage(message, 'success');
-                    // Remove the deleted homework row from the table
-                    $('tr[data-homework-id="' + homeworkId + '"]').remove();
-                },
-                error: function(xhr, status, error) {
-                    var contentType = xhr.getResponseHeader("Content-Type");
-                    var errorMessage = "An error occurred.";
-                    if (contentType && contentType.includes("application/json")) {
-                        var jsonResponse = JSON.parse(xhr.responseText);
-                        errorMessage = jsonResponse.message;
-                    } else {
-                        errorMessage = xhr.responseText;
-                    }
-                    showBannerMessage('Failed to remove Homework. Error: ' + errorMessage, 'danger');
-                }
-            });
-        }
-
-        function confirmHomeworkTemplate() {
-            var csrfToken = $('meta[name="_csrf"]').attr('content');
-            var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-            var homeworkTemplateId = document.getElementById('homeworkTemplateDropdown').value;
-            if (!homeworkTemplateId) {
-                showBannerMessage('Please select a Homework Template.', 'warning');
-                return;
-            }
-
-            var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
-            var homeworkExists = Array.from(tableBody.rows).some(row => row.getAttribute('data-homework-id') === homeworkTemplateId);
-            
-            if (homeworkExists) {
-                showBannerMessage("This homework template is already added.", "warning");
-                return;
-            }
-
-            $.ajax({
-                url: '/addHomeworkTemplateToStep/' + stepId + '/' + homeworkTemplateId + '/',
-                type: 'PATCH',
-                contentType: 'application/json',
-                headers: {
-                    'Accept': 'application/json, text/plain', 
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                success: function(response) {
-                    showBannerMessage('Homework Template added successfully.', 'success');
-
-                    // Update the DOM to add the new homework template to the table
-                    var homeworkName = $('#homeworkTemplateDropdown option:selected').text();
-                    var newRow = `<tr data-homework-id="${homeworkTemplateId}">
-                                    <td>${homeworkName}</td>
-                                    <td>
-                                        <button type="button" class="btn btn-secondary" onclick="deleteHomework(${homeworkTemplateId});">Delete</button>
-                                    </td>
-                                  </tr>`;
-                    $('#homeworkTable tbody').append(newRow);
-
-                    // Clear the dropdown selection
-                    $('#homeworkTemplateDropdown').val('');
-                },
-                error: function(xhr, status, error) {
-                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText;
-                    showBannerMessage('Failed to add Homework Template. Error: ' + errorMessage, 'danger');
-                }
-            });
         }
 
         function deleteStepTemplate(stepId) {
@@ -259,20 +142,6 @@
 		        },
 		        error: function(xhr, status, error) {
 		            console.error("Failed to reload Edit Step section: " + error);
-		        }
-		    });
-		}
-		
-
-		function reloadAssignedHomeworkSection(stepId) {
-		    $.ajax({
-		        url: '/reloadAssignedHomework/' + stepId,
-		        type: 'GET',
-		        success: function(response) {
-		            $('#homeworkContainer').html(response); 
-		        },
-		        error: function(xhr, status, error) {
-		            console.error("Failed to reload Assigned Homework section: " + error);
 		        }
 		    });
 		}

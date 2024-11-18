@@ -26,75 +26,62 @@ public class ProtocolStepTemplateHelper{
 	@Value("${waypoint.dashboard-api.base-url}")
 	private String dashboardApiBaseUrl;
 
-    public ArrayList<ProtocolStepTemplate> getStepList(User usr) {
-    	ArrayList<ProtocolStepTemplate> stepTemplateList = new ArrayList<ProtocolStepTemplate>();
-	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
+	public ArrayList<ProtocolStepTemplate> getStepList(User usr) {
+		ArrayList<ProtocolStepTemplate> stepTemplateList = new ArrayList<>();
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate;
 		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
-		
+
 		logger.info(apiUrl);
 		logger.info(jsonResponse);
-		
-		if (!jsonResponse.isEmpty()) {
-            ObjectMapper objectMapper = new ObjectMapper();
 
-            JsonNode rootNode;
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
+
+			JsonNode rootNode;
 			try {
 				rootNode = objectMapper.readTree(jsonResponse);
-	            if (rootNode.isArray()) {
-	                for (JsonNode jsonNode : rootNode) {
-	                    ProtocolStepTemplate template = new ProtocolStepTemplate();
-	                    template.setName(jsonNode.get("name").asText());
-	                    template.setDescription(jsonNode.get("description").asText());
-	                    template.setId(jsonNode.get("id").asInt());
-	                    template.setStatus(jsonNode.get("status").asText());
-	                    
-	                    JsonNode stepTemplateCategoryNode = jsonNode.path("category");
-	                    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
-	                        template.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
-	                        template.setCategoryName(stepTemplateCategoryNode.path("name").asText());
-	                        template.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
-	                    } else {
-	                        template.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
-	                    }
-	                    
-	                    JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
-	                    ArrayList<HomeworkTemplate> homeworks = new ArrayList<>();
-	                    if (perms.isArray()) {
-	                        for (JsonNode element : perms) {
-	                            if (element != null) {
-	                                HomeworkTemplate curHw = new HomeworkTemplate();
-	                                curHw.setName(element.get("name").asText());
-	                                curHw.setId(element.get("id").asInt());
-	                                curHw.setDescription(element.get("description").asText());
-	                                homeworks.add(curHw);
-	                            }
-	                        }
-	                        template.setHomework(homeworks);
-	                    }
-	                    
-	                    stepTemplateList.add(template);
-	                }
-	            }
-			} catch (JsonMappingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        } else {
-            logger.info("Failed to fetch data. getStepList");
-        }   	
-    	if(stepTemplateList.isEmpty()) {
-    		logger.info("No Steps Found");
-    	}
-    	return stepTemplateList;
-    }
-    
-    
-   
+				if (rootNode.isArray()) {
+					for (JsonNode jsonNode : rootNode) {
+						ProtocolStepTemplate template = new ProtocolStepTemplate();
+						template.setName(jsonNode.get("name").asText());
+						template.setDescription(jsonNode.get("description").asText());
+						template.setId(jsonNode.get("id").asInt());
+						template.setStatus(jsonNode.get("status").asText());
 
-    public int addStepTemplate(User usr, ProtocolStepTemplate newStep) {
+						JsonNode stepTemplateCategoryNode = jsonNode.path("category");
+						if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
+							template.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
+							template.setCategoryName(stepTemplateCategoryNode.path("name").asText());
+							template.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
+						} else {
+							template.setType(0); // Set type to 0 if "category" or "id" is missing
+						}
+
+						stepTemplateList.add(template);
+					}
+				}
+			} catch (JsonMappingException e) {
+				logger.error("Error mapping JSON response: ", e);
+			} catch (JsonProcessingException e) {
+				logger.error("Error processing JSON response: ", e);
+			}
+		} else {
+			logger.info("Failed to fetch data. getStepList");
+		}
+
+		if (stepTemplateList.isEmpty()) {
+			logger.info("No Steps Found");
+		}
+
+		return stepTemplateList;
+	}
+
+
+
+
+
+
+	public int addStepTemplate(User usr, ProtocolStepTemplate newStep) {
         int result = -1;
         List<HomeworkTemplate> homeworkList = newStep.getHomework();
         StringBuilder homeworkIds = new StringBuilder("\"linkedHomeworkTemplateIds\":");
@@ -172,63 +159,44 @@ public class ProtocolStepTemplateHelper{
     	return result;
 
     }
-    
-    
-    public ProtocolStepTemplate getTemplate(User usr, int id) {
-    	
-    	
-    	ProtocolStepTemplate result = new ProtocolStepTemplate();
-	    String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + "/"+id;
-	    String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+
+	public ProtocolStepTemplate getTemplate(User usr, int id) {
+		ProtocolStepTemplate result = new ProtocolStepTemplate();
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocolsteptemplate_get + "/" + id;
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+
 		if (!jsonResponse.isEmpty()) {
 			ObjectMapper objectMapper = new ObjectMapper();
-
-			JsonNode jsonNode;
 			try {
-				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+
+				// Set basic fields
 				result.setName(jsonNode.get("name").asText());
 				result.setDescription(jsonNode.get("description").asText());
 				result.setId(Integer.valueOf(jsonNode.get("id").toString()));
+
+				// Handle category
 				JsonNode stepTemplateCategoryNode = jsonNode.path("category");
-			    if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
-			        result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
-			        result.setCategoryName(stepTemplateCategoryNode.path("name").asText());
-			        result.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
-			    } else {
-			        result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
-			    }
-				JsonNode perms = jsonNode.get("linkedHomeworkTemplates");
-				ArrayList <HomeworkTemplate>homeworks = new ArrayList<HomeworkTemplate>();
-				if (perms.isArray()) {
-					for (JsonNode element : perms) {
-						// Access and print array elements
-						if (element != null) {
-							HomeworkTemplate curHw = new HomeworkTemplate();
-							curHw.setName(element.get("name").asText());
-							
-							curHw.setId(Integer.parseInt(element.get("id").asText()));
-							curHw.setDescription(element.get("description").asText());
-							homeworks.add(curHw);
-						}
-						else {
-							logger.warn("No Homework Retrieved");
-						}
-					}
-					logger.info(homeworks.toString());
-					result.setHomework(homeworks);
+				if (!stepTemplateCategoryNode.isMissingNode() && !stepTemplateCategoryNode.path("id").isMissingNode()) {
+					result.setCategoryId(stepTemplateCategoryNode.path("id").asInt());
+					result.setCategoryName(stepTemplateCategoryNode.path("name").asText());
+					result.setCategoryDescription(stepTemplateCategoryNode.path("description").asText());
+				} else {
+					result.setType(0); // Set type to 0 if "stepTemplateCategory" or "id" is missing.
 				}
-				} catch (JsonMappingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
-			} else {
-				logger.error("Failed to fetch data. getTemplate");
+
+			} catch (JsonMappingException e) {
+				logger.error("Error mapping JSON response", e);
+			} catch (JsonProcessingException e) {
+				logger.error("Error processing JSON response", e);
 			}
-	    
-    	return result;
-    	
-    }
+		} else {
+			logger.error("Failed to fetch data. getTemplate");
+		}
+
+		return result;
+	}
+
     
     public int deleteStepTemplate(User usr, int stepTemplateId) {
     	int result = 0;

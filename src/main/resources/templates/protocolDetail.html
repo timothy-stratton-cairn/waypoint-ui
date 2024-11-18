@@ -99,26 +99,52 @@
 </div>
 
 <div class="container">
-    <div class="row note_card">
+        <div class="row note_card">
         <fieldset>
-            <legend>Homework</legend>
-            <div class="rowheader row">
-                <div class="col">Name</div>
-                <div class="col">Description</div>
-                <div class="col">Action</div>
-            </div>
+            <legend>Homework Questions</legend>
+            <ul class="nav nav-tabs" id="questionTabs" role="tablist">
+                <li class="nav-item"><a class="nav-link active" href="#" onclick="loadQuestions(0)">All</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(1)">Personal</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(2)">Family</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(3)">Goals</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(4)">Insurance</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(5)">Investments</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(6)">Assets</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(7)">Liabilities</a></li>
+            </ul>
 
-            <div th:each="homework, stat : ${homeworks}" th:id="|row_${stat.index}|"
-                 th:class="${stat.index % 2 == 0 ? 'row even' : 'row odd'}">
-                <div class="col" th:text="${homework.name}">Default Name</div>
-                <div class="col" th:text="${homework.description}">Default Description</div>
-                <div class="col">
-                    <button type="button" class="btn btn-sm btn-secondary" th:onclick="'viewHomeworkDetails('+${homework.id}+');'">Details</button>
-                </div>
+            <div id="stepsContent" class="mt-3">
+                <ul class="list-group">
+                    <!-- Legend Row -->
+                    <li class="list-group-item bg-light font-weight-bold">
+                        <div class="row">
+                            <div class="col-md-5">Question</div>
+                            <div class="col-md-5">Response</div>
+                            <div class="col-md-2">Last Updated</div>
+                        </div>
+                    </li>
+                    <!-- Dynamic Question Rows with Null Checks -->
+                    <li class="list-group-item question-item"
+                        th:each="questionResponse : ${Questions.questions}"
+                        th:data-category-id="${questionResponse.question != null ? questionResponse.question.categoryId : ''}">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <strong th:text="${questionResponse.question != null ? questionResponse.question.question : 'No question available'}">Question Text</strong>
+                            </div>
+                            <div class="col-md-5">
+                                <span th:text="${questionResponse.response != null && questionResponse.response.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
+                            </div>
+                            <div class="col-md-2">
+                                <span th:text="${questionResponse.question != null && questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </fieldset>
     </div>
 </div>
+
 
 <div class="container">
     <div class="row note_card">
@@ -663,7 +689,16 @@ function clearContainers(stepId) {
 	        });
 	    });
 	}
-	
+    function loadQuestions(categoryId) {
+        $('.question-item').each(function() {
+            const questionCategoryId = $(this).data('category-id');
+            $(this).toggle(categoryId === 0 || questionCategoryId === categoryId);
+        });
+    }
+
+    $(document).ready(function() {
+        loadQuestions(0);
+    });
 
 
 
