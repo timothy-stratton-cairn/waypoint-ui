@@ -77,8 +77,6 @@ public class HomeworkQuestionResponseHelper {
 	                        homeworkResponse.setResponse(responseNode.path("response").asText());
 	                        homeworkResponse.setTooltip(responseNode.path("tooltip").asText());
 	                        homeworkResponse.setCategoryId(responseNode.path("categoryId").asInt());
-	                        homeworkResponse.setProtocolId(responseNode.path("protocolId").asInt());
-
 	                        results.add(homeworkResponse);
 	                    }
 	                } else {
@@ -112,7 +110,6 @@ public class HomeworkQuestionResponseHelper {
 	                        homeworkResponse.setResponse(responseNode.path("response").asText());
 	                        homeworkResponse.setTooltip(responseNode.path("tooltip").asText());
 	                        homeworkResponse.setCategoryId(responseNode.path("categoryId").asInt());
-	                        homeworkResponse.setProtocolId(responseNode.path("protocolId").asInt());
 
 	                        results.add(homeworkResponse);
 	                    }

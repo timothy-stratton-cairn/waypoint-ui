@@ -174,21 +174,25 @@
 									</div>
 								</li>
 								<div class="response-form-container" style="display: none;">
-									<form th:action="@{/submitResponse}" method="post">
+									<div class="row">
 										<input type="hidden" name="questionId" th:value="${questionResponse.question.getId()}" />
-										<div class="row">
-											<div class="col-md-10">
-												<input type="text" name="response" class="form-control" placeholder="Response" />
-											</div>
-											<div class="col-md-2">
-												<button type="submit" class="btn btn-primary">Submit</button>
-											</div>
+										<input type="hidden" name="categoryId" th:value="${questionResponse.question.categoryId}" />
+										<input type="hidden" name="userId" th:value="${userId}" />
+
+										<div class="col-md-10">
+											<input type="text" name="response" th:id="'response_' + ${questionResponse.question.getId()}" class="form-control" placeholder="Response">
+
 										</div>
-									</form>
+										<div class="col-md-2">
+											<button type="button" class="btn btn-primary"
+															th:onclick="'submitResponse(' + ${questionResponse.question.getId()} + ')'" >
+												Submit
+											</button>
+										</div>
 								</div>
+
 							</div>
-
-
+							</div>
 						</ul>
 					</div>
 				</fieldset>
@@ -262,6 +266,59 @@
 	$(document).ready(function() {
 		loadQuestions(0);
 	});
+
+	function submitResponse(questionId) {
+		const inputId = `response_${questionId}`;
+		const responseInput = document.getElementById(inputId);
+
+		if (!responseInput) {
+			console.error(`Input field with ID "${inputId}" not found.`);
+			return;
+		}
+
+		const response = responseInput.value.trim();
+
+		if (!response) {
+			alert('Response cannot be empty!');
+			return;
+		}
+
+		const userId = [[${userId}]]; // Pass `userId` dynamically from Thymeleaf
+		const categoryId = document.querySelector(`[data-question-id="${questionId}"]`).getAttribute('data-category-id');
+
+		const requestBody = {
+			questionId: questionId,
+			userId: userId,
+			response: response,
+			categoryId: categoryId
+		};
+
+		// Perform the API call
+		fetch(`/answerQuestion/${questionId}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content // Include CSRF token
+			},
+			body: JSON.stringify(requestBody)
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Failed to submit the response');
+			}
+			return response.json();
+		})
+		.then(data => {
+			alert('Response submitted successfully!');
+			location.reload()
+		})
+		.catch(error => {
+			console.error('Error:', error);
+			alert('An error occurred while submitting the response.');
+		});
+	}
+
+
 </script>
 </body>
 </html>

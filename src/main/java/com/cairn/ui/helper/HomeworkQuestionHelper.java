@@ -432,4 +432,43 @@ public class HomeworkQuestionHelper{
 
         return results;
     }
+
+    public QuestionResponsePairListDto getHomeworkQuestionResponsePairsByProtocolId(User usr, int protocolId) {
+        QuestionResponsePairListDto results = null;
+
+        String apiUrl = this.dashboardApiBaseUrl + "api/homework-response/protocol/" + protocolId;
+        logger.info("URL: " + apiUrl);
+        String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+
+        if (!jsonResponse.isEmpty()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                // Map JSON response to QuestionResponsePairListDto
+                results = objectMapper.readValue(jsonResponse, QuestionResponsePairListDto.class);
+            } catch (JsonProcessingException e) {
+                logger.error("Failed to parse JSON response", e);
+            }
+        } else {
+            logger.info("Failed to fetch homework questions data.");
+        }
+
+        return results;
+    }
+
+    public int answerQuestion(User userId, HomeworkResponse response){
+
+        String apiUrl = this.dashboardApiBaseUrl + "/api/homework-response";
+        logger.info("URL: " + apiUrl);
+        StringBuilder requestBody = new StringBuilder();
+        requestBody.append("{")
+            .append("\"questionId\": ").append(response.getQuestionId()).append(", ")
+            .append("\"userId\": ").append(response.getUserId()).append(", ")
+            .append("\"response\": \"").append(response.getResponse()).append("\", ")
+            .append("\"categoryId\": ").append(response.getCategoryId())
+            .append("}");
+
+        logger.info("Request Body: " + requestBody.toString());
+        int result = apiHelper.postAPI(apiUrl, requestBody.toString(), userId);
+        return result;
+    }
 }

@@ -265,15 +265,17 @@ public class MainController {
 
 		int actualUserId =  protocol.getUserId();
 
-		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, userId);
-		if (questionsAndAnswers == null || questionsAndAnswers.getQuestions() == null) {
+		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByProtocolId(currentUser, pcolId);
+
+
+		/*if (questionsAndAnswers == null || questionsAndAnswers.getQuestions() == null) {
 			logger.info("No questions or answers found");
 			questionsAndAnswers = new QuestionResponsePairListDto();
 		} else {
 			questionsAndAnswers.getQuestions().removeIf(
 					question -> question.getProtocol() == null || question.getProtocol().getId() != pcolId
 			);
-		}
+		}*/
 
 		model.addAttribute("Questions",questionsAndAnswers);
 		model.addAttribute("mostRecentComment", mostRecentComment.getComment());
@@ -968,6 +970,22 @@ public class MainController {
 		return "userProfileView";
 
 	}
+
+	@PostMapping("/answerQuestion/{questionId}")
+	public ResponseEntity<Integer> answerQuestion(
+			@PathVariable int questionId,
+			@RequestBody HomeworkResponse response) {
+
+		User currentUser = userDAO.getUser();
+		int result = homeworkQuestionHelper.answerQuestion(currentUser, response);
+
+		if (result == 1) {
+			return ResponseEntity.ok(result);
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+		}
+	}
+
 
 	@GetMapping("/clientProfile/{id}")
 	public String demoHouseholdView(Model model,@PathVariable int id) {
