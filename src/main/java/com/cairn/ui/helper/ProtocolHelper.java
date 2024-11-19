@@ -249,8 +249,10 @@ public class ProtocolHelper {
 	        try {
 	            jsonNode = objectMapper.readTree(jsonResponse);
 				result.setId(id);
+
 	            result.setName(jsonNode.get("name").asText());
 	            result.setDescription(jsonNode.get("description").asText());
+							result.setUserId(jsonNode.get("userId").asInt());
 	            result.setCompletionPercent(jsonNode.get("completionPercentage").asText());
 	            if (jsonNode.has("dueBy") && !jsonNode.get("dueBy").isNull()) {
 	                result.setDueDate(jsonNode.get("dueBy").asText());

@@ -264,18 +264,8 @@ public class MainController {
 		}
 
 		int actualUserId =  protocol.getUserId();
-
-		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByProtocolId(currentUser, pcolId);
-
-
-		/*if (questionsAndAnswers == null || questionsAndAnswers.getQuestions() == null) {
-			logger.info("No questions or answers found");
-			questionsAndAnswers = new QuestionResponsePairListDto();
-		} else {
-			questionsAndAnswers.getQuestions().removeIf(
-					question -> question.getProtocol() == null || question.getProtocol().getId() != pcolId
-			);
-		}*/
+		logger.info("User ID Assigned To Protocol: "+ actualUserId);
+		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, actualUserId);
 
 		model.addAttribute("Questions",questionsAndAnswers);
 		model.addAttribute("mostRecentComment", mostRecentComment.getComment());
@@ -585,6 +575,7 @@ public class MainController {
 	@GetMapping("/editProtocol/{id}")
 	public String editProtocolTemplate(@PathVariable int id, Model model) {
 		User usr = (User) userDAO.getUser();
+		Household client = userHelper.getHouseholdById(usr, id);
 		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(usr, id);
 		// logger.info("Protocol Template DueDate: " + pcol.getDueDate());
 		logger.info("Protocol TEmplate Status: " + pcol.getStatus());
@@ -1039,16 +1030,6 @@ public class MainController {
 	}
 
 
-	@GetMapping("/demoProtocolView/{id}")
-	public String demoProtocolView(Model model,@PathVariable int id) {
-		User currentUser = userDAO.getUser();
-		Protocol protocol = protocolHelper.getProtocol(currentUser, id);
-		QuestionResponsePairListDto assignedQuestions = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, id);
-		System.out.println("Assigned Questions: ");
-		model.addAttribute("protocol", protocol);
-		model.addAttribute("Questions",assignedQuestions);
-		return "demoProtolView";
-	}
 
 	@GetMapping("/changeUserInfo")
 	public String showChangeUserInfoForm(Model model) {
