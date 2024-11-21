@@ -2843,16 +2843,43 @@ public class MainController {
 	    return "homeworkDemoPopout";  // This will load the `questionFormPopup.html`
 	}
 
-	@GetMapping("/demoUserView")
-	public String demoUserView(Model model) {
-		return "demoUserView";
+	@PatchMapping("/removeUserFromHousehold/{id}")
+	public ResponseEntity<String> removeUserFromHousehold(@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		String call = userHelper.removeAccountFromHousehold(currentUser, id);
 
+		if(call.contains("success")){
+			return ResponseEntity.ok().body("User Removed from Household Successfully");
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Removing User From Household");
+		}
 	}
 
-	@GetMapping("/demoUserView2")
-	public String demoUserView2(Model model) {
-		return "demoUserView2";
+	@PatchMapping("/setHouseholdToInactive/{id}")
+	public ResponseEntity<String> setHouseholdToInactive(@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		String call = userHelper.setHouseholdToInactive(currentUser, id);
 
+		if(call.contains("success")){
+			return ResponseEntity.ok().body("Household Successfully Set to Inactive ");
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error setting Household to Inactive ");
+		}
+	}
+
+	@PatchMapping("/setUserToInactive/{id}")
+	public ResponseEntity<String> setUserToInactive(@PathVariable int id) {
+		User currentUser = userDAO.getUser();
+		String call = userHelper.setUserToInactive(currentUser, id);
+
+		if(call.contains("success")){
+			return ResponseEntity.ok().body("User Successfully Set to Inactive");
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error setting User to Inactive ");
+		}
 	}
 
 }

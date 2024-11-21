@@ -781,5 +781,23 @@ public class UserHelper {
 	    return associatedAccountIds;
 	}
 
+  public String removeAccountFromHousehold(User usr, int accountId) {
+    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "remove_coclient/"+ accountId;
+    String result = apiHelper.callAPI(apiUrl, usr);
+    return result;
+  }
+
+  public String setHouseholdToInactive(User usr, int householdId) {
+    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get+ "toggle-active/"+ householdId;
+    String result = apiHelper.callAPI(apiUrl, usr);
+    return result;
+  }
+
+  public String setUserToInactive(User usr, int userId) {
+    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get+ "toggle-active/"+ userId;
+    String result = apiHelper.callAPI(apiUrl, usr);
+    return result;
+  }
+
 	
 }

@@ -34,6 +34,7 @@
                                 <a th:href="@{'/clientProfile/' + ${user.id}}">
                                     <button class="btn btn-sm btn-secondary">View Profile</button>
                                 </a>
+                                <button class="btn btn-sm btn-danger" onclick="setHouseholdToInactive(${user.id});">Set to Inactive</button>
                             </td>
                         </tr>
                     </tbody>
@@ -48,6 +49,20 @@
     <script>
         function newClient() {
             window.location = '/newClient/';
+        }
+
+        function setHouseholdToInactive(userId) {
+            $.ajax({
+                url: '/setHouseholdToInactive/' + userId,
+                type: 'PATCH',
+                success: function(response) {
+                    alert(response);
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('Error setting Household to Inactive: ' + xhr.responseText);
+                }
+            });
         }
 
         $(document).ready(function() {

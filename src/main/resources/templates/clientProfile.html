@@ -445,7 +445,7 @@
 
     if (confirm("Are you sure you want to remove this CoClient?")) {
       $.ajax({
-        url: `/removeCoClient/${clientId}/${coClientId}`,
+        url: `/removeUserFromHousehold/${coClientId}`,
         type: 'PATCH',
         headers: {
           'Accept': 'text/plain',
@@ -453,12 +453,8 @@
           [csrfHeader]: csrfToken
         },
         success: function (response) {
-          showMessageBanner('CoClient Successfully Removed!', 'success');
-          makePrimaryContact(pcId).then(function () {
-            window.location.reload(); // Reload the page upon successful response
-          }).catch(function (error) {
-            showMessageBanner('Failed to make primary contact. Error: ' + error.message, 'danger');
-          });
+          showMessageBanner('User Removed from Household Successfully!', 'success');
+          location.reload(); // Reload the page upon successful response
         },
         error: function (xhr, status, error) {
           showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
@@ -466,6 +462,7 @@
       });
     }
   }
+
 
 
   $(document).ready(function() {
