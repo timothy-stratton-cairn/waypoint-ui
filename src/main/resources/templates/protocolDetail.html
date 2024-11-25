@@ -102,45 +102,60 @@
         <div class="row note_card">
         <fieldset>
             <legend>Homework Questions</legend>
+            <ul class="nav nav-tabs" id="answerTabs" role="tablist">
+              <li class="nav-item"><a class="nav-link active" href="#" onclick="setAnsweredFilter(0);return false;">All</a></li>
+              <li class="nav-item"><a class="nav-link" href="#" onclick="setAnsweredFilter(1);return false;">Answered</a></li>
+              <li class="nav-item"><a class="nav-link" href="#" onclick="setAnsweredFilter(2);return false;">Unanswered</a></li>
+            </ul>
             <ul class="nav nav-tabs" id="questionTabs" role="tablist">
-                <li class="nav-item"><a class="nav-link active" href="#" onclick="loadQuestions(0)">All</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(1)">Personal</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(2)">Family</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(3)">Goals</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(4)">Insurance</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(5)">Investments</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(6)">Assets</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(7)">Liabilities</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#" onclick="loadQuestions(0);return false;">All</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(1);return false;">Personal</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(2);return false;">Family</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(3);return false;">Goals</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(4);return false;">Insurance</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(5);return false;">Investments</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(6);return false;">Assets</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="loadQuestions(7);return false;">Liabilities</a></li>
             </ul>
 
-            <div id="stepsContent" class="mt-3">
-                <ul class="list-group">
-                    <!-- Legend Row -->
-                    <li class="list-group-item bg-light font-weight-bold">
-                        <div class="row">
-                            <div class="col-md-5">Question</div>
-                            <div class="col-md-5">Response</div>
-                            <div class="col-md-2">Last Updated</div>
-                        </div>
-                    </li>
-                    <!-- Dynamic Question Rows with Null Checks -->
-                    <li class="list-group-item question-item"
-                        th:each="questionResponse : ${Questions.questions}"
-                        th:data-category-id="${questionResponse.question != null ? questionResponse.question.categoryId : ''}">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <strong th:text="${questionResponse.question != null ? questionResponse.question.question : 'No question available'}">Question Text</strong>
-                            </div>
-                            <div class="col-md-5">
-                                <span th:text="${questionResponse.response != null && questionResponse.response.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
-                            </div>
-                            <div class="col-md-2">
-                                <span th:text="${questionResponse.question != null && questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+          <div class="question-container" th:each="questionResponse : ${Questions != null && Questions.questions != null ? Questions.questions : {}}">
+            <li class="list-group-item question-item"
+                th:data-category-id="${questionResponse.question.categoryId}"
+                th:data-question-id="${questionResponse.question.getId()}"
+                th:data-answered="${questionResponse.response != null && questionResponse.response.response != null && questionResponse.response.response != 'NEEDS ATTENTION' ? 1 : 0}"
+                onclick="toggleResponseForm(this)">
+              <div class="row">
+                <div class="col-md-5">
+                  <strong th:text="${questionResponse.question.question}">Question Text</strong>
+                </div>
+                <div class="col-md-5">
+                  <span th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
+                </div>
+                <div class="col-md-2">
+                  <span th:text="${questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
+                </div>
+              </div>
+            </li>
+            <div class="response-form-container" style="display: none;">
+              <div class="row">
+                <input type="hidden" name="questionId" th:value="${questionResponse.question.getId()}" />
+                <input type="hidden" name="categoryId" th:value="${questionResponse.question.categoryId}" />
+                <input type="hidden" name="userId" th:value="${userId}" />
+
+                <div class="col-md-10">
+                  <input type="text" name="response" th:id="'response_' + ${questionResponse.question.getId()}" class="form-control" placeholder="Response">
+
+                </div>
+                <div class="col-md-2">
+                  <button type="button" class="btn btn-primary"
+                          th:onclick="'submitResponse(' + ${questionResponse.question.getId()} + ')'" >
+                    Submit
+                  </button>
+                </div>
+              </div>
+
             </div>
+          </div>
         </fieldset>
     </div>
 </div>
@@ -218,6 +233,8 @@
 <script>
     var protocolId = [[${protocolId}]]; 
     var userId = [[${userId}]];
+    var isAnswered = 0;
+    var questionCategory = 0;
 
     function editProtocol(id) {
         window.location = '/editStep/' + id;
@@ -696,8 +713,143 @@ function clearContainers(stepId) {
         });
     }
 
+    function toggleResponseForm(element) {
+      const responseFormContainer = element.nextElementSibling;
+
+      if (responseFormContainer && responseFormContainer.classList.contains('response-form-container')) {
+        if (responseFormContainer.style.display === 'none' || responseFormContainer.style.display === '') {
+          responseFormContainer.style.display = 'block';
+        } else {
+          responseFormContainer.style.display = 'none';
+        }
+      }
+    }
+
+   /* function loadQuestionsByAnswerStatus(isAnswered) {
+      $('.question-item').each(function() {
+        const isQuestionAnswered = $(this).data('answered');
+        $(this).toggle(isAnswered === isQuestionAnswered);
+      });
+    } */
+
+    function setAnsweredFilter(value) {
+      isAnswered = value;
+      loadQuestions(questionCategory); // Reload with current category, default to 'All'
+    }
+
+    function loadQuestions(categoryId) {
+      $('.question-item').each(function() {
+        const questionCategoryId = $(this).data('category-id');
+        const isAnsweredValue = $(this).data('answered');
+
+        const matchesCategory = (categoryId === 0 || questionCategoryId === categoryId);
+        const matchesAnsweredFilter = (isAnswered === 0) || (isAnswered === 1 && isAnsweredValue === 1) || (isAnswered === 2 && isAnsweredValue === 0);
+        questionCategory = categoryId;
+        $(this).toggle(matchesCategory && matchesAnsweredFilter);
+      });
+    }
+
+
+    function submitResponse(questionId) {
+      const inputId = `response_${questionId}`;
+      const responseInput = document.getElementById(inputId);
+
+      if (!responseInput) {
+        console.error(`Input field with ID "${inputId}" not found.`);
+        return;
+      }
+
+      const response = responseInput.value.trim();
+
+      if (!response) {
+        alert('Response cannot be empty!');
+        return;
+      }
+
+
+      const categoryId = document.querySelector(`[data-question-id="${questionId}"]`).getAttribute('data-category-id');
+
+      const requestBody = {
+        questionId: questionId,
+        userId: userId,
+        response: response,
+        categoryId: categoryId
+      };
+
+      // Perform the API call
+      fetch(`/answerQuestion/${questionId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content // Include CSRF token
+        },
+        body: JSON.stringify(requestBody)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to submit the response');
+        }
+        return response.json();
+      })
+      .then(data => {
+        alert('Response submitted successfully!');
+        location.reload()
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the response.');
+      });
+    }
+
+    function addProtocol() {
+      if (!apTracker) {
+        console.log("addProtocol: Prevented from spawning multiple lines.");
+        return;
+      }
+
+      console.log("addProtocol: Function called.");
+      const container = document.querySelector("#protocolContainer");
+      if (container) {
+        console.log("addProtocol: Container found.");
+      } else {
+        console.error("addProtocol: #protocolContainer not found.");
+        return;
+      }
+      const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
+      container.appendChild(template);
+      console.log("addProtocol: Protocol added to container.");
+      apTracker = false;
+    }
+
+    // Add protocols to the User.
+    function confirmProtocol(buttonElement) {
+      console.log("confirmProtocol: Function called.");
+
+      var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+      var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+      var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+      var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+      if (csrfTokenElement && csrfHeaderElement) {
+        console.log("confirmProtocol: CSRF elements found.");
+      } else {
+        console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
+      }
+
+      var selectElement = buttonElement.previousElementSibling;
+      var protocolId = selectElement ? selectElement.value : null;
+      const popupWidth = 800;
+      const popupHeight = 400;
+      const left = (screen.width - popupWidth) / 2;
+      const top = (screen.height - popupHeight) / 2;
+      //Calls the window to add Protocols to User
+      window.open(`/extraInfoPopUp/${userId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+
+    }
+
+
+
     $(document).ready(function() {
-        loadQuestions(0);
+        loadQuestions(questionCategory);
     });
 
 

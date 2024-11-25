@@ -84,7 +84,6 @@ public class ProtocolHelper {
 	    return results;
 	}
 
-
 	public ArrayList<Protocol> getListbyTemplateId(User usr, int tempId) {
 	    ArrayList<Protocol> results = new ArrayList<>();
 
@@ -603,18 +602,18 @@ public class ProtocolHelper {
 
 
 	/*
-	 * Assigns a clientId to a protocol
+	 * Assigns Protocol to UserId
 	 * 
 	 * @param usr
 	 * 
 	 * @param pcol
 	 */
 
-	public int addClient(User usr, int clientid, int protocolTemplateId, Protocol protocolRequest) {
+	public int addClient(User usr, int userId, int protocolTemplateId, Protocol protocolRequest) {
 		int result = 0;
 		String requestBody = String.format(
-				"{\"protocolTemplateId\": %d, \"comment\": \"\", \"assignedHouseholdId\": %d, \"protocolName\": \"%s\", \"dueDate\": \"%s\"}",
-				protocolTemplateId, clientid, protocolRequest.getName(), protocolRequest.getDueDate());
+				"{\"protocolTemplateId\": %d, \"comment\": \"\", \"assignedUserId\": %d, \"protocolName\": \"%s\", \"dueDate\": \"%s\"}",
+				protocolTemplateId, userId, protocolRequest.getName(), protocolRequest.getDueDate());
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol;// retrieves all protocols assigned to clientId
 		logger.info(apiUrl);
 		logger.info(requestBody);

@@ -364,4 +364,25 @@ public class APIHelper {
 		}
 		return result;
 	}
+
+  public String callPatchAPI(String apiUrl, User usr) {
+    String jsonResponse = "";
+    HttpEntity<String> entity = Entity.getEntity(usr, apiUrl);
+    // Make the GET request and retrieve the response
+    try {
+      ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.PATCH, entity, String.class);
+      jsonResponse = response.getBody();
+
+      // Process the response
+      if (response.getStatusCode().is2xxSuccessful()) {
+
+      } else {
+        logger.info("Failed to fetch data " + apiUrl + ". Status code: " + response.getStatusCode());
+      }
+    } catch (Exception e) {
+
+      logger.info("No records returned for " + apiUrl + e);
+    }
+    return jsonResponse;
+  }
 }

@@ -111,9 +111,7 @@ public class ProtocolTemplateHelper {
 		result = apiHelper.postAPI(apiUrl, requestBody, usr);
 		return result;
 	}
-	
-	
-	
+
 	//same as above but instead grabbing all types 
     public ArrayList<ProtocolStepTemplate> getAllSteps(User usr) {
         ArrayList<ProtocolStepTemplate> results = new ArrayList<ProtocolStepTemplate>();
@@ -173,7 +171,6 @@ public class ProtocolTemplateHelper {
         return results;
     }
 
-
 	public Map<String,String> getStepTypes() {
         HashMap<String, String> retVal = new HashMap<String, String>();
         retVal.put("0", "-- Select A Value --");
@@ -201,8 +198,7 @@ public class ProtocolTemplateHelper {
 		
 		return result;
 	}
-	
-	
+
 	public int updateProtocolTemplateName(User usr, int tempId, String name) {
 		int result = -1;
 		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + tempId;
@@ -270,7 +266,6 @@ public class ProtocolTemplateHelper {
 		return result;
 		
 	}
-	
 
 	public int updateProtocolTemplate(User usr, int tempId, ProtocolTemplate newTemp) {
 	    int result = -1;
@@ -712,8 +707,7 @@ public class ProtocolTemplateHelper {
     	int result = -1;
     	return result;
     }
-    
-    
+
     public int changeStatus(User usr, int pcolId, String status) {
 			int result = -1;
 
@@ -730,7 +724,6 @@ public class ProtocolTemplateHelper {
 
 			return result;
 		}
-
 
 			public String linkHomeworkQuestionAndProtocolTemplate(User usr, int templateId, int questionId){
 				String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + templateId+ "/link-question/" + questionId;

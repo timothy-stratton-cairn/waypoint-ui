@@ -945,19 +945,24 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 		User profileUser = userHelper.getUser(currentUser, user_Id);
 		ArrayList<User> coclients = new ArrayList<User>();
+		ArrayList<ProtocolTemplate> allTemplates = protocolTemplateHelper.getList(currentUser);
 		if(profileUser.getHouseholdId() > 0) {
 			coclients = userHelper.getHouseholdById(currentUser,profileUser.getHouseholdId()).getHouseholdAccounts();
 		}
+
 		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, user_Id);
 		ArrayList<Protocol> userProtocols = protocolHelper.getProtocolsByUserId(currentUser, user_Id);
 		logger.info("User: "+ user_Id +" Number of Protocols " +userProtocols.size());
 		System.out.println(userProtocols.size());
+
+		model.addAttribute("protocolList", allTemplates);
 		model.addAttribute("clientId", profileUser.getHouseholdId());
 		model.addAttribute("coclients", coclients);
 		model.addAttribute("user",profileUser);
 		model.addAttribute("userId",user_Id);
 		model.addAttribute("Questions",questionsAndAnswers);
 		model.addAttribute("userProtocols",userProtocols);
+
 		return "userProfileView";
 
 	}
@@ -1529,14 +1534,14 @@ public class MainController {
 		return "fragments/education :: educationFragment";
 	}
 
-	@PostMapping("/addClientToProtocol/{clientId}/{protocolTemplateId}")
-	public ResponseEntity<Object> addClientToProtocol(@PathVariable int clientId, @PathVariable int protocolTemplateId,
+	@PostMapping("/addClientToProtocol/{userId}/{protocolTemplateId}")
+	public ResponseEntity<Object> addClientToProtocol(@PathVariable int userId, @PathVariable int protocolTemplateId,
 			@RequestBody Protocol protocolRequest) {
 		logger.info(
 				"Protocol Name: " + protocolRequest.getName() + " Protocol Due Date: " + protocolRequest.getDueDate());
 		try {
 			User currentUser = userDAO.getUser();
-			int call = protocolHelper.addClient(currentUser, clientId, protocolTemplateId, protocolRequest); // Perform
+			int call = protocolHelper.addClient(currentUser, userId, protocolTemplateId, protocolRequest); // Perform
 																												// the
 			logger.info("new protocolId" + call);// operation
 			ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser, call);
@@ -2871,6 +2876,7 @@ public class MainController {
 
 	@PatchMapping("/setUserToInactive/{id}")
 	public ResponseEntity<String> setUserToInactive(@PathVariable int id) {
+		logger.info("Calling setUserToInactive");
 		User currentUser = userDAO.getUser();
 		String call = userHelper.setUserToInactive(currentUser, id);
 

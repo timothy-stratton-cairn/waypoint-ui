@@ -439,32 +439,6 @@ public class UserHelper {
         return result; 
     }
 
-	
-	/*public int addDependant(User usr, User client, ArrayList<User> users) {
-	    int result = 0;
-	    logger.info("Calling addDepenedant from Helper");
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer " + usr.getToken());
-	    headers.add("Content-Type", "application/json");
-
-	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/"+ client.getId();
-	    
-	    StringBuilder tempBody = new StringBuilder("\"dependants\":[");
-	    for (int i = 0; i < users.size(); i++) {
-	        User user = users.get(i);
-	        tempBody.append(String.format("{\"id\":%d,\"firstName\":\"%s\",\"lastName\":\"%s\",\"userName\":\"%s\"}",
-	            user.getId(), user.getFirstName(), user.getLastName(), user.getUsername()));
-	        if (i < users.size() - 1) {
-	            tempBody.append(",");
-	        }
-	    }
-	    tempBody.append("]}");
-	    String requestBody = String.format("{\"firstName\":\"%s\",\"lastName\":\"%s\",\"email\":\"%s\",",client.getFirstName(),client.getLastName(),client.getEmail());
-	    requestBody = requestBody+tempBody.toString();
-	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
-		return result;
-	}*/
-	
 	public String addDependant(User usr, int clientId, ArrayList<Integer> dependentList) {
 	    String result = "error";
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/" + clientId;
@@ -490,8 +464,6 @@ public class UserHelper {
 
 	    return result;
 	}
-
-
 
 	public int addHouseholdAccount(User usr, Household household, ArrayList<Integer> householdIds) {
 	    int result = -1;
@@ -526,7 +498,6 @@ public class UserHelper {
 	    result = apiHelper.patchAPI(apiUrl, requestBody, usr);
 	    return result;
 	}
-	
 	
 	public int addCoClient(User usr, User client, User coClient) {
 		logger.info("Calling addCoClient from User Helper with ClientId: "+ client.getId() + " and CoClientId: " +coClient.getId());
@@ -566,8 +537,7 @@ public class UserHelper {
 	    result = apiHelper.patchAPI(apiUrl,requestBody,usr);
 		return result;
 	}
-	
-	
+
 	public String newHousehold( User usr, Household household) {
 		String result = "Error: Household not created";
 		String apiUrl = this.authorizationApiBaseUrl + Constants.api_household;
@@ -660,9 +630,6 @@ public class UserHelper {
         }
     }
 
-
-    
-    
 	public String newUserPassword(String username, String passwordResetToken ,String newPassword) {
 		HttpHeaders headers = new HttpHeaders();
 		//User usr  = new User();
@@ -677,8 +644,7 @@ public class UserHelper {
 		logger.info(result);
 		return result;
 	}
-    
-    
+
 	public String createDependent(User usr, User newUser) {
 		ArrayList<String> roles = newUser.getRoles();
 		int role = Integer.parseInt(roles.get(0)); // Assumption: roles are integers
@@ -694,8 +660,7 @@ public class UserHelper {
 		}
 		return "success " + "id: "+ result;
 	}
-	
-	
+
 	public String promoteToPrimaryContact(User usr, int householdId, int clientId) {
 		int call = 0;
 	    String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get + householdId;
@@ -727,8 +692,7 @@ public class UserHelper {
 	    	return "Error Updating Dependents";
 	    }
 	}
-	
-	
+
 	public String updateCoClients(User usr, int householdId, String coclientList) {
 		
 		String requestBody = String.format("{\"householdAccountIds\":%s}",coclientList);
@@ -782,22 +746,21 @@ public class UserHelper {
 	}
 
   public String removeAccountFromHousehold(User usr, int accountId) {
-    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "remove_coclient/"+ accountId;
-    String result = apiHelper.callAPI(apiUrl, usr);
+    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get + "/remove_coclient/"+ accountId;
+    String result = apiHelper.callPatchAPI(apiUrl, usr);
     return result;
   }
 
   public String setHouseholdToInactive(User usr, int householdId) {
     String apiUrl = this.authorizationApiBaseUrl + Constants.api_household_get+ "toggle-active/"+ householdId;
-    String result = apiHelper.callAPI(apiUrl, usr);
+    String result = apiHelper.callPatchAPI(apiUrl, usr);
     return result;
   }
 
   public String setUserToInactive(User usr, int userId) {
-    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get+ "toggle-active/"+ userId;
-    String result = apiHelper.callAPI(apiUrl, usr);
+    String apiUrl = this.authorizationApiBaseUrl + Constants.api_userlist_get+ "/toggle-active/"+ userId;
+    String result = apiHelper.callPatchAPI(apiUrl, usr);
     return result;
   }
 
-	
 }
