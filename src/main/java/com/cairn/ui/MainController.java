@@ -988,8 +988,19 @@ public class MainController {
 		User currentUser = userDAO.getUser();
 		Household household = userHelper.getHouseholdById(currentUser, id);
 		User primaryContact = household.getPrimaryContacts().get(0);
-		ArrayList<Protocol> householdProtocols = protocolHelper.getAssignedProtocols(currentUser, id);
-        ArrayList<User> coclients = household.getHouseholdAccounts();
+
+		ArrayList<Protocol> householdProtocols =new ArrayList<Protocol>();
+
+
+		ArrayList<User> coclients = household.getHouseholdAccounts();
+		logger.info("Number of Assigned Accounts: "+coclients.size());
+		for (User user : coclients) {
+			logger.info("User ID: "+ user.getId());
+			householdProtocols.addAll(protocolHelper.getProtocolsByUserId(currentUser, user.getId()));
+		}
+
+		logger.info("Number of Assigned Protocols: "+householdProtocols.size());
+
 		int firstCoClientId = coclients.get(0).getId();
 		ArrayList<User> dependents = new ArrayList<>();
 		ArrayList<User> dependantList = new ArrayList<>();
@@ -1014,12 +1025,14 @@ public class MainController {
 		}
 
 		int clientId = household.getId();
-        model.addAttribute("householdProtocols",householdProtocols);
+
+		model.addAttribute("protocolList", protocolTemplateHelper.getList(currentUser));
+		model.addAttribute("householdProtocols",householdProtocols);
 		model.addAttribute("primaryContact",primaryContact);
 		model.addAttribute("coclients",coclients);
 		model.addAttribute("clientId",clientId);
-        model.addAttribute("dependents",dependantList);
-        model.addAttribute("household",household);
+		model.addAttribute("dependents",dependantList);
+		model.addAttribute("household",household);
 		model.addAttribute("firstCoClientId",firstCoClientId);
 		return "clientProfile";
 	}
@@ -1559,6 +1572,37 @@ public class MainController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PostMapping("/addProtocolToEntireHousehold/{householdId}/{protocolTemplateId}")
+	public ResponseEntity<Object> addProtocolToEntireHousehold(@PathVariable int householdId, @PathVariable int protocolTemplateId,
+			@RequestBody Protocol protocolRequest) {
+		logger.info(
+				"Protocol Name: " + protocolRequest.getName() + " Protocol Due Date: " + protocolRequest.getDueDate());
+
+		try {
+			User currentUser = userDAO.getUser();
+			Household household = userHelper.getHouseholdById(currentUser, householdId);
+
+			for (User householdAccount: household.getHouseholdAccounts()) {
+				int call = protocolHelper.addClient(currentUser, householdAccount.getId(), protocolTemplateId,
+						protocolRequest); // Perform
+				// the
+				logger.info("new protocolId" + call);// operation
+				ArrayList<ProtocolStep> steps = protocolHelper.getStepList(currentUser, call);
+				for (ProtocolStep step : steps) {
+					logger.info("Step Id: " + step.getId());
+					protocolHelper.updateStepNote(currentUser, call, step.getId(), "CREATED");
+				}
+			}
+
+		} catch (Exception e) {
+			logger.info("Error in addClientToProtocol:");
+			e.printStackTrace(); // Print the stack trace to the console
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error adding client to protocol: " + e.getMessage());
+		}
+		return ResponseEntity.ok().build();
+	}
+
 	@GetMapping("clientProtocol/{pcolId}")
 	public String clientProtocol(@PathVariable int pcolId, Model model) {
 		User currentUser = userDAO.getUser();
@@ -1998,6 +2042,20 @@ public class MainController {
 		return "extraInfoPopUp";
 
 	}
+	@GetMapping("extraInfoHouseholdPopUp/{userId}/{protocolId}")
+	public String extraInfoHouseholdPopUp(@PathVariable int userId, @PathVariable int protocolId, Model model) {
+		User currentUser = userDAO.getUser();
+		ProtocolTemplate pcol = protocolTemplateHelper.getTemplate(currentUser, protocolId);
+		String name = pcol.getName();
+		model.addAttribute("name", name);
+		model.addAttribute("pcol", pcol);
+		model.addAttribute("userId", userId);
+		model.addAttribute("protocolId", protocolId);
+		return "extraInfoHouseholdPopUp";
+
+	}
+
+
 
 	@PatchMapping("/uploadFileToHomework/")
 	public ResponseEntity<String> uploadFileToHomework(@RequestParam("file") MultipartFile file, String userResponse,

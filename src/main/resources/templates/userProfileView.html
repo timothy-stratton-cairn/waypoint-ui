@@ -354,24 +354,25 @@
 	}
 
 	function addProtocol() {
-		if (!apTracker) {
-			console.log("addProtocol: Prevented from spawning multiple lines.");
-			return;
-		}
-
 		console.log("addProtocol: Function called.");
 		const container = document.querySelector("#protocolContainer");
-		if (container) {
-			console.log("addProtocol: Container found.");
-		} else {
+
+		if (!container) {
 			console.error("addProtocol: #protocolContainer not found.");
 			return;
 		}
-		const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
-		container.appendChild(template);
-		console.log("addProtocol: Protocol added to container.");
-		apTracker = false;
+
+		if (container.innerHTML.trim() === "") {
+			console.log("addProtocol: Adding protocol.");
+			const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
+			container.appendChild(template);
+			console.log("addProtocol: Protocol added to container.");
+		} else {
+			console.log("addProtocol: Removing protocol.");
+			container.innerHTML = ""; // Clear the container to hide the protocol
+		}
 	}
+
 
 	// Add protocols to the User.
 	function confirmProtocol(buttonElement) {
