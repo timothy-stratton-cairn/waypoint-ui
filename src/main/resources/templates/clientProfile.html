@@ -121,7 +121,7 @@
             <li class="nav-item" th:each="coclient : ${coclients}">
               <a class="nav-link nav-tab-link" href="javascript:void(0);"
                  th:text="${coclient.firstName + ' ' + coclient.lastName}"
-                 th:onclick="|loadCoClientData(${coclient.id});|">CoClient</a>
+                 th:onclick="|setClientFilter(${coclient.id});|">CoClient</a>
             </li>
           </ul>
 
@@ -147,23 +147,56 @@
 
           <!-- Content Section for CoClient Information and Homework Questions -->
           <div class="tab-content mt-3" id="coclientContent">
-            <div id="coclientInfo" class="mb-3">
-              <p><strong>Name:</strong> <span id="coclientName"></span></p>
-              <p><strong>Email:</strong> <span id="coclientEmail"></span></p>
-            </div>
 
-            <div id="questionListContainer">
-              <ul class="list-group">
-                <li class="list-group-item bg-light font-weight-bold">
+
+            <div class="question-container" th:each="userQuestionResponsePair : ${questionList}">
+              <div id="coclientInfo" class="mb-3">
+                <p><strong>Name:</strong> <span th:text="${userQuestionResponsePair.user.firstName + ' ' + userQuestionResponsePair.user.lastName}"></span></p>
+              </div>
+
+              <div th:each="questionResponse : ${userQuestionResponsePair.responses.questions}">
+                <li class="list-group-item question-item"
+                    th:data-category-id="${questionResponse.question.categoryId}"
+                    th:data-question-id="${questionResponse.question.id}"
+                    th:data-answered="${questionResponse.response != null && questionResponse.response.response != null && questionResponse.response.response != 'NEEDS ATTENTION' ? 1 : 0}"
+                    th:data-client-id="${userQuestionResponsePair.user.id}"
+                    onclick="toggleResponseForm(this)">
+                    <!--th:data-parent-category="${questionResponse.question.isParentCategory}" this will be implimented lated -->
+
                   <div class="row">
-                    <div class="col-md-6">Question</div>
-                    <div class="col-md-4">Response</div>
-                    <div class="col-md-2">Last Updated</div>
+                    <div class="col-md-5">
+                      <strong th:text="${questionResponse.question.question}">Question Text</strong>
+                    </div>
+                    <div class="col-md-5">
+                      <span th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
+                    </div>
+                    <div class="col-md-2">
+                      <span th:text="${questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
+                    </div>
                   </div>
                 </li>
-                <li class="list-group-item question-item" id="questionsList"></li>
-              </ul>
+
+                <div class="response-form-container" style="display: none;">
+                  <div class="row">
+                    <input type="hidden" name="questionId" th:value="${questionResponse.question.id}" />
+                    <input type="hidden" name="categoryId" th:value="${questionResponse.question.categoryId}" />
+                    <input type="hidden" name="userId" th:value="${userQuestionResponsePair.user.id}" />
+
+                    <div class="col-md-10">
+                      <input type="text" name="response" th:id="'response_' + ${questionResponse.question.id}" class="form-control" placeholder="Response">
+                    </div>
+
+                    <div class="col-md-2">
+                      <button type="button" class="btn btn-primary" th:onclick="'submitResponse(' + ${questionResponse.question.id} + ')'" >
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+
+
           </div>
         </fieldset>
       </div>
@@ -304,6 +337,9 @@
 <script th:inline="javascript">
   var firstCoClientId = [[${firstCoClientId}]];
   var clientId = [[${clientId}]];
+  var isAnswered = 0;
+  var questionCategory = 0;
+  var selectedClientId = firstCoClientId;
 
   function editClient(id) {
     window.location.href = '/userProfileView/' + id;
@@ -375,45 +411,38 @@
     }
   }
 
-  function loadCoClientData(coclientId) {
-    $.ajax({
-      url: `/getCoClientQuestionsAndProtocols/${coclientId}`,
-      type: "GET",
-      success: function(data) {
-        $('#coclientName').text(data.coclient.firstName + ' ' + data.coclient.lastName);
-        $('#coclientEmail').text(data.coclient.email);
+  function setAnsweredFilter(value) {
+    isAnswered = value;
+    loadQuestions(questionCategory);
+  }
 
-        $('#questionsList').empty();
-        data.Questions.questions.forEach(function(questionResponse) {
-          $('#questionsList').append(`
-            <li class="list-group-item question-item" data-category-id="${questionResponse.question.categoryId}">
-              <div class="row">
-                <div class="col-md-6"><strong>${questionResponse.question.question}</strong></div>
-                <div class="col-md-4">${questionResponse.response ? questionResponse.response.response : 'NEEDS ATTENTION'}</div>
-                <div class="col-md-2">${questionResponse.question.updated || 'N/A'}</div>
-              </div>
-            </li>
-          `);
-        });
-
-        // Automatically load "All" questions by default
-        loadQuestions(0);
-      },
-      error: function() {
-        alert('Failed to load CoClient data.');
-      }
-    });
+  function setClientFilter(clientId) {
+    selectedClientId = clientId;
+    loadQuestions(questionCategory);
   }
 
   function loadQuestions(categoryId) {
+    questionCategory = categoryId; // Set the global questionCategory to the new category ID
+
     $('.question-item').each(function() {
       const questionCategoryId = $(this).data('category-id');
-      if (questionCategoryId === undefined) {
-        return; // Skip to the next item
-      }
-      $(this).toggle(categoryId === 0 || questionCategoryId == categoryId);
+      const isAnsweredValue = $(this).data('answered');
+      const clientIdValue = $(this).data('client-id');
+
+      // Determine if the question matches the filters
+      const matchesCategory = (questionCategory === 0 || questionCategoryId === questionCategory);
+      const matchesAnsweredFilter = (isAnswered === 0) || (isAnswered === 1 && isAnsweredValue === 1) || (isAnswered === 2 && isAnsweredValue === 0);
+      const matchesClientFilter = (selectedClientId === 0 || clientIdValue === selectedClientId);
+
+      // Toggle visibility based on matching all filters
+      $(this).toggle(matchesCategory && matchesAnsweredFilter && matchesClientFilter);
     });
   }
+
+
+
+
+
   function makePrimaryContact(coClientId) {
     var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
     var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
@@ -538,9 +567,9 @@
 
 
   $(document).ready(function() {
-    loadQuestions(0);
+    loadQuestions(questionCategory);
     filterProtocolsByStatus('IN_PROGRESS');
-    loadCoClientData(firstCoClientId);
+
   });
 
   document.addEventListener('DOMContentLoaded', function () {

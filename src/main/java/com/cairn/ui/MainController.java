@@ -1005,7 +1005,16 @@ public class MainController {
 		ArrayList<User> dependents = new ArrayList<>();
 		ArrayList<User> dependantList = new ArrayList<>();
 		ArrayList<Integer> dependantIds = new ArrayList<>();
-		ArrayList<User> clientList = household.getHouseholdAccounts();
+		List<User> clientList = household.getHouseholdAccounts();
+		List<UserQuestionResponsePair> questionList = clientList.stream()
+				.map(client -> {
+					UserQuestionResponsePair userPair = new UserQuestionResponsePair();
+					userPair.setUser(client);
+					userPair.setResponses(questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, client.getId()));
+					return userPair;
+				})
+				.collect(Collectors.toList());
+
 
 		for (User client : clientList) { // Iterate over the copy
 			logger.info("Client: " + client.getFirstName() + " " + client.getLastName() + " Id: " + client.getId());
@@ -1028,6 +1037,7 @@ public class MainController {
 
 		model.addAttribute("protocolList", protocolTemplateHelper.getList(currentUser));
 		model.addAttribute("householdProtocols",householdProtocols);
+		model.addAttribute("questionList", questionList);
 		model.addAttribute("primaryContact",primaryContact);
 		model.addAttribute("coclients",coclients);
 		model.addAttribute("clientId",clientId);
@@ -1036,11 +1046,15 @@ public class MainController {
 		model.addAttribute("firstCoClientId",firstCoClientId);
 		return "clientProfile";
 	}
+
+
+
 	@GetMapping("/getCoClientQuestionsAndProtocols/{id}")
 	public ResponseEntity<?> getCoClientQuestionsAndProtocols(@PathVariable int id) {
 		User currentUser = userDAO.getUser();
 		User coclient = userHelper.getUser(currentUser, id);
 		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, id);
+
 		Map<String, Object> response = new HashMap<>();
 		response.put("coclient", coclient);
 		response.put("Questions", questionsAndAnswers);

@@ -250,6 +250,20 @@
 		isAnswered = value;
 		loadQuestions(questionCategory); // Reload with current category, default to 'All'
 	}
+	function hideUnansweredQuestions() {
+		$('.question-item').each(function() {
+			const hasResponse = $(this).data('has-response');
+			$(this).toggle(hasResponse);
+		});
+	}
+
+	function loadUnAnsweredQuestions() {
+		$('.question-item').each(function() {
+			loadQuestions(0);
+			const hasResponse = $(this).data('has-response');
+			$(this).toggle(!hasResponse);
+		});
+	}
 
 	function loadQuestions(categoryId) {
 		$('.question-item').each(function() {
@@ -283,20 +297,7 @@
 		}
 	}
 
-	function hideUnansweredQuestions() {
-		$('.question-item').each(function() {
-			const hasResponse = $(this).data('has-response');
-			$(this).toggle(hasResponse);
-		});
-	}
 
-	function loadUnAnsweredQuestions() {
-		$('.question-item').each(function() {
-			loadQuestions(0);
-			const hasResponse = $(this).data('has-response');
-			$(this).toggle(!hasResponse);
-		});
-	}
 
 	$(document).ready(function() {
 		loadQuestions(questionCategory);
