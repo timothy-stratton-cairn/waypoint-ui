@@ -115,6 +115,20 @@
         </fieldset>
     </div>
 
+
+        <div class="row note_card">
+            <fieldset>
+                <legend>Assign To User</legend>
+                <div id="userContainer" class="mt-3" >
+                    <select class="form-control col-9" id="userDropdown">
+                        <option th:each="user : ${userList}" th:value="${user.id}" th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
+                    </select>
+                    <button type="button" class="btn btn-secondary" onclick="confirmProtocol(this);">Submit</button>
+                </div>
+            </fieldset>
+        </div>
+
+
     <div class="note_card mb-3">
         <fieldset>
             <legend>
@@ -922,6 +936,30 @@
 	        }
 	    });
 	}
+
+    function confirmProtocol(buttonElement) {
+        console.log("confirmProtocol: Function called.");
+
+        var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+        var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+        var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+        var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+        if (csrfTokenElement && csrfHeaderElement) {
+            console.log("confirmProtocol: CSRF elements found.");
+        } else {
+            console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
+        }
+
+        var selectElement = buttonElement.previousElementSibling;
+        var userId = selectElement ? selectElement.value : null;
+        const popupWidth = 800;
+        const popupHeight = 400;
+        const left = (screen.width - popupWidth) / 2;
+        const top = (screen.height - popupHeight) / 2;
+        //Calls the window to add Protocols to User
+        window.open(`/extraInfoPopUp/${userId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+
+    }
 
 </script>
 

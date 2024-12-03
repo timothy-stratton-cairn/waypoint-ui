@@ -255,9 +255,12 @@ public class MainController {
 			logger.info("Step: " + step.getName() + " Status: " + step.getStatus());
 		}
 		// steps.removeIf(step -> !step.getStatus().equals("LIVE"));
-		ProtocolComments mostRecentComment = protocol.getComments().stream()
+		ProtocolComments mostRecentComment = protocol.getComments() != null
+				? protocol.getComments().stream()
 				.filter(comment -> "COMMENT".equals(comment.getCommentType()))
-				.max(Comparator.comparing(ProtocolComments::getTakenAt)).orElse(null);
+				.max(Comparator.comparing(ProtocolComments::getTakenAt))
+				.orElse(null)
+				: null;
 		if (mostRecentComment == null) {
 			mostRecentComment = new ProtocolComments();
 			mostRecentComment.setComment("No Comments Have been made");
@@ -582,6 +585,7 @@ public class MainController {
 		ArrayList<ProtocolStepTemplate> allSteps = protocolTemplateHelper.getAllSteps(usr);
 		List<ProtocolStepTemplate> listSteps = protocolTemplateHelper.getStepList(usr, id);
 		List<Household> clientList = userHelper.getHouseholdList(usr);
+		List<User> allUsers = userHelper.getUserList(usr);
 		List<ProtocolStepTemplate> fullStepList = protocolStepTemplateHelper.getStepList(usr);
 		logger.info("Total Number of Steps: "+ fullStepList.size());
 		int dueByDays = pcol.getDueByDay();
@@ -593,6 +597,7 @@ public class MainController {
 		}
 		model.addAttribute("homeworkQuestionList", homeworkQuestionHelper.getHomeworkQuestionsByProtocolTemplateId(usr, id));
 		model.addAttribute("allQuestionsList", homeworkQuestionHelper.getHomeworkQuestions(usr));
+		model.addAttribute("userList",allUsers);
 		model.addAttribute("clientList", clientList);
 		model.addAttribute("dueBy", dueByDays);
 		model.addAttribute("protocolId", id);
@@ -987,7 +992,13 @@ public class MainController {
 	public String demoHouseholdView(Model model,@PathVariable int id) {
 		User currentUser = userDAO.getUser();
 		Household household = userHelper.getHouseholdById(currentUser, id);
-		User primaryContact = household.getPrimaryContacts().get(0);
+		List<User> listPrimaryContacts = household.getPrimaryContacts();
+		User primaryContact;
+		if (listPrimaryContacts != null && !listPrimaryContacts.isEmpty()) {
+			primaryContact = listPrimaryContacts.get(0);
+		} else {
+			primaryContact = null;
+		}
 
 		ArrayList<Protocol> householdProtocols =new ArrayList<Protocol>();
 
