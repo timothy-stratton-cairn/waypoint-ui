@@ -151,50 +151,55 @@
 
             <div class="question-container" th:each="userQuestionResponsePair : ${questionList}">
               <div id="coclientInfo" class="mb-3">
-                <p><strong>Name:</strong> <span th:text="${userQuestionResponsePair.user.firstName + ' ' + userQuestionResponsePair.user.lastName}"></span></p>
+                <p>
+                  <strong>Name:</strong>
+                  <span th:text="${userQuestionResponsePair.user != null ? (userQuestionResponsePair.user.firstName + ' ' + userQuestionResponsePair.user.lastName) : 'N/A'}"></span>
+                </p>
               </div>
 
-              <div th:each="questionResponse : ${userQuestionResponsePair.responses.questions}">
-                <li class="list-group-item question-item"
-                    th:data-category-id="${questionResponse.question.categoryId}"
-                    th:data-question-id="${questionResponse.question.id}"
-                    th:data-answered="${questionResponse.response != null && questionResponse.response.response != null && questionResponse.response.response != 'NEEDS ATTENTION' ? 1 : 0}"
-                    th:data-client-id="${userQuestionResponsePair.user.id}"
-                    onclick="toggleResponseForm(this)">
-                    <!--th:data-parent-category="${questionResponse.question.isParentCategory}" this will be implimented lated -->
+              <div th:if="${userQuestionResponsePair.responses != null}">
+                <div th:each="questionResponse : ${userQuestionResponsePair.responses.questions != null ? userQuestionResponsePair.responses.questions : {}}">
+                  <li class="list-group-item question-item"
+                      th:data-category-id="${questionResponse.question != null ? questionResponse.question.categoryId : 'N/A'}"
+                      th:data-question-id="${questionResponse.question != null ? questionResponse.question.id : 'N/A'}"
+                      th:data-answered="${questionResponse.response != null && questionResponse.response.response != null && questionResponse.response.response != 'NEEDS ATTENTION' ? 1 : 0}"
+                      th:data-client-id="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : 'N/A'}"
+                      onclick="toggleResponseForm(this)">
 
-                  <div class="row">
-                    <div class="col-md-5">
-                      <strong th:text="${questionResponse.question.question}">Question Text</strong>
+                    <div class="row">
+                      <div class="col-md-5">
+                        <strong th:text="${questionResponse.question != null ? questionResponse.question.question : 'Question Text'}">Question Text</strong>
+                      </div>
+                      <div class="col-md-5">
+                        <span th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
+                      </div>
+                      <div class="col-md-2">
+                        <span th:text="${questionResponse.question != null && questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
+                      </div>
                     </div>
-                    <div class="col-md-5">
-                      <span th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
-                    </div>
-                    <div class="col-md-2">
-                      <span th:text="${questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
-                    </div>
-                  </div>
-                </li>
+                  </li>
 
-                <div class="response-form-container" style="display: none;">
-                  <div class="row">
-                    <input type="hidden" name="questionId" th:value="${questionResponse.question.id}" />
-                    <input type="hidden" name="categoryId" th:value="${questionResponse.question.categoryId}" />
-                    <input type="hidden" name="userId" th:value="${userQuestionResponsePair.user.id}" />
+                  <div class="response-form-container" style="display: none;">
+                    <div class="row">
+                      <input type="hidden" name="questionId" th:value="${questionResponse.question != null ? questionResponse.question.id : ''}" />
+                      <input type="hidden" name="categoryId" th:value="${questionResponse.question != null ? questionResponse.question.categoryId : ''}" />
+                      <input type="hidden" name="userId" th:value="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : ''}" />
 
-                    <div class="col-md-10">
-                      <input type="text" name="response" th:id="'response_' + ${questionResponse.question.id}" class="form-control" placeholder="Response">
-                    </div>
+                      <div class="col-md-10">
+                        <input type="text" name="response" th:id="'response_' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'}" class="form-control" placeholder="Response">
+                      </div>
 
-                    <div class="col-md-2">
-                      <button type="button" class="btn btn-primary" th:onclick="'submitResponse(' + ${questionResponse.question.id} + ')'" >
-                        Submit
-                      </button>
+                      <div class="col-md-2">
+                        <button type="button" class="btn btn-primary" th:onclick="'submitResponse(' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'} + ')'" >
+                          Submit
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
 
 
           </div>
@@ -436,6 +441,84 @@
 
       // Toggle visibility based on matching all filters
       $(this).toggle(matchesCategory && matchesAnsweredFilter && matchesClientFilter);
+    });
+  }
+
+
+  function toggleResponseForm(element) {
+    const responseFormContainer = element.nextElementSibling;
+
+    if (responseFormContainer && responseFormContainer.classList.contains('response-form-container')) {
+      if (responseFormContainer.style.display === 'none' || responseFormContainer.style.display === '') {
+        responseFormContainer.style.display = 'block';
+      } else {
+        responseFormContainer.style.display = 'none';
+      }
+    }
+  }
+
+  function submitResponse(questionId) {
+    const inputId = `response_${questionId}`;
+    const responseInput = document.getElementById(inputId);
+
+    if (!responseInput) {
+      console.error(`Input field with ID "${inputId}" not found.`);
+      return;
+    }
+
+    const response = responseInput.value.trim();
+
+    if (!response) {
+      alert('Response cannot be empty!');
+      return;
+    }
+
+    const questionElement = document.querySelector(`[data-question-id="${questionId}"]`);
+    if (!questionElement) {
+      console.error(`Question element with data-question-id="${questionId}" not found.`);
+      alert('Unable to find the question element.');
+      return;
+    }
+
+    const userId = questionElement.getAttribute('data-client-id');
+    const categoryId = questionElement.getAttribute('data-category-id');
+
+    if (!userId || !categoryId) {
+      console.error('Unable to retrieve userId or categoryId from the question element.');
+      alert('An error occurred while submitting the response.');
+      return;
+    }
+
+    const requestBody = {
+      questionId: questionId,
+      userId: userId,
+      response: response,
+      categoryId: categoryId
+    };
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+
+    fetch(`/answerQuestion/${questionId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken // Include the CSRF token in the headers
+      },
+      body: JSON.stringify(requestBody)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to submit the response');
+      }
+      return response.json();
+    })
+    .then(data => {
+      alert('Response submitted successfully!');
+      location.reload(); // Reload the page upon successful submission
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while submitting the response.');
     });
   }
 
