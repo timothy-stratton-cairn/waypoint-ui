@@ -58,7 +58,7 @@ import com.cairn.ui.helper.ProtocolStepTemplateHelper;
 import com.cairn.ui.helper.ProtocolTemplateHelper;
 import com.cairn.ui.helper.ReportHelper;
 import com.cairn.ui.helper.UserHelper;
-
+import java.util.Set;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -239,6 +239,13 @@ public class MainController {
 	public String viewProtocol(Model model, @PathVariable int pcolId, @PathVariable int userId) {
 		User currentUser = userDAO.getUser();
 		Protocol protocol = protocolHelper.getProtocol(currentUser, pcolId);
+		logger.info("Protocol Template: ", protocol.getTemplateId());
+		ArrayList<HomeworkQuestion> assignedQuestions = homeworkQuestionHelper.getHomeworkQuestionsByProtocolId(currentUser,pcolId);
+		logger.info("Number of Assigned Questions: " + assignedQuestions.size());
+		Set<Integer> assignedQuestionIds = assignedQuestions.stream()
+				.map(HomeworkQuestion::getQuestionId)
+				.collect(Collectors.toSet());
+		logger.info("Assigned questions: " + assignedQuestionIds);
 
 		logger.info("Calling getHomeworkByProtocol");
 		ArrayList<Homework> allHomeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, pcolId);
@@ -269,7 +276,13 @@ public class MainController {
 		int actualUserId =  protocol.getUserId();
 		logger.info("User ID Assigned To Protocol: "+ actualUserId);
 		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, actualUserId);
-
+		if (questionsAndAnswers != null && questionsAndAnswers.getQuestions() != null) {
+			List<QuestionResponsePairDto> filteredQuestions = questionsAndAnswers.getQuestions().stream()
+					.filter(pair -> assignedQuestionIds.contains(pair.getQuestion().getId().intValue())) // Cast Long to int
+					.collect(Collectors.toList());
+			questionsAndAnswers.setQuestions(filteredQuestions);
+			questionsAndAnswers.setNumberOfPairs(filteredQuestions.size());
+		}
 		model.addAttribute("Questions",questionsAndAnswers);
 		model.addAttribute("mostRecentComment", mostRecentComment.getComment());
 		model.addAttribute("protocol", protocol);

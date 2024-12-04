@@ -151,10 +151,6 @@
 
             <div class="question-container" th:each="userQuestionResponsePair : ${questionList}">
               <div id="coclientInfo" class="mb-3">
-                <p>
-                  <strong>Name:</strong>
-                  <span th:text="${userQuestionResponsePair.user != null ? (userQuestionResponsePair.user.firstName + ' ' + userQuestionResponsePair.user.lastName) : 'N/A'}"></span>
-                </p>
               </div>
 
               <div th:if="${userQuestionResponsePair.responses != null}">

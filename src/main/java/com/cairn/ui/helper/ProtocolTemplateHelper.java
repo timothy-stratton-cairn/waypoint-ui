@@ -729,6 +729,7 @@ public class ProtocolTemplateHelper {
 				String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplateget + templateId+ "/link-question/" + questionId;
 				logger.info("apiUrl: " + apiUrl);
 				String result = apiHelper.postWithoutBodyAPI(apiUrl,usr);
+				logger.info("Result: " + result);
 				return result;
 			}
 

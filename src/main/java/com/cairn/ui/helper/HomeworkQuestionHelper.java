@@ -161,11 +161,11 @@ public class HomeworkQuestionHelper{
 
         return results;
     }
-    
+
     public ArrayList<HomeworkQuestion> getHomeworkQuestionsByProtocolId(User usr, int protocolId) {
         ArrayList<HomeworkQuestion> results = new ArrayList<>();
 
-        String apiUrl = this.dashboardApiBaseUrl + "homework-question/protocol/" + protocolId;
+        String apiUrl = this.dashboardApiBaseUrl + "/api/homework-question/protocol/" + protocolId;
         logger.info("URL: " + apiUrl);
 
         String jsonResponse = apiHelper.callAPI(apiUrl, usr);
@@ -173,16 +173,16 @@ public class HomeworkQuestionHelper{
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-                JsonNode responsesNode = jsonNode.get("responses");
+                JsonNode questionsNode = jsonNode.get("questions"); // Correct field name
 
-                if (responsesNode != null && responsesNode.isArray()) {
-                    for (JsonNode element : responsesNode) {
+                if (questionsNode != null && questionsNode.isArray()) {
+                    for (JsonNode element : questionsNode) {
                         HomeworkQuestion question = new HomeworkQuestion();
-                      
+
                         question.setQuestionId(element.get("questionId").asInt());
                         question.setQuestionAbbreviation(element.get("questionAbbr").asText());
                         question.setQuestion(element.get("question").asText());
-                        question.setStatus(element.get("status").asText());
+                        question.setStatus(element.get("status") != null ? element.get("status").asText() : null);
 
                         results.add(question);
                     }
@@ -193,11 +193,12 @@ public class HomeworkQuestionHelper{
                 logger.error("Error processing JSON", e);
             }
         } else {
-            logger.info("Failed to fetch homework questions by category.");
+            logger.info("Failed to fetch homework questions by protocol.");
         }
 
         return results;
     }
+
 
     public ArrayList<HomeworkQuestion> getHomeworkQuestionsByProtocolTemplateId(User usr, int templateId) {
         ArrayList<HomeworkQuestion> results = new ArrayList<>();
@@ -436,7 +437,7 @@ public class HomeworkQuestionHelper{
     public QuestionResponsePairListDto getHomeworkQuestionResponsePairsByProtocolId(User usr, int protocolId) {
         QuestionResponsePairListDto results = null;
 
-        String apiUrl = this.dashboardApiBaseUrl + "api/homework-response/protocol/" + protocolId;
+        String apiUrl = this.dashboardApiBaseUrl + "/api/homework-response/protocol/" + protocolId;
         logger.info("URL: " + apiUrl);
         String jsonResponse = apiHelper.callAPI(apiUrl, usr);
 
