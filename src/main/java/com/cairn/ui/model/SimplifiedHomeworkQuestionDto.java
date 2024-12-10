@@ -9,6 +9,7 @@ public class SimplifiedHomeworkQuestionDto {
     private Long id;
     private String updated;
     private String question;
+    private String questionType;
     private String label;
     private Long categoryId;
 
@@ -17,11 +18,13 @@ public class SimplifiedHomeworkQuestionDto {
             @JsonProperty("id") Long id,
             @JsonProperty("updated") String updated,
             @JsonProperty("question") String question,
+            @JsonProperty("questionType") String questionType,
             @JsonProperty("label") String label,
             @JsonProperty("categoryId") Long categoryId) {
         this.id = id;
         this.updated = updated;
         this.question = question;
+        this.questionType = questionType;
         this.label = label;
         this.categoryId = categoryId;
     }
@@ -65,5 +68,14 @@ public class SimplifiedHomeworkQuestionDto {
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
+
+    public String getQuestionType() {
+        return questionType;
+    }
+
+    public void setQuestionType(String questionType) {
+        this.questionType = questionType;
+    }
+
 }
 

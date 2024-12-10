@@ -2638,14 +2638,15 @@ public class MainController {
 
 	@GetMapping("/getHomeworkList/{id}")
 	@ResponseBody
-	public ArrayList<Homework> getHomeworkList(@PathVariable int id) {
+	public ArrayList<HomeworkQuestion> getHomeworkList(@PathVariable int id) {
 		logger.info("calling getHomeworkList");
 		User currentUser = userDAO.getUser();
-		ArrayList<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
-		for (Homework homework : homeworks) {
-			logger.info("Homework: " + homework.getName());
+		//ArrayList<Homework> homeworks = homeworkHelper.getHomeworkByProtocolId(currentUser, id);
+		ArrayList<HomeworkQuestion> homeworkQuestions = homeworkQuestionHelper.getHomeworkQuestionsByProtocolId(currentUser,id);
+		for (HomeworkQuestion homework : homeworkQuestions) {
+			logger.info("Homework: " + homework.getQuestion());
 		}
-		return homeworks;
+		return homeworkQuestions;
 	}
 
 	@GetMapping("/testCards/{id}")

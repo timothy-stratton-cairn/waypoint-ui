@@ -770,6 +770,39 @@
   }
 
 
+  function fetchHomework(protocolId) {
+    console.log('Fetching homework for protocol ID:', protocolId); // Log protocolId
+    $.ajax({
+      url: '/getHomeworkList/' + protocolId,
+      method: 'GET',
+      success: function (data) {
+        var homeworkList = document.querySelector('#homeworkList_' + protocolId);
+        if (homeworkList) {
+          homeworkList.innerHTML = ''; // Clear any existing items
+
+          // Add the fetched homework items to the list
+          data.forEach(function (homework) {
+            var listItem = document.createElement('li');
+            listItem.textContent = homework.question;
+            homeworkList.appendChild(listItem);
+          });
+        } else {
+          console.error('Homework list element not found for protocol ID:', protocolId);
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error('Error fetching homework data:', {
+          status: status,
+          error: error,
+          responseText: xhr.responseText,
+          statusCode: xhr.status
+        });
+      }
+    });
+  }
+
+
+
 
 </script>
 
