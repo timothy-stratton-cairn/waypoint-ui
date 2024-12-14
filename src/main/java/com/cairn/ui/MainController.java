@@ -1027,8 +1027,8 @@ public class MainController {
 
 		int firstCoClientId = coclients.get(0).getId();
 		ArrayList<User> dependents = new ArrayList<>();
-		ArrayList<User> dependantList = new ArrayList<>();
-		ArrayList<Integer> dependantIds = new ArrayList<>();
+		ArrayList<User> dependentList = new ArrayList<>();
+		ArrayList<Integer> dependentIds = new ArrayList<>();
 		List<User> clientList = household.getHouseholdAccounts();
 		List<UserQuestionResponsePair> questionList = clientList.stream()
 				.map(client -> {
@@ -1047,25 +1047,26 @@ public class MainController {
 			if (detailedUser.getDependents().isEmpty()) {
 				logger.info("No dependents");
 			} else {
-				for (User dependant : detailedUser.getDependents()) {
-					logger.info("Dependant Id:" + dependant.getId());
-					if (!dependantIds.contains(dependant.getId()) && !clientList.contains(dependant)) {
-						dependantIds.add(dependant.getId());
-						dependantList.add(dependant);
+				for (User dependent : detailedUser.getDependents()) {
+					logger.info("Dependant Id:" + dependent.getId());
+					if (!dependentIds.contains(dependent.getId()) && !clientList.contains(dependent)) {
+						dependentIds.add(dependent.getId());
+						dependentList.add(dependent);
 					}
 				}
 			}
 		}
 
 		int clientId = household.getId();
-
+		ArrayList<String> goalList = household.getHouseholdGoals();
+		model.addAttribute("goals", goalList);
 		model.addAttribute("protocolList", protocolTemplateHelper.getList(currentUser));
 		model.addAttribute("householdProtocols",householdProtocols);
 		model.addAttribute("questionList", questionList);
 		model.addAttribute("primaryContact",primaryContact);
 		model.addAttribute("coclients",coclients);
 		model.addAttribute("clientId",clientId);
-		model.addAttribute("dependents",dependantList);
+		model.addAttribute("dependents",dependentList);
 		model.addAttribute("household",household);
 		model.addAttribute("firstCoClientId",firstCoClientId);
 		return "clientProfile";

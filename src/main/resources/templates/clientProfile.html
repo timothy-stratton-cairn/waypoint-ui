@@ -14,7 +14,7 @@
 <div class ="container">
 <div class="row">
   <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
-  <div class="col-md-3">
+  <div class="col-md-5">
     <div id="householdDependentsSection" class="note_card">
       <fieldset>
         <legend th:text="${household.name} + ' Summary'">Household Summary</legend>
@@ -37,7 +37,7 @@
 
           <!-- Household Tab Pane -->
           <div class="tab-pane fade show active" id="household" role="tabpanel" aria-labelledby="household-tab">
-            <div class="row mb-3">
+            <div class="row mb-4">
               <div class="col-md-12" th:if="${primaryContact != null}">
                 <label>Primary Contact:</label>
                 <span th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
@@ -105,14 +105,7 @@
         </div>
       </fieldset>
     </div>
-  </div>
-
-
-
-
-  <!-- Column B: CoClients (col-md-8) -->
-    <div class="col-md-8">
-      <div class="note_card mb-3" id="coclientSection">
+          <div class="note_card mb-11" id="coclientSection">
         <fieldset>
           <legend>CoClients</legend>
 
@@ -201,10 +194,60 @@
           </div>
         </fieldset>
       </div>
+
+  </div>
+
+
+
+  <!-- Column B: CoClients (col-md-7) -->
+    <div class="col-md-7">
+			<!-- Goals Card -->
+			<div class="note_card">
+				<fieldset>
+					<legend>Goals</legend>
+					<div class="form-group">
+						<label>Savings <a href="#">[Details]</a> ==> <span th:text="${goals[0]}"></span></label>
+						<div class="progress mb-2">
+							<div class="progress-bar" role="progressbar" style="width: 40%;">40%</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Investments <a href="#">[Details]</a> ==> <span th:text="${goals[1]}"></span></label>
+						<div class="progress mb-2">
+							<div class="progress-bar" role="progressbar" style="width: 60%;">60%</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Insurance <a href="#">[Details]</a> ==> <span th:text="${goals[2]}"></span></label>
+						<div class="progress mb-2">
+							<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Debt Reduction <a href="#">[Details]</a> ==> <span th:text="${goals[3]}"></label>
+						<div class="progress mb-2">
+							<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Taxes <a href="#">[Details]</a> ==> <span th:text="${goals[4]}"></label>
+						<div class="progress mb-2">
+							<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Estate Planning <a href="#">[Details]</a> ==> <span th:text="${goals[5]}"></label>
+						<div class="progress mb-2">
+							<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+
     </div>
   </div>
   <div class="row">
-    <div class="col-md-11 note_card">
+    <div class="col-md-12 note_card">
       <fieldset>
         <legend>Assigned Protocols</legend>
         <div class="row">
