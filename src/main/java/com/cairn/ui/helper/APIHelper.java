@@ -205,9 +205,9 @@ public class APIHelper {
         headers.add("Authorization", "Bearer " + usr.getToken());
         headers.add("Content-Type", "application/json");
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-
+        ResponseEntity<String> response = null;
         try {
-            ResponseEntity<String> response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
+            response = getRestTemplate().exchange(apiUrl, HttpMethod.POST, entity, String.class);
             if (response.getStatusCode().is2xxSuccessful()) {
                 String responseBody = response.getBody();
                 logger.info("Server Response: " + responseBody);
@@ -236,8 +236,7 @@ public class APIHelper {
 
         } catch (Exception e) {
             result = -1;
-            logger.info("Error in updating note");
-            e.printStackTrace();
+            System.out.println(response);
         }
         String resultMsg = "Result Id: " + result;
         logger.info(resultMsg);
