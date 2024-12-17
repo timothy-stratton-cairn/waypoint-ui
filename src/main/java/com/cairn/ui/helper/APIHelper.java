@@ -380,7 +380,7 @@ public class APIHelper {
       }
     } catch (Exception e) {
 
-      logger.info("No records returned for " + apiUrl + e);
+      logger.info("No records returned for " + apiUrl + ":Error==>" + e);
     }
     return jsonResponse;
   }

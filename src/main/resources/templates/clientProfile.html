@@ -1,855 +1,892 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Household View</title>
+	<meta charset="UTF-8">
+	<title>Household View</title>
 
-  <meta name="_csrf" th:content="${_csrf.token}" />
-  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+	<meta name="_csrf" th:content="${_csrf.token}" />
+	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
+
 <body data-client-id="${clientId}">
-<div th:insert="~{header :: main}">...</div>
-<div class ="container">
-<div class="row">
-  <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
-  <div class="col-md-5">
-    <div id="householdDependentsSection" class="note_card">
-      <fieldset>
-        <legend th:text="${household.name} + ' Summary'">Household Summary</legend>
+	<div th:insert="~{header :: main}">...</div>
+	<div class="container">
+		<div class="row">
+			<div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
+			<div class="col-md-5">
+				<div id="householdDependentsSection" class="note_card">
+					<fieldset>
+						<legend th:text="${household.name} + ' Summary'">Household Summary</legend>
 
-        <!-- Tabs Navigation -->
-        <ul class="nav nav-tabs" id="householdDependentsTabs" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link nav-tab-link active" id="household-tab" data-toggle="tab" href="#household" role="tab" aria-controls="household" aria-selected="true">Household</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link nav-tab-link" id="dependents-tab" data-toggle="tab" href="#dependents" role="tab" aria-controls="dependents" aria-selected="false">Dependents</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link nav-tab-link" id="coclients-tab" data-toggle="tab" href="#coclients" role="tab" aria-controls="coclients" aria-selected="false">CoClients</a>
-          </li>
-        </ul>
+						<!-- Tabs Navigation -->
+						<ul class="nav nav-tabs" id="householdDependentsTabs" role="tablist">
+							<li class="nav-item">
+								<a class="nav-link nav-tab-link active" id="household-tab" data-toggle="tab"
+									href="#household" role="tab" aria-controls="household"
+									aria-selected="true">Household</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link nav-tab-link" id="dependents-tab" data-toggle="tab"
+									href="#dependents" role="tab" aria-controls="dependents"
+									aria-selected="false">Dependents</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link nav-tab-link" id="coclients-tab" data-toggle="tab" href="#coclients"
+									role="tab" aria-controls="coclients" aria-selected="false">CoClients</a>
+							</li>
+						</ul>
 
-        <!-- Tabs Content -->
-        <div class="tab-content" id="householdDependentsTabContent">
+						<!-- Tabs Content -->
+						<div class="tab-content" id="householdDependentsTabContent">
 
-          <!-- Household Tab Pane -->
-          <div class="tab-pane fade show active" id="household" role="tabpanel" aria-labelledby="household-tab">
-            <div class="row mb-4">
-              <div class="col-md-12" th:if="${primaryContact != null}">
-                <label>Primary Contact:</label>
-                <span th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
-              </div>
-              <div class="col-md-12" th:if="${primaryContact != null}">
-                <label>Email:</label>
-                <span th:text="${primaryContact.email}"></span>
-              </div>
-              <div class="col-md-12" th:if="${primaryContact != null}">
-                <label>Phone Number:</label>
-                <span th:text="${primaryContact.phoneNumber}"></span>
-              </div>
-              <div class="col-md-12" th:if="${primaryContact == null}">
-                <p>No primary contact available</p>
-              </div>
-            </div>
-          <div>
-            <button class="btn btn-sm btn-default" onclick="setHouseholdToInactive();">Set to Inactive</button>
-          </div>
-          </div>
+							<!-- Household Tab Pane -->
+							<div class="tab-pane fade show active" id="household" role="tabpanel"
+								aria-labelledby="household-tab">
+								<div class="row mb-4">
+									<div class="col-md-12" th:if="${primaryContact != null}">
+										<label>Primary Contact:</label>
+										<span
+											th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
+									</div>
+									<div class="col-md-12" th:if="${primaryContact != null}">
+										<label>Email:</label>
+										<span th:text="${primaryContact.email}"></span>
+									</div>
+									<div class="col-md-12" th:if="${primaryContact != null}">
+										<label>Phone Number:</label>
+										<span th:text="${primaryContact.phoneNumber}"></span>
+									</div>
+									<div class="col-md-12" th:if="${primaryContact == null}">
+										<p>No primary contact available</p>
+									</div>
+								</div>
+								<div>
+									<button class="btn btn-sm btn-default" onclick="setHouseholdToInactive();">Set to
+										Inactive</button>
+								</div>
+							</div>
 
-          <!-- Dependents Tab Pane -->
-          <div class="tab-pane fade" id="dependents" role="tabpanel" aria-labelledby="dependents-tab">
-            <div class="list-group">
-              <div th:each="dependent, iterStat : ${dependents}"
-                   th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'"
-                   class="form-group row">
-                <div class="row">
-                  <div class="col-md-6">
-                    <span th:text="${dependent.firstName}">First Name</span>
-                  </div>
-                  <div class="col-md-6">
-                    <span th:text="${dependent.lastName}">Last Name</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+							<!-- Dependents Tab Pane -->
+							<div class="tab-pane fade" id="dependents" role="tabpanel" aria-labelledby="dependents-tab">
+								<div class="list-group">
+									<div th:each="dependent, iterStat : ${dependents}"
+										th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'"
+										class="form-group row">
+										<div class="row">
+											<div class="col-md-6">
+												<span th:text="${dependent.firstName}">First Name</span>
+											</div>
+											<div class="col-md-6">
+												<span th:text="${dependent.lastName}">Last Name</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 
-          <!-- CoClients Tab Pane -->
-          <div class="tab-pane fade" id="coclients" role="tabpanel" aria-labelledby="coclients-tab">
-            <div class="row mb-3">
-              <div class="col-md-12">
-                <table class="table">
-                  <thead>
-                  <tr>
-                    <th>CoClients</th>
-                    <th>Action</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr th:each="coclient : ${coclients}">
-                    <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
-                    <td>
-                      <a class="btn btn-sm btn-secondary" href="javascript:void(0);" th:onclick="|editClient(${coclient.id});|">Edit</a>
-                      <a class="btn btn-sm btn-secondary" href="javascript:void(0);" th:onclick="|makePrimaryContact(${coclient.id});|">Make Primary Contact</a>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+							<!-- CoClients Tab Pane -->
+							<div class="tab-pane fade" id="coclients" role="tabpanel" aria-labelledby="coclients-tab">
+								<div class="row mb-3">
+									<div class="col-md-12">
+										<table class="table">
+											<thead>
+												<tr>
+													<th>CoClients</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr th:each="coclient : ${coclients}">
+													<td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
+													<td>
+														<a class="btn btn-sm btn-secondary" href="javascript:void(0);"
+															th:onclick="|editClient(${coclient.id});|">Edit</a>
+														<a class="btn btn-sm btn-secondary" href="javascript:void(0);"
+															th:onclick="|makePrimaryContact(${coclient.id});|">Make
+															Primary Contact</a>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
 
-        </div>
-      </fieldset>
-    </div>
-          <div class="note_card mb-11" id="coclientSection">
-        <fieldset>
-          <legend>CoClients</legend>
+						</div>
+					</fieldset>
+				</div>
+				<div class="note_card mb-11" id="coclientSection">
+					<fieldset>
+						<legend>CoClients</legend>
 
-          <!-- CoClient Tabs -->
-          <ul class="nav nav-tabs" id="coclientTabs" role="tablist">
-            <li class="nav-item" th:each="coclient : ${coclients}">
-              <a class="nav-link nav-tab-link" href="javascript:void(0);"
-                 th:text="${coclient.firstName + ' ' + coclient.lastName}"
-                 th:onclick="|setClientFilter(${coclient.id});|">CoClient</a>
-            </li>
-          </ul>
+						<!-- CoClient Tabs -->
+						<ul class="nav nav-tabs" id="coclientTabs" role="tablist">
+							<li class="nav-item" th:each="coclient : ${coclients}">
+								<a class="nav-link nav-tab-link" href="javascript:void(0);"
+									th:text="${coclient.firstName + ' ' + coclient.lastName}"
+									th:onclick="|setClientFilter(${coclient.id});|">CoClient</a>
+							</li>
+						</ul>
 
-          <ul class="nav nav-tabs" id="answerTabs" role="tablist" >
-            <li class="nav-item"><a class="nav-link active" href="#" onclick="setAnsweredFilter(0);return false;">All</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="setAnsweredFilter(1);return false;">Answered</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="setAnsweredFilter(2);return false;">Unanswered</a></li>
-          </ul>
+						<ul class="nav nav-tabs" id="answerTabs" role="tablist">
+							<li class="nav-item"><a class="nav-link active" href="#"
+									onclick="setAnsweredFilter(0);return false;">All</a></li>
+							<li class="nav-item"><a class="nav-link" href="#"
+									onclick="setAnsweredFilter(1);return false;">Answered</a></li>
+							<li class="nav-item"><a class="nav-link" href="#"
+									onclick="setAnsweredFilter(2);return false;">Unanswered</a></li>
+						</ul>
 
-          <!-- Question Tabs -->
-          <ul class="nav nav-tabs question-tabs" id="questionTabs" role="tablist">
-            <li class="nav-item"><a class="nav-link  active" href="#" onclick="loadQuestions(0); return false;">All</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(1); return false;">Personal</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(2); return false;">Family</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(3); return false;">Goals</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(4); return false;">Insurance</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(5); return false;">Investments</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(6); return false;">Assets</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(7); return false;">Liabilities</a></li>
-          </ul>
-
-
-
-          <!-- Content Section for CoClient Information and Homework Questions -->
-          <div class="tab-content mt-3" id="coclientContent">
-
-
-            <div class="question-container" th:each="userQuestionResponsePair : ${questionList}">
-              <div id="coclientInfo" class="mb-3">
-              </div>
-
-              <div th:if="${userQuestionResponsePair.responses != null}">
-                <div th:each="questionResponse : ${userQuestionResponsePair.responses.questions != null ? userQuestionResponsePair.responses.questions : {}}">
-                  <li class="list-group-item question-item"
-                      th:data-category-id="${questionResponse.question != null ? questionResponse.question.categoryId : 'N/A'}"
-                      th:data-question-id="${questionResponse.question != null ? questionResponse.question.id : 'N/A'}"
-                      th:data-answered="${questionResponse.response != null && questionResponse.response.response != null && questionResponse.response.response != 'NEEDS ATTENTION' ? 1 : 0}"
-                      th:data-client-id="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : 'N/A'}"
-                      onclick="toggleResponseForm(this)">
-
-                    <div class="row">
-                      <div class="col-md-5">
-                        <strong th:text="${questionResponse.question != null ? questionResponse.question.question : 'Question Text'}">Question Text</strong>
-                      </div>
-                      <div class="col-md-5">
-                        <span th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
-                      </div>
-                      <div class="col-md-2">
-                        <span th:text="${questionResponse.question != null && questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
-                      </div>
-                    </div>
-                  </li>
-
-                  <div class="response-form-container" style="display: none;">
-                    <div class="row">
-                      <input type="hidden" name="questionId" th:value="${questionResponse.question != null ? questionResponse.question.id : ''}" />
-                      <input type="hidden" name="categoryId" th:value="${questionResponse.question != null ? questionResponse.question.categoryId : ''}" />
-                      <input type="hidden" name="userId" th:value="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : ''}" />
-
-                      <div class="col-md-10">
-                        <input type="text" name="response" th:id="'response_' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'}" class="form-control" placeholder="Response">
-                      </div>
-
-                      <div class="col-md-2">
-                        <button type="button" class="btn btn-primary" th:onclick="'submitResponse(' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'} + ')'" >
-                          Submit
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+						<!-- Question Tabs -->
+						<ul class="nav nav-tabs question-tabs" id="questionTabs" role="tablist">
+							<li class="nav-item"><a class="nav-link  active" href="#"
+									onclick="loadQuestions(0); return false;">All</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(1); return false;">Personal</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(2); return false;">Family</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(3); return false;">Goals</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(4); return false;">Insurance</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(5); return false;">Investments</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(6); return false;">Assets</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(7); return false;">Liabilities</a></li>
+						</ul>
 
 
 
-          </div>
-        </fieldset>
-      </div>
-
-  </div>
+						<!-- Content Section for CoClient Information and Homework Questions -->
+						<div class="tab-content mt-3" id="coclientContent">
 
 
+							<div class="question-container" th:each="userQuestionResponsePair : ${questionList}">
+								<div id="coclientInfo" class="mb-3">
+								</div>
 
-  <!-- Column B: CoClients (col-md-7) -->
-    <div class="col-md-7">
-			<!-- Goals Card -->
-			<div class="note_card">
+								<div th:if="${userQuestionResponsePair.responses != null}">
+									<div
+										th:each="questionResponse : ${userQuestionResponsePair.responses.questions != null ? userQuestionResponsePair.responses.questions : {}}">
+										<li class="list-group-item question-item"
+											th:data-category-id="${questionResponse.question != null ? questionResponse.question.categoryId : 'N/A'}"
+											th:data-question-id="${questionResponse.question != null ? questionResponse.question.id : 'N/A'}"
+											th:data-answered="${questionResponse.response != null && questionResponse.response.response != null && questionResponse.response.response != 'NEEDS ATTENTION' ? 1 : 0}"
+											th:data-client-id="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : 'N/A'}"
+											onclick="toggleResponseForm(this)">
+
+											<div class="row">
+												<div class="col-md-5">
+													<strong
+														th:text="${questionResponse.question != null ? questionResponse.question.question : 'Question Text'}">Question
+														Text</strong>
+												</div>
+												<div class="col-md-5">
+													<span
+														th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
+												</div>
+												<div class="col-md-2">
+													<span
+														th:text="${questionResponse.question != null && questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last
+														Updated</span>
+												</div>
+											</div>
+										</li>
+
+										<div class="response-form-container" style="display: none;">
+											<div class="row">
+												<input type="hidden" name="questionId"
+													th:value="${questionResponse.question != null ? questionResponse.question.id : ''}" />
+												<input type="hidden" name="categoryId"
+													th:value="${questionResponse.question != null ? questionResponse.question.categoryId : ''}" />
+												<input type="hidden" name="userId"
+													th:value="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : ''}" />
+
+												<div class="col-md-10">
+													<input type="text" name="response"
+														th:id="'response_' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'}"
+														class="form-control" placeholder="Response">
+												</div>
+
+												<div class="col-md-2">
+													<button type="button" class="btn btn-primary"
+														th:onclick="'submitResponse(' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'} + ')'">
+														Submit
+													</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
+						</div>
+					</fieldset>
+				</div>
+
+			</div>
+
+
+
+			<!-- Column B: CoClients (col-md-7) -->
+			<div class="col-md-7">
+				<!-- Goals Card -->
+				<div class="note_card">
+					<fieldset>
+						<legend>Goals</legend>
+						<div class="form-group">
+							<label>Savings <a href="#">[Details]</a> ==> <span th:text="${goals[0]}"></span></label>
+							<div class="progress mb-2">
+								<div class="progress-bar" role="progressbar" style="width: 40%;">40%</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Investments <a href="#">[Details]</a> ==> <span th:text="${goals[1]}"></span></label>
+							<div class="progress mb-2">
+								<div class="progress-bar" role="progressbar" style="width: 60%;">60%</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Insurance <a href="#">[Details]</a> ==> <span th:text="${goals[2]}"></span></label>
+							<div class="progress mb-2">
+								<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Debt Reduction <a href="#">[Details]</a> ==> <span th:text="${goals[3]}"></label>
+							<div class="progress mb-2">
+								<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Taxes <a href="#">[Details]</a> ==> <span th:text="${goals[4]}"></label>
+							<div class="progress mb-2">
+								<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Estate Planning <a href="#">[Details]</a> ==> <span th:text="${goals[5]}"></label>
+							<div class="progress mb-2">
+								<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
+							</div>
+						</div>
+					</fieldset>
+				</div>
+
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 note_card">
 				<fieldset>
-					<legend>Goals</legend>
-					<div class="form-group">
-						<label>Savings <a href="#">[Details]</a> ==> <span th:text="${goals[0]}"></span></label>
-						<div class="progress mb-2">
-							<div class="progress-bar" role="progressbar" style="width: 40%;">40%</div>
+					<legend>Assigned Protocols</legend>
+					<div class="row">
+					</div><br />
+					<ul class="nav nav-tabs">
+						<li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#"
+								onclick="filterProtocolsByStatus('IN_PROGRESS'); setActive(this);return false;">Active
+								Protocols</a></li>
+						<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+								onclick="filterProtocolsByStatus('COMPLETED'); setActive(this); return false;">Completed
+								Protocols</a></li>
+						<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+								onclick="filterProtocolsByStatus('ARCHIVED'); setActive(this); return false;">Archived
+								Protocols</a></li>
+						<li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
+								onclick="filterProtocolsByStatus('all'); setActive(this); return false;">All</a></li>
+					</ul>
+					<div class="row">
+						<div class="col-2">
+							<input type="text" id="protocolSearch" class="form-control"
+								placeholder="Search protocols..."><br />
+							<div><button type="button" class="btn btn-primary" onclick="addProtocol();">Add
+									Protocol</button></div>
+							<div id="protocolContainer" class="container"></div>
 						</div>
 					</div>
-					<div class="form-group">
-						<label>Investments <a href="#">[Details]</a> ==> <span th:text="${goals[1]}"></span></label>
-						<div class="progress mb-2">
-							<div class="progress-bar" role="progressbar" style="width: 60%;">60%</div>
+					<div class="row container" id="protocolContent">
+						<!-- Display Assigned Protocols -->
+						<div th:each="pcol, status: ${householdProtocols}" th:id="|row_${pcol.id}|"
+							class="note_card col-md-5" th:data-type="${pcol.status}" data-current-back="back_1">
+							<a href="#" th:onclick="'viewProtocol(' + ${pcol.id} + ');'">
+
+								<div class="flip-card">
+									<div class="flip-card-inner">
+										<div class="flip-card-front" id="front">
+											<div class="container">
+												<div class="row">
+													<span th:text="${pcol.name}"></span>
+												</div>
+												<hr />
+												<div class="row">
+													<div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
+													<div class="row col-md-6" th:text="|Progress: ${pcol.progress}|">
+													</div>
+												</div>
+												<div class="row">
+													<div class="row col-md-6"
+														th:text="|Total Steps: ${pcol.stepCount}|">
+													</div>
+													<div class="row col-md-6"
+														th:text="|Completed: ${pcol.completedSteps}|">
+													</div>
+												</div>
+												<div class='row' th:text="|Description: ${pcol.description}"></div>
+												<hr />
+												<!-- Actionable Items Section -->
+												<li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}"
+													th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}">
+												</li>
+											</div>
+										</div>
+
+										<div class="flip-card-back" id="back_1">
+											<div class="container">
+
+												<p>Education:</p>
+												<ul eId="ed_${pcol.id}">
+													<li th:each="step : ${pcol.steps}"
+														th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
+														<span
+															th:text="${step.name + ' - ' +
+			                                        (step.status == 'TODO' ? 'To Do' :
+			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' :
+			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+													</li>
+												</ul>
+											</div>
+										</div>
+										<div class="flip-card-back" id="back_2" style="display: none">
+											<div class="container">
+												<p>Homework:</p>
+												<ul th:id="'homeworkList_' + ${pcol.id}"></ul>
+											</div>
+										</div>
+										<div class="flip-card-back" id="back_3" style="display: none">
+											<div class="container">
+
+												<p>Analysis:</p>
+												<ul id="ed_${pcol.id}">
+													<li th:each="step : ${pcol.steps}"
+														th:if="${step.status != 'DONE' && step.categoryName == 'Run Analysis'}">
+														<span
+															th:text="${step.name + ' - ' +
+			                                        (step.status == 'TODO' ? 'To Do' :
+			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' :
+			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
+													</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
+							</a>
+							<div class="col-md-12">
+								<button type="button" class="btn btn-secondary"
+									onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
+								<button type="button" class="btn btn-secondary"
+									th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_1\', ' + ${pcol.id} + ')'">Education</button>
+								<button type="button" class="btn btn-secondary"
+									th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_2\', ' + ${pcol.id} + ')'">Homework</button>
+								<button type="button" class="btn btn-secondary"
+									th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_3\', ' + ${pcol.id} + ')'">Analysis</button>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label>Insurance <a href="#">[Details]</a> ==> <span th:text="${goals[2]}"></span></label>
-						<div class="progress mb-2">
-							<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<label>Debt Reduction <a href="#">[Details]</a> ==> <span th:text="${goals[3]}"></label>
-						<div class="progress mb-2">
-							<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<label>Taxes <a href="#">[Details]</a> ==> <span th:text="${goals[4]}"></label>
-						<div class="progress mb-2">
-							<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<label>Estate Planning <a href="#">[Details]</a> ==> <span th:text="${goals[5]}"></label>
-						<div class="progress mb-2">
-							<div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
-						</div>
+
 					</div>
 				</fieldset>
 			</div>
-
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12 note_card">
-      <fieldset>
-        <legend>Assigned Protocols</legend>
-        <div class="row">
-        </div><br />
-        <ul class="nav nav-tabs">
-          <li class="nav-item tab"><a class="nav-link nav-tab-link active" href="#"
-                                      onclick="filterProtocolsByStatus('IN_PROGRESS'); setActive(this);return false;">Active Protocols</a></li>
-          <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
-                                      onclick="filterProtocolsByStatus('COMPLETED'); setActive(this); return false;">Completed Protocols</a></li>
-          <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
-                                      onclick="filterProtocolsByStatus('ARCHIVED'); setActive(this); return false;">Archived Protocols</a></li>
-          <li class="nav-item tab"><a class="nav-link nav-tab-link" href="#"
-                                      onclick="filterProtocolsByStatus('all'); setActive(this); return false;">All</a></li>
-        </ul>
-        <div class="row">
-          <div class="col-2">
-            <input type="text" id="protocolSearch" class="form-control" placeholder="Search protocols..."><br/>
-            <div><button type="button" class="btn btn-primary" onclick="addProtocol();">Add Protocol</button></div>
-            <div id="protocolContainer" class="container"></div>
-          </div>
-        </div>
-        <div class="row container" id="protocolContent">
-          <!-- Display Assigned Protocols -->
-          <div th:each="pcol, status: ${householdProtocols}" th:id="|row_${pcol.id}|"
-               class="note_card col-md-5" th:data-type="${pcol.status}" data-current-back="back_1">
-            <a href="#" th:onclick="'viewProtocol(' + ${pcol.id} + ');'">
-
-              <div class="flip-card">
-                <div class="flip-card-inner">
-                  <div class="flip-card-front" id="front">
-                    <div class="container">
-                      <div class="row">
-                        <span th:text="${pcol.name}"></span>
-                      </div>
-                      <hr />
-                      <div class="row">
-                        <div class="row col-md-6" th:text="|Goal: ${pcol.goal}|"></div>
-                        <div class="row col-md-6" th:text="|Progress: ${pcol.progress}|"></div>
-                      </div>
-                      <div class="row">
-                        <div class="row col-md-6" th:text="|Total Steps: ${pcol.stepCount}|">
-                        </div>
-                        <div class="row col-md-6" th:text="|Completed: ${pcol.completedSteps}|">
-                        </div>
-                      </div>
-                      <div class='row' th:text="|Description: ${pcol.description}"></div>
-                      <hr />
-                      <!-- Actionable Items Section -->
-                      <li th:each="step : ${pcol.steps}" th:if="${step.status != 'DONE'}"
-                          th:text="${step.name + ' - ' + (step.status == 'TODO' ? 'To Do' : (step.status == 'IN_PROGRESS' ? 'In Progress' : (step.status == 'DONE' ? 'Done' : (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status))))}">
-                      </li>
-                    </div>
-                  </div>
-
-                  <div class="flip-card-back" id="back_1">
-                    <div class="container">
-
-                      <p>Education:</p>
-                      <ul eId="ed_${pcol.id}">
-                        <li th:each="step : ${pcol.steps}"
-                            th:if="${step.status != 'DONE' && step.categoryName == 'Share Education'}">
-													<span
-                                                            th:text="${step.name + ' - ' +
-			                                        (step.status == 'TODO' ? 'To Do' :
-			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' :
-			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div class="flip-card-back" id="back_2" style="display: none">
-                    <div class="container">
-                      <p>Homework:</p>
-                      <ul th:id="'homeworkList_' + ${pcol.id}"></ul>
-                    </div>
-                  </div>
-                  <div class="flip-card-back" id="back_3" style="display: none">
-                    <div class="container">
-
-                      <p>Analysis:</p>
-                      <ul id="ed_${pcol.id}">
-                        <li th:each="step : ${pcol.steps}"
-                            th:if="${step.status != 'DONE' && step.categoryName == 'Run Analysis'}">
-													<span
-                                                            th:text="${step.name + ' - ' +
-			                                        (step.status == 'TODO' ? 'To Do' :
-			                                        (step.status == 'IN_PROGRESS' ? 'In Progress' :
-			                                        (step.status == 'CONDITIONAL_COMPLETION' ? 'Conditional Completion' : step.status)))}"></span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </a>
-            <div class="col-md-12">
-              <button type="button" class="btn btn-secondary"
-                      onclick="flipCard(this.closest('.note_card').querySelector('.flip-card'))">Flip</button>
-              <button type="button" class="btn btn-secondary"
-                      th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_1\', ' + ${pcol.id} + ')'">Education</button>
-              <button type="button" class="btn btn-secondary"
-                      th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_2\', ' + ${pcol.id} + ')'">Homework</button>
-              <button type="button" class="btn btn-secondary"
-                      th:onclick="'changeBackAndFlip(this.closest(\'.note_card\'), \'back_3\', ' + ${pcol.id} + ')'">Analysis</button>
-            </div>
-          </div>
-
-        </div>
-      </fieldset>
-    </div>
-  </div>
-</div>
-</div>
-
-<template id="protocolTemplate">
-  <div class="new-protocol-row mb-3">
-    <select class="form-control" name="newProtocolId">
-      <option value="">Select Protocol</option>
-      <option th:each="protocol : ${protocolList}" th:value="${protocol.id}" th:text="${protocol.name}">
-      </option>
-    </select>
-    <button type="button" class="btn btn-secondary" onclick="confirmProtocol(this);">Confirm</button>
-  </div>
-</template>
-
-</div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
-<script th:inline="javascript">
-  var firstCoClientId = [[${firstCoClientId}]];
-  var clientId = [[${clientId}]];
-  var isAnswered = 0;
-  var questionCategory = 0;
-  var selectedClientId = firstCoClientId;
-
-  function editClient(id) {
-    window.location.href = '/userProfileView/' + id;
-  }
-
-  function flipCard(card) {
-    if (card) {
-      card.classList.toggle('do-flip');
-    } else {
-      console.error("No card element found");
-    }
-  }
-
-  function viewProtocol(id) {
-    window.location = '/viewProtocol/' + id + '/' + clientId;
-  }
-
-  function changeBackAndFlip(noteCard, newBackId, protocolId) {
-    var card = noteCard.querySelector('.flip-card');
-    var currentBackId = noteCard.getAttribute('data-current-back');
-    var currentBack = card.querySelector("#" + currentBackId);
-    var newBack = card.querySelector("#" + newBackId);
-
-    if (currentBack) {
-      currentBack.style.display = "none"; // hide current back
-    }
-    if (newBack) {
-      newBack.style.display = "block"; // show new back
-    } else {
-      console.error('New back element not found:', newBackId);
-    }
-  }
-
-  function setActive(ctrl) {
-    // Scoped active class within tab-container to avoid conflicts with navbar
-    const activeTab = document.querySelector('.tab-container .nav-tab-link.active');
-    if (activeTab) {
-      activeTab.classList.remove('active');
-    }
-    ctrl.classList.add('active');
-  }
-
-  function filterProtocolsByStatus(status) {
-    const protocols = document.querySelectorAll('#protocolContent > div');
-    let visibleProtocolsCount = 0;
-
-    protocols.forEach(protocol => {
-      if (protocol.getAttribute('data-type') != null && (status === 'all' || protocol.getAttribute('data-type') === status)) {
-        protocol.style.display = '';
-        visibleProtocolsCount++;
-      } else {
-        protocol.style.display = 'none';
-      }
-    });
-
-    const noProtocolsMessage = document.getElementById('noProtocolsMessage');
-    if (visibleProtocolsCount === 0) {
-      if (!noProtocolsMessage) {
-        const message = document.createElement('div');
-        message.id = 'noProtocolsMessage';
-        message.className = 'alert alert-warning';
-        message.textContent = 'No protocols found for this status';
-        document.getElementById('protocolContent').appendChild(message);
-      } else {
-        noProtocolsMessage.style.display = '';
-      }
-    } else if (noProtocolsMessage) {
-      noProtocolsMessage.style.display = 'none';
-    }
-  }
-
-  function setAnsweredFilter(value) {
-    isAnswered = value;
-    loadQuestions(questionCategory);
-  }
-
-  function setClientFilter(clientId) {
-    selectedClientId = clientId;
-    loadQuestions(questionCategory);
-  }
-
-  function loadQuestions(categoryId) {
-    questionCategory = categoryId; // Set the global questionCategory to the new category ID
-
-    $('.question-item').each(function() {
-      const questionCategoryId = $(this).data('category-id');
-      const isAnsweredValue = $(this).data('answered');
-      const clientIdValue = $(this).data('client-id');
-
-      // Determine if the question matches the filters
-      const matchesCategory = (questionCategory === 0 || questionCategoryId === questionCategory);
-      const matchesAnsweredFilter = (isAnswered === 0) || (isAnswered === 1 && isAnsweredValue === 1) || (isAnswered === 2 && isAnsweredValue === 0);
-      const matchesClientFilter = (selectedClientId === 0 || clientIdValue === selectedClientId);
-
-      // Toggle visibility based on matching all filters
-      $(this).toggle(matchesCategory && matchesAnsweredFilter && matchesClientFilter);
-    });
-  }
-
-
-  function toggleResponseForm(element) {
-    const responseFormContainer = element.nextElementSibling;
-
-    if (responseFormContainer && responseFormContainer.classList.contains('response-form-container')) {
-      if (responseFormContainer.style.display === 'none' || responseFormContainer.style.display === '') {
-        responseFormContainer.style.display = 'block';
-      } else {
-        responseFormContainer.style.display = 'none';
-      }
-    }
-  }
-
-  function submitResponse(questionId) {
-    const inputId = `response_${questionId}`;
-    const responseInput = document.getElementById(inputId);
-
-    if (!responseInput) {
-      console.error(`Input field with ID "${inputId}" not found.`);
-      return;
-    }
-
-    const response = responseInput.value.trim();
-
-    if (!response) {
-      alert('Response cannot be empty!');
-      return;
-    }
-
-    const questionElement = document.querySelector(`[data-question-id="${questionId}"]`);
-    if (!questionElement) {
-      console.error(`Question element with data-question-id="${questionId}" not found.`);
-      alert('Unable to find the question element.');
-      return;
-    }
-
-    const userId = questionElement.getAttribute('data-client-id');
-    const categoryId = questionElement.getAttribute('data-category-id');
-
-    if (!userId || !categoryId) {
-      console.error('Unable to retrieve userId or categoryId from the question element.');
-      alert('An error occurred while submitting the response.');
-      return;
-    }
-
-    const requestBody = {
-      questionId: questionId,
-      userId: userId,
-      response: response,
-      categoryId: categoryId
-    };
-
-    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-
-    fetch(`/answerQuestion/${questionId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': csrfToken // Include the CSRF token in the headers
-      },
-      body: JSON.stringify(requestBody)
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to submit the response');
-      }
-      return response.json();
-    })
-    .then(data => {
-      alert('Response submitted successfully!');
-      location.reload(); // Reload the page upon successful submission
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred while submitting the response.');
-    });
-  }
-
-
-
-
-
-  function makePrimaryContact(coClientId) {
-    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-    $.ajax({
-      url: `/promoteToPrimaryContact/${clientId}/${coClientId}`,
-      type: 'PATCH',
-      headers: {
-        'Accept': 'text/plain',
-        'Content-Type': 'application/json',
-        [csrfHeader]: csrfToken
-      },
-      success: function (response) {
-        showMessageBanner('Primary Contact updated successfully', 'success');
-        location.reload();
-      },
-      error: function (xhr, status, error) {
-        showMessageBanner('Failed to update Primary Contact. Error: ' + xhr.responseText, 'danger');
-      }
-    });
-  }
-
-  function changeBackAndFlip(noteCard, newBackId, protocolId) {
-    var card = noteCard.querySelector('.flip-card');
-    var front = card.querySelector(".flip-card-front");
-    var currentBackId = noteCard.getAttribute('data-current-back');
-    var currentBack = card.querySelector("#" + currentBackId);
-    var newBack = card.querySelector("#" + newBackId);
-
-    if (currentBack) {
-      currentBack.style.display = "none"; // hide current back
-    }
-    if (newBack) {
-      newBack.style.display = "block"; // show new back
-    } else {
-      console.error('New back element not found:', newBackId);
-    }
-
-
-
-    front.style.display = "block"; // show the front
-
-    // Update the current back
-    noteCard.setAttribute('data-current-back', newBackId);
-
-    // Fetch homework data if switching to back_2
-    if (newBackId === 'back_2') {
-      fetchHomework(protocolId);
-    }
-  }
-  function removeCoClient(coClientId) {
-    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-    if (confirm("Are you sure you want to remove this CoClient?")) {
-      $.ajax({
-        url: `/removeUserFromHousehold/${coClientId}`,
-        type: 'PATCH',
-        headers: {
-          'Accept': 'text/plain',
-          'Content-Type': 'application/json',
-          [csrfHeader]: csrfToken
-        },
-        success: function (response) {
-          showMessageBanner('User Removed from Household Successfully!', 'success');
-          location.reload(); // Reload the page upon successful response
-        },
-        error: function (xhr, status, error) {
-          showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
-        }
-      });
-    }
-  }
-
-  function confirmProtocol(buttonElement) {
-    console.log("confirmProtocol: Function called.");
-
-    var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-    var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-    var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-    var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-    if (csrfTokenElement && csrfHeaderElement) {
-      console.log("confirmProtocol: CSRF elements found.");
-    } else {
-      console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
-    }
-
-    var selectElement = buttonElement.previousElementSibling;
-    var protocolId = selectElement ? selectElement.value : null;
-    const popupWidth = 800;
-    const popupHeight = 400;
-    const left = (screen.width - popupWidth) / 2;
-    const top = (screen.height - popupHeight) / 2;
-    window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
-    if (protocolId) {
-      makePrimaryContact(pcId);
-      console.log(`confirmProtocol: Selected protocol ID is ${protocolId}.`);
-    } else {
-      console.error("confirmProtocol: No protocol ID selected.");
-      return;
-    }
-
-    /*$.ajax({
-      url: `/addClientToProtocol/[[${clientId}]]/` + protocolId,
-      type: 'POST',
-      headers: {
-        'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': csrfToken
-      },
-      success: function(response) {
-        apTracker = true;
-        window.location.reload(); // Reload page if successful
-      },
-      error: function(xhr, status, error) {
-        console.error('Error adding step:', error);
-        alert('Failed to add the Protocol. Error: ' + xhr.responseText);
-      }
-    });*/
-  }
-
-
-
-  $(document).ready(function() {
-    loadQuestions(questionCategory);
-    filterProtocolsByStatus('IN_PROGRESS');
-
-  });
-
-  document.addEventListener('DOMContentLoaded', function () {
-    var searchField = document.getElementById('protocolSearch');
-
-    searchField.addEventListener('input', function () {
-      var searchTerm = this.value.toLowerCase();
-
-      var protocols = document.querySelectorAll('.note_card.col-md-5');
-
-      protocols.forEach(function (protocol) {
-        var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
-        var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
-        var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
-        var descriptionElement = protocol.querySelector('.flip-card-front .container .row:nth-child(5)');
-
-        var name = nameElement ? nameElement.textContent.toLowerCase() : '';
-        var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
-        var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
-        var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
-
-        var isMatch = name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm) || description.includes(searchTerm);
-
-        var steps = protocol.querySelectorAll('.flip-card-back li');
-        steps.forEach(function (step) {
-          var stepName = step.textContent.toLowerCase();
-          if (stepName.includes(searchTerm)) {
-            isMatch = true;
-          }
-        });
-
-        protocol.style.display = isMatch ? '' : 'none';
-      });
-    });
-  });
-
-
-  function addProtocol() {
-    console.log("addProtocol: Function called.");
-    const container = document.querySelector("#protocolContainer");
-
-    if (!container) {
-      console.error("addProtocol: #protocolContainer not found.");
-      return;
-    }
-
-    if (container.innerHTML.trim() === "") {
-      console.log("addProtocol: Adding protocol.");
-      const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
-      container.appendChild(template);
-      console.log("addProtocol: Protocol added to container.");
-    } else {
-      console.log("addProtocol: Removing protocol.");
-      container.innerHTML = ""; // Clear the container to hide the protocol
-    }
-  }
-
-
-  // Add protocols to the User.
-  function confirmProtocol(buttonElement) {
-    console.log("confirmProtocol: Function called.");
-
-    var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
-    var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
-    var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
-    var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
-    if (csrfTokenElement && csrfHeaderElement) {
-      console.log("confirmProtocol: CSRF elements found.");
-    } else {
-      console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
-    }
-
-    var selectElement = buttonElement.previousElementSibling;
-    var protocolId = selectElement ? selectElement.value : null;
-    const popupWidth = 800;
-    const popupHeight = 400;
-    const left = (screen.width - popupWidth) / 2;
-    const top = (screen.height - popupHeight) / 2;
-    //Calls the window to add Protocols to User
-    window.open(`/extraInfoHouseholdPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
-
-  }
-
-
-
-
-  function setHouseholdToInactive() {
-    var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-
-    if ( !csrfHeader) {
-      alert("CSRF header not found.");
-      return;
-    }
-
-    if (!csrfToken) {
-      alert("CSRF token not found.");
-      return;
-    }
-
-    $.ajax({
-      url: '/setHouseholdToInactive/' + clientId,
-      type: 'PATCH',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        [csrfHeader]: csrfToken
-      },
-      success: function(response) {
-        alert(response);
-        window.location.href = "/clients";
-      },
-      error: function(xhr, status, error) {
-        alert(xhr.responseText);
-        window.location.href = "/clients";
-      }
-    });
-  }
-
-
-  function fetchHomework(protocolId) {
-    console.log('Fetching homework for protocol ID:', protocolId); // Log protocolId
-    $.ajax({
-      url: '/getHomeworkList/' + protocolId,
-      method: 'GET',
-      success: function (data) {
-        var homeworkList = document.querySelector('#homeworkList_' + protocolId);
-        if (homeworkList) {
-          homeworkList.innerHTML = ''; // Clear any existing items
-
-          // Add the fetched homework items to the list
-          data.forEach(function (homework) {
-            var listItem = document.createElement('li');
-            listItem.textContent = homework.question;
-            homeworkList.appendChild(listItem);
-          });
-        } else {
-          console.error('Homework list element not found for protocol ID:', protocolId);
-        }
-      },
-      error: function (xhr, status, error) {
-        console.error('Error fetching homework data:', {
-          status: status,
-          error: error,
-          responseText: xhr.responseText,
-          statusCode: xhr.status
-        });
-      }
-    });
-  }
-
-
-
-
-</script>
-
-
-
+		</div>
+	</div>
+	</div>
+
+	<template id="protocolTemplate">
+		<div class="new-protocol-row mb-3">
+			<select class="form-control" name="newProtocolId">
+				<option value="">Select Protocol</option>
+				<option th:each="protocol : ${protocolList}" th:value="${protocol.id}" th:text="${protocol.name}">
+				</option>
+			</select>
+			<button type="button" class="btn btn-secondary" onclick="confirmProtocol(this);">Confirm</button>
+		</div>
+	</template>
+
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+	<script th:inline="javascript">
+		var firstCoClientId = [[${firstCoClientId}]];
+		var clientId = [[${clientId}]];
+		var isAnswered = 0;
+		var questionCategory = 0;
+		var selectedClientId = firstCoClientId;
+
+		function editClient(id) {
+			window.location.href = '/userProfileView/' + id;
+		}
+
+		function flipCard(card) {
+			if (card) {
+				card.classList.toggle('do-flip');
+			} else {
+				console.error("No card element found");
+			}
+		}
+
+		function viewProtocol(id) {
+			window.location = '/viewProtocol/' + id + '/' + clientId;
+		}
+
+		function changeBackAndFlip(noteCard, newBackId, protocolId) {
+			var card = noteCard.querySelector('.flip-card');
+			var currentBackId = noteCard.getAttribute('data-current-back');
+			var currentBack = card.querySelector("#" + currentBackId);
+			var newBack = card.querySelector("#" + newBackId);
+
+			if (currentBack) {
+				currentBack.style.display = "none"; // hide current back
+			}
+			if (newBack) {
+				newBack.style.display = "block"; // show new back
+			} else {
+				console.error('New back element not found:', newBackId);
+			}
+		}
+
+		function setActive(ctrl) {
+			// Scoped active class within tab-container to avoid conflicts with navbar
+			const activeTab = document.querySelector('.tab-container .nav-tab-link.active');
+			if (activeTab) {
+				activeTab.classList.remove('active');
+			}
+			ctrl.classList.add('active');
+		}
+
+		function filterProtocolsByStatus(status) {
+			const protocols = document.querySelectorAll('#protocolContent > div');
+			let visibleProtocolsCount = 0;
+
+			protocols.forEach(protocol => {
+				if (protocol.getAttribute('data-type') != null && (status === 'all' || protocol.getAttribute('data-type') === status)) {
+					protocol.style.display = '';
+					visibleProtocolsCount++;
+				} else {
+					protocol.style.display = 'none';
+				}
+			});
+
+			const noProtocolsMessage = document.getElementById('noProtocolsMessage');
+			if (visibleProtocolsCount === 0) {
+				if (!noProtocolsMessage) {
+					const message = document.createElement('div');
+					message.id = 'noProtocolsMessage';
+					message.className = 'alert alert-warning';
+					message.textContent = 'No protocols found for this status';
+					document.getElementById('protocolContent').appendChild(message);
+				} else {
+					noProtocolsMessage.style.display = '';
+				}
+			} else if (noProtocolsMessage) {
+				noProtocolsMessage.style.display = 'none';
+			}
+		}
+
+		function setAnsweredFilter(value) {
+			isAnswered = value;
+			loadQuestions(questionCategory);
+		}
+
+		function setClientFilter(clientId) {
+			selectedClientId = clientId;
+			loadQuestions(questionCategory);
+		}
+
+		function loadQuestions(categoryId) {
+			questionCategory = categoryId; // Set the global questionCategory to the new category ID
+
+			$('.question-item').each(function () {
+				const questionCategoryId = $(this).data('category-id');
+				const isAnsweredValue = $(this).data('answered');
+				const clientIdValue = $(this).data('client-id');
+
+				// Determine if the question matches the filters
+				const matchesCategory = (questionCategory === 0 || questionCategoryId === questionCategory);
+				const matchesAnsweredFilter = (isAnswered === 0) || (isAnswered === 1 && isAnsweredValue === 1) || (isAnswered === 2 && isAnsweredValue === 0);
+				const matchesClientFilter = (selectedClientId === 0 || clientIdValue === selectedClientId);
+
+				// Toggle visibility based on matching all filters
+				$(this).toggle(matchesCategory && matchesAnsweredFilter && matchesClientFilter);
+			});
+		}
+
+
+		function toggleResponseForm(element) {
+			const responseFormContainer = element.nextElementSibling;
+
+			if (responseFormContainer && responseFormContainer.classList.contains('response-form-container')) {
+				if (responseFormContainer.style.display === 'none' || responseFormContainer.style.display === '') {
+					responseFormContainer.style.display = 'block';
+				} else {
+					responseFormContainer.style.display = 'none';
+				}
+			}
+		}
+
+		function submitResponse(questionId) {
+			const inputId = `response_${questionId}`;
+			const responseInput = document.getElementById(inputId);
+
+			if (!responseInput) {
+				console.error(`Input field with ID "${inputId}" not found.`);
+				return;
+			}
+
+			const response = responseInput.value.trim();
+
+			if (!response) {
+				alert('Response cannot be empty!');
+				return;
+			}
+
+			const questionElement = document.querySelector(`[data-question-id="${questionId}"]`);
+			if (!questionElement) {
+				console.error(`Question element with data-question-id="${questionId}" not found.`);
+				alert('Unable to find the question element.');
+				return;
+			}
+
+			const userId = questionElement.getAttribute('data-client-id');
+			const categoryId = questionElement.getAttribute('data-category-id');
+
+			if (!userId || !categoryId) {
+				console.error('Unable to retrieve userId or categoryId from the question element.');
+				alert('An error occurred while submitting the response.');
+				return;
+			}
+
+			const requestBody = {
+				questionId: questionId,
+				userId: userId,
+				response: response,
+				categoryId: categoryId
+			};
+
+			const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+
+			fetch(`/answerQuestion/${questionId}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': csrfToken // Include the CSRF token in the headers
+				},
+				body: JSON.stringify(requestBody)
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Failed to submit the response');
+					}
+					return response.json();
+				})
+				.then(data => {
+					alert('Response submitted successfully!');
+					location.reload(); // Reload the page upon successful submission
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert('An error occurred while submitting the response.');
+				});
+		}
+
+
+
+
+
+		function makePrimaryContact(coClientId) {
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			$.ajax({
+				url: `/promoteToPrimaryContact/${clientId}/${coClientId}`,
+				type: 'PATCH',
+				headers: {
+					'Accept': 'text/plain',
+					'Content-Type': 'application/json',
+					[csrfHeader]: csrfToken
+				},
+				success: function (response) {
+					showMessageBanner('Primary Contact updated successfully', 'success');
+					//location.reload();
+				},
+				error: function (xhr, status, error) {
+					showMessageBanner('Failed to update Primary Contact. Error: ' + xhr.responseText, 'danger');
+				}
+			});
+		}
+
+		function changeBackAndFlip(noteCard, newBackId, protocolId) {
+			var card = noteCard.querySelector('.flip-card');
+			var front = card.querySelector(".flip-card-front");
+			var currentBackId = noteCard.getAttribute('data-current-back');
+			var currentBack = card.querySelector("#" + currentBackId);
+			var newBack = card.querySelector("#" + newBackId);
+
+			if (currentBack) {
+				currentBack.style.display = "none"; // hide current back
+			}
+			if (newBack) {
+				newBack.style.display = "block"; // show new back
+			} else {
+				console.error('New back element not found:', newBackId);
+			}
+
+
+
+			front.style.display = "block"; // show the front
+
+			// Update the current back
+			noteCard.setAttribute('data-current-back', newBackId);
+
+			// Fetch homework data if switching to back_2
+			if (newBackId === 'back_2') {
+				fetchHomework(protocolId);
+			}
+		}
+		function removeCoClient(coClientId) {
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			if (confirm("Are you sure you want to remove this CoClient?")) {
+				$.ajax({
+					url: `/removeUserFromHousehold/${coClientId}`,
+					type: 'PATCH',
+					headers: {
+						'Accept': 'text/plain',
+						'Content-Type': 'application/json',
+						[csrfHeader]: csrfToken
+					},
+					success: function (response) {
+						showMessageBanner('User Removed from Household Successfully!', 'success');
+						location.reload(); // Reload the page upon successful response
+					},
+					error: function (xhr, status, error) {
+						showMessageBanner('Failed to remove the CoClient. Error: ' + xhr.responseText, 'danger');
+					}
+				});
+			}
+		}
+
+		function confirmProtocol(buttonElement) {
+			console.log("confirmProtocol: Function called.");
+
+			var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+			var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+			var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+			var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+			if (csrfTokenElement && csrfHeaderElement) {
+				console.log("confirmProtocol: CSRF elements found.");
+			} else {
+				console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
+			}
+
+			var selectElement = buttonElement.previousElementSibling;
+			var protocolId = selectElement ? selectElement.value : null;
+			const popupWidth = 800;
+			const popupHeight = 400;
+			const left = (screen.width - popupWidth) / 2;
+			const top = (screen.height - popupHeight) / 2;
+			window.open(`/extraInfoPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+			if (protocolId) {
+				makePrimaryContact(pcId);
+				console.log(`confirmProtocol: Selected protocol ID is ${protocolId}.`);
+			} else {
+				console.error("confirmProtocol: No protocol ID selected.");
+				return;
+			}
+
+			/*$.ajax({
+			  url: `/addClientToProtocol/[[${clientId}]]/` + protocolId,
+			  type: 'POST',
+			  headers: {
+				'Accept': 'application/json, text/plain', // Accept both JSON and plain text responses
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': csrfToken
+			  },
+			  success: function(response) {
+				apTracker = true;
+				window.location.reload(); // Reload page if successful
+			  },
+			  error: function(xhr, status, error) {
+				console.error('Error adding step:', error);
+				alert('Failed to add the Protocol. Error: ' + xhr.responseText);
+			  }
+			});*/
+		}
+
+
+
+		$(document).ready(function () {
+			loadQuestions(questionCategory);
+			filterProtocolsByStatus('IN_PROGRESS');
+
+		});
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var searchField = document.getElementById('protocolSearch');
+
+			searchField.addEventListener('input', function () {
+				var searchTerm = this.value.toLowerCase();
+
+				var protocols = document.querySelectorAll('.note_card.col-md-5');
+
+				protocols.forEach(function (protocol) {
+					var nameElement = protocol.querySelector('.flip-card-front .container .row:first-child');
+					var goalElement = protocol.querySelector('.flip-card-front .container .row:nth-child(3) .row');
+					var progressElement = protocol.querySelector('.flip-card-front .container .row:nth-child(4) .row');
+					var descriptionElement = protocol.querySelector('.flip-card-front .container .row:nth-child(5)');
+
+					var name = nameElement ? nameElement.textContent.toLowerCase() : '';
+					var goal = goalElement ? goalElement.textContent.toLowerCase() : '';
+					var progress = progressElement ? progressElement.textContent.toLowerCase() : '';
+					var description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
+
+					var isMatch = name.includes(searchTerm) || goal.includes(searchTerm) || progress.includes(searchTerm) || description.includes(searchTerm);
+
+					var steps = protocol.querySelectorAll('.flip-card-back li');
+					steps.forEach(function (step) {
+						var stepName = step.textContent.toLowerCase();
+						if (stepName.includes(searchTerm)) {
+							isMatch = true;
+						}
+					});
+
+					protocol.style.display = isMatch ? '' : 'none';
+				});
+			});
+		});
+
+
+		function addProtocol() {
+			console.log("addProtocol: Function called.");
+			const container = document.querySelector("#protocolContainer");
+
+			if (!container) {
+				console.error("addProtocol: #protocolContainer not found.");
+				return;
+			}
+
+			if (container.innerHTML.trim() === "") {
+				console.log("addProtocol: Adding protocol.");
+				const template = document.querySelector("#protocolTemplate").content.cloneNode(true);
+				container.appendChild(template);
+				console.log("addProtocol: Protocol added to container.");
+			} else {
+				console.log("addProtocol: Removing protocol.");
+				container.innerHTML = ""; // Clear the container to hide the protocol
+			}
+		}
+
+
+		// Add protocols to the User.
+		function confirmProtocol(buttonElement) {
+			console.log("confirmProtocol: Function called.");
+
+			var csrfTokenElement = document.querySelector('meta[name="_csrf"]');
+			var csrfHeaderElement = document.querySelector('meta[name="_csrf_header"]');
+			var csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : 'no_token';
+			var csrfHeader = csrfHeaderElement ? csrfHeaderElement.getAttribute('content') : 'no_header';
+			if (csrfTokenElement && csrfHeaderElement) {
+				console.log("confirmProtocol: CSRF elements found.");
+			} else {
+				console.error("confirmProtocol: CSRF elements not found. This will cause the fetch call to fail.");
+			}
+
+			var selectElement = buttonElement.previousElementSibling;
+			var protocolId = selectElement ? selectElement.value : null;
+			const popupWidth = 800;
+			const popupHeight = 400;
+			const left = (screen.width - popupWidth) / 2;
+			const top = (screen.height - popupHeight) / 2;
+			//Calls the window to add Protocols to User
+			window.open(`/extraInfoHouseholdPopUp/${clientId}/${protocolId}`, 'extraInfoPopUp', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+
+		}
+
+
+
+
+		function setHouseholdToInactive() {
+			var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+
+			if (!csrfHeader) {
+				alert("CSRF header not found.");
+				return;
+			}
+
+			if (!csrfToken) {
+				alert("CSRF token not found.");
+				return;
+			}
+
+			$.ajax({
+				url: '/setHouseholdToInactive/' + clientId,
+				type: 'PATCH',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					[csrfHeader]: csrfToken
+				},
+				success: function (response) {
+					alert(response);
+					window.location.href = "/clients";
+				},
+				error: function (xhr, status, error) {
+					alert(xhr.responseText);
+					window.location.href = "/clients";
+				}
+			});
+		}
+
+
+		function fetchHomework(protocolId) {
+			console.log('Fetching homework for protocol ID:', protocolId); // Log protocolId
+			$.ajax({
+				url: '/getHomeworkList/' + protocolId,
+				method: 'GET',
+				success: function (data) {
+					var homeworkList = document.querySelector('#homeworkList_' + protocolId);
+					if (homeworkList) {
+						homeworkList.innerHTML = ''; // Clear any existing items
+
+						// Add the fetched homework items to the list
+						data.forEach(function (homework) {
+							var listItem = document.createElement('li');
+							listItem.textContent = homework.question;
+							homeworkList.appendChild(listItem);
+						});
+					} else {
+						console.error('Homework list element not found for protocol ID:', protocolId);
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error('Error fetching homework data:', {
+						status: status,
+						error: error,
+						responseText: xhr.responseText,
+						statusCode: xhr.status
+					});
+				}
+			});
+		}
+	</script>
 </body>
 </html>
