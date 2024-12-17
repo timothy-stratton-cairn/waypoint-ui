@@ -1291,7 +1291,6 @@ public class MainController {
 			errorResponse.put("error", "Household does not have a primary contact");
 			return ResponseEntity.badRequest().body(errorResponse);
 		}
-		logger.info(call);
 		if (call.startsWith("success")) {
 			String[] parts = call.split(" ");
 			int dependantId = Integer.parseInt(parts[2]);
@@ -1317,7 +1316,7 @@ public class MainController {
 			logger.warn(errorResponse.toString());
 			return ResponseEntity.badRequest().body(errorResponse);
 		}
-		errorResponse.put("error", "Error Creating Dependat");
+		errorResponse.put("error", "Error Creating Dependent");
 		return ResponseEntity.badRequest().body(errorResponse);
 	}
 
@@ -1723,8 +1722,7 @@ public class MainController {
 			Map<String, Object> response = new HashMap<>();
 			response.put("message", "Client added successfully");
 			response.put("clientId", clientId);
-
-			return ResponseEntity.ok(response);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
 			Map<String, String> errorResponse = new HashMap<>();
 			errorResponse.put("error", "Error processing the request");
@@ -2972,7 +2970,7 @@ public class MainController {
 		String call = userHelper.setHouseholdToInactive(currentUser, id);
 
 		if(call.contains("success")){
-			return ResponseEntity.ok().body("Household Successfully Set to Inactive ");
+			return ResponseEntity.status(HttpStatus.OK).body("Household Successfully Set to Inactive ");
 		}
 		else {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error setting Household to Inactive ");
@@ -2986,7 +2984,7 @@ public class MainController {
 		String call = userHelper.setUserToInactive(currentUser, id);
 
 		if(call.contains("success")){
-			return ResponseEntity.ok().body("User Successfully Set to Inactive");
+			return ResponseEntity.status(HttpStatus.OK).body("User Successfully Set to Inactive");
 		}
 		else {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error setting User to Inactive ");

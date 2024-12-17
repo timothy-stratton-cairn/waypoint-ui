@@ -806,7 +806,7 @@
         window.location.href = "/clients";
       },
       error: function(xhr, status, error) {
-        alert('Error setting Household to Inactive: ' + xhr.responseText);
+        alert(xhr.responseText);
         window.location.href = "/clients";
       }
     });

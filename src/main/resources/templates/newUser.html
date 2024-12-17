@@ -148,6 +148,7 @@
             if (data.message) {
                 var addToExistingHousehold = document.getElementById('addToExistingHousehold');
                 if (addToExistingHousehold.checked) {
+					console.log("Add co-client...");
                     var householdId = document.getElementById('householdSelect').value;
                     fetch(`/addCoClient/${householdId}/${data.clientId}`, {
                         method: 'PATCH',
@@ -211,7 +212,7 @@
             console.error('Error adding client:', error);
             var errorBanner = document.getElementById('errorBanner');
             errorBanner.classList.remove('d-none');
-            errorBanner.textContent = 'Error: ' + error.message;
+            errorBanner.textContent = 'Error: ' + error;
         });
     }
 </script>
