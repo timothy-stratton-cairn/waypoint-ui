@@ -1,6 +1,7 @@
 package com.cairn.ui.dto;
 
-import com.cairn.ui.model.GoalCategory;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GoalTemplateDto {
 
@@ -9,15 +10,19 @@ public class GoalTemplateDto {
   private final String description;
   private final GoalCategoryDto category;
 
-  // All-args constructor
-  public GoalTemplateDto(Long id, String name, String description, GoalCategoryDto category) {
+  @JsonCreator
+  public GoalTemplateDto(
+      @JsonProperty("id") Long id,
+      @JsonProperty("name") String name,
+      @JsonProperty("description") String description,
+      @JsonProperty("category") GoalCategoryDto category) {
     this.id = id;
     this.name = name;
     this.description = description;
     this.category = category;
   }
 
-  // Getters only (no setters to maintain immutability)
+  // Getters
   public Long getId() {
     return id;
   }
@@ -34,4 +39,3 @@ public class GoalTemplateDto {
     return category;
   }
 }
-

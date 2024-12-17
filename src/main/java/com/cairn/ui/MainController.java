@@ -1,5 +1,6 @@
 package com.cairn.ui;
 
+import com.cairn.ui.dto.AddGoalTemplateDto;
 import com.cairn.ui.helper.GoalTemplateHelper;
 import com.cairn.ui.helper.HouseholdGoalHelper;
 import java.io.IOException;
@@ -991,6 +992,21 @@ public class MainController {
 		return "userProfileView";
 
 	}
+	@GetMapping("/reloadHouseholdSummary/{userId}")
+	public String reloadHouseholdSummary(@PathVariable int userId, Model model) {
+		User currentUser = userDAO.getUser();
+		User user = userHelper.getUser(currentUser, userId);
+
+		Household household = userHelper.getHouseholdById(currentUser, user.getHouseholdId());
+		ArrayList<User> coClients = household.getHouseholdAccounts();
+
+		model.addAttribute("user", user);
+		model.addAttribute("coclients", coClients);
+
+		return "fragments :: householdSummary"; // Returns the correct fragment
+	}
+
+
 
 	@PostMapping("/answerQuestion/{questionId}")
 	public ResponseEntity<Integer> answerQuestion(
@@ -2992,11 +3008,31 @@ public class MainController {
 	}
 
 	@GetMapping("/goalTemplates")
-	public String goalTemplateListPage(HttpSession session, Model model) {
-		User usr = (User) userDAO.getUser();
+	public String goalTemplateListPage(Model model) {
+		User usr = userDAO.getUser();
 		List<GoalTemplate> listGoalTemplates = goalTemplateHelper.getGoalTemplates(usr);
-		model.addAttribute("listProtocols", listGoalTemplates);
-		return "protocolTemplateList";
+		model.addAttribute("listGoals", listGoalTemplates);
+		return "goalTemplateList";
+	}
+
+	@PostMapping("/createNewGoalTemplate")
+	public ResponseEntity<String> createNewGoalTemplate(@RequestBody AddGoalTemplateDto dto) {
+		User usr = userDAO.getUser();
+		int result = goalTemplateHelper.createGoalTemplate(usr, dto);
+
+		if (result > 0) {
+			return ResponseEntity.status(HttpStatus.CREATED).body("Goal Template created successfully with ID: " + result);
+		} else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create Goal Template.");
+		}
+	}
+
+	@GetMapping("/newHouseholdGoalTemplate")
+	public String newHouseholdGoalTemplate(Model model) {
+		User usr = userDAO.getUser();
+		ArrayList<Household> households = userHelper.getHouseholdList(usr);
+		return"newHouseholdGoalTemplate";
+
 	}
 
 

@@ -1,0 +1,118 @@
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div th:insert="~{header :: main}">...</div>
+
+<div class="container">
+  <div class="row note_card">
+    <fieldset>
+      <legend>New Goal Template Details</legend>
+
+      <div id="messageBanner" class="alert d-none" role="alert"></div>
+
+      <form id="goalForm">
+        <div class="row">
+          <div class="col-md-1">
+            <label for="goalName" class="mr-md-3"><strong>Name:</strong></label>
+          </div>
+          <div class="col-md-10">
+            <input type="text" class="form-control" id="goalName" name="name"/>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-md-1">
+            <label for="goalDescription"><strong>Description:</strong></label>
+          </div>
+          <div class="col-md-10">
+            <input type="text" class="form-control" id="goalDescription" name="description"/>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-md-2">
+            <select class="form-control" id="categoryId" name="category">
+              <!--  Category Id Drop Drown, this will list that we pull from the database later
+                    But we don't have a getAllCategories Endpoint right now and I don't have the
+                    time to make it.
+              -->
+              <option value="1">Savings</option>
+              <option value="2">Invest</option>
+              <option value="3">Insure</option>
+              <option value="4">Debt Reduce</option>
+              <option value="5">Taxes</option>
+              <option value="6">Estate</option>
+
+            </select>
+          </div>
+        </div>
+        <div class="border border-dark p-3 mb-3">
+          <div class="row">
+            <div class="col-md-2">
+              <label for="reoccurring" class="mr-md-"><strong>Default as Reoccurring?</strong></label>
+              <input type="checkbox" id="reoccurring" name="reoccurring"/>
+            </div>
+          </div>
+
+        </div>
+        <br>
+      </form>
+
+      <button onclick="history.back()" class="btn btn-primary">Back</button>
+      <button type="button" class="btn btn-success" onclick="savegoalTemplate()">Save Template</button>
+    </fieldset>
+  </div>
+</div>
+
+<script>
+
+  function savegoalTemplate() {
+    const name = document.getElementById('goalName').value;
+    const description = document.getElementById('goalDescription').value;
+    const categoryId = document.getElementById('categoryId').value;
+    const reoccurring = document.getElementById('reoccurring').checked;
+
+    if (!name || !description || !categoryId) {
+      showBanner('Please fill in all required fields.', 'alert-danger');
+      return;
+    }
+
+    const dto = {
+      name: name,
+      description: description,
+      categoryId: categoryId,
+      reoccurring: reoccurring
+    };
+
+    // CSRF tokens
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    $.ajax({
+      url: '/createNewGoalTemplate',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(dto),
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader(csrfHeader, csrfToken); // Set CSRF header
+      },
+      success: function(response) {
+        alert("Successfully Created New Household Goal")
+        setTimeout(() => history.back(), 2000); // Redirect back after success
+      },
+      error: function(xhr) {
+        alert("Error in creating Household Goal")
+      }
+    });
+  }
+  
+</script>
+<div th:insert="~{footer :: main}">...</div>
+</body>
+</html>
+

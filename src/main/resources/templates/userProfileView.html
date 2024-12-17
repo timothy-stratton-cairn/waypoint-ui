@@ -53,7 +53,7 @@
 				</fieldset>
 			</div>
 
-			<!-- Household Summary Card -->
+			<!-- Household Summary Card
 			<div class="note_card mb-3">
 				<fieldset>
 					<legend>Household Summary</legend>
@@ -73,6 +73,10 @@
 						</div>
 					</div>
 				</fieldset>
+			</div>
+			-->
+			<div id="householdSummary"
+					 th:replace="fragments :: householdSummary(${user}, ${primaryContact}, ${coclients}, ${user.householdId})">
 			</div>
 
 			<!-- Active Protocols Card -->
@@ -403,31 +407,28 @@
 		});
 	}
 
-	function removeUserFromHousehold(householdId) {
+	function removeUserFromHousehold() {
 		const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
-		if (!csrfToken || !csrfHeader) {
-			alert("CSRF token or header not found.");
-			return;
-		}
 		$.ajax({
 			url: `/removeUserFromHousehold/${userId}`,
 			type: 'PATCH',
 			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json',
 				[csrfHeader]: csrfToken
 			},
 			success: function(response) {
 				alert(response);
-				location.reload();
+				location.reload()
+
+
 			},
-			error: function(xhr, status, error) {
-				alert('Error removing user from household: ' + xhr.responseText);
+			error: function(xhr) {
+				alert('Error: ' + xhr.responseText);
 			}
 		});
 	}
+
 
 
 

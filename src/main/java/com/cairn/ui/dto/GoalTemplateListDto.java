@@ -4,20 +4,22 @@ import java.util.List;
 
 public class GoalTemplateListDto {
 
-  private List<GoalTemplateDto> goalTemplates;
-  private int goalTemplatesCount;
+  private List<GoalTemplateDto> templates;
+  private int totalTemplate;
 
+  public List<GoalTemplateDto> getTemplates() {
+    return templates;
+  }
 
-  public List<GoalTemplateDto> getGoalTemplates() {
-    return goalTemplates;
+  public void setTemplates(List<GoalTemplateDto> templates) {
+    this.templates = templates;
   }
-  public void setGoalTemplates(List<GoalTemplateDto> goalTemplates) {
-    this.goalTemplates = goalTemplates;
+
+  public int getTotalTemplate() {
+    return totalTemplate;
   }
-  public void setGoalTemplatesCount(int goalTemplatesCount) {
-    this.goalTemplatesCount = goalTemplates.size();
-  }
-  public int getGoalTemplatesCount() {
-    return goalTemplatesCount;
+
+  public void setTotalTemplate(int totalTemplate) {
+    this.totalTemplate = totalTemplate;
   }
 }

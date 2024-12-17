@@ -1,15 +1,13 @@
 package com.cairn.ui.helper;
 
 import com.cairn.ui.Constants;
-import com.cairn.ui.dto.GoalCategoryDto;
+import com.cairn.ui.dto.AddGoalTemplateDto;
 import com.cairn.ui.dto.GoalTemplateDto;
 import com.cairn.ui.dto.GoalTemplateListDto;
 import com.cairn.ui.model.Entity;
 import com.cairn.ui.model.GoalTemplate;
 import com.cairn.ui.model.GoalCategory;
 import com.cairn.ui.model.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -56,7 +54,7 @@ public class GoalTemplateHelper {
         GoalTemplateListDto goalTemplateList =
             objectMapper.readValue(jsonResponse, GoalTemplateListDto.class);
 
-        for (GoalTemplateDto dto : goalTemplateList.getGoalTemplates()) {
+        for (GoalTemplateDto dto : goalTemplateList.getTemplates()) {
           GoalCategory category = null;
 
           if (dto.getCategory() != null) {
@@ -81,5 +79,27 @@ public class GoalTemplateHelper {
     }
 
     return goalTemplates;
+  }
+
+  public int createGoalTemplate(User user, AddGoalTemplateDto dto) {
+    String apiUrl = dashboardApiBaseUrl + "/api/goal-template"; // Endpoint path
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+
+      String requestBody = objectMapper.writeValueAsString(dto);
+
+      int resultId = apiHelper.postAPI(apiUrl, requestBody, user);
+
+      if (resultId > 0) {
+        logger.info("Successfully created Goal Template with ID: " + resultId);
+      } else {
+        logger.error("Failed to create Goal Template. API returned: " + resultId);
+      }
+
+      return resultId;
+    } catch (Exception e) {
+      logger.error("Error creating Goal Template", e);
+      return -1;
+    }
   }
 }

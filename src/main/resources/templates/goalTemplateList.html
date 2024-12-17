@@ -20,16 +20,14 @@
         <thead>
         <tr>
           <th>Name</th>
-          <th>Status</th>
-          <th>Category</th>
+          <th>Description</th>
           <th>Action</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="goal, status: ${listgoals}">
+        <tr th:each="goal: ${listGoals}">
           <td th:text="${goal.name}"></td>
           <td th:text="${goal.description}"></td>
-          <td th:text="${goal.category.name}"></td>
           <td>
             <a class="btn btn-sm btn-secondary" th:href="@{'/editgoal/' + ${goal.id}}">Details</a>
           </td>
