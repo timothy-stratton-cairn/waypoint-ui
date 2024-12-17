@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Goal Templates</title>
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+</head>
+
+<body>
+<div th:insert="~{header :: main}">...</div>
+<div class="container">
+  <div class="row note_card">
+    <fieldset>
+      <legend>Goal Templates</legend>
+      <button class="btn btn-sm btn-primary" onclick="newgoal();">New goal</button>
+      <table id="goalTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Category</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="goal, status: ${listgoals}">
+          <td th:text="${goal.name}"></td>
+          <td th:text="${goal.description}"></td>
+          <td th:text="${goal.category.name}"></td>
+          <td>
+            <a class="btn btn-sm btn-secondary" th:href="@{'/editgoal/' + ${goal.id}}">Details</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </fieldset>
+  </div>
+</div>
+
+<div th:insert="~{footer :: main}">...</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<script>
+  function newgoal() {
+    window.location = '/newgoal/';
+  }
+
+  $(document).ready(function() {
+    $('#goalTable').DataTable({
+      "paging": true,
+      "searching": true,
+      "lengthChange": true,
+      "pageLength": 25,
+      "lengthMenu": [
+        [10, 25, 100, -1],
+        [10, 25, 100, "All"],
+      ],
+      "dom": '<"top"f>rt<"bottom"lpi><"clear">',
+      "info": true
+    });
+  });
+</script>
+</body>
+
+</html>
+

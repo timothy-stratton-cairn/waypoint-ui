@@ -65,7 +65,11 @@
 							<div class="col-md-6">
 								<span th:text="${coclient.firstName} + ' ' + ${coclient.lastName}">First Last Name</span>
 							</div>
-
+						</div>
+						<div th:if="${user.householdId != null && user.householdId > 0}" class="mt-3">
+							<button type="button" class="btn btn-sm btn-default" onclick="removeUserFromHousehold()">
+								Leave Household
+							</button>
 						</div>
 					</div>
 				</fieldset>
@@ -398,6 +402,33 @@
 			}
 		});
 	}
+
+	function removeUserFromHousehold(householdId) {
+		const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+		if (!csrfToken || !csrfHeader) {
+			alert("CSRF token or header not found.");
+			return;
+		}
+		$.ajax({
+			url: `/removeUserFromHousehold/${userId}`,
+			type: 'PATCH',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json',
+				[csrfHeader]: csrfToken
+			},
+			success: function(response) {
+				alert(response);
+				location.reload();
+			},
+			error: function(xhr, status, error) {
+				alert('Error removing user from household: ' + xhr.responseText);
+			}
+		});
+	}
+
 
 
 </script>

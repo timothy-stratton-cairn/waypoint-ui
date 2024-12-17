@@ -1,5 +1,7 @@
 package com.cairn.ui;
 
+import com.cairn.ui.helper.GoalTemplateHelper;
+import com.cairn.ui.helper.HouseholdGoalHelper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -99,6 +101,11 @@ public class MainController {
 	private JavaMailSender mailSender;
   @Autowired
   private HomeworkQuestionHelper homeworkQuestionHelper;
+  @Autowired
+  private HouseholdGoalHelper householdGoalHelper;
+
+	@Autowired
+	private GoalTemplateHelper goalTemplateHelper;
 
 	@GetMapping("/")
 	public String startPage() {
@@ -2985,5 +2992,15 @@ public class MainController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error setting User to Inactive ");
 		}
 	}
+
+	@GetMapping("/goalTemplates")
+	public String goalTemplateListPage(HttpSession session, Model model) {
+		User usr = (User) userDAO.getUser();
+		List<GoalTemplate> listGoalTemplates = goalTemplateHelper.getGoalTemplates(usr);
+		model.addAttribute("listProtocols", listGoalTemplates);
+		return "protocolTemplateList";
+	}
+
+
 
 }
