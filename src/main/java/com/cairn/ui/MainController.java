@@ -980,7 +980,6 @@ public class MainController {
 		ArrayList<Protocol> userProtocols = protocolHelper.getProtocolsByUserId(currentUser, user_Id);
 		logger.info("User: "+ user_Id +" Number of Protocols " +userProtocols.size());
 		System.out.println(userProtocols.size());
-
 		model.addAttribute("protocolList", allTemplates);
 		model.addAttribute("clientId", profileUser.getHouseholdId());
 		model.addAttribute("coclients", coclients);
@@ -990,8 +989,8 @@ public class MainController {
 		model.addAttribute("userProtocols",userProtocols);
 
 		return "userProfileView";
-
 	}
+
 	@GetMapping("/reloadHouseholdSummary/{userId}")
 	public String reloadHouseholdSummary(@PathVariable int userId, Model model) {
 		User currentUser = userDAO.getUser();
@@ -1081,8 +1080,23 @@ public class MainController {
 		}
 
 		int clientId = household.getId();
+		ArrayList<HouseholdGoalTemplateProtocols> detailedGoals = getHouseholdGoalsWithAssignedProtocols(clientId);
+		logger.info("Number of GoalTemplateDetails objects processed: {}", detailedGoals.size());
+		for (HouseholdGoalTemplateProtocols goal : detailedGoals) {
+			logger.info(
+					"GoalTemplateDetails - ID: {}, Name: {}, Description: {}, Number of Protocols: {}",
+					goal.getId(),
+					goal.getName(),
+					goal.getDescription(),
+					goal.getProtocols() != null ? goal.getProtocols().size() : 0
+			);
+		}
+		ArrayList<ProtocolTemplate> tempProtocolTest = goalTemplateHelper.getProtocolListByGoalTemplate(currentUser, 3);
+		logger.info("Testing To see size of tempProtocolTest" + tempProtocolTest.size());
+
 		ArrayList<String> goalList = household.getHouseholdGoals();
 		model.addAttribute("goals", goalList);
+		model.addAttribute("detailedGoals", detailedGoals);
 		model.addAttribute("protocolList", protocolTemplateHelper.getList(currentUser));
 		model.addAttribute("householdProtocols",householdProtocols);
 		model.addAttribute("questionList", questionList);
@@ -3032,9 +3046,63 @@ public class MainController {
 		User usr = userDAO.getUser();
 		ArrayList<Household> households = userHelper.getHouseholdList(usr);
 		return"newHouseholdGoalTemplate";
-
 	}
 
+	public ArrayList<GoalTemplateDetails> processAllGoalTempalteDetails(){
+		User usr = userDAO.getUser();
+		ArrayList<GoalTemplate> temps = goalTemplateHelper.getGoalTemplates(usr);
+		ArrayList<GoalTemplateDetails> goalDetailsList = new ArrayList<>();
 
+		for(GoalTemplate temp: temps){
+			GoalTemplateDetails detailedTemp = new GoalTemplateDetails();
+			detailedTemp.setId(temp.getId());
+			detailedTemp.setName(temp.getName());
+			detailedTemp.setDescription(temp.getDescription());
+			detailedTemp.setTemplates(getProtocolsByGoalTemplate(temp.getId().intValue()));
+			goalDetailsList.add(detailedTemp);
+		}
+
+		return goalDetailsList;
+	}
+
+	public ArrayList<Protocol> getHouseholdProtocols(int houseHoldId) {
+		User usr = userDAO.getUser();
+		Household household = userHelper.getHouseholdById(usr, houseHoldId);
+		ArrayList<User> users = household.getHouseholdAccounts();
+		ArrayList<Protocol> householdProtocols = protocolHelper.getAssignedProtocols(usr,houseHoldId);
+		return householdProtocols;
+	}
+
+	public ArrayList<ProtocolTemplate> getProtocolsByGoalTemplate(int goalId){
+		User usr = userDAO.getUser();
+		ArrayList<ProtocolTemplate> templates = goalTemplateHelper.getProtocolListByGoalTemplate(usr, goalId);
+		return templates;
+		}
+
+
+	public ArrayList<HouseholdGoalTemplateProtocols> getHouseholdGoalsWithAssignedProtocols(int householdId) {
+		User usr = userDAO.getUser();
+		ArrayList<Protocol> pcols = protocolHelper.getAssignedProtocols(usr, householdId);
+		ArrayList<HouseholdGoalTemplateProtocols> householdGoalTemplateProtocolsList = new ArrayList<>();
+		ArrayList<GoalTemplateDetails> householdGoalDetails = processAllGoalTempalteDetails();
+		for (GoalTemplateDetails goal : householdGoalDetails) {
+			ArrayList<Protocol> matchingProtocols = new ArrayList<>();
+			for (Protocol protocol : pcols) {
+				if (protocol.getTemplateId() == goal.getId()) {
+					matchingProtocols.add(protocol);
+				}
+			}
+			HouseholdGoalTemplateProtocols householdGoal = new HouseholdGoalTemplateProtocols();
+			householdGoal.setId(goal.getId());
+			householdGoal.setName(goal.getName());
+			householdGoal.setDescription(goal.getDescription());
+			householdGoal.setCategory(goal.getCategory());
+			householdGoal.setProtocols(matchingProtocols);
+
+			householdGoalTemplateProtocolsList.add(householdGoal);
+		}
+
+		return householdGoalTemplateProtocolsList;
+	}
 
 }

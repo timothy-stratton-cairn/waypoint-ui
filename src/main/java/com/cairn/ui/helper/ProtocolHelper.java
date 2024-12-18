@@ -401,7 +401,8 @@ public class ProtocolHelper {
 	                            : "null");
 	                    entry.setId(
 	                            element.has("id") && !element.get("id").isNull() ? element.get("id").intValue() : -1);
-	                    
+	                    entry.setTemplateId(element.has("protocolTemplateId") && !element.get("protocolTemplateId").isNull() ? element.get("protocolTemplateId").intValue() : -1
+											);
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	                    entry.setStatus(element.has("status") && !element.get("status").isNull()
 	                            ? element.get("status").asText()
