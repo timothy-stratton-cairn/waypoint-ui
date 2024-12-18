@@ -1,199 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Household View</title>
+	<meta charset="UTF-8">
+	<title>Household View</title>
 
-  <meta name="_csrf" th:content="${_csrf.token}" />
-  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+	<meta name="_csrf" th:content="${_csrf.token}" />
+	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
+
 <body data-client-id="${clientId}">
-<div th:insert="~{header :: main}">...</div>
-<div class ="container">
-<div class="row">
-  <div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
-  <div class="col-md-5">
-    <div id="householdDependentsSection" class="note_card">
-      <fieldset>
-        <legend th:text="${household.name} + ' Summary'">Household Summary</legend>
+	<div th:insert="~{header :: main}">...</div>
+	<div class="container">
+		<div class="row">
+			<div id="messageBanner" class="alert" role="alert" style="display: none;"></div>
+			<div class="col-md-5">
+				<div id="householdDependentsSection" class="note_card">
+					<fieldset>
+						<legend th:text="${household.name} + ' Summary'">Household Summary</legend>
 
-        <!-- Tabs Navigation -->
-        <ul class="nav nav-tabs" id="householdDependentsTabs" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link nav-tab-link active" id="household-tab" data-toggle="tab" href="#household" role="tab" aria-controls="household" aria-selected="true">Household</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link nav-tab-link" id="dependents-tab" data-toggle="tab" href="#dependents" role="tab" aria-controls="dependents" aria-selected="false">Dependents</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link nav-tab-link" id="coclients-tab" data-toggle="tab" href="#coclients" role="tab" aria-controls="coclients" aria-selected="false">CoClients</a>
-          </li>
-        </ul>
+						<!-- Tabs Navigation -->
+						<ul class="nav nav-tabs" id="householdDependentsTabs" role="tablist">
+							<li class="nav-item">
+								<a class="nav-link nav-tab-link active" id="household-tab" data-toggle="tab"
+									href="#household" role="tab" aria-controls="household"
+									aria-selected="true">Household</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link nav-tab-link" id="dependents-tab" data-toggle="tab"
+									href="#dependents" role="tab" aria-controls="dependents"
+									aria-selected="false">Dependents</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link nav-tab-link" id="coclients-tab" data-toggle="tab" href="#coclients"
+									role="tab" aria-controls="coclients" aria-selected="false">CoClients</a>
+							</li>
+						</ul>
 
-        <!-- Tabs Content -->
-        <div class="tab-content" id="householdDependentsTabContent">
+						<!-- Tabs Content -->
+						<div class="tab-content" id="householdDependentsTabContent">
 
-          <!-- Household Tab Pane -->
-          <div class="tab-pane fade show active" id="household" role="tabpanel" aria-labelledby="household-tab">
-            <div class="row mb-4">
-              <div class="col-md-12" th:if="${primaryContact != null}">
-                <label>Primary Contact:</label>
-                <span th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
-              </div>
-              <div class="col-md-12" th:if="${primaryContact != null}">
-                <label>Email:</label>
-                <span th:text="${primaryContact.email}"></span>
-              </div>
-              <div class="col-md-12" th:if="${primaryContact != null}">
-                <label>Phone Number:</label>
-                <span th:text="${primaryContact.phoneNumber}"></span>
-              </div>
-              <div class="col-md-12" th:if="${primaryContact == null}">
-                <p>No primary contact available</p>
-              </div>
-            </div>
-          <div>
-            <button class="btn btn-sm btn-default" onclick="setHouseholdToInactive();">Set to Inactive</button>
-          </div>
-          </div>
+							<!-- Household Tab Pane -->
+							<div class="tab-pane fade show active" id="household" role="tabpanel"
+								aria-labelledby="household-tab">
+								<div class="row mb-4">
+									<div class="col-md-12" th:if="${primaryContact != null}">
+										<label>Primary Contact:</label>
+										<span
+											th:text="${primaryContact.firstName + ' ' + primaryContact.lastName}"></span>
+									</div>
+									<div class="col-md-12" th:if="${primaryContact != null}">
+										<label>Email:</label>
+										<span th:text="${primaryContact.email}"></span>
+									</div>
+									<div class="col-md-12" th:if="${primaryContact != null}">
+										<label>Phone Number:</label>
+										<span th:text="${primaryContact.phoneNumber}"></span>
+									</div>
+									<div class="col-md-12" th:if="${primaryContact == null}">
+										<p>No primary contact available</p>
+									</div>
+								</div>
+								<div>
+									<button class="btn btn-sm btn-default" onclick="setHouseholdToInactive();">Set to
+										Inactive</button>
+								</div>
+							</div>
 
-          <!-- Dependents Tab Pane -->
-          <div class="tab-pane fade" id="dependents" role="tabpanel" aria-labelledby="dependents-tab">
-            <div class="list-group">
-              <div th:each="dependent, iterStat : ${dependents}"
-                   th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'"
-                   class="form-group row">
-                <div class="row">
-                  <div class="col-md-6">
-                    <span th:text="${dependent.firstName}">First Name</span>
-                  </div>
-                  <div class="col-md-6">
-                    <span th:text="${dependent.lastName}">Last Name</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+							<!-- Dependents Tab Pane -->
+							<div class="tab-pane fade" id="dependents" role="tabpanel" aria-labelledby="dependents-tab">
+								<div class="list-group">
+									<div th:each="dependent, iterStat : ${dependents}"
+										th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'"
+										class="form-group row">
+										<div class="row">
+											<div class="col-md-6">
+												<span th:text="${dependent.firstName}">First Name</span>
+											</div>
+											<div class="col-md-6">
+												<span th:text="${dependent.lastName}">Last Name</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 
-          <!-- CoClients Tab Pane -->
-          <div class="tab-pane fade" id="coclients" role="tabpanel" aria-labelledby="coclients-tab">
-            <div class="row mb-3">
-              <div class="col-md-12">
-                <table class="table">
-                  <thead>
-                  <tr>
-                    <th>CoClients</th>
-                    <th>Action</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr th:each="coclient : ${coclients}">
-                    <td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
-                    <td>
-                      <a class="btn btn-sm btn-secondary" href="javascript:void(0);" th:onclick="|editClient(${coclient.id});|">Edit</a>
-                      <a class="btn btn-sm btn-secondary" href="javascript:void(0);" th:onclick="|makePrimaryContact(${coclient.id});|">Make Primary Contact</a>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+							<!-- CoClients Tab Pane -->
+							<div class="tab-pane fade" id="coclients" role="tabpanel" aria-labelledby="coclients-tab">
+								<div class="row mb-3">
+									<div class="col-md-12">
+										<table class="table">
+											<thead>
+												<tr>
+													<th>CoClients</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr th:each="coclient : ${coclients}">
+													<td th:text="${coclient.firstName + ' ' + coclient.lastName}"></td>
+													<td>
+														<a class="btn btn-sm btn-secondary" href="javascript:void(0);"
+															th:onclick="|editClient(${coclient.id});|">Edit</a>
+														<a class="btn btn-sm btn-secondary" href="javascript:void(0);"
+															th:onclick="|makePrimaryContact(${coclient.id});|">Make
+															Primary Contact</a>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
 
-        </div>
-      </fieldset>
-    </div>
-          <div class="note_card mb-11" id="coclientSection">
-        <fieldset>
-          <legend>CoClients</legend>
+						</div>
+					</fieldset>
+				</div>
+				<div class="note_card mb-11" id="coclientSection">
+					<fieldset>
+						<legend>CoClients</legend>
 
-          <!-- CoClient Tabs -->
-          <ul class="nav nav-tabs" id="coclientTabs" role="tablist">
-            <li class="nav-item" th:each="coclient : ${coclients}">
-              <a class="nav-link nav-tab-link" href="javascript:void(0);"
-                 th:text="${coclient.firstName + ' ' + coclient.lastName}"
-                 th:onclick="|setClientFilter(${coclient.id});|">CoClient</a>
-            </li>
-          </ul>
+						<!-- CoClient Tabs -->
+						<ul class="nav nav-tabs" id="coclientTabs" role="tablist">
+							<li class="nav-item" th:each="coclient : ${coclients}">
+								<a class="nav-link nav-tab-link" href="javascript:void(0);"
+									th:text="${coclient.firstName + ' ' + coclient.lastName}"
+									th:onclick="|setClientFilter(${coclient.id});|">CoClient</a>
+							</li>
+						</ul>
 
-          <ul class="nav nav-tabs" id="answerTabs" role="tablist" >
-            <li class="nav-item"><a class="nav-link active" href="#" onclick="setAnsweredFilter(0);return false;">All</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="setAnsweredFilter(1);return false;">Answered</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="setAnsweredFilter(2);return false;">Unanswered</a></li>
-          </ul>
+						<ul class="nav nav-tabs" id="answerTabs" role="tablist">
+							<li class="nav-item"><a class="nav-link active" href="#"
+									onclick="setAnsweredFilter(0);return false;">All</a></li>
+							<li class="nav-item"><a class="nav-link" href="#"
+									onclick="setAnsweredFilter(1);return false;">Answered</a></li>
+							<li class="nav-item"><a class="nav-link" href="#"
+									onclick="setAnsweredFilter(2);return false;">Unanswered</a></li>
+						</ul>
 
-          <!-- Question Tabs -->
-          <ul class="nav nav-tabs question-tabs" id="questionTabs" role="tablist">
-            <li class="nav-item"><a class="nav-link  active" href="#" onclick="loadQuestions(0); return false;">All</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(1); return false;">Personal</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(2); return false;">Family</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(3); return false;">Goals</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(4); return false;">Insurance</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(5); return false;">Investments</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(6); return false;">Assets</a></li>
-            <li class="nav-item"><a class="nav-link  nav-tab-link" href="#" onclick="loadQuestions(7); return false;">Liabilities</a></li>
-          </ul>
-
-
-
-          <!-- Content Section for CoClient Information and Homework Questions -->
-          <div class="tab-content mt-3" id="coclientContent">
-
-
-            <div class="question-container" th:each="userQuestionResponsePair : ${questionList}">
-              <div id="coclientInfo" class="mb-3">
-              </div>
-
-              <div th:if="${userQuestionResponsePair.responses != null}">
-                <div th:each="questionResponse : ${userQuestionResponsePair.responses.questions != null ? userQuestionResponsePair.responses.questions : {}}">
-                  <li class="list-group-item question-item"
-                      th:data-category-id="${questionResponse.question != null ? questionResponse.question.categoryId : 'N/A'}"
-                      th:data-question-id="${questionResponse.question != null ? questionResponse.question.id : 'N/A'}"
-                      th:data-answered="${questionResponse.response != null && questionResponse.response.response != null && questionResponse.response.response != 'NEEDS ATTENTION' ? 1 : 0}"
-                      th:data-client-id="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : 'N/A'}"
-                      onclick="toggleResponseForm(this)">
-
-                    <div class="row">
-                      <div class="col-md-5">
-                        <strong th:text="${questionResponse.question != null ? questionResponse.question.question : 'Question Text'}">Question Text</strong>
-                      </div>
-                      <div class="col-md-5">
-                        <span th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
-                      </div>
-                      <div class="col-md-2">
-                        <span th:text="${questionResponse.question != null && questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last Updated</span>
-                      </div>
-                    </div>
-                  </li>
-
-                  <div class="response-form-container" style="display: none;">
-                    <div class="row">
-                      <input type="hidden" name="questionId" th:value="${questionResponse.question != null ? questionResponse.question.id : ''}" />
-                      <input type="hidden" name="categoryId" th:value="${questionResponse.question != null ? questionResponse.question.categoryId : ''}" />
-                      <input type="hidden" name="userId" th:value="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : ''}" />
-
-                      <div class="col-md-10">
-                        <input type="text" name="response" th:id="'response_' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'}" class="form-control" placeholder="Response">
-                      </div>
-
-                      <div class="col-md-2">
-                        <button type="button" class="btn btn-primary" th:onclick="'submitResponse(' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'} + ')'" >
-                          Submit
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+						<!-- Question Tabs -->
+						<ul class="nav nav-tabs question-tabs" id="questionTabs" role="tablist">
+							<li class="nav-item"><a class="nav-link  active" href="#"
+									onclick="loadQuestions(0); return false;">All</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(1); return false;">Personal</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(2); return false;">Family</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(3); return false;">Goals</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(4); return false;">Insurance</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(5); return false;">Investments</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(6); return false;">Assets</a></li>
+							<li class="nav-item"><a class="nav-link  nav-tab-link" href="#"
+									onclick="loadQuestions(7); return false;">Liabilities</a></li>
+						</ul>
 
 
 
-          </div>
-        </fieldset>
-      </div>
+						<!-- Content Section for CoClient Information and Homework Questions -->
+						<div class="tab-content mt-3" id="coclientContent">
+
+
+							<div class="question-container" th:each="userQuestionResponsePair : ${questionList}">
+								<div id="coclientInfo" class="mb-3">
+								</div>
+
+								<div th:if="${userQuestionResponsePair.responses != null}">
+									<div
+										th:each="questionResponse : ${userQuestionResponsePair.responses.questions != null ? userQuestionResponsePair.responses.questions : {}}">
+										<li class="list-group-item question-item"
+											th:data-category-id="${questionResponse.question != null ? questionResponse.question.categoryId : 'N/A'}"
+											th:data-question-id="${questionResponse.question != null ? questionResponse.question.id : 'N/A'}"
+											th:data-answered="${questionResponse.response != null && questionResponse.response.response != null && questionResponse.response.response != 'NEEDS ATTENTION' ? 1 : 0}"
+											th:data-client-id="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : 'N/A'}"
+											onclick="toggleResponseForm(this)">
+
+											<div class="row">
+												<div class="col-md-5">
+													<strong
+														th:text="${questionResponse.question != null ? questionResponse.question.question : 'Question Text'}">Question
+														Text</strong>
+												</div>
+												<div class="col-md-5">
+													<span
+														th:text="${questionResponse.response != null ? questionResponse.response.response : 'NEEDS ATTENTION'}">Response</span>
+												</div>
+												<div class="col-md-2">
+													<span
+														th:text="${questionResponse.question != null && questionResponse.question.updated != null ? questionResponse.question.updated : 'N/A'}">Last
+														Updated</span>
+												</div>
+											</div>
+										</li>
+
+										<div class="response-form-container" style="display: none;">
+											<div class="row">
+												<input type="hidden" name="questionId"
+													th:value="${questionResponse.question != null ? questionResponse.question.id : ''}" />
+												<input type="hidden" name="categoryId"
+													th:value="${questionResponse.question != null ? questionResponse.question.categoryId : ''}" />
+												<input type="hidden" name="userId"
+													th:value="${userQuestionResponsePair.user != null ? userQuestionResponsePair.user.id : ''}" />
+
+												<div class="col-md-10">
+													<input type="text" name="response"
+														th:id="'response_' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'}"
+														class="form-control" placeholder="Response">
+												</div>
+
+												<div class="col-md-2">
+													<button type="button" class="btn btn-primary"
+														th:onclick="'submitResponse(' + ${questionResponse.question != null ? questionResponse.question.id : 'N/A'} + ')'">
+														Submit
+													</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
+						</div>
+					</fieldset>
+				</div>
 
   </div>
   <div class="col-md-7">
