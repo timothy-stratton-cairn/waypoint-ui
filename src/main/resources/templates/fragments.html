@@ -336,35 +336,6 @@
     </fieldset>
 </th:block>
 
-<th:block th:fragment="assignedHomework(step)">
-    <fieldset class="col-12">
-        <legend>Assigned Homework</legend>
-        <div class="table-responsive">
-            <table class="table" id="homeworkTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="homework : ${step.homework}" th:data-homework-id="${homework.id}">
-                        <td th:text="${homework.name}">Homework Name</td>
-                        <td>
-                            <button type="button" class="btn btn-secondary" th:attr="onclick='deleteHomework(' + ${homework.id} + ');'">Delete</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <select class="form-control mt-2" id="homeworkTemplateDropdown">
-            <option value="">Select Homework Template</option>
-            <option th:each="homework : ${homeworkList}" th:value="${homework.id}" th:text="${homework.name}"></option>
-        </select>
-        <button type="button" class="btn btn-primary mt-2" onclick="confirmHomeworkTemplate();">Add Homework</button>
-    </fieldset>
-</th:block>
-
 <!-- User: Household Fragment -->
 <th:block th:fragment="householdFragment(household, householdList)">
 	<div class="note_card">

@@ -48,41 +48,6 @@
     </div>
 </div>
 
-<!-- Homework Form -->
-<div class="container">
-    <div class="row note_card">
-        <fieldset>
-            <legend>Assigned Homework</legend>
-            <div class="table-responsive">
-                <table class="table" id="homeworkTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Remove</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <select class="form-control mt-2" id="homeworkTemplateDropdown">
-                <option value="">Select Homework Template</option>
-                <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}"></option>
-            </select>
-            <button type="button" class="btn btn-primary mt-2" onclick="addHomeworkTemplate();">Add Homework</button>
-        </fieldset>
-    </div>
-</div>
-
-<!-- Homework Template Selection (hidden by default) -->
-<div class="container mt-3" style="display:none;" id="homeworkTemplateSelector">
-    <select class="form-control mt-2" id="homeworkTemplateDropdown">
-        <option value="">Select Homework Template</option>
-        <option th:each="homework : ${homework}" th:value="${homework.id}" th:text="${homework.name}">Homework Template Name</option>
-    </select>
-    <button type="button" class="btn btn-secondary mt-2" onclick="confirmHomeworkTemplate();">Confirm</button>
-</div>
-
 <script th:inline="javascript">
     var pcolId = [[${pcolId}]]; // this can be null 
 
@@ -93,44 +58,6 @@
         banner.textContent = message;
         banner.className = 'alert alert-' + type;
         banner.style.display = 'block';
-    }
-
-    function addHomeworkTemplate() {
-        var tableBody = document.getElementById("homeworkTable").getElementsByTagName('tbody')[0];
-        
-        // Check if the homework is already added
-        var homeworkSelect = document.getElementById("homeworkTemplateDropdown");
-        var selectedOption = homeworkSelect.options[homeworkSelect.selectedIndex];
-        var homeworkExists = Array.from(tableBody.rows).some(row => row.dataset.homeworkId === selectedOption.value);
-        
-        if (homeworkExists) {
-            showBannerMessage("This homework template is already added.", "warning");
-            return; // Stop the function if the homework already exists
-        }
-
-        if (tableBody.rows.length >= maxHomeworkItems) {
-            showBannerMessage("The maximum number of homework items allowed has been reached, please remove a homework item before trying to add another.", "warning");
-            return; // Stop the function if the max limit is reached
-        }
-
-        if (selectedOption.value !== "") {
-            var newRow = tableBody.insertRow();
-            var cell1 = newRow.insertCell(0);
-            var cell2 = newRow.insertCell(1);
-
-            cell1.textContent = selectedOption.text;
-            cell2.innerHTML = '<button type="button" class="btn btn-danger" onclick="removeHomework(this);">Remove</button>';
-            newRow.dataset.homeworkId = selectedOption.value;
-
-            homeworkSelect.selectedIndex = 0; // Reset the dropdown after adding
-        } else {
-            showBannerMessage("Please select a homework template before adding.", "warning");
-        }
-    }
-
-    function removeHomework(button) {
-        var row = button.parentNode.parentNode;
-        row.parentNode.removeChild(row);
     }
 
     function saveStep() {
