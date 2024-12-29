@@ -1,6 +1,7 @@
 package com.cairn.ui;
 
 import com.cairn.ui.dto.AddGoalTemplateDto;
+import com.cairn.ui.dto.HouseholdGoldProtocolsDto;
 import com.cairn.ui.helper.GoalTemplateHelper;
 import com.cairn.ui.helper.HouseholdGoalHelper;
 import java.io.IOException;
@@ -1080,8 +1081,8 @@ public class MainController {
 		}
 
 		int clientId = household.getId();
-		ArrayList<HouseholdGoalTemplateProtocols> detailedGoals = getHouseholdGoalsWithAssignedProtocols(clientId);
-		logger.info("Number of GoalTemplateDetails objects processed: {}", detailedGoals.size());
+		ArrayList<HouseholdGoldProtocolsDto> detailedGoals = householdGoalHelper.getHouseholdGoalProtocolsByHouseholdID(currentUser,clientId);
+		/*logger.info("Number of GoalTemplateDetails objects processed: {}", detailedGoals.size());
 		for (HouseholdGoalTemplateProtocols goal : detailedGoals) {
 			logger.info(
 					"GoalTemplateDetails - ID: {}, Name: {}, Description: {}, Number of Protocols: {}",
@@ -1093,7 +1094,7 @@ public class MainController {
 		}
 		ArrayList<ProtocolTemplate> tempProtocolTest = goalTemplateHelper.getProtocolListByGoalTemplate(currentUser, 3);
 		logger.info("Testing To see size of tempProtocolTest" + tempProtocolTest.size());
-
+		*/
 		ArrayList<String> goalList = household.getHouseholdGoals();
 		model.addAttribute("goals", goalList);
 		model.addAttribute("detailedGoals", detailedGoals);

@@ -232,183 +232,58 @@
 				</div>
 
   </div>
-  <div class="col-md-7">
-    <!-- Goals Card -->
-    <div class="note_card">
-      <fieldset>
-        <legend>Goals</legend>
+      <div class="col-md-7">
+      <div class="note_card">
+        <fieldset>
+          <legend>Goals</legend>
+          <div th:each="goal : ${detailedGoals}">
+            <div class="form-group">
+              <!-- Goal Name -->
+              <label th:text="${goal.goalName}">Goal Name</label>
 
-        <!-- Reduce Debt -->
-        <div class="form-group">
-          <label>
-            Reduce Debt
-            <a href="javascript:void(0);" onclick="toggleGoalDetails(1);">[Details]</a>
-          </label>
-          <div class="progress mb-2">
-            <div class="progress-bar" role="progressbar" style="width: 40%;">40%</div>
-          </div>
-          <div id="goalDetails_1" style="display: none;">
-            <ul>
-              <li th:each="goal : ${detailedGoals}" th:if="${goal.id == 1}">
-              <span th:text="'Description: ' + (${goal.description != null ? goal.description : 'No description available'})">
-              Description: No description available
-              </span>
-                <ul>
-                  <li th:each="protocol : ${goal.protocols}" th:text="${protocol.name != null ? protocol.name : 'Unnamed Protocol'}">
-                    Protocol Name
-                  </li>
-                </ul>
-              </li>
-              <li th:if="${detailedGoals.?[id == 1] == null}">
-                No details available.
-              </li>
-            </ul>
-          </div>
-        </div>
+              <!-- Goal Description on the next line -->
+              <div class="text-muted" th:text="'Description: ' + (${goal.goalDescription != null ? goal.goalDescription : 'No description available'})">
+                Description: No description available
+              </div>
 
-        <!-- Estate Planning -->
-        <div class="form-group">
-          <label>
-            Estate Planning
-            <a href="javascript:void(0);" onclick="toggleGoalDetails(2);">[Details]</a>
-          </label>
-          <div class="progress mb-2">
-            <div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
-          </div>
-          <div id="goalDetails_2" style="display: none;">
-            <ul>
-              <li th:each="goal : ${detailedGoals}" th:if="${goal.id == 2}">
-              <span th:text="'Description: ' + (${goal.description != null ? goal.description : 'No description available'})">
-              Description: No description available
-              </span>
-                <ul>
-                  <li th:each="protocol : ${goal.protocols}" th:text="${protocol.name != null ? protocol.name : 'Unnamed Protocol'}">
-                    Protocol Name
-                  </li>
-                </ul>
-              </li>
-              <li th:if="${detailedGoals.?[id == 2] == null}">
-                No details available.
-              </li>
-            </ul>
-          </div>
-        </div>
+              <!-- Protocols Progress Bar -->
+              <div class="progress mb-2 mt-2">
+                <div class="progress-bar" role="progressbar"
+                     th:style="'width: ' + (${goal.protocols.size()} * 20) + '%;'"
+                     th:text="${goal.protocols.size()} + '%'">
+                  0%
+                </div>
+              </div>
 
-        <!-- Invest -->
-        <div class="form-group">
-          <label>
-            Invest
-            <a href="javascript:void(0);" onclick="toggleGoalDetails(3);">[Details]</a>
-          </label>
-          <div class="progress mb-2">
-            <div class="progress-bar" role="progressbar" style="width: 60%;">60%</div>
-          </div>
-          <div id="goalDetails_3" style="display: none;">
-            <ul>
-              <li th:each="goal : ${detailedGoals}" th:if="${goal.id == 3}">
-              <span th:text="'Description: ' + (${goal.description != null ? goal.description : 'No description available'})">
-              Description: No description available
-              </span>
-                <ul>
-                  <li th:each="protocol : ${goal.protocols}" th:text="${protocol.name != null ? protocol.name : 'Unnamed Protocol'}">
-                    Protocol Name
-                  </li>
-                </ul>
-              </li>
-              <li th:if="${detailedGoals.?[id == 3] == null}">
-                No details available.
-              </li>
-            </ul>
-          </div>
-        </div>
+              <!-- Details Button -->
+              <button type="button" class="btn btn-secondary"
+                      th:onclick="'toggleGoalDetails(' + ${goal.goalId} + ');'">
+                Details
+              </button>
+              
 
-        <!-- Savings -->
-        <div class="form-group">
-          <label>
-            Savings
-            <a href="javascript:void(0);" onclick="toggleGoalDetails(4);">[Details]</a>
-          </label>
-          <div class="progress mb-2">
-            <div class="progress-bar" role="progressbar" style="width: 40%;">40%</div>
-          </div>
-          <div id="goalDetails_4" style="display: none;">
-            <ul>
-              <li th:each="goal : ${detailedGoals}" th:if="${goal.id == 4}">
-              <span th:text="'Description: ' + (${goal.description != null ? goal.description : 'No description available'})">
-              Description: No description available
+              <!-- Goal Details Section -->
+              <div th:id="'goalDetails_' + ${goal.goalId}" style="display: none;" class="list-group mt-3">
+                <div th:each="protocol, iterStat : ${goal.protocols}"
+                     class="list-group-item"
+                     th:classappend="${iterStat.count % 2 == 0} ? 'even' : 'odd'">
+                  <div class="d-flex justify-content-between align-items-center">
+              <span th:text="${protocol.name != null ? protocol.name : 'Unnamed Protocol'}">
+                Protocol Name
               </span>
-                <ul>
-                  <li th:each="protocol : ${goal.protocols}" th:text="${protocol.name != null ? protocol.name : 'Unnamed Protocol'}">
-                    Protocol Name
-                  </li>
-                </ul>
-              </li>
-              <li th:if="${detailedGoals.?[id == 4] == null}">
-                No details available.
-              </li>
-            </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </fieldset>
+      </div>
 
-        <!-- Insurance -->
-        <div class="form-group">
-          <label>
-            Insurance
-            <a href="javascript:void(0);" onclick="toggleGoalDetails(5);">[Details]</a>
-          </label>
-          <div class="progress mb-2">
-            <div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
-          </div>
-          <div id="goalDetails_5" style="display: none;">
-            <ul>
-              <li th:each="goal : ${detailedGoals}" th:if="${goal.id == 5}">
-              <span th:text="'Description: ' + (${goal.description != null ? goal.description : 'No description available'})">
-              Description: No description available
-              </span>
-                <ul>
-                  <li th:each="protocol : ${goal.protocols}" th:text="${protocol.name != null ? protocol.name : 'Unnamed Protocol'}">
-                    Protocol Name
-                  </li>
-                </ul>
-              </li>
-              <li th:if="${detailedGoals.?[id == 5] == null}">
-                No details available.
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Taxes -->
-        <div class="form-group">
-          <label>
-            Taxes
-            <a href="javascript:void(0);" onclick="toggleGoalDetails(6);">[Details]</a>
-          </label>
-          <div class="progress mb-2">
-            <div class="progress-bar" role="progressbar" style="width: 20%;">20%</div>
-          </div>
-          <div id="goalDetails_6" style="display: none;">
-            <ul>
-              <li th:each="goal : ${detailedGoals}" th:if="${goal.id == 6}">
-              <span th:text="'Description: ' + (${goal.description != null ? goal.description : 'No description available'})">
-              Description: No description available
-              </span>
-                <ul>
-                  <li th:each="protocol : ${goal.protocols}" th:text="${protocol.name != null ? protocol.name : 'Unnamed Protocol'}">
-                    Protocol Name
-                  </li>
-                </ul>
-              </li>
-              <li th:if="${detailedGoals.?[id == 6] == null}">
-                No details available.
-              </li>
-            </ul>
-          </div>
-        </div>
 
       </fieldset>
     </div>
   </div>
+
 
 
 
