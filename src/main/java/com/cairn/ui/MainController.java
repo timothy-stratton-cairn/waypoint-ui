@@ -591,6 +591,8 @@ public class MainController {
 
 		ArrayList<Household> households = userHelper.getHouseholdList(usr);
 		model.addAttribute("householdList", households);
+		ArrayList<User> owners = userHelper.getUserList(usr);
+		model.addAttribute("ownerList", owners);
 		model.addAttribute("listProtocols", listProtocols);
 		model.addAttribute("userNames", userNames);
 		model.addAttribute("userIds", userIds);
@@ -611,8 +613,6 @@ public class MainController {
 		List<ProtocolStepTemplate> fullStepList = protocolStepTemplateHelper.getStepList(usr);
 		logger.info("Total Number of Steps: "+ fullStepList.size());
 		int dueByDays = pcol.getDueByDay();
-
-
 
 		for (ProtocolStepTemplate step : listSteps) {
 			logger.info("Step: " + step.getName() + " CatagoryID: " + step.getCategoryName());
@@ -1098,7 +1098,7 @@ public class MainController {
 		ArrayList<String> goalList = household.getHouseholdGoals();
 		model.addAttribute("goals", goalList);
 		model.addAttribute("detailedGoals", detailedGoals);
-		model.addAttribute("protocolList", protocolTemplateHelper.getList(currentUser));
+		model.addAttribute("protocolList", protocolTemplateHelper.getActiveList(currentUser));
 		model.addAttribute("householdProtocols",householdProtocols);
 		model.addAttribute("questionList", questionList);
 		model.addAttribute("primaryContact",primaryContact);

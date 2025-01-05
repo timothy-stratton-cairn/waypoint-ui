@@ -29,6 +29,9 @@
                     <div class="col-md-3" th:each="house : ${householdList}" th:if="${house.id == pcol.userId}">
                         <span th:text="${house.name}"></span>
                     </div>
+                    <div class="col-md-3" th:each="owner : ${ownerList}" th:if="${owner.id == pcol.userId}">
+                        <span th:text="${owner.firstName + ' ' + owner.lastName}"></span>
+                    </div>
                      <div class="col-md-3" th:text="${pcol.status}"></div>
                     
                     <div class="col-md-3">

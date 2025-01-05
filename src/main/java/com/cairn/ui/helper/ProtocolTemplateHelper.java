@@ -523,6 +523,63 @@ public class ProtocolTemplateHelper {
 	}
 
 	/**
+	 * Get a list of protocol templates
+	 * 
+	 * @param usr a User object that is the logged in user. The token from the instance is used to 
+	 * authenticate the API call
+	 * @return ArrayList of ProtocolTemplates. Empty list on error.
+	 */
+	public ArrayList<ProtocolTemplate> getActiveList(User usr) {
+		ArrayList<ProtocolTemplate> results = new ArrayList<ProtocolTemplate>();
+		
+		if (usr == null) {
+			return results;
+		}
+
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocoltemplate;
+		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
+		if (!jsonResponse.isEmpty()) {
+			ObjectMapper objectMapper = new ObjectMapper();
+
+			JsonNode jsonNode;
+			try {
+				jsonNode = objectMapper.readTree(jsonResponse);
+				JsonNode prots = jsonNode.get("protocolTemplates");
+				// Iterate through the array elements
+				ProtocolTemplate entry = null;
+				int idx = 1;
+				if (prots.isArray()) {
+					for (JsonNode element : prots) {
+						// Access and print array elements
+						if (element != null) {
+							entry = new ProtocolTemplate();
+							entry.setName(element.get("name").asText());
+							entry.setId(Integer.valueOf(element.get("id").toString()));
+							entry.setStatus(element.get("status").asText());
+							
+							if (element.get("status").asText().equals("LIVE")) { 
+								results.add(entry);
+								if (idx > 4) {
+									idx = 1;
+								}
+							}
+						}
+					}
+				}
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		} else {
+			logger.info("Failed to fetch data for getList(protocol template)");
+		}
+
+		return results;
+
+	}
+
+	/**
 	 * Get a list of protocol template steps
 	 * 
 	 * @param usr a User object that is the logged in user. The token from the instance is used to 
