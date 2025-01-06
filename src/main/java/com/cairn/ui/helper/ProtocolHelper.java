@@ -184,9 +184,9 @@ public class ProtocolHelper {
 	    return results;
 	}
 
-	public ArrayList<Protocol> getProtocolsByUserId(User usr, int userId) {
+	public ArrayList<Protocol> getProtocolsByUserId(User usr, User userId) {
 		ArrayList<Protocol> results = new ArrayList<>();
-		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/user/" + userId;
+		String apiUrl = this.dashboardApiBaseUrl + Constants.api_ep_protocol + "/user/" + userId.getId();
 
 		logger.info("Constructed API URL: {}", apiUrl);
 		String jsonResponse = apiHelper.callAPI(apiUrl, usr);
@@ -208,6 +208,7 @@ public class ProtocolHelper {
 					Protocol protocol = new Protocol();
 					protocol.setId(element.path("id").asInt());
 					protocol.setName(element.path("name").asText("null"));
+					protocol.setName(protocol.getName() + " Assigned To: " + userId.getFirstName() + " " + userId.getLastName());
 					protocol.setDescription(element.path("description").asText("null"));
 					protocol.setGoal(element.path("goal").asText("No Goal Set"));
 					protocol.setProgress(element.path("goalProgress").asText("None"));

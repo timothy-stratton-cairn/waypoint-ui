@@ -242,7 +242,7 @@ public class UserHelper {
                     result.setAddress(jsonNode.path("address").asText());
                 }
                 else {
-                    result.setAddress("1600 Pennsylvania Avenue");
+                    result.setAddress("Not Provided");
                 }
                 if(jsonNode.has("phone")&&!jsonNode.get("phone").isNull()) {
                     result.setPhoneNumber(jsonNode.path("phone").asText());

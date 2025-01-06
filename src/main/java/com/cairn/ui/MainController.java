@@ -283,6 +283,7 @@ public class MainController {
 		}
 
 		int actualUserId =  protocol.getUserId();
+		User owner = userHelper.getUser(currentUser, actualUserId);
 		logger.info("User ID Assigned To Protocol: "+ actualUserId);
 		QuestionResponsePairListDto questionsAndAnswers = questionHelper.getHomeworkQuestionResponsePairsByUser(currentUser, actualUserId);
 		if (questionsAndAnswers != null && questionsAndAnswers.getQuestions() != null) {
@@ -298,6 +299,7 @@ public class MainController {
 		model.addAttribute("steps", steps);
 		model.addAttribute("protocolId", pcolId);
 		model.addAttribute("userId", userId);
+		model.addAttribute("owner", owner.getFirstName() + " " + owner.getLastName());
 		model.addAttribute("homeworks", allHomeworks);
 
 		return "protocolDetail";
@@ -1043,7 +1045,7 @@ public class MainController {
 		logger.info("Number of Assigned Accounts: "+coclients.size());
 		for (User user : coclients) {
 			logger.info("User ID: "+ user.getId());
-			householdProtocols.addAll(protocolHelper.getProtocolsByUserId(currentUser, user.getId()));
+			householdProtocols.addAll(protocolHelper.getProtocolsByUserId(currentUser, user));
 		}
 
 		logger.info("Number of Assigned Protocols: "+householdProtocols.size());
@@ -1658,6 +1660,7 @@ public class MainController {
 			User currentUser = userDAO.getUser();
 			Household household = userHelper.getHouseholdById(currentUser, householdId);
 
+			/* We shouldn't do this for now. 
 			for (User householdAccount: household.getHouseholdAccounts()) {
 				int call = protocolHelper.addClient(currentUser, householdAccount.getId(), protocolTemplateId,
 						protocolRequest); // Perform
@@ -1669,7 +1672,7 @@ public class MainController {
 					protocolHelper.updateStepNote(currentUser, call, step.getId(), "CREATED");
 				}
 			}
-
+			*/
 		} catch (Exception e) {
 			logger.info("Error in addClientToProtocol:");
 			e.printStackTrace(); // Print the stack trace to the console
